@@ -12,7 +12,18 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/buzz" />
+            <option value="$PROJECT_DIR$/canvas" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/gps" />
+            <option value="$PROJECT_DIR$/gpx" />
             <option value="$PROJECT_DIR$/notify" />
+            <option value="$PROJECT_DIR$/preferences" />
+            <option value="$PROJECT_DIR$/qr" />
+            <option value="$PROJECT_DIR$/sense" />
+            <option value="$PROJECT_DIR$/sms" />
+            <option value="$PROJECT_DIR$/sound" />
+            <option value="$PROJECT_DIR$/torch" />
+            <option value="$PROJECT_DIR$/xml" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
