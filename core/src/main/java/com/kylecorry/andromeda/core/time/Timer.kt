@@ -5,7 +5,7 @@ import android.os.Looper
 import android.os.SystemClock
 import java.time.Duration
 
-class Intervalometer(private val runnable: Runnable) {
+class Timer(private val runnable: Runnable) {
 
     private var running = false
     private val handler = Handler(Looper.getMainLooper())

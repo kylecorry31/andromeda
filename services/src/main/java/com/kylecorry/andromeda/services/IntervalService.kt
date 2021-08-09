@@ -1,12 +1,12 @@
 package com.kylecorry.andromeda.services
 
 import android.content.Intent
-import com.kylecorry.andromeda.core.time.Intervalometer
+import com.kylecorry.andromeda.core.time.Timer
 import java.time.Duration
 
 abstract class IntervalService(val tag: String): ForegroundService() {
 
-    private val intervalometer = Intervalometer {
+    private val intervalometer = Timer {
         doWork()
     }
 

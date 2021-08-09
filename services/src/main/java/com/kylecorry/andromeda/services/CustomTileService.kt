@@ -9,12 +9,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
-import com.kylecorry.andromeda.core.time.Intervalometer
+import com.kylecorry.andromeda.core.time.Timer
 
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class CustomTileService : TileService() {
 
-    private val stateChecker = Intervalometer {
+    private val stateChecker = Timer {
         val lastState = qsTile.state
         val newState = when {
             isOn() -> Tile.STATE_ACTIVE

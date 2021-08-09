@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.sound
 
 import android.media.AudioTrack
-import com.kylecorry.andromeda.core.time.Intervalometer
+import com.kylecorry.andromeda.core.time.Timer
 
 open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 
@@ -9,7 +9,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 
     private var releaseWhenOff = false
 
-    private val fadeOffIntervalometer = Intervalometer {
+    private val fadeOffIntervalometer = Timer {
         volume -= 0.1f
         sound.setVolume(volume.coerceIn(0f, 1f))
         if (volume <= 0f){
@@ -17,7 +17,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
         }
     }
 
-    private val fadeOnIntervalometer: Intervalometer = Intervalometer {
+    private val fadeOnTimer: Timer = Timer {
         volume += 0.1f
         sound.setVolume(volume.coerceIn(0f, 1f))
         if (volume >= 1f){
@@ -33,7 +33,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
         setVolume(volume)
         sound.play()
         fadeOffIntervalometer.stop()
-        fadeOnIntervalometer.stop()
+        fadeOnTimer.stop()
     }
 
     override fun fadeOn(){
@@ -44,7 +44,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
         setVolume(0f)
         sound.play()
         fadeOffIntervalometer.stop()
-        fadeOnIntervalometer.interval(20)
+        fadeOnTimer.interval(20)
     }
 
     override fun off() {
@@ -52,7 +52,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
             return
         }
         fadeOffIntervalometer.stop()
-        fadeOnIntervalometer.stop()
+        fadeOnTimer.stop()
         sound.pause()
     }
 
@@ -61,7 +61,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
             return
         }
         this.releaseWhenOff = releaseWhenOff
-        fadeOnIntervalometer.stop()
+        fadeOnTimer.stop()
         fadeOffIntervalometer.interval(20)
     }
 
@@ -76,11 +76,11 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 
     override fun setVolume(volume: Float){
         fadeOffIntervalometer.stop()
-        fadeOnIntervalometer.stop()
+        fadeOnTimer.stop()
         sound.setVolume(volume.coerceIn(0f, 1f))
     }
 
     private fun stopFadeOn(){
-        fadeOnIntervalometer.stop()
+        fadeOnTimer.stop()
     }
 }

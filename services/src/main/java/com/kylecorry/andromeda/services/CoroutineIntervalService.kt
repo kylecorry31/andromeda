@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.services
 
 import android.content.Intent
-import com.kylecorry.andromeda.core.time.Intervalometer
+import com.kylecorry.andromeda.core.time.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -13,7 +13,7 @@ abstract class CoroutineIntervalService(val tag: String): ForegroundService() {
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
-    private val intervalometer = Intervalometer {
+    private val intervalometer = Timer {
         serviceScope.launch {
             doWork()
         }
