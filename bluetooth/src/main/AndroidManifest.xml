@@ -3,5 +3,6 @@
     package="com.kylecorry.andromeda.bluetooth">
 
     <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
 
 </manifest>
