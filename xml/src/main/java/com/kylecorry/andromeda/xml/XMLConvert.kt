@@ -16,10 +16,10 @@ object XMLConvert {
 
     fun parse(xml: String): XMLNode {
         val inputStream = xml.byteInputStream()
-        inputStream.use { inputStream ->
+        inputStream.use { stream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-            parser.setInput(inputStream, null)
+            parser.setInput(stream, null)
             parser.nextTag()
             return getXMLTree(parser)
         }

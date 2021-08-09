@@ -12,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/buzz" />
+            <option value="$PROJECT_DIR$/camera" />
             <option value="$PROJECT_DIR$/canvas" />
             <option value="$PROJECT_DIR$/clipboard" />
             <option value="$PROJECT_DIR$/core" />

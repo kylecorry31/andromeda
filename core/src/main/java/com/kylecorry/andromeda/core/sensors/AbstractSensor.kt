@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.sense
+package com.kylecorry.andromeda.core.sensors
 
 abstract class AbstractSensor : ISensor {
 

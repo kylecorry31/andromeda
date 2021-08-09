@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.sense
+package com.kylecorry.andromeda.core.sensors
 
 import android.os.Handler
 import android.os.Looper
