@@ -18,16 +18,16 @@ class PermissionService(private val context: Context) {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             isLocationEnabled()
         } else {
-            hasPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 
     fun isLocationEnabled(): Boolean {
-        return hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+        return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     fun isCameraEnabled(): Boolean {
-        return hasPermission(context, Manifest.permission.CAMERA)
+        return hasPermission(Manifest.permission.CAMERA)
     }
 
     fun isIgnoringBatteryOptimizations(): Boolean {
@@ -39,7 +39,7 @@ class PermissionService(private val context: Context) {
         }
     }
 
-    fun hasPermission(context: Context, permission: String): Boolean {
+    fun hasPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
             permission
@@ -47,7 +47,7 @@ class PermissionService(private val context: Context) {
     }
 
     fun requestPermissions(activity: Activity, permissions: List<String>, requestCode: Int) {
-        val notGrantedPermissions = permissions.filterNot { hasPermission(activity, it) }
+        val notGrantedPermissions = permissions.filterNot { hasPermission(it) }
         if (notGrantedPermissions.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             activity.onRequestPermissionsResult(
                 requestCode,
@@ -75,7 +75,7 @@ class PermissionService(private val context: Context) {
     fun requestPermissions(fragment: Fragment, permissions: List<String>, requestCode: Int) {
         // TODO: Use the registerForActivityResult method instead
         val notGrantedPermissions =
-            permissions.filterNot { hasPermission(fragment.requireContext(), it) }
+            permissions.filterNot { hasPermission(it) }
         if (notGrantedPermissions.isEmpty()) {
             fragment.onRequestPermissionsResult(
                 requestCode,
