@@ -2,6 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'kotlin-android'
 
+group = "$groupId"
+version = "$versionName"
+
 android {
     compileSdkVersion 30
 
