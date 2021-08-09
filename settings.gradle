@@ -1,0 +1,3 @@
+rootProject.name = "Andromeda"
+include ':buzz'
+include ':notify'
