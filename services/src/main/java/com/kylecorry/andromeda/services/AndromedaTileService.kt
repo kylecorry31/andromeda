@@ -12,7 +12,7 @@ import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.time.Timer
 
 @RequiresApi(Build.VERSION_CODES.N)
-abstract class CustomTileService : TileService() {
+abstract class AndromedaTileService : TileService() {
 
     private val stateChecker = Timer {
         val lastState = qsTile.state

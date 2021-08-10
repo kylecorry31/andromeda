@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.services
 import android.app.Notification
 import android.content.Intent
 
-abstract class ForegroundService: CustomService() {
+abstract class ForegroundService: AndromedaService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(foregroundNotificationId, getForegroundNotification())
         return onServiceStarted(intent, flags, startId)

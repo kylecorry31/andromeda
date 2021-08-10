@@ -7,7 +7,7 @@ import android.os.PowerManager
 import com.kylecorry.andromeda.core.system.PowerUtils
 import java.time.Duration
 
-abstract class CustomService: Service() {
+abstract class AndromedaService: Service() {
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
