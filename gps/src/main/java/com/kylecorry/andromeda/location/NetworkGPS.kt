@@ -1,6 +1,5 @@
 package com.kylecorry.andromeda.location
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
@@ -67,7 +66,7 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
 
     init {
         try {
-            if (permissionService.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            if (permissionService.canGetCoarseLocation()) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER),
                     false
@@ -79,7 +78,7 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
     }
 
     override fun startImpl() {
-        if (!permissionService.hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (!permissionService.canGetCoarseLocation()) {
             return
         }
 

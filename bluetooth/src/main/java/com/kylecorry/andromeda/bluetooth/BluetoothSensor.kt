@@ -1,10 +1,12 @@
 package com.kylecorry.andromeda.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.permissions.PermissionService
 import java.io.*
 import java.time.Instant
 import java.util.*
@@ -18,7 +20,8 @@ class BluetoothSensor(
 ) :
     AbstractSensor(), IBluetoothSensor {
 
-    private val bluetoothService by lazy { BluetoothService() }
+    private val bluetoothService by lazy { BluetoothService(context) }
+    private val permission by lazy { PermissionService(context) }
     private val device by lazy { bluetoothService.getDevice(address) }
 
     override val hasValidReading: Boolean
@@ -45,10 +48,14 @@ class BluetoothSensor(
     private var _messages = listOf<BluetoothMessage>()
     private val handler = Handler(Looper.getMainLooper())
 
+    @SuppressLint("MissingPermission")
     private fun connect() {
         thread {
             try {
-                socket = device?.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                if (bluetoothService.isEnabled) {
+                    socket =
+                        device?.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+                }
                 socket?.connect()
                 input = socket?.inputStream
                 output = socket?.outputStream

@@ -1,16 +1,23 @@
 package com.kylecorry.andromeda.buzz
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.core.content.getSystemService
+import com.kylecorry.andromeda.permissions.PermissionService
 import java.time.Duration
 
 class Buzz(context: Context) : IBuzz {
     private val vibrator = context.getSystemService<Vibrator>()
+    private val permissions = PermissionService(context)
 
+    @SuppressLint("MissingPermission")
     private fun waveform(millis: List<Long>, repeatPosition: Int = -1) {
+        if (!permissions.canVibrate()){
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator?.vibrate(VibrationEffect.createWaveform(millis.toLongArray(), repeatPosition))
         } else {
@@ -18,7 +25,11 @@ class Buzz(context: Context) : IBuzz {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun waveform(millis: List<Long>, amplitudes: List<Int>, repeatPosition: Int = -1) {
+        if (!permissions.canVibrate()){
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator?.vibrate(
                 VibrationEffect.createWaveform(
@@ -32,7 +43,11 @@ class Buzz(context: Context) : IBuzz {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun oneShot(millis: Long, amplitude: Int) {
+        if (!permissions.canVibrate()){
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             vibrator?.vibrate(VibrationEffect.createOneShot(millis, amplitude))
         } else {
@@ -44,7 +59,11 @@ class Buzz(context: Context) : IBuzz {
         oneShot(Duration.ofDays(1).toMillis(), amplitude)
     }
 
+    @SuppressLint("MissingPermission")
     override fun feedback(feedbackType: HapticFeedbackType) {
+        if (!permissions.canVibrate()){
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val effectId = when (feedbackType) {
                 HapticFeedbackType.Tick -> VibrationEffect.EFFECT_TICK
@@ -64,7 +83,11 @@ class Buzz(context: Context) : IBuzz {
         }
     }
 
+    @SuppressLint("MissingPermission")
     override fun off() {
+        if (!permissions.canVibrate()){
+            return
+        }
         vibrator?.cancel()
     }
 

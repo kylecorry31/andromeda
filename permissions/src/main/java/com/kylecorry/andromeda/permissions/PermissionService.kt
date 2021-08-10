@@ -16,18 +16,34 @@ class PermissionService(private val context: Context) {
 
     fun isBackgroundLocationEnabled(): Boolean {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            isLocationEnabled()
+            canGetFineLocation()
         } else {
             hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 
-    fun isLocationEnabled(): Boolean {
+    fun canGetFineLocation(): Boolean {
         return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    fun canGetCoarseLocation(): Boolean {
+        return hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+
+    fun canUseFlashlight(): Boolean {
+        return hasPermission("android.permission.FLASHLIGHT")
     }
 
     fun isCameraEnabled(): Boolean {
         return hasPermission(Manifest.permission.CAMERA)
+    }
+
+    fun canUseBluetooth(): Boolean {
+        return hasPermission(Manifest.permission.BLUETOOTH)
+    }
+
+    fun canVibrate(): Boolean {
+        return hasPermission(Manifest.permission.VIBRATE)
     }
 
     fun isIgnoringBatteryOptimizations(): Boolean {

@@ -37,7 +37,7 @@ class Camera(
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
 
-    private val permissionService by lazy { PermissionService(context) }
+    private val permissions by lazy { PermissionService(context) }
 
     private var _hasValidReading = false
 
@@ -45,7 +45,7 @@ class Camera(
         get() = _hasValidReading
 
     override fun startImpl() {
-        if (!permissionService.isCameraEnabled()) {
+        if (!permissions.isCameraEnabled()) {
             return
         }
 

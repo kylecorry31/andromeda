@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kylecorry.andromeda.sms">
-
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+<manifest package="com.kylecorry.andromeda.sms">
 
 </manifest>

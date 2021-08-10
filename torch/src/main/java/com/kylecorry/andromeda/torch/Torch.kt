@@ -48,7 +48,7 @@ class Torch(private val context: Context) : ITorch {
                 if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                     return false
                 }
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 // Could not check the package manager - do nothing
             }
 
@@ -64,8 +64,8 @@ class Torch(private val context: Context) : ITorch {
                 val facing = cs.getCameraCharacteristics(rearCamera)
                     .get(CameraCharacteristics.LENS_FACING)
 
-                return hasFlash != null && hasFlash && facing != null && facing == CameraMetadata.LENS_FACING_BACK
-            } catch (e: java.lang.Exception) {
+                return hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK
+            } catch (e: Exception) {
                 return false
             }
         }
@@ -79,7 +79,7 @@ class Torch(private val context: Context) : ITorch {
                     .get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
                 val facing = cs.getCameraCharacteristics(camera)
                     .get(CameraCharacteristics.LENS_FACING)
-                if (hasFlash != null && hasFlash && facing != null && facing == CameraMetadata.LENS_FACING_BACK) {
+                if (hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK) {
                     return camera
                 }
 

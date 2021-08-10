@@ -78,7 +78,7 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
 
     init {
         try {
-            if (permissionService.isLocationEnabled()) {
+            if (permissionService.canGetFineLocation()) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER),
                     false
@@ -90,7 +90,7 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
     }
 
     override fun startImpl() {
-        if (!permissionService.isLocationEnabled()) {
+        if (!permissionService.canGetFineLocation()) {
             return
         }
 
