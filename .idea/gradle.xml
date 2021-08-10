@@ -11,22 +11,27 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/battery" />
             <option value="$PROJECT_DIR$/bluetooth" />
             <option value="$PROJECT_DIR$/buzz" />
             <option value="$PROJECT_DIR$/camera" />
             <option value="$PROJECT_DIR$/canvas" />
             <option value="$PROJECT_DIR$/clipboard" />
+            <option value="$PROJECT_DIR$/compression" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/files" />
             <option value="$PROJECT_DIR$/gps" />
             <option value="$PROJECT_DIR$/gpx" />
             <option value="$PROJECT_DIR$/jobs" />
+            <option value="$PROJECT_DIR$/json" />
+            <option value="$PROJECT_DIR$/markdown" />
             <option value="$PROJECT_DIR$/notify" />
             <option value="$PROJECT_DIR$/permissions" />
             <option value="$PROJECT_DIR$/preferences" />
             <option value="$PROJECT_DIR$/qr" />
             <option value="$PROJECT_DIR$/sense" />
             <option value="$PROJECT_DIR$/services" />
+            <option value="$PROJECT_DIR$/signal" />
             <option value="$PROJECT_DIR$/sms" />
             <option value="$PROJECT_DIR$/sound" />
             <option value="$PROJECT_DIR$/speech" />

@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.permissions
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
@@ -11,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import com.kylecorry.andromeda.core.system.PackageUtils
+import java.lang.Exception
 
 class PermissionService(private val context: Context) {
 
@@ -44,6 +46,31 @@ class PermissionService(private val context: Context) {
 
     fun canVibrate(): Boolean {
         return hasPermission(Manifest.permission.VIBRATE)
+    }
+
+    fun getPermissionName(permission: String): String? {
+        return try {
+            val info = context.packageManager.getPermissionInfo(permission, 0)
+            info.loadLabel(context.packageManager).toString()
+        } catch (e: Exception){
+            null
+        }
+    }
+
+    fun getRequestedPermissions(): List<String> {
+        val info = context.packageManager.getPackageInfo(
+            context.packageName,
+            PackageManager.GET_PERMISSIONS
+        )
+        return info.requestedPermissions.asList()
+    }
+
+    fun getGrantedPermissions(): List<String> {
+        val info = context.packageManager.getPackageInfo(
+            context.packageName,
+            PackageManager.GET_PERMISSIONS
+        )
+        return info.requestedPermissions.filterIndexed { i, _ -> (info.requestedPermissionsFlags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) == PackageInfo.REQUESTED_PERMISSION_GRANTED }
     }
 
     fun isIgnoringBatteryOptimizations(): Boolean {
