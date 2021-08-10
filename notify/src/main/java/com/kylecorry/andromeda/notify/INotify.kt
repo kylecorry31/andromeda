@@ -24,6 +24,16 @@ interface INotify {
         muteSound: Boolean = false
     )
 
+    /**
+     * Determines if a channel is blocked
+     */
+    fun isChannelBlocked(channelId: String): Boolean
+
+    /**
+     * Determines if notifications are blocked for the app
+     */
+    fun areNotificationsBlocked(): Boolean
+
     // Notification types
     /**
      * Used for alerts which require the user's attention

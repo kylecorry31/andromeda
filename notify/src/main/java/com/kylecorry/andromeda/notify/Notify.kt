@@ -55,6 +55,35 @@ class Notify(private val context: Context) : INotify {
         manager?.createNotificationChannel(channel)
     }
 
+    override fun isChannelBlocked(channelId: String): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return false
+        }
+
+        if (areNotificationsBlocked()) {
+            return true
+        }
+
+        val channel = manager?.getNotificationChannel(channelId) ?: return false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val groupId = channel.group
+            val groupBlocked = manager?.getNotificationChannelGroup(groupId)?.isBlocked == true
+            if (groupBlocked) {
+                return true
+            }
+        }
+
+        return channel.importance == NotificationManager.IMPORTANCE_NONE
+    }
+
+    override fun areNotificationsBlocked(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            manager?.areNotificationsEnabled() == true
+        } else {
+            false
+        }
+    }
+
     override fun alert(
         channel: String,
         title: String,
