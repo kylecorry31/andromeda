@@ -14,7 +14,7 @@ import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import kotlin.math.max
 import kotlin.math.min
 
-class VectorCompass(context: Context, smoothingFactor: Int, private val useTrueNorth: Boolean) :
+class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private val useTrueNorth: Boolean) :
     AbstractSensor(), ICompass {
 
     override val hasValidReading: Boolean

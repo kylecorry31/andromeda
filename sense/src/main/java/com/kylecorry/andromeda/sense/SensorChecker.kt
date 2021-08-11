@@ -17,31 +17,15 @@ class SensorChecker(private val context: Context) {
         return hasSensor(Sensor.TYPE_GYROSCOPE)
     }
 
-    // TODO: Move to their respective libraries
-//    @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
-//    fun hasCamera(): Boolean {
-//        if (!PermissionUtils.isCameraEnabled(context)) {
-//            return false
-//        }
-//        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
-//    }
-//
-//    fun hasGPS(): Boolean {
-//        if (!PermissionUtils.isLocationEnabled(context)) {
-//            return false
-//        }
-//
-//        val lm = context.getSystemService<LocationManager>()
-//        try {
-//            return lm?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
-//        } catch (e: Exception) {
-//            // Do nothing
-//        }
-//        return false
-//    }
-
     fun hasGravity(): Boolean {
         return hasSensor(Sensor.TYPE_GRAVITY)
+    }
+
+    @Suppress("DEPRECATION")
+    fun hasCompass(): Boolean {
+        return (hasSensor(Sensor.TYPE_MAGNETIC_FIELD) && (hasSensor(Sensor.TYPE_ACCELEROMETER) || hasGravity())) || hasSensor(
+            Sensor.TYPE_ORIENTATION
+        )
     }
 
     fun hasThermometer(): Boolean {

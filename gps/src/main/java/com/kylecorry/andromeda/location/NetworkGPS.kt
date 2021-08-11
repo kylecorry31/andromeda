@@ -148,4 +148,20 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
         val recentThreshold = Duration.ofMinutes(2)
         return Duration.between(last, now) <= recentThreshold && location != Coordinate.zero
     }
+
+    companion object {
+        fun isAvailable(context: Context): Boolean {
+            if (!PermissionService(context).canGetCoarseLocation()) {
+                return false
+            }
+
+            val lm = context.getSystemService<LocationManager>()
+            try {
+                return lm?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ?: false
+            } catch (e: Exception) {
+                // Do nothing
+            }
+            return false
+        }
+    }
 }

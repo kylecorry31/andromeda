@@ -178,4 +178,20 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
 
         if (notify) notifyListeners()
     }
+
+    companion object {
+        fun isAvailable(context: Context): Boolean {
+            if (!PermissionService(context).canGetFineLocation()) {
+                return false
+            }
+
+            val lm = context.getSystemService<LocationManager>()
+            try {
+                return lm?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
+            } catch (e: Exception) {
+                // Do nothing
+            }
+            return false
+        }
+    }
 }

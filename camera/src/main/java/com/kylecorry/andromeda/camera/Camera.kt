@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.util.Size
@@ -148,6 +149,16 @@ class Camera(
             return null
         } catch (e: Exception) {
             return null
+        }
+    }
+
+    companion object {
+        @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
+        fun isAvailable(context: Context): Boolean {
+            if (!PermissionService(context).isCameraEnabled()) {
+                return false
+            }
+            return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
         }
     }
 
