@@ -7,8 +7,8 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Magnetometer(context: Context) :
-    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, SensorManager.SENSOR_DELAY_FASTEST),
+class Magnetometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, sensorDelay),
     IMagnetometer {
 
     override val hasValidReading: Boolean

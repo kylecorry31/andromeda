@@ -7,8 +7,8 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Accelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
-    BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),
+class LinearAccelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+    BaseSensor(context, Sensor.TYPE_LINEAR_ACCELERATION, sensorDelay),
     IAccelerometer {
 
     override val hasValidReading: Boolean
@@ -20,21 +20,21 @@ class Accelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DE
     private var _acceleration = floatArrayOf(0f, 0f, 0f)
 
     override val acceleration: Vector3
-        get(){
+        get() {
             return synchronized(lock) {
                 Vector3(_acceleration[0], _acceleration[1], _acceleration[2])
             }
         }
 
     override val rawAcceleration: FloatArray
-        get(){
-            return synchronized(lock){
+        get() {
+            return synchronized(lock) {
                 _acceleration.clone()
             }
         }
 
     override fun handleSensorEvent(event: SensorEvent) {
-        synchronized(lock){
+        synchronized(lock) {
             _acceleration[0] = event.values[0]
             _acceleration[1] = event.values[1]
             _acceleration[2] = event.values[2]

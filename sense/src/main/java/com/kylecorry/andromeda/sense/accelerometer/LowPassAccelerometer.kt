@@ -8,15 +8,18 @@ import com.kylecorry.andromeda.core.math.LowPassFilter
 import com.kylecorry.andromeda.core.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class LowPassAccelerometer(context: Context) :
-    BaseSensor(context, Sensor.TYPE_ACCELEROMETER, SensorManager.SENSOR_DELAY_FASTEST),
+class LowPassAccelerometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    filterSize: Float = 0.05f
+) :
+    BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),
     IAccelerometer {
 
     override val hasValidReading: Boolean
         get() = gotReading
     private var gotReading = false
 
-    private val filterSize = 0.05f
     private val filters = listOf(
         LowPassFilter(filterSize),
         LowPassFilter(filterSize),
@@ -28,21 +31,21 @@ class LowPassAccelerometer(context: Context) :
     private var _acceleration = floatArrayOf(0f, 0f, 0f)
 
     override val acceleration: Vector3
-        get(){
+        get() {
             return synchronized(lock) {
                 Vector3(_acceleration[0], _acceleration[1], _acceleration[2])
             }
         }
 
     override val rawAcceleration: FloatArray
-        get(){
-            return synchronized(lock){
+        get() {
+            return synchronized(lock) {
                 _acceleration.clone()
             }
         }
 
     override fun handleSensorEvent(event: SensorEvent) {
-        synchronized(lock){
+        synchronized(lock) {
             _acceleration[0] = filters[0].filter(event.values[0])
             _acceleration[1] = filters[1].filter(event.values[1])
             _acceleration[2] = filters[2].filter(event.values[2])

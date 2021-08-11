@@ -6,7 +6,12 @@ import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Barometer(context: Context): BaseSensor(context, Sensor.TYPE_PRESSURE, SensorManager.SENSOR_DELAY_NORMAL),
+class Barometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL,
+    private val seaLevelPressure: Float = SensorManager.PRESSURE_STANDARD_ATMOSPHERE
+) :
+    BaseSensor(context, Sensor.TYPE_PRESSURE, sensorDelay),
     IBarometer {
 
     override val pressure: Float
@@ -16,7 +21,7 @@ class Barometer(context: Context): BaseSensor(context, Sensor.TYPE_PRESSURE, Sen
         get() = gotReading
 
     override val altitude: Float
-        get() = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure)
+        get() = SensorManager.getAltitude(seaLevelPressure, pressure)
 
     private var _pressure = 0f
     private var gotReading = false

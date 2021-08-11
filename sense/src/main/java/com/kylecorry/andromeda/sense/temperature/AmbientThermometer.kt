@@ -7,8 +7,11 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.IThermometer
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Thermometer(context: Context, sensorCode: Int = Sensor.TYPE_AMBIENT_TEMPERATURE) :
-    BaseSensor(context, sensorCode, SensorManager.SENSOR_DELAY_FASTEST),
+class AmbientThermometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL
+) :
+    BaseSensor(context, Sensor.TYPE_AMBIENT_TEMPERATURE, sensorDelay),
     IThermometer {
 
     override val hasValidReading: Boolean

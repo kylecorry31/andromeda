@@ -8,15 +8,18 @@ import com.kylecorry.andromeda.core.math.LowPassFilter
 import com.kylecorry.andromeda.core.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class LowPassMagnetometer(context: Context) :
-    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, SensorManager.SENSOR_DELAY_FASTEST),
+class LowPassMagnetometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    filterSize: Float = 0.03f
+) :
+    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, sensorDelay),
     IMagnetometer {
 
     override val hasValidReading: Boolean
         get() = gotReading
     private var gotReading = false
 
-    private val filterSize = 0.03f
     private val filters = listOf(
         LowPassFilter(filterSize),
         LowPassFilter(filterSize),

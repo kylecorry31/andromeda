@@ -6,7 +6,8 @@ import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class LightSensor(context: Context): BaseSensor(context, Sensor.TYPE_LIGHT, SensorManager.SENSOR_DELAY_FASTEST),
+class LightSensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL) :
+    BaseSensor(context, Sensor.TYPE_LIGHT, sensorDelay),
     ILightSensor {
 
     override val illuminance: Float

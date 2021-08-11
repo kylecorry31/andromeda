@@ -13,8 +13,8 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class Gyroscope(context: Context, private val threshold: Float = 0.00001f) :
-    BaseSensor(context, Sensor.TYPE_GYROSCOPE, SensorManager.SENSOR_DELAY_FASTEST),
+class Gyroscope(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST, private val threshold: Float = 0.00001f) :
+    BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay),
     IGyroscope {
 
     override val angularRate: Euler
