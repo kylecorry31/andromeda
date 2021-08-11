@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.services
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
@@ -20,6 +21,7 @@ abstract class AndromedaService: Service() {
 
     private var wakelock: PowerManager.WakeLock? = null
 
+    @SuppressLint("WakelockTimeout")
     fun acquireWakelock(tag: String, duration: Duration? = null){
         try {
             if (wakelock?.isHeld != true) {

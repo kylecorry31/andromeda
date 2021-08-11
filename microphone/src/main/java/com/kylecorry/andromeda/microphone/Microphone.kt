@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.microphone
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.*
 import android.media.audiofx.AcousticEchoCanceler
@@ -47,6 +48,7 @@ class Microphone(private val context: Context, private val sampleRate: Int) : Ab
             }
         }
 
+    @SuppressLint("MissingPermission")
     override fun startImpl() {
         if (!permissions.canRecordAudio()) {
             return
