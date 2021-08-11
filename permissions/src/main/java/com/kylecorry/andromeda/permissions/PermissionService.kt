@@ -48,6 +48,10 @@ class PermissionService(private val context: Context) {
         return hasPermission(Manifest.permission.VIBRATE)
     }
 
+    fun canRecordAudio(): Boolean {
+        return hasPermission(Manifest.permission.RECORD_AUDIO)
+    }
+
     fun getPermissionName(permission: String): String? {
         return try {
             val info = context.packageManager.getPermissionInfo(permission, 0)
