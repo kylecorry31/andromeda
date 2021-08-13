@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
 
-abstract class BoundFragment<T : ViewBinding> : Fragment() {
+abstract class BoundFragment<T : ViewBinding> : AndromedaFragment() {
 
     abstract fun generateBinding(layoutInflater: LayoutInflater, container: ViewGroup?): T
 
