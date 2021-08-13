@@ -32,14 +32,18 @@ fun Fragment.switchToFragment(
     }
 }
 
-fun Fragment.registerIntentCallback(
+fun Fragment.createActivityResult(
+    intent: Intent,
     callback: (successful: Boolean, data: Intent?) -> Unit
-): ActivityResultLauncher<Intent> {
-    return registerForActivityResult(
+): () -> Unit {
+    val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
         val successful = it.resultCode == Activity.RESULT_OK
         callback(successful, it.data)
+    }
+    return {
+        launcher.launch(intent)
     }
 }
 

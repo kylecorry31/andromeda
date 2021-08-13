@@ -14,11 +14,16 @@ fun Fragment.registerPermissionRequest(action: () -> Unit): ActivityResultLaunch
     }
 }
 
-fun Fragment.requestPermissions(
-    permissions: List<String>,
-    launcher: ActivityResultLauncher<Array<String>>
-) {
-    launcher.launch(permissions.toTypedArray())
+fun Fragment.createPermissionRequest(permissions: List<String>, action: () -> Unit): () -> Unit {
+    val launcher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) {
+        action()
+    }
+
+    return {
+        launcher.launch(permissions.toTypedArray())
+    }
 }
 
 // TODO: Find a way to call this with an action parameter
