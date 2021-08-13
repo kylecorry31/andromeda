@@ -1,18 +1,14 @@
 package com.kylecorry.andromeda.permissions
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import androidx.fragment.app.Fragment
 import com.kylecorry.andromeda.core.system.PackageUtils
-import java.lang.Exception
 
 class PermissionService(private val context: Context) {
 
@@ -44,6 +40,10 @@ class PermissionService(private val context: Context) {
         return hasPermission(Manifest.permission.BLUETOOTH)
     }
 
+    fun canRecognizeActivity(): Boolean {
+        return hasPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    }
+
     fun canVibrate(): Boolean {
         return hasPermission(Manifest.permission.VIBRATE)
     }
@@ -56,7 +56,7 @@ class PermissionService(private val context: Context) {
         return try {
             val info = context.packageManager.getPermissionInfo(permission, 0)
             info.loadLabel(context.packageManager).toString()
-        } catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
@@ -91,49 +91,5 @@ class PermissionService(private val context: Context) {
             context,
             permission
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestPermissions(activity: Activity, permissions: List<String>, requestCode: Int) {
-        val notGrantedPermissions = permissions.filterNot { hasPermission(it) }
-        if (notGrantedPermissions.isEmpty() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.onRequestPermissionsResult(
-                requestCode,
-                permissions.toTypedArray(),
-                intArrayOf(PackageManager.PERMISSION_GRANTED)
-            )
-            return
-        }
-        if (notGrantedPermissions.isEmpty()) {
-            // On older versions of Android this will call the callback method
-            ActivityCompat.requestPermissions(
-                activity,
-                permissions.toTypedArray(),
-                requestCode
-            )
-            return
-        }
-        ActivityCompat.requestPermissions(
-            activity,
-            notGrantedPermissions.toTypedArray(),
-            requestCode
-        )
-    }
-
-    fun requestPermissions(fragment: Fragment, permissions: List<String>, requestCode: Int) {
-        // TODO: Use the registerForActivityResult method instead
-        val notGrantedPermissions =
-            permissions.filterNot { hasPermission(it) }
-        if (notGrantedPermissions.isEmpty()) {
-            fragment.onRequestPermissionsResult(
-                requestCode,
-                permissions.toTypedArray(),
-                intArrayOf(PackageManager.PERMISSION_GRANTED)
-            )
-            return
-        }
-        fragment.requestPermissions(
-            notGrantedPermissions.toTypedArray(),
-            requestCode
-        )
     }
 }

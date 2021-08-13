@@ -5,8 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-abstract class BoundBottomSheetDialogFragment<T : ViewBinding> : AndromedaBottomSheetDialogFragment() {
+abstract class BoundBottomSheetDialogFragment<T : ViewBinding> : BottomSheetDialogFragment() {
 
     abstract fun generateBinding(layoutInflater: LayoutInflater, container: ViewGroup?): T
 
