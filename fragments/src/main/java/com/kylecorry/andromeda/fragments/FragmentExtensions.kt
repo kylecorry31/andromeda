@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.fragments
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
 import androidx.core.app.ActivityOptionsCompat
@@ -31,19 +32,15 @@ fun Fragment.switchToFragment(
     }
 }
 
-fun Fragment.getResult(
-    intent: Intent,
-    options: ActivityOptionsCompat? = null,
+fun Fragment.registerIntentCallback(
     callback: (successful: Boolean, data: Intent?) -> Unit
-) {
-    val launcher = registerForActivityResult(
+): ActivityResultLauncher<Intent> {
+    return registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
         val successful = it.resultCode == Activity.RESULT_OK
         callback(successful, it.data)
     }
-
-    launcher.launch(intent, options)
 }
 
 fun BottomSheetDialogFragment.show(fragment: Fragment, tag: String = javaClass.name) {
