@@ -10,9 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.IntentUtils
 import com.kylecorry.andromeda.core.time.Timer
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.*
 import java.time.Duration
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 open class AndromedaFragment : Fragment() {
 
@@ -95,6 +96,14 @@ open class AndromedaFragment : Fragment() {
 
     open fun onUpdate() {
         // Do nothing by default
+    }
+
+    protected fun runInBackground(
+        context: CoroutineContext = EmptyCoroutineContext,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit
+    ): Job {
+        return lifecycleScope.launch(context, start, block)
     }
 
     protected fun requestPermissions(permissions: List<String>, action: () -> Unit) {
