@@ -6,14 +6,17 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 
-class ExactTaskScheduler(private val context: Context, private val task: PendingIntent) :
+class ExactTaskScheduler(
+    private val context: Context,
+    private val task: () -> PendingIntent
+) :
     ITaskScheduler {
 
 
     override fun schedule(delay: Duration) {
         AlarmService(context).set(
             LocalDateTime.now().plus(delay),
-            task,
+            task(),
             exact = true,
             allowWhileIdle = true
         )
@@ -24,6 +27,6 @@ class ExactTaskScheduler(private val context: Context, private val task: Pending
     }
 
     override fun cancel() {
-        AlarmService(context).cancel(task)
+        AlarmService(context).cancel(task())
     }
 }

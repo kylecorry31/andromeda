@@ -32,4 +32,8 @@ abstract class BoundFragment<T : ViewBinding> : AndromedaFragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    override fun canUpdate(): Boolean {
+        return super.canUpdate() && isBound
+    }
 }
