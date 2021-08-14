@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.IntentUtils
+import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.time.Timer
 import kotlinx.coroutines.*
 import java.time.Duration
@@ -31,6 +32,7 @@ open class AndromedaFragment : Fragment() {
     }
 
     private var updateInterval: Long? = null
+    private var throttle: Throttle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,19 +81,32 @@ open class AndromedaFragment : Fragment() {
         updateTimer.interval(interval)
     }
 
+    protected fun throttleUpdates(maxUpdateInterval: Duration) {
+        throttleUpdates(maxUpdateInterval.toMillis())
+    }
+
+    protected fun throttleUpdates(maxUpdateInterval: Long) {
+        throttle = Throttle(maxUpdateInterval)
+    }
+
+    protected fun unthrottleUpdates() {
+        throttle = null
+    }
+
     protected fun cancelUpdates() {
         updateInterval = null
         updateTimer.stop()
     }
 
     private fun onUpdateWrapper() {
+        // TODO: If throttled, schedule an update when it expires
         if (canUpdate()) {
             onUpdate()
         }
     }
 
     open fun canUpdate(): Boolean {
-        return context != null && hasUpdates
+        return context != null && hasUpdates && throttle?.isThrottled() != true
     }
 
     open fun onUpdate() {
