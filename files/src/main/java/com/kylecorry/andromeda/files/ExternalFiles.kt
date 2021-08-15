@@ -7,10 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 
-class ExternalFileService(private val context: Context) {
+object ExternalFiles {
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun read(uri: Uri): String? {
+    suspend fun read(context: Context, uri: Uri): String? {
         return withContext(Dispatchers.IO) {
             val inputStream = try {
                 context.contentResolver.openInputStream(uri)
@@ -29,7 +29,7 @@ class ExternalFileService(private val context: Context) {
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun write(uri: Uri, text: String): Boolean {
+    suspend fun write(context: Context, uri: Uri, text: String): Boolean {
         return withContext(Dispatchers.IO) {
             val outputStream = try {
                 context.contentResolver.openOutputStream(uri)

@@ -10,19 +10,18 @@ import com.kylecorry.andromeda.core.units.Distance
 import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 
-class GeofenceService(private val context: Context) {
-
-    private val locationManager by lazy { context.getSystemService<LocationManager>() }
+object Geofences {
 
     @SuppressLint("MissingPermission")
     fun addGeofence(
+        context: Context,
         location: Coordinate,
         radius: Distance,
         pendingIntent: PendingIntent,
         expiration: Duration? = null
     ) {
         if (Permissions.canGetFineLocation(context)) {
-            locationManager?.addProximityAlert(
+            context.getSystemService<LocationManager>()?.addProximityAlert(
                 location.latitude,
                 location.longitude,
                 radius.meters().distance,
@@ -33,9 +32,9 @@ class GeofenceService(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun removeGeofence(pendingIntent: PendingIntent) {
+    fun removeGeofence(context: Context, pendingIntent: PendingIntent) {
         if (Permissions.canGetFineLocation(context)) {
-            locationManager?.removeProximityAlert(pendingIntent)
+            context.getSystemService<LocationManager>()?.removeProximityAlert(pendingIntent)
         }
     }
 
