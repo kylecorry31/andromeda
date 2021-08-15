@@ -149,26 +149,31 @@ object Pickers {
         context: Context,
         title: CharSequence,
         items: List<String>,
+        defaultSelectedIndex: Int = -1,
+        okText: CharSequence? = context.getString(android.R.string.cancel),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
         onClose: ((selectedIndex: Int?) -> Unit)? = null
     ) {
+        var index = defaultSelectedIndex
         val builder =
             Alerts.dialogBuilder(
                 context,
                 title,
                 null,
                 null,
-                okText = null,
+                okText,
                 cancelText
             ) { cancelled ->
-                if (cancelled) {
+                if (cancelled || index == -1) {
                     onClose?.invoke(null)
+                } else {
+                    onClose?.invoke(index)
                 }
             }.apply {
-                setItems(items.toTypedArray(),
+                setSingleChoiceItems(items.toTypedArray(),
+                    defaultSelectedIndex,
                     DialogInterface.OnClickListener { dialog, which ->
-                        onClose?.invoke(which)
-                        dialog.dismiss()
+                        index = which
                     })
             }
 
