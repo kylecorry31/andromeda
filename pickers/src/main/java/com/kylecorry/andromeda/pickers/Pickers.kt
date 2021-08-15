@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.pickers
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
@@ -88,12 +89,19 @@ object Pickers {
         layout.setPadding(64, 0, 64, 0)
         layout.addView(editTextView)
 
-        Alerts.dialog(context, title, description, contentView = layout, okText, cancelText){ cancelled ->
-           if (!cancelled){
-               onTextEnter.invoke(editTextView.text.toString())
-           } else {
-               onTextEnter.invoke(null)
-           }
+        Alerts.dialog(
+            context,
+            title,
+            description,
+            contentView = layout,
+            okText,
+            cancelText
+        ) { cancelled ->
+            if (!cancelled) {
+                onTextEnter.invoke(editTextView.text.toString())
+            } else {
+                onTextEnter.invoke(null)
+            }
         }
     }
 
@@ -121,8 +129,15 @@ object Pickers {
         layout.setPadding(64, 0, 64, 0)
         layout.addView(editTextView)
 
-        Alerts.dialog(context, title, description, contentView = layout, okText, cancelText){ cancelled ->
-            if (!cancelled){
+        Alerts.dialog(
+            context,
+            title,
+            description,
+            contentView = layout,
+            okText,
+            cancelText
+        ) { cancelled ->
+            if (!cancelled) {
                 onNumberEnter.invoke(editTextView.text.toString().toDoubleCompat())
             } else {
                 onNumberEnter.invoke(null)
@@ -130,6 +145,76 @@ object Pickers {
         }
     }
 
-    // TODO: Add item, items, duration, distance, location
+    fun item(
+        context: Context,
+        title: CharSequence,
+        items: List<String>,
+        cancelText: CharSequence? = context.getString(android.R.string.cancel),
+        onClose: ((selectedIndex: Int?) -> Unit)? = null
+    ) {
+        val builder =
+            Alerts.dialogBuilder(
+                context,
+                title,
+                null,
+                null,
+                okText = null,
+                cancelText
+            ) { cancelled ->
+                if (cancelled) {
+                    onClose?.invoke(null)
+                }
+            }.apply {
+                setItems(items.toTypedArray(),
+                    DialogInterface.OnClickListener { dialog, which ->
+                        onClose?.invoke(which)
+                        dialog.dismiss()
+                    })
+            }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    fun items(
+        context: Context,
+        title: CharSequence,
+        items: List<String>,
+        defaultSelectedIndices: List<Int> = listOf(),
+        okText: CharSequence? = context.getString(android.R.string.ok),
+        cancelText: CharSequence? = context.getString(android.R.string.cancel),
+        onClose: ((selectedIndices: List<Int>?) -> Unit)? = null
+    ) {
+        val selected = mutableSetOf<Int>()
+        selected.addAll(defaultSelectedIndices)
+        val builder =
+            Alerts.dialogBuilder(
+                context,
+                title,
+                null,
+                null,
+                okText,
+                cancelText
+            ) { cancelled ->
+                if (cancelled) {
+                    onClose?.invoke(null)
+                } else {
+                    onClose?.invoke(selected.toList().sorted())
+                }
+            }.apply {
+                setMultiChoiceItems(items.toTypedArray(),
+                    List(items.size) { defaultSelectedIndices.contains(it) }.toBooleanArray(),
+                    DialogInterface.OnMultiChoiceClickListener { _, which, isChecked ->
+                        if (isChecked) {
+                            selected.add(which)
+                        } else {
+                            selected.remove(which)
+                        }
+                    })
+            }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
 
 }

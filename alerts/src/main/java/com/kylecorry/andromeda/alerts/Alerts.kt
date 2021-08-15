@@ -60,4 +60,46 @@ object Alerts {
         toast.show()
         return toast
     }
+
+    fun dialogBuilder(
+        context: Context,
+        title: CharSequence,
+        content: CharSequence? = null,
+        contentView: View? = null,
+        okText: CharSequence? = context.getString(android.R.string.ok),
+        cancelText: CharSequence? = context.getString(android.R.string.cancel),
+        onClose: ((cancelled: Boolean) -> Unit)? = null
+    ): AlertDialog.Builder {
+        val builder = AlertDialog.Builder(context)
+        builder.apply {
+            setTitle(title)
+            if (content != null) {
+                setMessage(content)
+            }
+            if (contentView != null) {
+                setView(contentView)
+            }
+            if (okText != null) {
+                setPositiveButton(
+                    okText
+                ) { dialog, _ ->
+                    onClose?.invoke(false)
+                    dialog.dismiss()
+                }
+            }
+            if (cancelText != null) {
+                setNegativeButton(
+                    cancelText
+                ) { dialog, _ ->
+                    onClose?.invoke(true)
+                    dialog.dismiss()
+                }
+            }
+            setOnCancelListener {
+                onClose?.invoke(true)
+            }
+        }
+
+        return builder
+    }
 }
