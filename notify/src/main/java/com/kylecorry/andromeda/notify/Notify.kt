@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
+import com.kylecorry.andromeda.core.system.Resources
 
 object Notify {
 
@@ -120,7 +121,7 @@ object Notify {
         }
 
         if (showBigIcon) {
-            val drawable = drawable(context, icon)
+            val drawable = Resources.drawable(context, icon)
             val bitmap = drawable?.toBitmap()
             builder.setLargeIcon(bitmap)
         }
@@ -175,7 +176,7 @@ object Notify {
         }
 
         if (showBigIcon) {
-            val drawable = drawable(context, icon)
+            val drawable = Resources.drawable(context, icon)
             val bitmap = drawable?.toBitmap()
             builder.setLargeIcon(bitmap)
         }
@@ -229,7 +230,7 @@ object Notify {
         }
 
         if (showBigIcon) {
-            val drawable = drawable(context, icon)
+            val drawable = Resources.drawable(context, icon)
             val bitmap = drawable?.toBitmap()
             builder.setLargeIcon(bitmap)
         }
@@ -295,10 +296,6 @@ object Notify {
         return context.getSystemService()
     }
 
-    // TODO: Extract the UI Utils from TS Core
-    private fun drawable(context: Context, @DrawableRes drawableId: Int): Drawable? {
-        return ResourcesCompat.getDrawable(context.resources, drawableId, null)
-    }
 
     val CHANNEL_IMPORTANCE_HIGH =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4

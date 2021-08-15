@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.core.system
 
+import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -69,4 +71,18 @@ object Screen {
         return context.resources.displayMetrics.density
     }
 
+    @Suppress("DEPRECATION")
+    fun setShowWhenLocked(activity: Activity, showWhenLocked: Boolean){
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> {
+                activity.setShowWhenLocked(showWhenLocked)
+            }
+            showWhenLocked -> {
+                activity.window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            }
+            else -> {
+                activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            }
+        }
+    }
 }
