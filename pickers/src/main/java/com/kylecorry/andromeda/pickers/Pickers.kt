@@ -150,7 +150,7 @@ object Pickers {
         title: CharSequence,
         items: List<String>,
         defaultSelectedIndex: Int = -1,
-        okText: CharSequence? = context.getString(android.R.string.cancel),
+        okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
         onClose: ((selectedIndex: Int?) -> Unit)? = null
     ) {
