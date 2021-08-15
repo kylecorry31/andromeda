@@ -8,7 +8,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.kylecorry.andromeda.core.system.IntentUtils
+import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.time.Timer
 import kotlinx.coroutines.*
@@ -132,7 +132,7 @@ open class AndromedaFragment : Fragment() {
     }
 
     protected fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.createFile(filename, type)
+        val intent = Intents.createFile(filename, type)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -143,7 +143,7 @@ open class AndromedaFragment : Fragment() {
     }
 
     protected fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.pickFile(type, message)
+        val intent = Intents.pickFile(type, message)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -154,7 +154,7 @@ open class AndromedaFragment : Fragment() {
     }
 
     protected fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.pickFile(types, message)
+        val intent = Intents.pickFile(types, message)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)

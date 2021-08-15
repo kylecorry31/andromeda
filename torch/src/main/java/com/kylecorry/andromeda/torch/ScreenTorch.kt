@@ -1,14 +1,16 @@
 package com.kylecorry.andromeda.torch
 
-import com.kylecorry.andromeda.core.system.IScreenService
+import android.view.Window
+import com.kylecorry.andromeda.core.system.Screen
 
-class ScreenTorch(private val screenService: IScreenService) : ITorch {
+
+class ScreenTorch(private val window: Window) : ITorch {
     override fun on() {
-        screenService.setBrightness(1f)
+        Screen.setBrightness(window, 1f)
     }
 
     override fun off() {
-        screenService.resetBrightness()
+        Screen.resetBrightness(window)
     }
 
     override fun isAvailable(): Boolean {

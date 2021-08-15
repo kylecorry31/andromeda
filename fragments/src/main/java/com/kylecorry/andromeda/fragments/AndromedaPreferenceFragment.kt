@@ -12,7 +12,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.*
-import com.kylecorry.andromeda.core.system.IntentUtils
+import com.kylecorry.andromeda.core.system.Intents
 
 abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
 
@@ -48,7 +48,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
     }
 
     protected fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.createFile(filename, type)
+        val intent = Intents.createFile(filename, type)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -59,7 +59,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
     }
 
     protected fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.pickFile(type, message)
+        val intent = Intents.pickFile(type, message)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -70,7 +70,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
     }
 
     protected fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = IntentUtils.pickFile(types, message)
+        val intent = Intents.pickFile(types, message)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)

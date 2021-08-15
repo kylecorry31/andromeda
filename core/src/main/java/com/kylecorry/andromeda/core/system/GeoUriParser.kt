@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.kylecorry.andromeda.core.units.Coordinate
 import kotlinx.parcelize.Parcelize
 
-class GeoUriParser {
+object GeoUriParser {
 
     fun parse(data: Uri): NamedCoordinate? {
         val pattern = "geo:(-?[0-9]*\\.?[0-9]+),(-?[0-9]*\\.?[0-9]+)(?:\\?[\\w=&]*q=([^&]+))?"

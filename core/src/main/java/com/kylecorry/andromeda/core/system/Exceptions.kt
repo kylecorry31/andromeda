@@ -5,7 +5,7 @@ import java.time.Duration
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-object ExceptionUtils {
+object Exceptions {
 
     fun onUncaughtException(waitTime: Duration, exceptionHandler: (throwable: Throwable) -> Unit) {
         Thread.setDefaultUncaughtExceptionHandler { _, throwable ->

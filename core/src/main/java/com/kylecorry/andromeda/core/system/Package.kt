@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 
-object PackageUtils {
+object Package {
 
     fun getPackageName(context: Context): String {
         return context.packageName

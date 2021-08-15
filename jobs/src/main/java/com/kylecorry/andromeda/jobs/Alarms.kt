@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.system.IntentUtils
+import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.toEpochMillis
 import java.time.LocalDateTime
 
@@ -72,7 +72,7 @@ object Alarms {
      * @return true if the alarm is running, false otherwise
      */
     fun isAlarmRunning(context: Context, requestCode: Int, intent: Intent): Boolean {
-        return IntentUtils.pendingIntentExists(context, requestCode, intent)
+        return Intents.pendingIntentExists(context, requestCode, intent)
     }
 
     private fun getAlarmManager(context: Context): AlarmManager? {

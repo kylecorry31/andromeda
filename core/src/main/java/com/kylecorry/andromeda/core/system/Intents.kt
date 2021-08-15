@@ -8,7 +8,7 @@ import android.os.Build
 import android.provider.Settings
 import com.kylecorry.andromeda.core.units.Coordinate
 
-object IntentUtils {
+object Intents {
 
     fun localIntent(context: Context, action: String): Intent {
         val i = Intent(action)
@@ -55,14 +55,14 @@ object IntentUtils {
 
     fun appSettings(context: Context): Intent {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        val uri = Uri.fromParts("package", PackageUtils.getPackageName(context), null)
+        val uri = Uri.fromParts("package", Package.getPackageName(context), null)
         intent.data = uri
         return intent
     }
 
     fun batteryOptimizationSettings(context: Context): Intent {
         val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-        val uri = Uri.fromParts("package", PackageUtils.getPackageName(context), null)
+        val uri = Uri.fromParts("package", Package.getPackageName(context), null)
         intent.data = uri
         return intent
     }

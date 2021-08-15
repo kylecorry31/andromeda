@@ -3,17 +3,17 @@ package com.kylecorry.andromeda.clipboard
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.widget.Toast
 import androidx.core.content.getSystemService
+import com.kylecorry.andromeda.alerts.Alerts
 
-class Clipboard(private val context: Context) : IClipboard {
-    private val clipboardManager by lazy { context.getSystemService<ClipboardManager>() }
+object Clipboard {
 
-    override fun copy(text: String, toastMessage: String?) {
+    fun copy(context: Context, text: String, toastMessage: String?) {
+        val clipboardManager = context.getSystemService<ClipboardManager>()
         clipboardManager?.setPrimaryClip(ClipData.newPlainText(text, text))
 
         if (toastMessage != null) {
-            Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
+            Alerts.toast(context, toastMessage, short = true)
         }
     }
 

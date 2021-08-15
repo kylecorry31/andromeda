@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.system.PackageUtils
+import com.kylecorry.andromeda.core.system.Package
 
 object Permissions {
 
@@ -84,7 +84,7 @@ object Permissions {
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             context.getSystemService<PowerManager>()
-                ?.isIgnoringBatteryOptimizations(PackageUtils.getPackageName(context)) ?: false
+                ?.isIgnoringBatteryOptimizations(Package.getPackageName(context)) ?: false
         } else {
             true
         }

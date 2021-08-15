@@ -5,7 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.os.PowerManager
-import com.kylecorry.andromeda.core.system.PowerUtils
+import com.kylecorry.andromeda.core.system.Wakelocks
 import java.time.Duration
 
 abstract class AndromedaService: Service() {
@@ -25,7 +25,7 @@ abstract class AndromedaService: Service() {
     fun acquireWakelock(tag: String, duration: Duration? = null){
         try {
             if (wakelock?.isHeld != true) {
-                wakelock = PowerUtils.getWakelock(this, tag)
+                wakelock = Wakelocks.get(this, tag)
                 releaseWakelock()
                 if (wakelock?.isHeld == false) {
                     if (duration == null) {

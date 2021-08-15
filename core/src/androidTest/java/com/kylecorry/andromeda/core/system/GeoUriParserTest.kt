@@ -10,10 +10,9 @@ internal class GeoUriParserTest {
 
     @Test
     fun parse() {
-        val parser = GeoUriParser()
 
         for ((geo, expected) in provideGeo()) {
-            val actual = parser.parse(geo)
+            val actual = GeoUriParser.parse(geo)
             assertEquals(expected, actual)
         }
     }
