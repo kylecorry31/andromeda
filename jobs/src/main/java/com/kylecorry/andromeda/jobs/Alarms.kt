@@ -11,7 +11,7 @@ import com.kylecorry.andromeda.core.system.IntentUtils
 import com.kylecorry.andromeda.core.time.toEpochMillis
 import java.time.LocalDateTime
 
-class AlarmService(private val context: Context) {
+object Alarms {
 
     /**
      * Create an alarm
@@ -20,12 +20,13 @@ class AlarmService(private val context: Context) {
      * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise
      */
     fun set(
+        context: Context,
         time: LocalDateTime,
         pendingIntent: PendingIntent,
         exact: Boolean = true,
         allowWhileIdle: Boolean = false
     ) {
-        val alarmManager = getAlarmManager()
+        val alarmManager = getAlarmManager(context)
 
         if (!allowWhileIdle || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             if (exact) {
@@ -54,9 +55,9 @@ class AlarmService(private val context: Context) {
      * Cancel the alarm associated with the pending intent
      * @param pendingIntent The pending intent to cancel
      */
-    fun cancel(pendingIntent: PendingIntent) {
+    fun cancel(context: Context, pendingIntent: PendingIntent) {
         try {
-            val alarmManager = getAlarmManager()
+            val alarmManager = getAlarmManager(context)
             alarmManager?.cancel(pendingIntent)
             pendingIntent.cancel()
         } catch (e: Exception) {
@@ -70,11 +71,11 @@ class AlarmService(private val context: Context) {
      * @param intent The intent used for the pending intent
      * @return true if the alarm is running, false otherwise
      */
-    fun isAlarmRunning(requestCode: Int, intent: Intent): Boolean {
+    fun isAlarmRunning(context: Context, requestCode: Int, intent: Intent): Boolean {
         return IntentUtils.pendingIntentExists(context, requestCode, intent)
     }
 
-    private fun getAlarmManager(): AlarmManager? {
+    private fun getAlarmManager(context: Context): AlarmManager? {
         return context.getSystemService()
     }
 

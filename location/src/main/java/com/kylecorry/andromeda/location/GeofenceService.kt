@@ -7,7 +7,7 @@ import android.location.LocationManager
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.units.Coordinate
 import com.kylecorry.andromeda.core.units.Distance
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 
 class GeofenceService(private val context: Context) {
@@ -21,8 +21,7 @@ class GeofenceService(private val context: Context) {
         pendingIntent: PendingIntent,
         expiration: Duration? = null
     ) {
-        val permissions = PermissionService(context)
-        if (permissions.canGetFineLocation()) {
+        if (Permissions.canGetFineLocation(context)) {
             locationManager?.addProximityAlert(
                 location.latitude,
                 location.longitude,
@@ -35,8 +34,7 @@ class GeofenceService(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun removeGeofence(pendingIntent: PendingIntent) {
-        val permissions = PermissionService(context)
-        if (permissions.canGetFineLocation()) {
+        if (Permissions.canGetFineLocation(context)) {
             locationManager?.removeProximityAlert(pendingIntent)
         }
     }

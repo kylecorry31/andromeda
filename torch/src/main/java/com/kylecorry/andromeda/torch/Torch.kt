@@ -9,13 +9,14 @@ import androidx.core.content.getSystemService
 
 class Torch(private val context: Context) : ITorch {
     private val cameraService by lazy { getCameraManager(context) }
+    private val cameraId by lazy { getRearCameraId(context) }
 
     override fun on() {
         if (!isAvailable()) {
             return
         }
         try {
-            cameraService?.setTorchMode(getRearCameraId(context), true)
+            cameraService?.setTorchMode(cameraId, true)
         } catch (e: Exception) {
             // No flash, ignoring
         }
@@ -23,7 +24,7 @@ class Torch(private val context: Context) : ITorch {
 
     override fun off() {
         try {
-            cameraService?.setTorchMode(getRearCameraId(context), false)
+            cameraService?.setTorchMode(cameraId, false)
         } catch (e: Exception) {
             // No flash, ignoring
         }

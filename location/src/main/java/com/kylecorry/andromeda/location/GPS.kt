@@ -13,7 +13,7 @@ import com.kylecorry.andromeda.core.units.Coordinate
 import com.kylecorry.andromeda.core.units.DistanceUnits
 import com.kylecorry.andromeda.core.units.Speed
 import com.kylecorry.andromeda.core.units.TimeUnits
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Instant
 
 @SuppressLint("MissingPermission")
@@ -51,7 +51,6 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
         get() = _mslAltitude
 
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
-    private val permissionService by lazy { PermissionService(context) }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
     private val nmeaListener by lazy {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -78,7 +77,7 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
 
     init {
         try {
-            if (permissionService.canGetFineLocation()) {
+            if (Permissions.canGetFineLocation(context)) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER),
                     false
@@ -90,7 +89,7 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
     }
 
     override fun startImpl() {
-        if (!permissionService.canGetFineLocation()) {
+        if (!Permissions.canGetFineLocation(context)) {
             return
         }
 
@@ -181,7 +180,7 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
 
     companion object {
         fun isAvailable(context: Context): Boolean {
-            if (!PermissionService(context).canGetFineLocation()) {
+            if (!Permissions.canGetFineLocation(context)) {
                 return false
             }
 

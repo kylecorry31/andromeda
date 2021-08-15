@@ -12,7 +12,7 @@ import com.kylecorry.andromeda.core.units.Coordinate
 import com.kylecorry.andromeda.core.units.DistanceUnits
 import com.kylecorry.andromeda.core.units.Speed
 import com.kylecorry.andromeda.core.units.TimeUnits
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 import java.time.Instant
 
@@ -51,7 +51,6 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
         get() = _mslAltitude
 
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
-    private val permissionService by lazy { PermissionService(context) }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
 
     private var _altitude = 0f
@@ -66,7 +65,7 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
 
     init {
         try {
-            if (permissionService.canGetCoarseLocation()) {
+            if (Permissions.canGetCoarseLocation(context)) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER),
                     false
@@ -78,7 +77,7 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
     }
 
     override fun startImpl() {
-        if (!permissionService.canGetCoarseLocation()) {
+        if (!Permissions.canGetCoarseLocation(context)) {
             return
         }
 
@@ -151,7 +150,7 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
 
     companion object {
         fun isAvailable(context: Context): Boolean {
-            if (!PermissionService(context).canGetCoarseLocation()) {
+            if (!Permissions.canGetCoarseLocation(context)) {
                 return false
             }
 

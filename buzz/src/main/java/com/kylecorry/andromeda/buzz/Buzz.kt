@@ -6,16 +6,16 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 
-class Buzz(context: Context) : IBuzz {
+class Buzz(private val context: Context) : IBuzz {
     private val vibrator = context.getSystemService<Vibrator>()
-    private val permissions = PermissionService(context)
 
     @SuppressLint("MissingPermission")
+    @Suppress("DEPRECATION")
     private fun waveform(millis: List<Long>, repeatPosition: Int = -1) {
-        if (!permissions.canVibrate()){
+        if (!Permissions.canVibrate(context)){
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -26,8 +26,9 @@ class Buzz(context: Context) : IBuzz {
     }
 
     @SuppressLint("MissingPermission")
+    @Suppress("DEPRECATION")
     private fun waveform(millis: List<Long>, amplitudes: List<Int>, repeatPosition: Int = -1) {
-        if (!permissions.canVibrate()){
+        if (!Permissions.canVibrate(context)){
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -44,8 +45,9 @@ class Buzz(context: Context) : IBuzz {
     }
 
     @SuppressLint("MissingPermission")
+    @Suppress("DEPRECATION")
     private fun oneShot(millis: Long, amplitude: Int) {
-        if (!permissions.canVibrate()){
+        if (!Permissions.canVibrate(context)){
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -61,7 +63,7 @@ class Buzz(context: Context) : IBuzz {
 
     @SuppressLint("MissingPermission")
     override fun feedback(feedbackType: HapticFeedbackType) {
-        if (!permissions.canVibrate()){
+        if (!Permissions.canVibrate(context)){
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -85,7 +87,7 @@ class Buzz(context: Context) : IBuzz {
 
     @SuppressLint("MissingPermission")
     override fun off() {
-        if (!permissions.canVibrate()){
+        if (!Permissions.canVibrate(context)){
             return
         }
         vibrator?.cancel()

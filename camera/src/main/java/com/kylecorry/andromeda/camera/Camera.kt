@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import kotlin.math.atan
 
 class Camera(
@@ -38,15 +38,13 @@ class Camera(
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
 
-    private val permissions by lazy { PermissionService(context) }
-
     private var _hasValidReading = false
 
     override val hasValidReading: Boolean
         get() = _hasValidReading
 
     override fun startImpl() {
-        if (!permissions.isCameraEnabled()) {
+        if (!Permissions.isCameraEnabled(context)) {
             return
         }
 
@@ -155,7 +153,7 @@ class Camera(
     companion object {
         @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
         fun isAvailable(context: Context): Boolean {
-            if (!PermissionService(context).isCameraEnabled()) {
+            if (!Permissions.isCameraEnabled(context)) {
                 return false
             }
             return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)

@@ -12,7 +12,7 @@ import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.time.Timer
 import com.kylecorry.andromeda.core.tryOrNothing
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Executors
@@ -21,7 +21,6 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
     AbstractSensor(), ICellSignalSensor {
 
     private val telephony by lazy { context.getSystemService<TelephonyManager>() }
-    private val permissions by lazy { PermissionService(context) }
 
     override val hasValidReading: Boolean
         get() = hasReading
@@ -50,7 +49,7 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
                 return@tryOrNothing
             }
 
-            if (!permissions.canGetFineLocation()) {
+            if (!Permissions.canGetFineLocation(context)) {
                 return@tryOrNothing
             }
             telephony?.requestCellInfoUpdate(
@@ -156,7 +155,7 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
 
     @SuppressLint("MissingPermission")
     override fun startImpl() {
-        if (!permissions.canGetFineLocation()) {
+        if (!Permissions.canGetFineLocation(context)) {
             _signals = listOf()
             notifyListeners()
             return
@@ -167,7 +166,7 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
 
     @SuppressLint("MissingPermission")
     private fun loadFromCache(notify: Boolean = true) {
-        if (!permissions.canGetFineLocation()) return
+        if (!Permissions.canGetFineLocation(context)) return
         tryOrNothing {
             updateCellInfo(telephony?.allCellInfo ?: listOf(), notify)
         }

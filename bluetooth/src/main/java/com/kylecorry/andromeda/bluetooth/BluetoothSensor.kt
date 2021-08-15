@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.permissions.PermissionService
 import java.io.*
 import java.time.Instant
 import java.util.*
@@ -21,7 +20,6 @@ class BluetoothSensor(
     AbstractSensor(), IBluetoothSensor {
 
     private val bluetoothService by lazy { BluetoothService(context) }
-    private val permission by lazy { PermissionService(context) }
     private val device by lazy { bluetoothService.getDevice(address) }
 
     override val hasValidReading: Boolean

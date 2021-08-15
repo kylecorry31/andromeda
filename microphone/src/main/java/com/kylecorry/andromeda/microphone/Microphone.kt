@@ -7,7 +7,7 @@ import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.permissions.PermissionService
+import com.kylecorry.andromeda.permissions.Permissions
 import kotlin.math.abs
 
 
@@ -18,7 +18,6 @@ class Microphone(private val context: Context, private val sampleRate: Int) : Ab
     private var _hasReading = false
 
     private val bufferLock = Object()
-    private val permissions by lazy { PermissionService(context) }
 
     override val audio: ShortArray?
         get() {
@@ -50,7 +49,7 @@ class Microphone(private val context: Context, private val sampleRate: Int) : Ab
 
     @SuppressLint("MissingPermission")
     override fun startImpl() {
-        if (!permissions.canRecordAudio()) {
+        if (!Permissions.canRecordAudio(context)) {
             return
         }
 

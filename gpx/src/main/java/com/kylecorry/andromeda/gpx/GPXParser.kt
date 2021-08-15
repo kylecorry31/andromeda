@@ -8,9 +8,9 @@ import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
 import java.time.Instant
 
-class GPXParser {
+object GPXParser {
 
-    fun toGPX(waypoints: List<GPXWaypoint>, creator: String = "Trail Sense"): String {
+    fun toGPX(waypoints: List<GPXWaypoint>, creator: String): String {
         val children = mutableListOf<XMLNode>()
         for (waypoint in waypoints){
             children.add(toXML(waypoint))

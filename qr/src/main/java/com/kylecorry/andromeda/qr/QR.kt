@@ -8,12 +8,12 @@ import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
-class QRService : IQRService {
-    override fun encode(
+object QR {
+    fun encode(
         text: String,
         width: Int,
         height: Int,
-        errorCorrection: QRErrorCorrection
+        errorCorrection: QRErrorCorrection = QRErrorCorrection.M
     ): Bitmap {
         val hints = mapOf(
             EncodeHintType.ERROR_CORRECTION to mapErrorCorrectionLevel(errorCorrection)
@@ -31,7 +31,7 @@ class QRService : IQRService {
         return bitmap
     }
 
-    override fun decode(image: Bitmap): String? {
+    fun decode(image: Bitmap): String? {
         val pixels = IntArray(image.width * image.height)
         image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
         val binaryBitmap =

@@ -23,7 +23,7 @@ class GPXParserTest {
         <name>Beacon 2</name>
     </wpt>
 </gpx>"""
-        val waypoints = GPXParser().getWaypoints(gpx)
+        val waypoints = GPXParser.getWaypoints(gpx)
         assertEquals(
             listOf(
                 GPXWaypoint(
@@ -55,7 +55,7 @@ class GPXParserTest {
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
-        assertEquals(xml, GPXParser().toGPX(waypoints, "Trail Sense"))
+        assertEquals(xml, GPXParser.toGPX(waypoints, "Trail Sense"))
     }
 
 

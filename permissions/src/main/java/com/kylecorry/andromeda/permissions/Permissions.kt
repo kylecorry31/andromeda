@@ -10,49 +10,53 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.PackageUtils
 
-class PermissionService(private val context: Context) {
+object Permissions {
 
-    fun isBackgroundLocationEnabled(): Boolean {
+    fun isBackgroundLocationEnabled(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            canGetFineLocation()
+            canGetFineLocation(context)
         } else {
-            hasPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            hasPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
     }
 
-    fun canGetFineLocation(): Boolean {
-        return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    fun canGetFineLocation(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
-    fun canGetCoarseLocation(): Boolean {
-        return hasPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    fun canGetCoarseLocation(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
     }
 
-    fun canUseFlashlight(): Boolean {
-        return hasPermission("android.permission.FLASHLIGHT")
+    fun canUseFlashlight(context: Context): Boolean {
+        return hasPermission(context, "android.permission.FLASHLIGHT") || isCameraEnabled(context)
     }
 
-    fun isCameraEnabled(): Boolean {
-        return hasPermission(Manifest.permission.CAMERA)
+    fun isCameraEnabled(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.CAMERA)
     }
 
-    fun canUseBluetooth(): Boolean {
-        return hasPermission(Manifest.permission.BLUETOOTH)
+    fun canUseBluetooth(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.BLUETOOTH)
     }
 
-    fun canRecognizeActivity(): Boolean {
-        return hasPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    fun canRecognizeActivity(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            hasPermission(context, Manifest.permission.ACTIVITY_RECOGNITION)
+        } else {
+            true
+        }
     }
 
-    fun canVibrate(): Boolean {
-        return hasPermission(Manifest.permission.VIBRATE)
+    fun canVibrate(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.VIBRATE)
     }
 
-    fun canRecordAudio(): Boolean {
-        return hasPermission(Manifest.permission.RECORD_AUDIO)
+    fun canRecordAudio(context: Context): Boolean {
+        return hasPermission(context, Manifest.permission.RECORD_AUDIO)
     }
 
-    fun getPermissionName(permission: String): String? {
+    fun getPermissionName(context: Context, permission: String): String? {
         return try {
             val info = context.packageManager.getPermissionInfo(permission, 0)
             info.loadLabel(context.packageManager).toString()
@@ -61,7 +65,7 @@ class PermissionService(private val context: Context) {
         }
     }
 
-    fun getRequestedPermissions(): List<String> {
+    fun getRequestedPermissions(context: Context): List<String> {
         val info = context.packageManager.getPackageInfo(
             context.packageName,
             PackageManager.GET_PERMISSIONS
@@ -69,7 +73,7 @@ class PermissionService(private val context: Context) {
         return info.requestedPermissions.asList()
     }
 
-    fun getGrantedPermissions(): List<String> {
+    fun getGrantedPermissions(context: Context): List<String> {
         val info = context.packageManager.getPackageInfo(
             context.packageName,
             PackageManager.GET_PERMISSIONS
@@ -77,7 +81,7 @@ class PermissionService(private val context: Context) {
         return info.requestedPermissions.filterIndexed { i, _ -> (info.requestedPermissionsFlags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) == PackageInfo.REQUESTED_PERMISSION_GRANTED }
     }
 
-    fun isIgnoringBatteryOptimizations(): Boolean {
+    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             context.getSystemService<PowerManager>()
                 ?.isIgnoringBatteryOptimizations(PackageUtils.getPackageName(context)) ?: false
@@ -86,7 +90,7 @@ class PermissionService(private val context: Context) {
         }
     }
 
-    fun hasPermission(permission: String): Boolean {
+    fun hasPermission(context: Context, permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
             permission

@@ -14,33 +14,33 @@ import androidx.core.content.getSystemService
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 
-class Notify(private val context: Context) : INotify {
+object Notify {
 
-    private val manager by lazy { getNotificationManager() }
-
-    override fun isActive(notificationId: Int): Boolean {
+    fun isActive(context: Context, notificationId: Int): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            manager?.activeNotifications?.any { it.id == notificationId } ?: false
+            getNotificationManager(context)?.activeNotifications?.any { it.id == notificationId }
+                ?: false
         } else {
             // TODO: Determine if the notification exists
             false
         }
     }
 
-    override fun send(notificationId: Int, notification: Notification) {
-        manager?.notify(notificationId, notification)
+    fun send(context: Context, notificationId: Int, notification: Notification) {
+        getNotificationManager(context)?.notify(notificationId, notification)
     }
 
-    override fun cancel(notificationId: Int) {
-        manager?.cancel(notificationId)
+    fun cancel(context: Context, notificationId: Int) {
+        getNotificationManager(context)?.cancel(notificationId)
     }
 
-    override fun createChannel(
+    fun createChannel(
+        context: Context,
         id: String,
         name: String,
         description: String,
         importance: Int,
-        muteSound: Boolean
+        muteSound: Boolean = false
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
@@ -52,22 +52,27 @@ class Notify(private val context: Context) : INotify {
                 enableVibration(false)
             }
         }
-        manager?.createNotificationChannel(channel)
+        getNotificationManager(context)?.createNotificationChannel(channel)
     }
 
-    override fun isChannelBlocked(channelId: String): Boolean {
+    /**
+     * Determines if a channel is blocked
+     */
+    fun isChannelBlocked(context: Context, channelId: String): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return false
         }
 
-        if (areNotificationsBlocked()) {
+        if (areNotificationsBlocked(context)) {
             return true
         }
 
-        val channel = manager?.getNotificationChannel(channelId) ?: return false
+        val channel =
+            getNotificationManager(context)?.getNotificationChannel(channelId) ?: return false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val groupId = channel.group
-            val groupBlocked = manager?.getNotificationChannelGroup(groupId)?.isBlocked == true
+            val groupBlocked =
+                getNotificationManager(context)?.getNotificationChannelGroup(groupId)?.isBlocked == true
             if (groupBlocked) {
                 return true
             }
@@ -76,25 +81,32 @@ class Notify(private val context: Context) : INotify {
         return channel.importance == NotificationManager.IMPORTANCE_NONE
     }
 
-    override fun areNotificationsBlocked(): Boolean {
+    /**
+     * Determines if notifications are blocked for the app
+     */
+    fun areNotificationsBlocked(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            manager?.areNotificationsEnabled() == true
+            getNotificationManager(context)?.areNotificationsEnabled() == true
         } else {
             false
         }
     }
 
-    override fun alert(
+    /**
+     * Used for alerts which require the user's attention
+     */
+    fun alert(
+        context: Context,
         channel: String,
         title: String,
         contents: String?,
-        icon: Int,
-        autoCancel: Boolean,
-        alertOnlyOnce: Boolean,
-        showBigIcon: Boolean,
-        group: String?,
-        intent: PendingIntent?,
-        actions: List<NotificationCompat.Action>
+        @DrawableRes icon: Int,
+        autoCancel: Boolean = false,
+        alertOnlyOnce: Boolean = false,
+        showBigIcon: Boolean = false,
+        group: String? = null,
+        intent: PendingIntent? = null,
+        actions: List<NotificationCompat.Action> = listOf()
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -132,17 +144,23 @@ class Notify(private val context: Context) : INotify {
         return notification
     }
 
-    override fun status(
+    /**
+     * Used to convey a status message
+     *
+     * Basically alerts that don't require the user's immediate attention
+     */
+    fun status(
+        context: Context,
         channel: String,
         title: String,
         contents: String?,
-        icon: Int,
-        autoCancel: Boolean,
-        alertOnlyOnce: Boolean,
-        showBigIcon: Boolean,
-        group: String?,
-        intent: PendingIntent?,
-        actions: List<NotificationCompat.Action>
+        @DrawableRes icon: Int,
+        autoCancel: Boolean = false,
+        alertOnlyOnce: Boolean = false,
+        showBigIcon: Boolean = false,
+        group: String? = null,
+        intent: PendingIntent? = null,
+        actions: List<NotificationCompat.Action> = listOf()
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -181,17 +199,21 @@ class Notify(private val context: Context) : INotify {
         return notification
     }
 
-    override fun persistent(
+    /**
+     * Used for notifications connected to a process which give the user useful information
+     */
+    fun persistent(
+        context: Context,
         channel: String,
         title: String,
         contents: String?,
-        icon: Int,
-        autoCancel: Boolean,
-        alertOnlyOnce: Boolean,
-        showBigIcon: Boolean,
-        group: String?,
-        intent: PendingIntent?,
-        actions: List<NotificationCompat.Action>
+        @DrawableRes icon: Int,
+        autoCancel: Boolean = false,
+        alertOnlyOnce: Boolean = true,
+        showBigIcon: Boolean = false,
+        group: String? = null,
+        intent: PendingIntent? = null,
+        actions: List<NotificationCompat.Action> = listOf()
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -231,11 +253,15 @@ class Notify(private val context: Context) : INotify {
         return notification
     }
 
-    override fun background(
+    /**
+     * Used for notifications which are connected to a process (aka required) but the user doesn't care about them
+     */
+    fun background(
+        context: Context,
         channel: String,
         title: String,
         contents: String?,
-        icon: Int
+        @DrawableRes icon: Int
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -257,15 +283,15 @@ class Notify(private val context: Context) : INotify {
         return notification
     }
 
-    override fun action(
+    fun action(
         name: String,
         intent: PendingIntent,
-        icon: Int?
+        @DrawableRes icon: Int? = null
     ): NotificationCompat.Action {
         return NotificationCompat.Action(icon ?: 0, name, intent)
     }
 
-    private fun getNotificationManager(): NotificationManager? {
+    private fun getNotificationManager(context: Context): NotificationManager? {
         return context.getSystemService()
     }
 
@@ -274,12 +300,10 @@ class Notify(private val context: Context) : INotify {
         return ResourcesCompat.getDrawable(context.resources, drawableId, null)
     }
 
-    companion object {
-        val CHANNEL_IMPORTANCE_HIGH =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4
-        val CHANNEL_IMPORTANCE_DEFAULT =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_DEFAULT else 3
-        val CHANNEL_IMPORTANCE_LOW =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_LOW else 2
-    }
+    val CHANNEL_IMPORTANCE_HIGH =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4
+    val CHANNEL_IMPORTANCE_DEFAULT =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_DEFAULT else 3
+    val CHANNEL_IMPORTANCE_LOW =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_LOW else 2
 }

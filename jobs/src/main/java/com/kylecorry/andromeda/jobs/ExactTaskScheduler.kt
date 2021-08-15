@@ -14,7 +14,8 @@ class ExactTaskScheduler(
 
 
     override fun schedule(delay: Duration) {
-        AlarmService(context).set(
+        Alarms.set(
+            context,
             LocalDateTime.now().plus(delay),
             task(),
             exact = true,
@@ -27,6 +28,6 @@ class ExactTaskScheduler(
     }
 
     override fun cancel() {
-        AlarmService(context).cancel(task())
+        Alarms.cancel(context, task())
     }
 }
