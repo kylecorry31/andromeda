@@ -6,7 +6,7 @@ import com.kylecorry.andromeda.core.math.deltaAngle
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.units.Bearing
-import com.kylecorry.andromeda.sense.SensorChecker
+import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
@@ -25,9 +25,8 @@ class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private 
         get() = _quality
     private var _quality = Quality.Unknown
 
-    private val sensorChecker = SensorChecker(context)
     private val accelerometer: IAccelerometer =
-        if (sensorChecker.hasGravity()) GravitySensor(context) else LowPassAccelerometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
     private val magnetometer = LowPassMagnetometer(context)
 
     private var filterSize = smoothingFactor * 2 * 2

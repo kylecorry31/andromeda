@@ -1,11 +1,15 @@
 package com.kylecorry.andromeda.permissions
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Package
@@ -95,5 +99,25 @@ object Permissions {
             context,
             permission
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @SuppressLint("BatteryLife")
+    fun requestIgnoreBatteryOptimization(context: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return
+        }
+
+        if (isIgnoringBatteryOptimizations(context)) {
+            return
+        }
+
+        if (!hasPermission(context, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)) {
+            return
+        }
+
+        val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+        val uri = Uri.fromParts("package", Package.getPackageName(context), null)
+        intent.data = uri
+        context.startActivity(intent)
     }
 }

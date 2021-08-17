@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.sense.SensorChecker
+import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
@@ -24,10 +24,8 @@ class DeviceOrientation(private val context: Context) : AbstractSensor() {
     var orientation: Orientation = Orientation.Flat
         private set
 
-    private val sensorChecker by lazy { SensorChecker(context) }
-
     private val accelerometer: IAccelerometer by lazy {
-        if (sensorChecker.hasGravity()) GravitySensor(context) else LowPassAccelerometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
     }
 
     private var gotReading = false

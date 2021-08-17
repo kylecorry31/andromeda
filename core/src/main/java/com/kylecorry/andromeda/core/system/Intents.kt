@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import com.kylecorry.andromeda.core.units.Coordinate
 
 object Intents {
@@ -60,11 +61,9 @@ object Intents {
         return intent
     }
 
-    fun batteryOptimizationSettings(context: Context): Intent {
-        val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-        val uri = Uri.fromParts("package", Package.getPackageName(context), null)
-        intent.data = uri
-        return intent
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun batteryOptimizationSettings(): Intent {
+        return Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
     }
 
     fun createFile(filename: String, type: String): Intent {
