@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.core.system
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -89,6 +90,11 @@ object Intents {
 
     fun openChooser(context: Context, intent: Intent, title: String) {
         context.startActivity(Intent.createChooser(intent, title))
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    fun hasReceiver(context: Context, intent: Intent): Boolean {
+        return intent.resolveActivity(context.packageManager) != null
     }
 
 }

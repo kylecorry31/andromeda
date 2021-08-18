@@ -12,6 +12,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.system.Resources
 
@@ -103,7 +104,7 @@ object Notify {
      */
     fun areNotificationsBlocked(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            getNotificationManager(context)?.areNotificationsEnabled() == true
+            getNotificationManager(context)?.areNotificationsEnabled() == false
         } else {
             false
         }
@@ -306,6 +307,14 @@ object Notify {
         @DrawableRes icon: Int? = null
     ): NotificationCompat.Action {
         return NotificationCompat.Action(icon ?: 0, name, intent)
+    }
+
+    fun action(
+        name: String,
+        intent: PendingIntent,
+        icon: IconCompat? = null
+    ): NotificationCompat.Action {
+        return NotificationCompat.Action(icon, name, intent)
     }
 
     private fun getNotificationManager(context: Context): NotificationManager? {
