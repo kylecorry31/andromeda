@@ -7,7 +7,7 @@ import androidx.core.app.ActivityCompat
 import com.kylecorry.andromeda.core.system.Intents
 import kotlin.random.Random
 
-class AndromedaActivity : AppCompatActivity() {
+open class AndromedaActivity : AppCompatActivity() {
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
