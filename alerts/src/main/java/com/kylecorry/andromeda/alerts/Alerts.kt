@@ -49,11 +49,11 @@ object Alerts {
         }
 
         val dialog = builder.create()
+        dialog.show()
         if (allowLinks) {
             dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
                 LinkMovementMethod.getInstance()
         }
-        dialog.show()
         return dialog
     }
 
