@@ -1,7 +1,9 @@
 package com.kylecorry.andromeda.alerts
 
 import android.content.Context
+import android.text.method.LinkMovementMethod
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 
@@ -13,6 +15,7 @@ object Alerts {
         contentView: View? = null,
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
+        allowLinks: Boolean = false,
         onClose: ((cancelled: Boolean) -> Unit)? = null
     ): AlertDialog {
         val builder = AlertDialog.Builder(context)
@@ -46,6 +49,10 @@ object Alerts {
         }
 
         val dialog = builder.create()
+        if (allowLinks) {
+            dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
+                LinkMovementMethod.getInstance()
+        }
         dialog.show()
         return dialog
     }

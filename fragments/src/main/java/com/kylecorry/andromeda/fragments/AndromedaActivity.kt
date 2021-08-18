@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.kylecorry.andromeda.core.system.Intents
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 open class AndromedaActivity : AppCompatActivity() {
@@ -16,7 +17,7 @@ open class AndromedaActivity : AppCompatActivity() {
     private var permissionRequestCode: Int? = null
 
     protected fun requestPermissions(permissions: List<String>, action: () -> Unit) {
-        val requestCode = Random.nextInt()
+        val requestCode = Random.nextInt().absoluteValue
         permissionRequestCode = requestCode
         permissionAction = action
         ActivityCompat.requestPermissions(
@@ -27,7 +28,7 @@ open class AndromedaActivity : AppCompatActivity() {
     }
 
     protected fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
-        val requestCode = Random.nextInt()
+        val requestCode = Random.nextInt().absoluteValue
         resultRequestCode = requestCode
         resultAction = action
         startActivityForResult(intent, requestCode)

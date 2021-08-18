@@ -27,7 +27,7 @@ object Pickers {
     ) {
         val timePickerDialog = TimePickerDialog(
             context,
-            { timePicker: TimePicker, hour: Int, minute: Int ->
+            { _: TimePicker, hour: Int, minute: Int ->
                 val time = LocalTime.of(hour, minute)
                 onTimePick.invoke(time)
             },
@@ -48,7 +48,7 @@ object Pickers {
     ) {
         val datePickerDialog = DatePickerDialog(
             context,
-            { view, year, month, dayOfMonth ->
+            { _, year, month, dayOfMonth ->
                 val date = LocalDate.of(year, month + 1, dayOfMonth)
                 onDatePick.invoke(date)
             },
@@ -172,7 +172,7 @@ object Pickers {
             }.apply {
                 setSingleChoiceItems(items.toTypedArray(),
                     defaultSelectedIndex,
-                    DialogInterface.OnClickListener { dialog, which ->
+                    DialogInterface.OnClickListener { _, which ->
                         index = which
                     })
             }
