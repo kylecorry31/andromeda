@@ -8,7 +8,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
     }
     ext.groupId = 'com.kylecorry.andromeda'
-    ext.versionName = '1.0.3'
+    ext.versionName = '1.1.0'
 }
 
 allprojects {
