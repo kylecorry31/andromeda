@@ -169,6 +169,21 @@ object Forms {
 
         }
 
+        fun <Units : Enum<*>> unit(
+            id: String,
+            units: List<UnitInputView.DisplayUnit<Units>>,
+            defaultValue: Pair<Number?, Units?>? = null,
+            label: CharSequence? = null,
+            hint: CharSequence? = null,
+            dialogTitle: CharSequence? = null,
+            onChange: (section: Section, value: Pair<Number?, Units?>?) -> Unit = { _, _ -> }
+        ) {
+            add(UnitField(view.context, id, units, defaultValue, label, hint, dialogTitle) {
+                onChange.invoke(this, it)
+            })
+
+        }
+
     }
 
     fun setDefaultLinearLayoutStyle(linearLayout: LinearLayout) {

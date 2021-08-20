@@ -11,7 +11,7 @@ import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.andromeda.pickers.Pickers
 
-class UnitInputView<Units : Enum<*>>(
+open class UnitInputView<Units : Enum<*>>(
     context: Context,
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {

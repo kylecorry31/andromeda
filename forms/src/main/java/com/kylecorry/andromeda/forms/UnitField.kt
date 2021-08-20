@@ -62,18 +62,3 @@ class UnitField<Units : Enum<*>>(
         }
     }
 }
-
-fun <Units : Enum<*>> Forms.Section.unit(
-    id: String,
-    units: List<UnitInputView.DisplayUnit<Units>>,
-    defaultValue: Pair<Number?, Units?>? = null,
-    label: CharSequence? = null,
-    hint: CharSequence? = null,
-    dialogTitle: CharSequence? = null,
-    onChange: (section: Forms.Section, value: Pair<Number?, Units?>?) -> Unit = { _, _ -> }
-) {
-    add(UnitField(view.context, id, units, defaultValue, label, hint, dialogTitle) {
-        onChange.invoke(this, it)
-    })
-
-}
