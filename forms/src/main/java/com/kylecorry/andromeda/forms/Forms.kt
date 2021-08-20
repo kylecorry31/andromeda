@@ -38,6 +38,10 @@ object Forms {
             return fields[id]?.value as T?
         }
 
+        fun <T> setValue(id: String, value: T) {
+            get<FormField<T>>(id)?.value = value
+        }
+
         fun add(field: FormField<*>, index: Int = -1) {
             fields[field.id] = field
             view.addView(field.view, index)
@@ -142,6 +146,27 @@ object Forms {
             bold: Boolean = false
         ) {
             add(Label(view.context, id, label, color, textSizeSp, bold))
+        }
+
+        fun loading(
+            id: String,
+            label: CharSequence? = null
+        ) {
+            add(LoadingField(view.context, id, label))
+        }
+
+        fun button(
+            id: String,
+            label: CharSequence,
+            @ColorInt textColor: Int? = null,
+            @ColorInt backgroundColor: Int? = null,
+            fullWidth: Boolean = false,
+            onClick: (section: Section) -> Unit = { }
+        ) {
+            add(ButtonField(view.context, id, label, textColor, backgroundColor, fullWidth) {
+                onClick.invoke(this)
+            })
+
         }
 
     }
