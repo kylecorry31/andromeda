@@ -2,7 +2,11 @@ package com.kylecorry.andromeda.sound
 
 import android.media.*
 
-class Speaker(private val sampleRate: Int) {
+class Speaker(
+    private val sampleRate: Int,
+    private val left: Boolean = true,
+    private val right: Boolean = true
+) {
 
     private var player: AudioTrack? = null
 
@@ -25,11 +29,11 @@ class Speaker(private val sampleRate: Int) {
         player?.play()
     }
 
-    fun play(audioData: ShortArray){
+    fun play(audioData: ShortArray) {
         player?.write(audioData, 0, audioData.size)
     }
 
-    fun stop(){
+    fun stop() {
         player?.stop()
         player?.release()
         player = null

@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.microphone
+package com.kylecorry.andromeda.sound
 
 import android.annotation.SuppressLint
 import android.content.Context
