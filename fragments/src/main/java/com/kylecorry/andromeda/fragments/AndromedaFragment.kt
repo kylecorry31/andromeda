@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.permissions.Permissions
 import kotlinx.coroutines.*
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
@@ -122,8 +123,13 @@ open class AndromedaFragment : Fragment() {
     }
 
     protected fun requestPermissions(permissions: List<String>, action: () -> Unit) {
+        val notGranted = permissions.filterNot { Permissions.hasPermission(requireContext(), it) }
+        if (notGranted.isEmpty()) {
+            action()
+            return
+        }
         permissionAction = action
-        permissionLauncher?.launch(permissions.toTypedArray())
+        permissionLauncher?.launch(notGranted.toTypedArray())
     }
 
     protected fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
