@@ -67,16 +67,16 @@ abstract class CanvasView : View {
     // COLOR HELPERS
     // TODO: Handle stroke and fill
 
-    protected fun background(@ColorInt color: Int) {
+    fun background(@ColorInt color: Int) {
         canvas.drawColor(color)
     }
 
-    protected fun clear() {
+    fun clear() {
         background(Color.TRANSPARENT)
     }
 
     @ColorInt
-    protected fun color(r: Int, g: Int = r, b: Int = g, a: Int? = null): Int {
+    fun color(r: Int, g: Int = r, b: Int = g, a: Int? = null): Int {
         return if (a != null) {
             Color.argb(a, r, g, b)
         } else {
@@ -84,7 +84,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun fill(@ColorInt color: Int) {
+    fun fill(@ColorInt color: Int) {
         paintStyle = if (shouldStroke()) {
             PaintStyle.FillAndStroke
         } else {
@@ -93,17 +93,17 @@ abstract class CanvasView : View {
         fillPaint.color = color
     }
 
-    protected fun tint(@ColorInt color: Int) {
+    fun tint(@ColorInt color: Int) {
         fillPaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
         strokePaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
     }
 
-    protected fun noTint() {
+    fun noTint() {
         fillPaint.colorFilter = null
         strokePaint.colorFilter = null
     }
 
-    protected fun stroke(@ColorInt color: Int) {
+    fun stroke(@ColorInt color: Int) {
         paintStyle = if (shouldFill()) {
             PaintStyle.FillAndStroke
         } else {
@@ -112,17 +112,17 @@ abstract class CanvasView : View {
         strokePaint.color = color
     }
 
-    protected fun pathEffect(effect: PathEffect){
+    fun pathEffect(effect: PathEffect){
         strokePaint.pathEffect = effect
         fillPaint.pathEffect = effect
     }
 
-    protected fun noPathEffect(){
+    fun noPathEffect(){
         strokePaint.pathEffect = null
         fillPaint.pathEffect = null
     }
 
-    protected fun noStroke() {
+    fun noStroke() {
         paintStyle = if (shouldFill()) {
             PaintStyle.Fill
         } else {
@@ -130,7 +130,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun noFill() {
+    fun noFill() {
         paintStyle = if (shouldStroke()) {
             PaintStyle.Stroke
         } else {
@@ -138,11 +138,11 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun strokeWeight(pixels: Float) {
+    fun strokeWeight(pixels: Float) {
         strokePaint.strokeWidth = pixels
     }
 
-    protected fun strokeCap(cap: StrokeCap) {
+    fun strokeCap(cap: StrokeCap) {
         strokePaint.strokeCap = when (cap) {
             StrokeCap.Round -> Paint.Cap.ROUND
             StrokeCap.Square -> Paint.Cap.SQUARE
@@ -150,7 +150,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun strokeJoin(join: StrokeJoin) {
+    fun strokeJoin(join: StrokeJoin) {
         strokePaint.strokeJoin = when (join) {
             StrokeJoin.Miter -> Paint.Join.MITER
             StrokeJoin.Bevel -> Paint.Join.BEVEL
@@ -158,34 +158,34 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun opacity(value: Int){
+    fun opacity(value: Int){
         fillPaint.alpha = value
         strokePaint.alpha = value
     }
 
-    protected fun erase() {
+    fun erase() {
         // This may need the following to be called in setup: setLayerType(LAYER_TYPE_HARDWARE, null)
         fillPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
         strokePaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
     }
 
-    protected fun noErase() {
+    fun noErase() {
         fillPaint.xfermode = null
         strokePaint.xfermode = null
     }
 
-    protected fun smooth() {
+    fun smooth() {
         fillPaint.isAntiAlias = true
         strokePaint.isAntiAlias = true
     }
 
-    protected fun noSmooth() {
+    fun noSmooth() {
         fillPaint.isAntiAlias = false
         strokePaint.isAntiAlias = false
     }
 
     // TEXT HELPERS
-    protected fun textAlign(align: TextAlign) {
+    fun textAlign(align: TextAlign) {
         val alignment = when (align) {
             TextAlign.Right -> Paint.Align.RIGHT
             TextAlign.Center -> Paint.Align.CENTER
@@ -195,12 +195,12 @@ abstract class CanvasView : View {
         strokePaint.textAlign = alignment
     }
 
-    protected fun textSize(pixels: Float) {
+    fun textSize(pixels: Float) {
         fillPaint.textSize = pixels
         strokePaint.textSize = pixels
     }
 
-    protected fun textStyle(style: TextStyle) {
+    fun textStyle(style: TextStyle) {
         val typeface = when (style) {
             TextStyle.Normal -> fillPaint.setTypeface(
                 Typeface.create(
@@ -232,31 +232,31 @@ abstract class CanvasView : View {
         strokePaint.typeface = typeface
     }
 
-    protected fun textWidth(text: String): Float {
+    fun textWidth(text: String): Float {
         return textDimensions(text).first
     }
 
-    protected fun textHeight(text: String): Float {
+    fun textHeight(text: String): Float {
         return textDimensions(text).second
     }
 
-    protected fun textDimensions(text: String): Pair<Float, Float> {
+    fun textDimensions(text: String): Pair<Float, Float> {
         // TODO: Factor in stroke
         fillPaint.getTextBounds(text, 0, text.length, measurementRect)
         return measurementRect.width().toFloat() to measurementRect.height().toFloat()
     }
 
-    protected fun textAscent(): Float {
+    fun textAscent(): Float {
         // TODO: Factor in stroke
         return fillPaint.ascent()
     }
 
-    protected fun textDescent(): Float {
+    fun textDescent(): Float {
         // TODO: Factor in stroke
         return fillPaint.descent()
     }
 
-    protected fun text(str: String, x: Float, y: Float) {
+    fun text(str: String, x: Float, y: Float) {
         if (!shouldDraw()) {
             return
         }
@@ -284,7 +284,7 @@ abstract class CanvasView : View {
 
 
     // SHAPE HELPERS
-    protected fun arc(
+    fun arc(
         x: Float,
         y: Float,
         w: Float,
@@ -314,7 +314,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun ellipse(x: Float, y: Float, w: Float, h: Float = w) {
+    fun ellipse(x: Float, y: Float, w: Float, h: Float = w) {
         if (!shouldDraw()) {
             return
         }
@@ -329,11 +329,11 @@ abstract class CanvasView : View {
 
     }
 
-    protected fun circle(x: Float, y: Float, diameter: Float) {
+    fun circle(x: Float, y: Float, diameter: Float) {
         ellipse(x - diameter / 2f, y - diameter / 2f, diameter, diameter)
     }
 
-    protected fun line(x1: Float, y1: Float, x2: Float, y2: Float) {
+    fun line(x1: Float, y1: Float, x2: Float, y2: Float) {
         if (!shouldDraw()) {
             return
         }
@@ -347,7 +347,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun point(x: Float, y: Float) {
+    fun point(x: Float, y: Float) {
         if (!shouldDraw()) {
             return
         }
@@ -361,7 +361,7 @@ abstract class CanvasView : View {
     }
 
     // TODO: Support different radius for each corner
-    protected fun rect(
+    fun rect(
         x: Float,
         y: Float,
         w: Float,
@@ -388,7 +388,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun square(
+    fun square(
         x: Float,
         y: Float,
         size: Float,
@@ -397,7 +397,7 @@ abstract class CanvasView : View {
         rect(x, y, size, size, radius)
     }
 
-    protected fun triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
+    fun triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
         if (!shouldDraw()) {
             return
         }
@@ -420,15 +420,15 @@ abstract class CanvasView : View {
 
     // Transforms
     // TODO: Add the transforms
-    protected fun push() {
+    fun push() {
         canvas.save()
     }
 
-    protected fun pop() {
+    fun pop() {
         canvas.restore()
     }
 
-    protected fun rotate(
+    fun rotate(
         degrees: Float,
         originX: Float = width / 2f,
         originY: Float = height / 2f
@@ -436,26 +436,26 @@ abstract class CanvasView : View {
         canvas.rotate(degrees, originX, originY)
     }
 
-    protected fun scale(x: Float, y: Float = x) {
+    fun scale(x: Float, y: Float = x) {
         canvas.scale(x, y)
     }
 
-    protected fun scale(x: Float, y: Float = x, pivotX: Float, pivotY: Float) {
+    fun scale(x: Float, y: Float = x, pivotX: Float, pivotY: Float) {
         canvas.scale(x, y, pivotX, pivotY)
     }
 
-    protected fun translate(x: Float, y: Float) {
+    fun translate(x: Float, y: Float) {
         canvas.translate(x, y)
     }
 
     // Images
 
-    protected fun loadImage(@DrawableRes id: Int, w: Int? = null, h: Int? = null): Bitmap {
+    fun loadImage(@DrawableRes id: Int, w: Int? = null, h: Int? = null): Bitmap {
         val drawable = ResourcesCompat.getDrawable(context.resources, id, null)!!
         return drawable.toBitmap(w ?: drawable.intrinsicWidth, h ?: drawable.intrinsicHeight)
     }
 
-    protected fun image(
+    fun image(
         img: Bitmap,
         x: Float,
         y: Float,
@@ -469,7 +469,7 @@ abstract class CanvasView : View {
         }
     }
 
-    protected fun image(
+    fun image(
         img: Bitmap,
         dx: Float,
         dy: Float,
@@ -488,11 +488,11 @@ abstract class CanvasView : View {
         )
     }
 
-    protected fun imageMode(imageMode: ImageMode) {
+    fun imageMode(imageMode: ImageMode) {
         this.imageMode = imageMode
     }
 
-    protected fun textMode(textMode: TextMode) {
+    fun textMode(textMode: TextMode) {
         this.textMode = textMode
     }
 
@@ -510,7 +510,7 @@ abstract class CanvasView : View {
 
     // Masks
 
-    protected fun mask(
+    fun mask(
         mask: Bitmap,
         tempBitmap: Bitmap = Bitmap.createBitmap(
             mask.width,
@@ -532,14 +532,14 @@ abstract class CanvasView : View {
 
     // System
 
-    protected fun dp(size: Float): Float {
+    fun dp(size: Float): Float {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, size,
             context.resources.displayMetrics
         )
     }
 
-    protected fun sp(size: Float): Float {
+    fun sp(size: Float): Float {
         return TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP, size,
             context.resources.displayMetrics
@@ -547,47 +547,47 @@ abstract class CanvasView : View {
     }
 
 
-    protected enum class ArcMode {
+    enum class ArcMode {
         Pie,
         Open
     }
 
-    protected enum class StrokeCap {
+    enum class StrokeCap {
         Round,
         Square,
         Project
     }
 
-    protected enum class StrokeJoin {
+    enum class StrokeJoin {
         Miter,
         Bevel,
         Round
     }
 
-    protected enum class TextAlign {
+    enum class TextAlign {
         Right, Center, Left
     }
 
-    protected enum class TextStyle {
+    enum class TextStyle {
         Normal,
         Italic,
         Bold,
         BoldItalic
     }
 
-    protected enum class PaintStyle {
+    enum class PaintStyle {
         Fill,
         Stroke,
         FillAndStroke,
         None
     }
 
-    protected enum class ImageMode {
+    enum class ImageMode {
         Corner,
         Center
     }
 
-    protected enum class TextMode {
+    enum class TextMode {
         Corner,
         Center
     }
