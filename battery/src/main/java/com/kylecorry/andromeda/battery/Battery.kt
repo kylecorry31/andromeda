@@ -1,15 +1,14 @@
 package com.kylecorry.andromeda.battery
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.sensors.BaseBroadcastReceiverSensor
 
-
-class Battery(private val context: Context) : IBattery, AbstractSensor() {
+class Battery(context: Context) : IBattery,
+    BaseBroadcastReceiverSensor(context, IntentFilter("android.intent.action.BATTERY_CHANGED")) {
     override val percent: Float
         get() {
             val pct = (getInt(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0).toFloat()
@@ -30,8 +29,8 @@ class Battery(private val context: Context) : IBattery, AbstractSensor() {
             }
         }
     override val maxCapacity: Float
-        get(){
-            return if (capacity != 0f && percent != 0f){
+        get() {
+            return if (capacity != 0f && percent != 0f) {
                 capacity / percent * 100
             } else {
                 0f
@@ -65,54 +64,54 @@ class Battery(private val context: Context) : IBattery, AbstractSensor() {
     private var _chargingMethod = BatteryChargingMethod.Unknown
     private var _chargingStatus = BatteryChargingStatus.Unknown
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent ?: return
+    override fun handleIntent(context: Context, intent: Intent) {
+        // Calculate battery percentage
+        val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
+        val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0)
+        _percent = 100 * level / scale.toFloat()
 
-            // Calculate battery percentage
-            val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
-            val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0)
-            _percent = 100 * level / scale.toFloat()
+        // Get the temperature
+        val temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
+        _temp = temp.toFloat() / 10f
 
-            // Get the temperature
-            val temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0)
-            _temp = temp.toFloat() / 10f
-
-            // Determine charging type
-            val chargingType = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
-            _chargingMethod = when (chargingType) {
-                BatteryManager.BATTERY_PLUGGED_AC -> BatteryChargingMethod.AC
-                BatteryManager.BATTERY_PLUGGED_USB -> BatteryChargingMethod.USB
-                BatteryManager.BATTERY_PLUGGED_WIRELESS -> BatteryChargingMethod.Wireless
-                else -> BatteryChargingMethod.NotCharging
-            }
-
-            // Determine charging status
-            _chargingStatus = toChargingStatus(intent.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN))
-
-            // Determine the battery voltage
-            _voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0).toFloat() / 1000f
-
-            // Get the battery health
-            _health = when (intent.getIntExtra(
-                BatteryManager.EXTRA_HEALTH,
-                BatteryManager.BATTERY_HEALTH_UNKNOWN
-            )) {
-                BatteryManager.BATTERY_HEALTH_COLD -> BatteryHealth.Cold
-                BatteryManager.BATTERY_HEALTH_DEAD -> BatteryHealth.Dead
-                BatteryManager.BATTERY_HEALTH_GOOD -> BatteryHealth.Good
-                BatteryManager.BATTERY_HEALTH_OVERHEAT -> BatteryHealth.Overheat
-                BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> BatteryHealth.OverVoltage
-                else -> BatteryHealth.Unknown
-            }
-
-            hasReading = true
-            notifyListeners()
+        // Determine charging type
+        val chargingType = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+        _chargingMethod = when (chargingType) {
+            BatteryManager.BATTERY_PLUGGED_AC -> BatteryChargingMethod.AC
+            BatteryManager.BATTERY_PLUGGED_USB -> BatteryChargingMethod.USB
+            BatteryManager.BATTERY_PLUGGED_WIRELESS -> BatteryChargingMethod.Wireless
+            else -> BatteryChargingMethod.NotCharging
         }
+
+        // Determine charging status
+        _chargingStatus = toChargingStatus(
+            intent.getIntExtra(
+                BatteryManager.EXTRA_STATUS,
+                BatteryManager.BATTERY_STATUS_UNKNOWN
+            )
+        )
+
+        // Determine the battery voltage
+        _voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0).toFloat() / 1000f
+
+        // Get the battery health
+        _health = when (intent.getIntExtra(
+            BatteryManager.EXTRA_HEALTH,
+            BatteryManager.BATTERY_HEALTH_UNKNOWN
+        )) {
+            BatteryManager.BATTERY_HEALTH_COLD -> BatteryHealth.Cold
+            BatteryManager.BATTERY_HEALTH_DEAD -> BatteryHealth.Dead
+            BatteryManager.BATTERY_HEALTH_GOOD -> BatteryHealth.Good
+            BatteryManager.BATTERY_HEALTH_OVERHEAT -> BatteryHealth.Overheat
+            BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> BatteryHealth.OverVoltage
+            else -> BatteryHealth.Unknown
+        }
+
+        hasReading = true
     }
 
     private fun toChargingStatus(status: Int): BatteryChargingStatus {
-        return when(status){
+        return when (status) {
             BatteryManager.BATTERY_STATUS_CHARGING -> BatteryChargingStatus.Charging
             BatteryManager.BATTERY_STATUS_DISCHARGING -> BatteryChargingStatus.Discharging
             BatteryManager.BATTERY_STATUS_FULL -> BatteryChargingStatus.Full
@@ -127,13 +126,5 @@ class Battery(private val context: Context) : IBattery, AbstractSensor() {
             return null
         }
         return value
-    }
-
-    override fun startImpl() {
-        context.registerReceiver(receiver, IntentFilter("android.intent.action.BATTERY_CHANGED"))
-    }
-
-    override fun stopImpl() {
-        context.unregisterReceiver(receiver)
     }
 }

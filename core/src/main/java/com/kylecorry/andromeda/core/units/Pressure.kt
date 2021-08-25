@@ -6,21 +6,8 @@ data class Pressure(val pressure: Float, val units: PressureUnits) : Comparable<
         if (units == toUnits) {
             return Pressure(pressure, units)
         }
-
-        val hpa = when (units) {
-            PressureUnits.Hpa -> pressure
-            PressureUnits.Mbar -> pressure
-            PressureUnits.Inhg -> pressure / 0.02953f
-            PressureUnits.Psi -> pressure / 0.0145037738f
-        }
-
-        val newPressure = when (toUnits) {
-            PressureUnits.Hpa -> hpa
-            PressureUnits.Inhg -> 0.02953f * hpa
-            PressureUnits.Mbar -> hpa
-            PressureUnits.Psi -> 0.0145037738f * hpa
-        }
-
+        val hpa = pressure * units.hpa
+        val newPressure = hpa / toUnits.hpa
         return Pressure(newPressure, toUnits)
     }
 
