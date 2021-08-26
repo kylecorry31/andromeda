@@ -42,7 +42,8 @@ object Notify {
         name: String,
         description: String,
         importance: Int,
-        muteSound: Boolean = false
+        muteSound: Boolean = false,
+        showBadge: Boolean = true
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
@@ -53,6 +54,7 @@ object Notify {
                 setSound(null, null)
                 enableVibration(false)
             }
+            setShowBadge(showBadge)
         }
         getNotificationManager(context)?.createNotificationChannel(channel)
     }

@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.core.math
 
+import android.util.Range
 import kotlin.math.*
 
 fun normalizeAngle(angle: Float): Float {
@@ -260,4 +261,19 @@ fun norm(value: Float, minimum: Float, maximum: Float): Float {
         return 0f
     }
     return (value - minimum) / range
+}
+
+fun scaleToFit(
+        width: Float,
+        height: Float,
+        maxWidth: Float,
+        maxHeight: Float
+): Float {
+    return min(maxWidth / width, maxHeight / height)
+}
+
+fun List<Float>.rangeOrNull(): Range<Float>? {
+    val min = minOrNull() ?: return null
+    val max = maxOrNull() ?: return null
+    return Range(min, max)
 }
