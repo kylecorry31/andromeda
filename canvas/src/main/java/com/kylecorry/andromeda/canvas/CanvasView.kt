@@ -347,6 +347,26 @@ abstract class CanvasView : View {
         }
     }
 
+    fun grid(
+        spacing: Float,
+        width: Float = this.width.toFloat(),
+        height: Float = this.height.toFloat()
+    ) {
+        // Vertical
+        var i = 0f
+        while (i < width) {
+            line(i, 0f, i, height)
+            i += spacing
+        }
+
+        // Horizontal
+        i = 0f
+        while (i < height) {
+            line(0f, i, width, i)
+            i += spacing
+        }
+    }
+
     fun point(x: Float, y: Float) {
         if (!shouldDraw()) {
             return
