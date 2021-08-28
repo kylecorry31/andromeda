@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.gpx
 import android.text.TextUtils
 import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.math.toFloatCompat
+import com.kylecorry.andromeda.core.math.toLongCompat
 import com.kylecorry.andromeda.core.units.Coordinate
 import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
@@ -10,10 +11,14 @@ import java.time.Instant
 
 object GPXParser {
 
-    fun toGPX(waypoints: List<GPXWaypoint>, creator: String): String {
+    fun toGPX(data: GPXData, creator: String): String {
         val children = mutableListOf<XMLNode>()
-        for (waypoint in waypoints){
-            children.add(toXML(waypoint))
+        for (waypoint in data.waypoints) {
+            children.add(toXML(waypoint, "wpt"))
+        }
+
+        for (track in data.tracks) {
+            children.add(toXML(track))
         }
 
         val gpx = XMLNode(
@@ -32,65 +37,151 @@ object GPXParser {
         return XMLConvert.toString(gpx, true)
     }
 
-    fun getWaypoints(gpx: String): List<GPXWaypoint> {
+    fun parse(gpx: String): GPXData {
         val tree = try {
             XMLConvert.parse(gpx)
         } catch (e: Exception) {
-            return listOf()
+            return GPXData(emptyList(), emptyList())
         }
-        return tree.children.map {
-            val lat =
-                if (it.attributes.containsKey("lat")) it.attributes["lat"]?.toDoubleCompat() else null
-            val lon =
-                if (it.attributes.containsKey("lon")) it.attributes["lon"]?.toDoubleCompat() else null
-            val name = it.children.firstOrNull { it.tag == "name" }?.text
-            val desc = it.children.firstOrNull { it.tag == "desc" }?.text
-            val time = it.children.firstOrNull { it.tag == "time" }?.text
-            val ele = it.children.firstOrNull { it.tag == "ele" }?.text?.toFloatCompat()
-            val extensions = it.children.firstOrNull { it.tag == "extensions" }
-            val group = extensions?.children?.firstOrNull { it.tag == "trailsense:group" }?.text
-
-            if (lat == null || lon == null) {
-                return@map null
+        val waypoints = tree.children.mapNotNull {
+            when (it.tag.lowercase()) {
+                "wpt" -> parseWaypoint(it)
+                else -> null
             }
+        }
 
-            val instant = try {
-                if (time == null){
-                    null
-                } else {
-                    Instant.parse(time)
-                }
-            } catch (e: Exception) {
-                null
+        val tracks = tree.children.mapNotNull {
+            when (it.tag.lowercase()) {
+                "trk" -> parseTrack(it)
+                else -> null
             }
+        }
 
-            return@map GPXWaypoint(Coordinate(lat, lon), name, ele, desc, instant, group)
-        }.filterNotNull()
+
+        return GPXData(waypoints, tracks)
     }
 
-    private fun toXML(waypoint: GPXWaypoint): XMLNode {
+    private fun parseTrack(node: XMLNode): GPXTrack? {
+        if (node.tag.lowercase() != "trk") {
+            return null
+        }
+
+        val segments = node.children.filter { it.tag.lowercase() == "trkseg" }.mapNotNull {
+            parseSegment(it)
+        }
+
+        val name = node.children.firstOrNull { it.tag.lowercase() == "name" }?.text
+        val comment = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
+        val id = node.children.firstOrNull { it.tag.lowercase() == "number" }?.text?.toLongCompat()
+        val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
+
+        return GPXTrack(name, type, id, comment, segments)
+    }
+
+    private fun parseSegment(node: XMLNode): GPXTrackSegment? {
+        if (node.tag.lowercase() != "trkseg") {
+            return null
+        }
+
+        return GPXTrackSegment(node.children.mapNotNull { parseWaypoint(it) })
+    }
+
+    private fun parseWaypoint(node: XMLNode): GPXWaypoint? {
+        if (node.tag.lowercase() != "wpt" && node.tag.lowercase() != "trkpt") {
+            return null
+        }
+        val lat =
+            if (node.attributes.containsKey("lat")) node.attributes["lat"]?.toDoubleCompat() else null
+        val lon =
+            if (node.attributes.containsKey("lon")) node.attributes["lon"]?.toDoubleCompat() else null
+        val name = node.children.firstOrNull { it.tag.lowercase() == "name" }?.text
+        val desc = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
+        val time = node.children.firstOrNull { it.tag.lowercase() == "time" }?.text
+        val ele = node.children.firstOrNull { it.tag.lowercase() == "ele" }?.text?.toFloatCompat()
+        val extensions = node.children.firstOrNull { it.tag.lowercase() == "extensions" }
+        val group =
+            extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
+
+        if (lat == null || lon == null) {
+            return null
+        }
+
+        val instant = try {
+            if (time == null) {
+                null
+            } else {
+                Instant.parse(time)
+            }
+        } catch (e: Exception) {
+            null
+        }
+
+        return GPXWaypoint(Coordinate(lat, lon), name, ele, desc, instant, group)
+    }
+
+    private fun toXML(waypoint: GPXWaypoint, tag: String): XMLNode {
         val children = mutableListOf<XMLNode>()
-        if (waypoint.elevation != null){
+        if (waypoint.elevation != null) {
             children.add(XMLNode.text("ele", waypoint.elevation.toString()))
         }
-        if (waypoint.time != null){
+        if (waypoint.time != null) {
             children.add(XMLNode.text("time", waypoint.time.toString()))
         }
         if (waypoint.name != null) {
             children.add(XMLNode.text("name", TextUtils.htmlEncode(waypoint.name)))
         }
-        if (waypoint.comment != null){
+        if (waypoint.comment != null) {
             children.add(XMLNode.text("desc", TextUtils.htmlEncode(waypoint.comment)))
         }
-        if (waypoint.group != null){
-            children.add(XMLNode("extensions", mapOf(), null, listOf(
-                XMLNode.text("trailsense:group", waypoint.group)
-            )))
+        if (waypoint.group != null) {
+            children.add(
+                XMLNode(
+                    "extensions", mapOf(), null, listOf(
+                        XMLNode.text("trailsense:group", waypoint.group)
+                    )
+                )
+            )
         }
 
-        return XMLNode("wpt", mapOf(
-            "lat" to waypoint.coordinate.latitude.toString(),
-            "lon" to waypoint.coordinate.longitude.toString()
-        ), null, children)
+        return XMLNode(
+            tag, mapOf(
+                "lat" to waypoint.coordinate.latitude.toString(),
+                "lon" to waypoint.coordinate.longitude.toString()
+            ), null, children
+        )
+    }
+
+    private fun toXML(track: GPXTrack): XMLNode {
+        val children = mutableListOf<XMLNode>()
+        if (track.name != null) {
+            children.add(XMLNode.text("name", TextUtils.htmlEncode(track.name)))
+        }
+
+        if (track.comment != null) {
+            children.add(XMLNode.text("desc", TextUtils.htmlEncode(track.comment)))
+        }
+
+        if (track.id != null) {
+            children.add(XMLNode.text("number", TextUtils.htmlEncode(track.id.toString())))
+        }
+
+        if (track.type != null) {
+            children.add(XMLNode.text("type", TextUtils.htmlEncode(track.type)))
+        }
+
+        for (segment in track.segments) {
+            children.add(toXML(segment))
+        }
+
+        return XMLNode("trk", emptyMap(), null, children)
+    }
+
+    private fun toXML(trackSegment: GPXTrackSegment): XMLNode {
+        val children = mutableListOf<XMLNode>()
+        for (waypoint in trackSegment.points) {
+            children.add(toXML(waypoint, "trkpt"))
+        }
+
+        return XMLNode("trkseg", emptyMap(), null, children)
     }
 }
