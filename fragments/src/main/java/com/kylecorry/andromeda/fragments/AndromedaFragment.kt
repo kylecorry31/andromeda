@@ -122,7 +122,7 @@ open class AndromedaFragment : Fragment() {
         return lifecycleScope.launch(context, start, block)
     }
 
-    protected fun requestPermissions(permissions: List<String>, action: () -> Unit) {
+    fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         val notGranted = permissions.filterNot { Permissions.hasPermission(requireContext(), it) }
         if (notGranted.isEmpty()) {
             action()
@@ -132,12 +132,12 @@ open class AndromedaFragment : Fragment() {
         permissionLauncher?.launch(notGranted.toTypedArray())
     }
 
-    protected fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
+    fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
         resultAction = action
         resultLauncher?.launch(intent)
     }
 
-    protected fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
+    fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.createFile(filename, type)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -148,7 +148,7 @@ open class AndromedaFragment : Fragment() {
         }
     }
 
-    protected fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
+    fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.pickFile(type, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -159,7 +159,7 @@ open class AndromedaFragment : Fragment() {
         }
     }
 
-    protected fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
+    fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.pickFile(types, message)
         getResult(intent) { successful, data ->
             if (successful) {
