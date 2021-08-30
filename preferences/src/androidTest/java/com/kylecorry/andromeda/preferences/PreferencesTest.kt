@@ -4,6 +4,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDate
 
 internal class PreferencesTest {
 
@@ -101,6 +103,36 @@ internal class PreferencesTest {
         preferences.remove(key)
 
         assertNull(preferences.getLong(key))
+        assertFalse(preferences.contains(key))
+    }
+
+    @Test
+    fun cachesInstant(){
+        val value = Instant.ofEpochMilli(1000)
+        val key = "test_instant"
+        preferences.putInstant(key, value)
+
+        assertEquals(preferences.getInstant(key), value)
+        assertTrue(preferences.contains(key))
+
+        preferences.remove(key)
+
+        assertNull(preferences.getInstant(key))
+        assertFalse(preferences.contains(key))
+    }
+
+    @Test
+    fun cachesLocalDate(){
+        val value = LocalDate.of(2021, 1, 2)
+        val key = "test_local_date"
+        preferences.putLocalDate(key, value)
+
+        assertEquals(preferences.getLocalDate(key), value)
+        assertTrue(preferences.contains(key))
+
+        preferences.remove(key)
+
+        assertNull(preferences.getLocalDate(key))
         assertFalse(preferences.contains(key))
     }
 

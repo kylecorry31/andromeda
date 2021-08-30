@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager
 import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.units.Coordinate
 import java.time.Instant
+import java.time.LocalDate
 
 class Preferences(context: Context) {
 
@@ -104,6 +105,19 @@ class Preferences(context: Context) {
         val longitude = getDouble(key + "_longitude") ?: return null
 
         return Coordinate(latitude, longitude)
+    }
+
+    fun getLocalDate(key: String): LocalDate? {
+        val raw = getString(key) ?: return null
+        return try {
+            LocalDate.parse(raw)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun putLocalDate(key: String, date: LocalDate) {
+        putString(key, date.toString())
     }
 
     fun putInstant(key: String, value: Instant) {
