@@ -60,3 +60,7 @@ fun Instant.isInPast(): Boolean {
 fun Instant.isOlderThan(duration: Duration): Boolean {
     return Duration.between(this, Instant.now()) > duration
 }
+
+fun Instant.utc(): ZonedDateTime {
+    return ZonedDateTime.ofInstant(this, ZoneId.of("UTC"))
+}

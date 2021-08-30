@@ -281,7 +281,8 @@ object Notify {
         channel: String,
         title: String,
         contents: String?,
-        @DrawableRes icon: Int
+        @DrawableRes icon: Int,
+        group: String? = null,
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -291,6 +292,10 @@ object Notify {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOnlyAlertOnce(true)
+
+        if (group != null) {
+            builder.setGroup(group)
+        }
 
         if (contents != null) {
             builder.setContentText(contents)

@@ -12,6 +12,10 @@ data class Distance(val distance: Float, val units: DistanceUnits) {
         return convertTo(DistanceUnits.Meters)
     }
 
+    operator fun times(value: Float): Distance {
+        return Distance(distance * value, units)
+    }
+
     companion object {
 
         fun meters(distance: Float): Distance {
