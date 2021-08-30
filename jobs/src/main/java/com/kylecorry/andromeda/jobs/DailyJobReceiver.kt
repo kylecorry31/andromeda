@@ -58,7 +58,7 @@ abstract class DailyJobReceiver(
             if (isAfterWindow || (inWindow && !shouldSend)) {
                 Log.d(
                     "ScheduledJobReceiver",
-                    "${this::class.java.simpleName} received a broadcast too late or it already ran today"
+                    "${this::class.java.simpleName} received a broadcast too late, it already ran today, or it is not enabled"
                 )
                 setAlarm(context, tomorrowSendTime)
             }

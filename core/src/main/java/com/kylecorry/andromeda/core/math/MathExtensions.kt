@@ -271,9 +271,3 @@ fun scaleToFit(
 ): Float {
     return min(maxWidth / width, maxHeight / height)
 }
-
-fun List<Float>.rangeOrNull(): Range<Float>? {
-    val min = minOrNull() ?: return null
-    val max = maxOrNull() ?: return null
-    return Range(min, max)
-}
