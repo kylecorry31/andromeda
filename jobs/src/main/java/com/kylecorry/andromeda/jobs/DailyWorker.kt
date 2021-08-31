@@ -1,11 +1,10 @@
 package com.kylecorry.andromeda.jobs
 
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.util.Log
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkerParameters
 import com.kylecorry.andromeda.core.time.toZonedDateTime
 import com.kylecorry.andromeda.preferences.Preferences
 import java.time.Duration
@@ -13,14 +12,19 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
-abstract class DailyJobReceiver(
+abstract class DailyWorker(
+    context: Context,
+    params: WorkerParameters,
+    private val expedited: Boolean = false,
     private val tolerance: Duration = Duration.ofMinutes(30)
-) : BroadcastReceiver() {
+) : CoroutineWorker(context, params) {
 
     private val lock = Object()
 
-    override fun onReceive(context: Context, intent: Intent?) {
-        synchronized(lock) {
+    override suspend fun doWork(): Result {
+        val context = applicationContext
+
+        val jobState = synchronized(lock) {
             val now = LocalDateTime.now()
             val cache = Preferences(context)
             val lastRun = cache.getLocalDate(getLastRunKey(context))
@@ -39,55 +43,60 @@ abstract class DailyJobReceiver(
 
             if (inWindow && shouldSend) {
                 Log.d(
-                    "ScheduledJobReceiver",
-                    "${this::class.java.simpleName} received a broadcast and executed"
+                    javaClass.simpleName,
+                    "Received a broadcast and executed"
                 )
                 cache.putLocalDate(getLastRunKey(context), now.toLocalDate())
-                execute(context)
-                setAlarm(context, tomorrowSendTime)
+                return@synchronized true to tomorrowSendTime
             }
 
             if (isTooEarly) {
                 Log.d(
-                    "ScheduledJobReceiver",
-                    "${this::class.java.simpleName} received a broadcast too early"
+                    javaClass.simpleName,
+                    "Received a broadcast too early"
                 )
-                setAlarm(context, sendTime)
+                return@synchronized false to sendTime
             }
 
             if (isAfterWindow || (inWindow && !shouldSend)) {
                 Log.d(
-                    "ScheduledJobReceiver",
-                    "${this::class.java.simpleName} received a broadcast too late, it already ran today, or it is not enabled"
+                    javaClass.simpleName,
+                    "Received a broadcast too late, it already ran today, or it is not enabled"
                 )
-                setAlarm(context, tomorrowSendTime)
             }
+
+            return@synchronized false to tomorrowSendTime
         }
+
+        try {
+            if (jobState.first) {
+                val foregroundInfo = getForegroundInfo(context)
+                if (foregroundInfo != null) {
+                    setForeground(foregroundInfo)
+                }
+                execute(context)
+            }
+        } catch (e: Exception) {
+            throw e
+        } finally {
+            setAlarm(context, jobState.second)
+        }
+
+        return Result.success()
     }
 
     protected abstract fun isEnabled(context: Context): Boolean
     protected abstract fun getScheduledTime(context: Context): LocalTime
     protected abstract fun getLastRunKey(context: Context): String
-    protected abstract fun execute(context: Context)
-    protected abstract val pendingIntentId: Int
+    protected abstract suspend fun execute(context: Context)
+    protected abstract val uniqueId: String
 
-    protected open fun getIntent(context: Context): Intent {
-        return Intent(context, this::class.java)
+    protected open fun getForegroundInfo(context: Context): ForegroundInfo? {
+        return null
     }
 
     protected open fun getScheduler(context: Context): ITaskScheduler {
-        return AlarmTaskScheduler(context) {
-            PendingIntent.getBroadcast(
-                context,
-                pendingIntentId,
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PendingIntent.FLAG_IMMUTABLE
-                } else {
-                    0
-                }
-            )
-        }
+        return WorkTaskScheduler(context, this::class.java, uniqueId, expedited)
     }
 
     private fun setAlarm(context: Context, time: LocalDateTime) {
@@ -95,8 +104,8 @@ abstract class DailyJobReceiver(
         scheduler.cancel()
         scheduler.schedule(time.toZonedDateTime().toInstant())
         Log.d(
-            "ScheduledJobReceiver",
-            "${this::class.java.simpleName} schedule the next alarm for $time"
+            javaClass.simpleName,
+            "Scheduled the next run for $time"
         )
     }
 }

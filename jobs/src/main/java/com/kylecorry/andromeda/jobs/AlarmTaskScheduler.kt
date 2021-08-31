@@ -6,14 +6,10 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 
-@Deprecated(
-    message = "Use AlarmTaskScheduler instead", replaceWith = ReplaceWith(
-        expression = "AlarmTaskScheduler(context, task)",
-        imports = ["com.kylecorry.andromeda.jobs.AlarmTaskScheduler"]
-    )
-)
-class ExactTaskScheduler(
+class AlarmTaskScheduler(
     private val context: Context,
+    private val exact: Boolean = true,
+    private val allowWhileIdle: Boolean = false,
     private val task: () -> PendingIntent
 ) :
     ITaskScheduler {
@@ -24,8 +20,8 @@ class ExactTaskScheduler(
             context,
             LocalDateTime.now().plus(delay),
             task(),
-            exact = true,
-            allowWhileIdle = true
+            exact,
+            allowWhileIdle
         )
     }
 

@@ -6,16 +6,12 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-@Deprecated(
-    message = "Use WorkTaskScheduler instead", replaceWith = ReplaceWith(
-        expression = "WorkTaskScheduler(context, task, uniqueId, false, constraints)",
-        imports = ["com.kylecorry.andromeda.jobs.WorkTaskScheduler"]
-    )
-)
-class DeferredTaskScheduler(
+// TODO: Add support for expedited jobs
+class WorkTaskScheduler(
     private val context: Context,
     private val task: Class<out ListenableWorker>,
     private val uniqueId: String,
+    private val expedited: Boolean = false,
     private val constraints: Constraints? = null
 ) : ITaskScheduler {
 
