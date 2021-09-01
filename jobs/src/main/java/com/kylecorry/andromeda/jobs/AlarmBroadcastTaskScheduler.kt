@@ -10,6 +10,15 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 
+/**
+ * Uses the AlarmManager and Broadcast Receivers to scheduler work. Useful for work that needs to run at an exact time.
+ * @param context the context
+ * @param receiver the receiver to call
+ * @param uniqueId an ID used to identify the receiver
+ * @param exact determines if this should be run at exactly the time specified. Defaults to true. Deferrable tasks should use the WorkTaskScheduler
+ * @param allowWhileIdle determines if this should be run while the device is idle. Defaults to false.
+ * @param intentExtras extras to add to the intent
+ */
 class AlarmBroadcastTaskScheduler(
     private val context: Context,
     private val receiver: Class<out BroadcastReceiver>,
@@ -22,6 +31,7 @@ class AlarmBroadcastTaskScheduler(
 
 
     override fun schedule(delay: Duration) {
+        cancel()
         Alarms.set(
             context,
             LocalDateTime.now().plus(delay),

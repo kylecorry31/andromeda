@@ -6,6 +6,13 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 
+/**
+ * Uses the AlarmManager to scheduler work. Useful for work that needs to run at an exact time.
+ * @param context the context
+ * @param exact determines if this should be run at exactly the time specified. Defaults to true. Deferrable tasks should use the WorkTaskScheduler
+ * @param allowWhileIdle determines if this should be run while the device is idle. Defaults to false.
+ * @param task the task to run - if you are just calling a broadcast receiver, it is recommend to use the AlarmBroadcastTaskScheduler
+ */
 class AlarmTaskScheduler(
     private val context: Context,
     private val exact: Boolean = true,

@@ -2,11 +2,21 @@ package com.kylecorry.andromeda.jobs
 
 import android.content.Context
 import androidx.work.*
+import com.kylecorry.andromeda.core.system.Package
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 // TODO: Add support for expedited jobs
+
+/**
+ * This class uses the WorkManager for deferrable tasks
+ * @param context the context
+ * @param task the task to run
+ * @param uniqueId a unique ID describing this task
+ * @param expedited determines if this should be expedited (not yet implemented)
+ * @param constraints the constraints around the work
+ */
 class WorkTaskScheduler(
     private val context: Context,
     private val task: Class<out ListenableWorker>,
@@ -43,5 +53,11 @@ class WorkTaskScheduler(
     override fun cancel() {
         val workManager = WorkManager.getInstance(context.applicationContext)
         workManager.cancelUniqueWork(uniqueId)
+    }
+
+    companion object {
+        fun createStringId(context: Context, uniqueId: Int): String {
+            return Package.getPackageName(context) + "." + uniqueId
+        }
     }
 }
