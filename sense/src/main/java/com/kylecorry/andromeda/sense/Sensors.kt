@@ -34,7 +34,7 @@ object Sensors {
         )
     }
 
-    fun hasThermometer(context: Context): Boolean {
+    fun hasThermometer(@Suppress("UNUSED_PARAMETER") context: Context): Boolean {
         // True because of battery sensor (maybe check to see if the battery has the thermometer)
         return true
     }

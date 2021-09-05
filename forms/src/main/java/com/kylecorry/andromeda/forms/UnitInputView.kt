@@ -7,8 +7,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.widget.addTextChangedListener
-import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.andromeda.core.toDoubleCompat
 import com.kylecorry.andromeda.pickers.Pickers
 
 open class UnitInputView<Units : Enum<*>>(
@@ -70,8 +70,8 @@ open class UnitInputView<Units : Enum<*>>(
 
     var onChange: ((amount: Number?, unit: Units?) -> Unit)? = null
 
-    private lateinit var amountEdit: EditText
-    private lateinit var unitBtn: Button
+    private var amountEdit = EditText(context)
+    private var unitBtn: Button
 
     private fun setSelectedUnitText(unit: Units?) {
         if (unit != null) {
@@ -92,7 +92,6 @@ open class UnitInputView<Units : Enum<*>>(
     }
 
     init {
-        amountEdit = EditText(context)
         amountEdit.inputType = InputType.TYPE_CLASS_NUMBER or
                 InputType.TYPE_NUMBER_FLAG_DECIMAL or
                 InputType.TYPE_NUMBER_FLAG_SIGNED

@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.core.units
 
 import com.kylecorry.andromeda.core.math.*
+import com.kylecorry.andromeda.core.toDoubleCompat
 import com.kylecorry.sol.math.SolMath.power
 import com.kylecorry.sol.math.SolMath.roundPlaces
 import com.kylecorry.sol.units.Coordinate

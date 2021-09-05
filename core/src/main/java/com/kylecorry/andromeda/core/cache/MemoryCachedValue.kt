@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.core.cache
 
 import com.kylecorry.sol.time.Time.isInPast
-import isOlderThan
+import com.kylecorry.sol.time.Time.isOlderThan
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration

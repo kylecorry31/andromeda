@@ -7,8 +7,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
-import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.andromeda.core.toDoubleCompat
 
 class NumberTextField(
     context: Context,

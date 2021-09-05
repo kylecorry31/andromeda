@@ -11,9 +11,8 @@ import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.TimePicker
 import androidx.annotation.MenuRes
-import androidx.appcompat.app.AlertDialog
 import com.kylecorry.andromeda.alerts.Alerts
-import com.kylecorry.andromeda.core.math.toDoubleCompat
+import com.kylecorry.andromeda.core.toDoubleCompat
 import java.time.LocalDate
 import java.time.LocalTime
 

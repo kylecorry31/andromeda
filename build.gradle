@@ -9,7 +9,7 @@ buildscript {
     }
     ext.groupId = 'com.kylecorry.andromeda'
     ext.versionName = '1.4.2'
-    ext.solVersion = '5.0.0-beta02'
+    ext.solVersion = '5.0.0'
 }
 
 allprojects {
