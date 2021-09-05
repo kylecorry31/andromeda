@@ -8,6 +8,8 @@ import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
+import com.kylecorry.sol.math.*
+import com.kylecorry.sol.math.SolMath.toRadians
 import kotlin.math.absoluteValue
 
 // Adapted from https://github.com/xioTechnologies/Fusion

@@ -5,8 +5,8 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import com.kylecorry.andromeda.core.time.toZonedDateTime
 import com.kylecorry.andromeda.preferences.Preferences
+import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -8,7 +8,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Intents
-import com.kylecorry.andromeda.core.time.toEpochMillis
+import com.kylecorry.sol.time.Time.toEpochMillis
 import java.time.LocalDateTime
 
 object Alarms {

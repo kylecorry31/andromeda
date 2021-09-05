@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.inclinometer
 
-import com.kylecorry.andromeda.core.math.Vector3
+import com.kylecorry.sol.math.Vector3
 import kotlin.math.atan2
 
 internal object InclinationCalculator {

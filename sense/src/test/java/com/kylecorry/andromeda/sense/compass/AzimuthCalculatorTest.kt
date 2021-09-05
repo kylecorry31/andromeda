@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.compass
 
-import com.kylecorry.andromeda.core.math.Vector3
+import com.kylecorry.sol.math.Vector3
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments

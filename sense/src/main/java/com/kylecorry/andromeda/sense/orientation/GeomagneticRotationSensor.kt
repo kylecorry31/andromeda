@@ -4,9 +4,9 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
-import com.kylecorry.andromeda.core.math.Quaternion
-import com.kylecorry.andromeda.core.math.QuaternionMath
-import com.kylecorry.andromeda.core.units.Bearing
+import com.kylecorry.sol.math.Quaternion
+import com.kylecorry.sol.math.QuaternionMath
+import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.andromeda.sense.compass.ICompass
 

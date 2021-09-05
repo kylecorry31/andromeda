@@ -1,16 +1,16 @@
 package com.kylecorry.andromeda.sense.compass
 
 import android.content.Context
-import com.kylecorry.andromeda.core.math.MovingAverageFilter
-import com.kylecorry.andromeda.core.math.deltaAngle
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.andromeda.core.units.Bearing
 import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
+import com.kylecorry.sol.math.SolMath.deltaAngle
+import com.kylecorry.sol.math.filters.MovingAverageFilter
+import com.kylecorry.sol.units.Bearing
 import kotlin.math.max
 import kotlin.math.min
 

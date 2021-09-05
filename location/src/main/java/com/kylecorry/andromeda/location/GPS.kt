@@ -9,11 +9,11 @@ import android.os.Looper
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.andromeda.core.units.Coordinate
-import com.kylecorry.andromeda.core.units.DistanceUnits
-import com.kylecorry.andromeda.core.units.Speed
-import com.kylecorry.andromeda.core.units.TimeUnits
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.sol.units.Coordinate
+import com.kylecorry.sol.units.DistanceUnits
+import com.kylecorry.sol.units.Speed
+import com.kylecorry.sol.units.TimeUnits
 import java.time.Instant
 
 @SuppressLint("MissingPermission")

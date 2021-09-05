@@ -4,7 +4,7 @@ import android.content.Context
 import com.kylecorry.andromeda.core.math.*
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.andromeda.core.units.Bearing
+import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
@@ -12,6 +12,11 @@ import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.compass.AzimuthCalculator
 import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
+import com.kylecorry.sol.math.Quaternion
+import com.kylecorry.sol.math.QuaternionMath
+import com.kylecorry.sol.math.SolMath.deltaAngle
+import com.kylecorry.sol.math.SolMath.toDegrees
+import com.kylecorry.sol.math.filters.MovingAverageFilter
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min

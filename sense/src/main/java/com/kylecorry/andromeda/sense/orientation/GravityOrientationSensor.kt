@@ -1,9 +1,9 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
-import com.kylecorry.andromeda.core.math.Quaternion
-import com.kylecorry.andromeda.core.math.QuaternionMath
-import com.kylecorry.andromeda.core.math.toDegrees
+import com.kylecorry.sol.math.Quaternion
+import com.kylecorry.sol.math.QuaternionMath
+import com.kylecorry.sol.math.SolMath.toDegrees
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors

@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.preferences
 
-import com.kylecorry.andromeda.core.units.Coordinate
+import com.kylecorry.sol.units.Coordinate
 import kotlin.reflect.KProperty
 
 class CoordinatePreference(

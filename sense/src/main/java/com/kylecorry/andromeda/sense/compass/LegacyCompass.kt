@@ -4,8 +4,8 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
-import com.kylecorry.andromeda.core.math.MovingAverageFilter
-import com.kylecorry.andromeda.core.units.Bearing
+import com.kylecorry.sol.math.filters.MovingAverageFilter
+import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.BaseSensor
 import kotlin.math.abs
 import kotlin.math.floor

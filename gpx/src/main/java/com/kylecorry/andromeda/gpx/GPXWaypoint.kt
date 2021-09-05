@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.gpx
 
-import com.kylecorry.andromeda.core.units.Coordinate
+import com.kylecorry.sol.units.Coordinate
 import java.time.Instant
 
 data class GPXWaypoint(

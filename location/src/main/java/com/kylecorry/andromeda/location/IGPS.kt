@@ -4,7 +4,7 @@ import com.kylecorry.andromeda.core.sensors.IAltimeter
 import com.kylecorry.andromeda.core.sensors.IClock
 import com.kylecorry.andromeda.core.sensors.ISensor
 import com.kylecorry.andromeda.core.sensors.ISpeedometer
-import com.kylecorry.andromeda.core.units.Coordinate
+import com.kylecorry.sol.units.Coordinate
 
 interface IGPS: ISensor, IAltimeter, IClock, ISpeedometer {
     val location: Coordinate

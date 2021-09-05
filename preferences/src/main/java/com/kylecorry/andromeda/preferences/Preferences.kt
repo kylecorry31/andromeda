@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.kylecorry.andromeda.core.math.toDoubleCompat
-import com.kylecorry.andromeda.core.units.Coordinate
+import com.kylecorry.sol.units.Coordinate
 import java.time.Instant
 import java.time.LocalDate
 

@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.orientation
 
-import com.kylecorry.andromeda.core.math.Euler
+import com.kylecorry.sol.math.Euler
 
 interface IGyroscope: IOrientationSensor {
     val angularRate: Euler

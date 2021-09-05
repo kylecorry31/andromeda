@@ -6,8 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import com.kylecorry.andromeda.core.time.toZonedDateTime
 import com.kylecorry.andromeda.preferences.Preferences
+import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime

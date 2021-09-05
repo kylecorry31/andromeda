@@ -5,9 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.location.LocationManager
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.units.Coordinate
-import com.kylecorry.andromeda.core.units.Distance
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.sol.units.Coordinate
+import com.kylecorry.sol.units.Distance
 import java.time.Duration
 
 object Geofences {

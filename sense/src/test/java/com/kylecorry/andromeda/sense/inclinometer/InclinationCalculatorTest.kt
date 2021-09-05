@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.inclinometer
 
-import com.kylecorry.andromeda.core.math.Vector3
+import com.kylecorry.sol.math.Vector3
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.params.ParameterizedTest

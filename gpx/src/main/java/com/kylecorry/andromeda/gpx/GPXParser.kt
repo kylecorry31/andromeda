@@ -4,7 +4,7 @@ import android.text.TextUtils
 import com.kylecorry.andromeda.core.math.toDoubleCompat
 import com.kylecorry.andromeda.core.math.toFloatCompat
 import com.kylecorry.andromeda.core.math.toLongCompat
-import com.kylecorry.andromeda.core.units.Coordinate
+import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
 import java.time.Instant
