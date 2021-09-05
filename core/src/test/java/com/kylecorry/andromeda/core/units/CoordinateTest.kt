@@ -1,5 +1,15 @@
 package com.kylecorry.andromeda.core.units
 
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.parse
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDecimalDegrees
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDegreeDecimalMinutes
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDegreeMinutesSeconds
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toMGRS
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toOSNG
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toUSNG
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toUTM
+import com.kylecorry.sol.units.Bearing
+import com.kylecorry.sol.units.Coordinate
 import org.junit.Assert
 import org.junit.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -8,13 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import java.util.stream.Stream
 
 class CoordinateTest {
-
-    @Test
-    fun isNorthernHemisphere() {
-        Assert.assertTrue(Coordinate(1.0, 0.0).isNorthernHemisphere)
-        Assert.assertFalse(Coordinate(-1.0, 0.0).isNorthernHemisphere)
-        Assert.assertFalse(Coordinate(0.0, 0.0).isNorthernHemisphere)
-    }
 
     @Test
     fun toUTM() {
