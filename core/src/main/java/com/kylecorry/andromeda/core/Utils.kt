@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.core
 
+import android.os.Bundle
 import android.util.Range
 import com.kylecorry.andromeda.core.specifications.Specification
 import java.util.*
@@ -79,4 +80,13 @@ fun String.toLongCompat(): Long? {
     } catch (e: Exception) {
         null
     }
+}
+
+fun Bundle.toMap(): Map<String, Any?> {
+    val keys = keySet()
+    val map = mutableMapOf<String, Any?>()
+    for (key in keys) {
+        map[key] = get(key)
+    }
+    return map
 }

@@ -52,6 +52,23 @@ object Alarms {
     }
 
     /**
+     * Create an alarm
+     * @param time The time to fire the alarm
+     * @param pendingIntent The pending intent to launch when the alarm fires
+     * @param viewAlarmPendingIntent The pending intent to launch when the user wants to view or edit the alarm
+     */
+    fun setAlarmClock(
+        context: Context,
+        time: LocalDateTime,
+        pendingIntent: PendingIntent,
+        viewAlarmPendingIntent: PendingIntent
+    ) {
+        val alarmManager = getAlarmManager(context) ?: return
+        val info = AlarmManager.AlarmClockInfo(time.toEpochMillis(), viewAlarmPendingIntent)
+        alarmManager.setAlarmClock(info, pendingIntent)
+    }
+
+    /**
      * Cancel the alarm associated with the pending intent
      * @param pendingIntent The pending intent to cancel
      */

@@ -1,8 +1,10 @@
 package com.kylecorry.andromeda.jobs
 
 import android.content.Context
+import android.os.Bundle
 import androidx.work.*
 import com.kylecorry.andromeda.core.system.Package
+import com.kylecorry.andromeda.core.toMap
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -22,7 +24,8 @@ class WorkTaskScheduler(
     private val task: Class<out ListenableWorker>,
     private val uniqueId: String,
     private val expedited: Boolean = false,
-    private val constraints: Constraints? = null
+    private val constraints: Constraints? = null,
+    private val input: Bundle? = null
 ) : ITaskScheduler {
 
 
@@ -35,6 +38,9 @@ class WorkTaskScheduler(
                 setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
                 if (constraints != null) {
                     setConstraints(constraints)
+                }
+                if (input != null) {
+                    setInputData(Data.Builder().putAll(input.toMap()).build())
                 }
             }
             .build()
