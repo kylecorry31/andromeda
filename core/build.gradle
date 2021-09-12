@@ -56,7 +56,7 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.6.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1'
     api "com.github.kylecorry31.sol:units:${solVersion}"
     api "com.github.kylecorry31.sol:math:${solVersion}"

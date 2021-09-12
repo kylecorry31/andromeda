@@ -4,8 +4,6 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
 
 interface ISensor {
 
@@ -17,6 +15,7 @@ interface ISensor {
 
     fun stop(listener: SensorListener?)
 
+    suspend fun read()
 }
 
 fun <T : ISensor> T.asLiveData(): LiveData<T> {
@@ -46,15 +45,4 @@ fun <T : ISensor> T.asLiveData(): LiveData<T> {
     }
 
     return liveData
-}
-
-suspend fun <T : ISensor> T.read() = suspendCancellableCoroutine<T> { cont ->
-    val callback: () -> Boolean = {
-        cont.resume(this)
-        false
-    }
-    cont.invokeOnCancellation {
-        stop(callback)
-    }
-    start(callback)
 }

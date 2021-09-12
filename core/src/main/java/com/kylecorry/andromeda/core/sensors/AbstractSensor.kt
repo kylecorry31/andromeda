@@ -1,5 +1,12 @@
 package com.kylecorry.andromeda.core.sensors
 
+import android.os.Handler
+import android.os.Looper
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+
 abstract class AbstractSensor : ISensor {
 
     override val quality = Quality.Unknown
@@ -28,6 +35,17 @@ abstract class AbstractSensor : ISensor {
         if (!started) return
         stopImpl()
         started = false
+    }
+    
+    override suspend fun read() = suspendCancellableCoroutine<Unit> { cont ->
+        val callback: () -> Boolean = {
+            cont.resume(Unit)
+            false
+        }
+        cont.invokeOnCancellation {
+            stop(callback)
+        }
+        start(callback)
     }
 
     protected abstract fun startImpl()
