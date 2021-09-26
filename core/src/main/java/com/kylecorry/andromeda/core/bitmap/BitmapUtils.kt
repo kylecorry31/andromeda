@@ -3,7 +3,10 @@ package com.kylecorry.andromeda.core.bitmap
 import android.content.Context
 import android.graphics.*
 import android.media.Image
+import com.google.android.renderscript.Toolkit
+import com.google.android.renderscript.YuvFormat
 import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
 
 object BitmapUtils {
 
@@ -54,10 +57,11 @@ object BitmapUtils {
         return inSampleSize
     }
 
-    fun Image.toBitmap(context: Context, rotation: Float = 90f): Bitmap {
-        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val yuvToRgbConverter = YuvToRgbConverter(context)
-        yuvToRgbConverter.yuvToRgb(this, bmp)
+    fun Image.toBitmap(rotation: Float = 90f): Bitmap {
+        val yuvBuffer = YuvByteBuffer(this, null)
+        val bytes = ByteArray(yuvBuffer.buffer.capacity())
+        yuvBuffer.buffer.get(bytes)
+        val bmp = Toolkit.yuvToRgbBitmap(bytes, width, height, YuvFormat.NV21)
         return if (rotation != 0f) {
             val rotated = bmp.rotate(rotation)
             bmp.recycle()

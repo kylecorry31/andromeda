@@ -58,6 +58,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
     implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1'
+    implementation 'com.github.kylecorry31:renderscript-intrinsics-replacement-toolkit:0.8'
     api "com.github.kylecorry31.sol:units:${solVersion}"
     api "com.github.kylecorry31.sol:math:${solVersion}"
     api "com.github.kylecorry31.sol:time:${solVersion}"
