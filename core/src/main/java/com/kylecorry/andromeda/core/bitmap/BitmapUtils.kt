@@ -54,11 +54,22 @@ object BitmapUtils {
         return inSampleSize
     }
 
-    fun Image.toBitmap(context: Context): Bitmap {
+    fun Image.toBitmap(context: Context, rotation: Float = 90f): Bitmap {
         val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val yuvToRgbConverter = YuvToRgbConverter(context)
         yuvToRgbConverter.yuvToRgb(this, bmp)
-        return bmp
+        return if (rotation != 0f) {
+            val rotated = bmp.rotate(rotation)
+            bmp.recycle()
+            return rotated
+        } else {
+            bmp
+        }
+    }
+
+    fun Bitmap.rotate(degrees: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
 }
