@@ -6,11 +6,11 @@ group = "$groupId"
 version = "$versionName"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion = compileVersion
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

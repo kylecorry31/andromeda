@@ -6,11 +6,11 @@ group = "$groupId"
 version = "$versionName"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion = compileVersion
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,10 +50,10 @@ android {
 dependencies {
     implementation project(':core')
     implementation project(':permissions')
-    def camerax_version = "1.0.1"
+    def camerax_version = "1.0.2"
     implementation "androidx.camera:camera-camera2:${camerax_version}"
     implementation "androidx.camera:camera-lifecycle:${camerax_version}"
-    implementation "androidx.camera:camera-view:1.0.0-alpha27"
+    implementation "androidx.camera:camera-view:1.0.0-alpha29"
     implementation 'androidx.core:core-ktx:1.6.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
