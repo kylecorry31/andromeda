@@ -19,7 +19,6 @@ import kotlin.coroutines.EmptyCoroutineContext
 
 open class AndromedaFragment : Fragment() {
 
-    protected var cancelLifecycleScopeOnPause: Boolean = false
     protected var hasUpdates: Boolean = true
 
     private var resultLauncher: ActivityResultLauncher<Intent>? = null
@@ -68,9 +67,6 @@ open class AndromedaFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         updateTimer.stop()
-        if (cancelLifecycleScopeOnPause && lifecycleScope.isActive) {
-            lifecycleScope.cancel()
-        }
     }
 
     protected fun scheduleUpdates(interval: Duration) {

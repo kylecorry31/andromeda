@@ -4,8 +4,7 @@ import java.time.Duration
 import java.time.Instant
 
 interface ITaskScheduler {
-
-    fun schedule(delay: Duration)
+    fun schedule(delay: Duration = Duration.ZERO)
     fun schedule(time: Instant)
 
     fun cancel()
