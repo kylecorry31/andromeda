@@ -26,10 +26,10 @@ class WorkTaskScheduler(
     private val expedited: Boolean = false,
     private val constraints: Constraints? = null,
     private val input: Bundle? = null
-) : ITaskScheduler {
+) : ITaskScheduler, IPeriodicTaskScheduler {
 
 
-    override fun schedule(delay: Duration) {
+    override fun once(delay: Duration) {
         val workManager = WorkManager.getInstance(context.applicationContext)
 
         val request = OneTimeWorkRequest
@@ -52,8 +52,35 @@ class WorkTaskScheduler(
         )
     }
 
-    override fun schedule(time: Instant) {
-        schedule(Duration.between(Instant.now(), time))
+    override fun once(time: Instant) {
+        once(Duration.between(Instant.now(), time))
+    }
+
+    override fun interval(period: Duration, initialDelay: Duration) {
+        val workManager = WorkManager.getInstance(context.applicationContext)
+
+        val request = PeriodicWorkRequest
+            .Builder(task, period.toMillis(), TimeUnit.MILLISECONDS).apply {
+                addTag(uniqueId)
+                setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
+                if (constraints != null) {
+                    setConstraints(constraints)
+                }
+                if (input != null) {
+                    setInputData(Data.Builder().putAll(input.toMap()).build())
+                }
+            }
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(
+            uniqueId,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            request
+        )
+    }
+
+    override fun interval(period: Duration, start: Instant) {
+        interval(period, Duration.between(Instant.now(), start))
     }
 
     override fun cancel() {

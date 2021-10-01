@@ -93,7 +93,7 @@ abstract class DailyJobReceiver(
     private fun setAlarm(context: Context, time: LocalDateTime) {
         val scheduler = getScheduler(context)
         scheduler.cancel()
-        scheduler.schedule(time.toZonedDateTime().toInstant())
+        scheduler.once(time.toZonedDateTime().toInstant())
         Log.d(
             "ScheduledJobReceiver",
             "${this::class.java.simpleName} schedule the next alarm for $time"

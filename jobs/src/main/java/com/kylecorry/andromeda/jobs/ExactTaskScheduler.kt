@@ -19,7 +19,7 @@ class ExactTaskScheduler(
     ITaskScheduler {
 
 
-    override fun schedule(delay: Duration) {
+    override fun once(delay: Duration) {
         Alarms.set(
             context,
             LocalDateTime.now().plus(delay),
@@ -29,8 +29,8 @@ class ExactTaskScheduler(
         )
     }
 
-    override fun schedule(time: Instant) {
-        schedule(Duration.between(Instant.now(), time))
+    override fun once(time: Instant) {
+        once(Duration.between(Instant.now(), time))
     }
 
     override fun cancel() {
