@@ -95,7 +95,7 @@ abstract class DailyWorker(
         return null
     }
 
-    protected open fun getScheduler(context: Context): ITaskScheduler {
+    protected open fun getScheduler(context: Context): IOneTimeTaskScheduler {
         return WorkTaskScheduler(context, this::class.java, uniqueId, expedited)
     }
 

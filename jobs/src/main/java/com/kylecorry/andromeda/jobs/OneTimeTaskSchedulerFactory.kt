@@ -10,13 +10,13 @@ import androidx.work.ListenableWorker
 import com.kylecorry.andromeda.core.annotations.ExperimentalUsage
 
 @ExperimentalUsage("This class may change significantly to accommodate generic tasks")
-class TaskSchedulerFactory(private val context: Context) {
+class OneTimeTaskSchedulerFactory(private val context: Context) {
 
     fun deferrable(
         task: Class<out ListenableWorker>,
         uniqueId: Int,
         data: Bundle? = null
-    ): ITaskScheduler {
+    ): IOneTimeTaskScheduler {
         return WorkTaskScheduler(
             context.applicationContext,
             task,
@@ -29,7 +29,7 @@ class TaskSchedulerFactory(private val context: Context) {
         task: Class<out BroadcastReceiver>,
         uniqueId: Int,
         data: Bundle? = null
-    ): ITaskScheduler {
+    ): IOneTimeTaskScheduler {
         return AlarmBroadcastTaskScheduler(
             context.applicationContext,
             task,
@@ -45,7 +45,7 @@ class TaskSchedulerFactory(private val context: Context) {
         viewTask: PendingIntent,
         uniqueId: Int,
         data: Bundle? = null
-    ): ITaskScheduler {
+    ): IOneTimeTaskScheduler {
         return AlarmClockTaskScheduler(
             context.applicationContext,
             viewTask

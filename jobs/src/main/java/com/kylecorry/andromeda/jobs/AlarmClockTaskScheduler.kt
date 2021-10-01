@@ -17,7 +17,7 @@ class AlarmClockTaskScheduler(
     private val viewTask: PendingIntent,
     private val task: () -> PendingIntent
 ) :
-    ITaskScheduler {
+    IOneTimeTaskScheduler {
 
 
     override fun once(delay: Duration) {

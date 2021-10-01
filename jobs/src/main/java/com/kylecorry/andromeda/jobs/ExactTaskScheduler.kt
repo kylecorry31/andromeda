@@ -16,7 +16,7 @@ class ExactTaskScheduler(
     private val context: Context,
     private val task: () -> PendingIntent
 ) :
-    ITaskScheduler {
+    IOneTimeTaskScheduler {
 
 
     override fun once(delay: Duration) {

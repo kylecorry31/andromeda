@@ -17,7 +17,7 @@ class DeferredTaskScheduler(
     private val task: Class<out ListenableWorker>,
     private val uniqueId: String,
     private val constraints: Constraints? = null
-) : ITaskScheduler {
+) : IOneTimeTaskScheduler {
 
 
     override fun once(delay: Duration) {

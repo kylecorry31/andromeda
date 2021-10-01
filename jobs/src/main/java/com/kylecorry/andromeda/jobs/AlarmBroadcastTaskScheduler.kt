@@ -27,7 +27,7 @@ class AlarmBroadcastTaskScheduler(
     private val allowWhileIdle: Boolean = false,
     private val intentExtras: Bundle? = null
 ) :
-    ITaskScheduler {
+    IOneTimeTaskScheduler {
 
 
     override fun once(delay: Duration) {

@@ -75,7 +75,7 @@ abstract class DailyJobReceiver(
         return Intent(context, this::class.java)
     }
 
-    protected open fun getScheduler(context: Context): ITaskScheduler {
+    protected open fun getScheduler(context: Context): IOneTimeTaskScheduler {
         return AlarmTaskScheduler(context) {
             PendingIntent.getBroadcast(
                 context,

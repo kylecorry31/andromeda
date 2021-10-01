@@ -19,7 +19,7 @@ class AlarmTaskScheduler(
     private val allowWhileIdle: Boolean = false,
     private val task: () -> PendingIntent
 ) :
-    ITaskScheduler {
+    IOneTimeTaskScheduler {
 
 
     override fun once(delay: Duration) {

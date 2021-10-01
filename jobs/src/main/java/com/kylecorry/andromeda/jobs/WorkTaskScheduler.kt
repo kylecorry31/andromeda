@@ -26,7 +26,7 @@ class WorkTaskScheduler(
     private val expedited: Boolean = false,
     private val constraints: Constraints? = null,
     private val input: Bundle? = null
-) : ITaskScheduler, IPeriodicTaskScheduler {
+) : IOneTimeTaskScheduler, IPeriodicTaskScheduler {
 
 
     override fun once(delay: Duration) {
