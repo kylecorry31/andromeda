@@ -71,6 +71,22 @@ object BitmapUtils {
         }
     }
 
+    fun Bitmap.convolve(kernel: FloatArray): Bitmap {
+        return Toolkit.convolve(this, kernel)
+    }
+
+    fun Bitmap.gray(): Bitmap {
+        return Toolkit.colorMatrix(this, Toolkit.greyScaleColorMatrix)
+    }
+
+    fun Bitmap.histogram(): IntArray {
+        return Toolkit.histogram(this)
+    }
+
+    fun Bitmap.blur(radius: Int): Bitmap {
+        return Toolkit.blur(this, radius)
+    }
+
     fun Bitmap.rotate(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
