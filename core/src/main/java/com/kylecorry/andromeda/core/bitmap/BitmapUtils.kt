@@ -94,7 +94,11 @@ object BitmapUtils {
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
-    fun Bitmap.glcm(step: Pair<Int, Int>, channel: ColorChannel): GLCM {
+    fun Bitmap.glcm(
+        step: Pair<Int, Int>,
+        channel: ColorChannel,
+        excludeTransparent: Boolean = false
+    ): GLCM {
         // TODO: Make this faster with RenderScript
         val glcm = Array(256) { FloatArray(256) }
 
@@ -113,8 +117,19 @@ object BitmapUtils {
                     continue
                 }
 
-                val current = getPixel(x, y).getChannel(channel)
-                val neighbor = getPixel(neighborX, neighborY).getChannel(channel)
+                val currentPx = getPixel(x, y)
+                val neighborPx = getPixel(neighborX, neighborY)
+
+                if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
+                    continue
+                }
+
+                if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
+                    continue
+                }
+
+                val current = currentPx.getChannel(channel)
+                val neighbor = neighborPx.getChannel(channel)
 
                 glcm[current][neighbor]++
                 total++
@@ -128,6 +143,7 @@ object BitmapUtils {
                 }
             }
         }
+
 
         return glcm
     }
