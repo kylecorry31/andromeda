@@ -3,8 +3,10 @@ package com.kylecorry.andromeda.core.bitmap
 import android.content.Context
 import android.graphics.*
 import android.media.Image
+import androidx.annotation.ColorInt
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
+import com.kylecorry.sol.math.statistics.GLCM
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -90,6 +92,53 @@ object BitmapUtils {
     fun Bitmap.rotate(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    }
+
+    fun Bitmap.glcm(step: Pair<Int, Int>, channel: ColorChannel): GLCM {
+        // TODO: Make this faster with RenderScript
+        val glcm = Array(256) { FloatArray(256) }
+
+        var total = 0
+
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val neighborX = x + step.first
+                val neighborY = y + step.second
+
+                if (neighborX >= width || neighborX < 0) {
+                    continue
+                }
+
+                if (neighborY >= height || neighborY < 0) {
+                    continue
+                }
+
+                val current = getPixel(x, y).getChannel(channel)
+                val neighbor = getPixel(neighborX, neighborY).getChannel(channel)
+
+                glcm[current][neighbor]++
+                total++
+            }
+        }
+
+        if (total > 0) {
+            for (row in glcm.indices) {
+                for (col in glcm[0].indices) {
+                    glcm[row][col] /= total.toFloat()
+                }
+            }
+        }
+
+        return glcm
+    }
+
+    private fun Int.getChannel(channel: ColorChannel): Int {
+        return when (channel) {
+            ColorChannel.Red -> Color.red(this)
+            ColorChannel.Green -> Color.green(this)
+            ColorChannel.Blue -> Color.blue(this)
+            ColorChannel.Alpha -> Color.alpha(this)
+        }
     }
 
 }
