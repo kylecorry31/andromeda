@@ -72,10 +72,13 @@ object Pickers {
         popup.show()
     }
 
-    fun menu(anchorView: View, items: List<Pair<Int, String>>, onSelection: (itemId: Int) -> Boolean) {
+    fun menu(anchorView: View, items: List<String?>, onSelection: (selectedIdx: Int) -> Boolean) {
         val popup = PopupMenu(anchorView.context, anchorView)
-        for (item in items){
-            popup.menu.add(Menu.NONE, item.first, Menu.NONE, item.second)
+        for (i in items.indices){
+            if (items[i] == null){
+                continue
+            }
+            popup.menu.add(Menu.NONE, i, Menu.NONE, items[i])
         }
         popup.setOnMenuItemClickListener {
             onSelection.invoke(it.itemId)
