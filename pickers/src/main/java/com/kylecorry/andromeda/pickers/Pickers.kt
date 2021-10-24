@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.text.InputType
+import android.view.Menu
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -65,6 +66,17 @@ object Pickers {
         val popup = PopupMenu(anchorView.context, anchorView)
         val inflater = popup.menuInflater
         inflater.inflate(menu, popup.menu)
+        popup.setOnMenuItemClickListener {
+            onSelection.invoke(it.itemId)
+        }
+        popup.show()
+    }
+
+    fun menu(anchorView: View, items: List<Pair<Int, String>>, onSelection: (itemId: Int) -> Boolean) {
+        val popup = PopupMenu(anchorView.context, anchorView)
+        for (item in items){
+            popup.menu.add(Menu.NONE, item.first, Menu.NONE, item.second)
+        }
         popup.setOnMenuItemClickListener {
             onSelection.invoke(it.itemId)
         }
