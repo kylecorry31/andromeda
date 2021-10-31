@@ -1,6 +1,5 @@
 package com.kylecorry.andromeda.forms
 
-import android.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
@@ -71,7 +70,7 @@ class SpinnerField(
 
         val adapter = ArrayAdapter(
             context,
-            R.layout.simple_spinner_item,
+            android.R.layout.simple_spinner_item,
             items
         )
         if (useDialog) {
