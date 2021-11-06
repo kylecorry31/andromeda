@@ -38,7 +38,7 @@ abstract class CanvasView : View {
         super.onDraw(canvas)
         canvas ?: return
         this.canvas = canvas
-        if (!isSetup && setupAfterVisible && !isVisible){
+        if (!isSetup && setupAfterVisible && !isVisible) {
             return
         }
         if (!isSetup) {
@@ -112,12 +112,12 @@ abstract class CanvasView : View {
         strokePaint.color = color
     }
 
-    fun pathEffect(effect: PathEffect){
+    fun pathEffect(effect: PathEffect) {
         strokePaint.pathEffect = effect
         fillPaint.pathEffect = effect
     }
 
-    fun noPathEffect(){
+    fun noPathEffect() {
         strokePaint.pathEffect = null
         fillPaint.pathEffect = null
     }
@@ -158,7 +158,7 @@ abstract class CanvasView : View {
         }
     }
 
-    fun opacity(value: Int){
+    fun opacity(value: Int) {
         fillPaint.alpha = value
         strokePaint.alpha = value
     }
@@ -347,6 +347,20 @@ abstract class CanvasView : View {
         }
     }
 
+    fun lines(points: FloatArray) {
+        if (!shouldDraw()) {
+            return
+        }
+
+        if (shouldFill()) {
+            canvas.drawLines(points, fillPaint)
+        }
+
+        if (shouldStroke()) {
+            canvas.drawLines(points, strokePaint)
+        }
+    }
+
     fun grid(
         spacing: Float,
         width: Float = this.width.toFloat(),
@@ -417,7 +431,7 @@ abstract class CanvasView : View {
         rect(x, y, size, size, radius)
     }
 
-    fun path(value: Path){
+    fun path(value: Path) {
         if (!shouldDraw()) {
             return
         }
