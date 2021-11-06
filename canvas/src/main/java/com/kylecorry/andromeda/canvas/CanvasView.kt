@@ -417,25 +417,33 @@ abstract class CanvasView : View {
         rect(x, y, size, size, radius)
     }
 
+    fun path(value: Path){
+        if (!shouldDraw()) {
+            return
+        }
+
+        if (shouldFill()) {
+            canvas.drawPath(value, fillPaint)
+        }
+
+        if (shouldStroke()) {
+            canvas.drawPath(value, strokePaint)
+        }
+    }
+
     fun triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
         if (!shouldDraw()) {
             return
         }
 
-        val path = Path()
-        path.moveTo(x1, y1)
-        path.lineTo(x2, y2)
-        path.lineTo(x3, y3)
-        path.lineTo(x1, y1)
-        path.close()
+        val trianglePath = Path()
+        trianglePath.moveTo(x1, y1)
+        trianglePath.lineTo(x2, y2)
+        trianglePath.lineTo(x3, y3)
+        trianglePath.lineTo(x1, y1)
+        trianglePath.close()
 
-        if (shouldFill()) {
-            canvas.drawPath(path, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawPath(path, strokePaint)
-        }
+        path(trianglePath)
     }
 
     // Transforms
