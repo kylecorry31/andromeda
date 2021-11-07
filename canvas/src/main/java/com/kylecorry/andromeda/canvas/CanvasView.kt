@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.canvas
 
 import android.content.Context
 import android.graphics.*
+import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
@@ -551,6 +552,18 @@ abstract class CanvasView : View {
     }
 
     // Masks
+
+    fun clip(path: Path){
+        canvas.clipPath(path)
+    }
+
+    fun clipInverse(path: Path){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            canvas.clipOutPath(path)
+        } else {
+            canvas.clipPath(path, Region.Op.DIFFERENCE)
+        }
+    }
 
     fun mask(
         mask: Bitmap,
