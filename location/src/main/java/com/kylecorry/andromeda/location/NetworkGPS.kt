@@ -9,16 +9,17 @@ import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.sol.units.Coordinate
-import com.kylecorry.sol.units.DistanceUnits
-import com.kylecorry.sol.units.Speed
-import com.kylecorry.sol.units.TimeUnits
+import com.kylecorry.sol.units.*
 import java.time.Duration
 import java.time.Instant
 
 
 @SuppressLint("MissingPermission")
-class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
+class NetworkGPS(
+    private val context: Context,
+    private val frequency: Duration = Duration.ofSeconds(20),
+    private val minDistance: Distance = Distance.meters(0f)
+) : AbstractSensor(), IGPS {
 
     override val hasValidReading: Boolean
         get() = hadRecentValidReading()
@@ -88,8 +89,8 @@ class NetworkGPS(private val context: Context) : AbstractSensor(), IGPS {
 
         locationManager?.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER,
-            20,
-            0f,
+            frequency.toMillis(),
+            minDistance.meters().distance,
             locationListener,
             Looper.getMainLooper()
         )

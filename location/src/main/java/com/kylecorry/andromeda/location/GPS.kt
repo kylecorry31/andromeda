@@ -10,14 +10,17 @@ import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.sol.units.Coordinate
-import com.kylecorry.sol.units.DistanceUnits
-import com.kylecorry.sol.units.Speed
-import com.kylecorry.sol.units.TimeUnits
+import com.kylecorry.sol.units.*
+import java.time.Duration
 import java.time.Instant
 
 @SuppressLint("MissingPermission")
-class GPS(private val context: Context, private val notifyNmeaChanges: Boolean = false) : AbstractSensor(),
+class GPS(
+    private val context: Context,
+    private val notifyNmeaChanges: Boolean = false,
+    private val frequency: Duration = Duration.ofSeconds(20),
+    private val minDistance: Distance = Distance.meters(0f)
+) : AbstractSensor(),
     IGPS {
 
     override val hasValidReading: Boolean
@@ -100,8 +103,8 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
 
         locationManager?.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
-            20,
-            0f,
+            frequency.toMillis(),
+            minDistance.meters().distance,
             locationListener,
             Looper.getMainLooper()
         )
@@ -114,7 +117,8 @@ class GPS(private val context: Context, private val notifyNmeaChanges: Boolean =
             try {
                 @Suppress("DEPRECATION")
                 locationManager?.addNmeaListener(legacyNmeaListener)
-            } catch (e: Exception){}
+            } catch (e: Exception) {
+            }
         }
     }
 
