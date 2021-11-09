@@ -2,10 +2,14 @@ package com.kylecorry.andromeda.alerts
 
 import android.content.Context
 import android.text.method.LinkMovementMethod
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.kylecorry.andromeda.core.system.Resources
 
 object Alerts {
     fun dialog(
@@ -54,6 +58,36 @@ object Alerts {
             dialog.findViewById<TextView>(android.R.id.message)?.movementMethod =
                 LinkMovementMethod.getInstance()
         }
+        return dialog
+    }
+
+    fun loading(
+        context: Context,
+        title: String
+    ): AlertDialog {
+        val view = FrameLayout(context)
+        val params = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER
+        )
+        view.layoutParams = params
+        val loading = CircularProgressIndicator(context)
+        loading.isIndeterminate = true
+
+        val loadingParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER
+        )
+        loadingParams.bottomMargin = Resources.dp(context, 16f).toInt()
+        loadingParams.topMargin = Resources.dp(context, 16f).toInt()
+        loading.layoutParams = loadingParams
+        view.addView(loading)
+
+        val dialog = dialog(context, title, contentView = view, okText = null, cancelText = null)
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
         return dialog
     }
 
