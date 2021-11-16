@@ -21,6 +21,7 @@ abstract class CanvasView : View {
     private var imageMode = ImageMode.Corner
     private var textMode = TextMode.Corner
     private val measurementRect = Rect()
+    private val measurementRectF = RectF()
     protected var runEveryCycle: Boolean = true
 
     private var isSetup = false
@@ -245,6 +246,19 @@ abstract class CanvasView : View {
         // TODO: Factor in stroke
         fillPaint.getTextBounds(text, 0, text.length, measurementRect)
         return measurementRect.width().toFloat() to measurementRect.height().toFloat()
+    }
+
+    fun pathWidth(path: Path): Float {
+        return pathDimensions(path).first
+    }
+
+    fun pathHeight(path: Path): Float {
+        return pathDimensions(path).second
+    }
+
+    fun pathDimensions(path: Path): Pair<Float, Float> {
+        path.computeBounds(measurementRectF, true)
+        return measurementRectF.width() to measurementRectF.height()
     }
 
     fun textAscent(): Float {
@@ -553,11 +567,11 @@ abstract class CanvasView : View {
 
     // Masks
 
-    fun clip(path: Path){
+    fun clip(path: Path) {
         canvas.clipPath(path)
     }
 
-    fun clipInverse(path: Path){
+    fun clipInverse(path: Path) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.clipOutPath(path)
         } else {
