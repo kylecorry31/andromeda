@@ -2,26 +2,15 @@ package com.kylecorry.andromeda.canvas
 
 import android.content.Context
 import android.graphics.*
-import android.os.Build
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.isVisible
 
-abstract class CanvasView : View {
+abstract class CanvasView : View, ICanvasDrawer {
 
-    protected lateinit var canvas: Canvas
-    protected lateinit var fillPaint: Paint
-    protected lateinit var strokePaint: Paint
-    protected var paintStyle = PaintStyle.Fill
-    private var imageMode = ImageMode.Corner
-    private var textMode = TextMode.Corner
-    private val measurementRect = Rect()
-    private val measurementRectF = RectF()
+    protected lateinit var drawer: ICanvasDrawer
     protected var runEveryCycle: Boolean = true
 
     private var isSetup = false
@@ -39,21 +28,17 @@ abstract class CanvasView : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         canvas ?: return
-        this.canvas = canvas
         if (!isSetup && setupAfterVisible && !isVisible) {
             return
         }
+
         if (!isSetup) {
-            fillPaint = Paint()
-            fillPaint.style = Paint.Style.FILL
-            strokePaint = Paint()
-            strokePaint.style = Paint.Style.STROKE
-            smooth()
-            strokeCap(StrokeCap.Round)
-            strokeJoin(StrokeJoin.Miter)
+            drawer = CanvasDrawer(context, canvas)
             setup()
             isSetup = true
         }
+
+        drawer.canvas = canvas
 
         draw()
         if (runEveryCycle) {
@@ -67,466 +52,248 @@ abstract class CanvasView : View {
 
 
     // COLOR HELPERS
-    // TODO: Handle stroke and fill
-
-    fun background(@ColorInt color: Int) {
-        canvas.drawColor(color)
+    override fun background(@ColorInt color: Int) {
+        drawer.background(color)
     }
 
-    fun clear() {
-        background(Color.TRANSPARENT)
+    override fun clear() {
+        drawer.clear()
     }
 
     @ColorInt
-    fun color(r: Int, g: Int = r, b: Int = g, a: Int? = null): Int {
-        return if (a != null) {
-            Color.argb(a, r, g, b)
-        } else {
-            Color.rgb(r, g, b)
-        }
+    override fun color(r: Int, g: Int, b: Int, a: Int?): Int {
+        return drawer.color(r, g, b, a)
     }
 
-    fun fill(@ColorInt color: Int) {
-        paintStyle = if (shouldStroke()) {
-            PaintStyle.FillAndStroke
-        } else {
-            PaintStyle.Fill
-        }
-        fillPaint.color = color
+    override fun fill(@ColorInt color: Int) {
+        drawer.fill(color)
     }
 
-    fun tint(@ColorInt color: Int) {
-        fillPaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-        strokePaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
+    override fun tint(@ColorInt color: Int) {
+        drawer.tint(color)
     }
 
-    fun noTint() {
-        fillPaint.colorFilter = null
-        strokePaint.colorFilter = null
+    override fun noTint() {
+        drawer.noTint()
     }
 
-    fun stroke(@ColorInt color: Int) {
-        paintStyle = if (shouldFill()) {
-            PaintStyle.FillAndStroke
-        } else {
-            PaintStyle.Stroke
-        }
-        strokePaint.color = color
+    override fun stroke(@ColorInt color: Int) {
+        drawer.stroke(color)
     }
 
-    fun pathEffect(effect: PathEffect) {
-        strokePaint.pathEffect = effect
-        fillPaint.pathEffect = effect
+    override fun pathEffect(effect: PathEffect) {
+        drawer.pathEffect(effect)
     }
 
-    fun noPathEffect() {
-        strokePaint.pathEffect = null
-        fillPaint.pathEffect = null
+    override fun noPathEffect() {
+        drawer.noPathEffect()
     }
 
-    fun noStroke() {
-        paintStyle = if (shouldFill()) {
-            PaintStyle.Fill
-        } else {
-            PaintStyle.None
-        }
+    override fun noStroke() {
+        drawer.noStroke()
     }
 
-    fun noFill() {
-        paintStyle = if (shouldStroke()) {
-            PaintStyle.Stroke
-        } else {
-            PaintStyle.None
-        }
+    override fun noFill() {
+        drawer.noFill()
     }
 
-    fun strokeWeight(pixels: Float) {
-        strokePaint.strokeWidth = pixels
+    override fun strokeWeight(pixels: Float) {
+        drawer.strokeWeight(pixels)
     }
 
-    fun strokeCap(cap: StrokeCap) {
-        strokePaint.strokeCap = when (cap) {
-            StrokeCap.Round -> Paint.Cap.ROUND
-            StrokeCap.Square -> Paint.Cap.SQUARE
-            StrokeCap.Project -> Paint.Cap.BUTT
-        }
+    override fun strokeCap(cap: StrokeCap) {
+        drawer.strokeCap(cap)
     }
 
-    fun strokeJoin(join: StrokeJoin) {
-        strokePaint.strokeJoin = when (join) {
-            StrokeJoin.Miter -> Paint.Join.MITER
-            StrokeJoin.Bevel -> Paint.Join.BEVEL
-            StrokeJoin.Round -> Paint.Join.ROUND
-        }
+    override fun strokeJoin(join: StrokeJoin) {
+        drawer.strokeJoin(join)
     }
 
-    fun opacity(value: Int) {
-        fillPaint.alpha = value
-        strokePaint.alpha = value
+    override fun opacity(value: Int) {
+        drawer.opacity(value)
     }
 
-    fun erase() {
-        // This may need the following to be called in setup: setLayerType(LAYER_TYPE_HARDWARE, null)
-        fillPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-        strokePaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+    override fun erase() {
+        drawer.erase()
     }
 
-    fun noErase() {
-        fillPaint.xfermode = null
-        strokePaint.xfermode = null
+    override fun noErase() {
+        drawer.noErase()
     }
 
-    fun smooth() {
-        fillPaint.isAntiAlias = true
-        strokePaint.isAntiAlias = true
+    override fun smooth() {
+        drawer.smooth()
     }
 
-    fun noSmooth() {
-        fillPaint.isAntiAlias = false
-        strokePaint.isAntiAlias = false
+    override fun noSmooth() {
+        drawer.noSmooth()
     }
 
     // TEXT HELPERS
-    fun textAlign(align: TextAlign) {
-        val alignment = when (align) {
-            TextAlign.Right -> Paint.Align.RIGHT
-            TextAlign.Center -> Paint.Align.CENTER
-            TextAlign.Left -> Paint.Align.LEFT
-        }
-        fillPaint.textAlign = alignment
-        strokePaint.textAlign = alignment
+    override fun textAlign(align: TextAlign) {
+        drawer.textAlign(align)
     }
 
-    fun textSize(pixels: Float) {
-        fillPaint.textSize = pixels
-        strokePaint.textSize = pixels
+    override fun textSize(pixels: Float) {
+        drawer.textSize(pixels)
     }
 
-    fun textStyle(style: TextStyle) {
-        val typeface = when (style) {
-            TextStyle.Normal -> fillPaint.setTypeface(
-                Typeface.create(
-                    Typeface.DEFAULT,
-                    Typeface.NORMAL
-                )
-            )
-            TextStyle.Italic -> fillPaint.setTypeface(
-                Typeface.create(
-                    Typeface.DEFAULT,
-                    Typeface.ITALIC
-                )
-            )
-            TextStyle.Bold -> fillPaint.setTypeface(
-                Typeface.create(
-                    Typeface.DEFAULT,
-                    Typeface.BOLD
-                )
-            )
-            TextStyle.BoldItalic -> fillPaint.setTypeface(
-                Typeface.create(
-                    Typeface.DEFAULT,
-                    Typeface.BOLD_ITALIC
-                )
-            )
-        }
-
-        fillPaint.typeface = typeface
-        strokePaint.typeface = typeface
+    override fun textStyle(style: TextStyle) {
+        drawer.textStyle(style)
     }
 
-    fun textWidth(text: String): Float {
-        return textDimensions(text).first
+    override fun textWidth(text: String): Float {
+        return drawer.textWidth(text)
     }
 
-    fun textHeight(text: String): Float {
-        return textDimensions(text).second
+    override fun textHeight(text: String): Float {
+        return drawer.textHeight(text)
     }
 
-    fun textDimensions(text: String): Pair<Float, Float> {
-        // TODO: Factor in stroke
-        fillPaint.getTextBounds(text, 0, text.length, measurementRect)
-        return measurementRect.width().toFloat() to measurementRect.height().toFloat()
+    override fun textDimensions(text: String): Pair<Float, Float> {
+        return drawer.textDimensions(text)
     }
 
-    fun pathWidth(path: Path): Float {
-        return pathDimensions(path).first
+    override fun pathWidth(path: Path): Float {
+        return drawer.pathWidth(path)
     }
 
-    fun pathHeight(path: Path): Float {
-        return pathDimensions(path).second
+    override fun pathHeight(path: Path): Float {
+        return drawer.pathHeight(path)
     }
 
-    fun pathDimensions(path: Path): Pair<Float, Float> {
-        path.computeBounds(measurementRectF, true)
-        return measurementRectF.width() to measurementRectF.height()
+    override fun pathDimensions(path: Path): Pair<Float, Float> {
+        return drawer.pathDimensions(path)
     }
 
-    fun textAscent(): Float {
-        // TODO: Factor in stroke
-        return fillPaint.ascent()
+    override fun textAscent(): Float {
+        return drawer.textAscent()
     }
 
-    fun textDescent(): Float {
-        // TODO: Factor in stroke
-        return fillPaint.descent()
+    override fun textDescent(): Float {
+        return drawer.textDescent()
     }
 
-    fun text(str: String, x: Float, y: Float) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        val realX = if (textMode == TextMode.Center) {
-            x - textWidth(str) / 2f
-        } else {
-            x
-        }
-
-        val realY = if (textMode == TextMode.Center) {
-            y + textHeight(str) / 2f
-        } else {
-            y
-        }
-
-        if (shouldStroke()) {
-            canvas.drawText(str, realX, realY, strokePaint)
-        }
-
-        if (shouldFill()) {
-            canvas.drawText(str, realX, realY, fillPaint)
-        }
+    override fun text(str: String, x: Float, y: Float) {
+        drawer.text(str, x, y)
     }
 
 
     // SHAPE HELPERS
-    fun arc(
+    override fun arc(
         x: Float,
         y: Float,
         w: Float,
         h: Float,
         start: Float,
         stop: Float,
-        mode: ArcMode = ArcMode.Pie
+        mode: ArcMode
     ) {
-        if (!shouldDraw()) {
-            return
-        }
-        if (shouldFill()) {
-            canvas.drawArc(x, y, x + w, y + h, start, stop - start, mode == ArcMode.Pie, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawArc(
-                x,
-                y,
-                x + w,
-                y + h,
-                start,
-                stop - start,
-                mode == ArcMode.Pie,
-                strokePaint
-            )
-        }
+        drawer.arc(x, y, w, h, start, stop, mode)
     }
 
-    fun ellipse(x: Float, y: Float, w: Float, h: Float = w) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        if (shouldFill()) {
-            canvas.drawOval(x, y, x + w, y + h, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawOval(x, y, x + w, y + h, strokePaint)
-        }
-
+    override fun ellipse(x: Float, y: Float, w: Float, h: Float) {
+        drawer.ellipse(x, y, w, h)
     }
 
-    fun circle(x: Float, y: Float, diameter: Float) {
-        ellipse(x - diameter / 2f, y - diameter / 2f, diameter, diameter)
+    override fun circle(x: Float, y: Float, diameter: Float) {
+        drawer.circle(x, y, diameter)
     }
 
-    fun line(x1: Float, y1: Float, x2: Float, y2: Float) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        if (shouldFill()) {
-            canvas.drawLine(x1, y1, x2, y2, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawLine(x1, y1, x2, y2, strokePaint)
-        }
+    override fun line(x1: Float, y1: Float, x2: Float, y2: Float) {
+        drawer.line(x1, y1, x2, y2)
     }
 
-    fun lines(points: FloatArray) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        if (shouldFill()) {
-            canvas.drawLines(points, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawLines(points, strokePaint)
-        }
+    override fun lines(points: FloatArray) {
+        drawer.lines(points)
     }
 
-    fun grid(
+    override fun grid(
         spacing: Float,
-        width: Float = this.width.toFloat(),
-        height: Float = this.height.toFloat()
+        width: Float,
+        height: Float
     ) {
-        // Vertical
-        var i = 0f
-        while (i < width) {
-            line(i, 0f, i, height)
-            i += spacing
-        }
-
-        // Horizontal
-        i = 0f
-        while (i < height) {
-            line(0f, i, width, i)
-            i += spacing
-        }
+        drawer.grid(spacing, width, height)
     }
 
-    fun point(x: Float, y: Float) {
-        if (!shouldDraw()) {
-            return
-        }
-        if (shouldFill()) {
-            canvas.drawPoint(x, y, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawPoint(x, y, strokePaint)
-        }
+    override fun point(x: Float, y: Float) {
+        drawer.point(x, y)
     }
 
     // TODO: Support different radius for each corner
-    fun rect(
+    override fun rect(
         x: Float,
         y: Float,
         w: Float,
-        h: Float = w,
-        radius: Float = 0f
+        h: Float,
+        radius: Float
     ) {
-        if (!shouldDraw()) {
-            return
-        }
-        if (shouldFill()) {
-            if (radius == 0f) {
-                canvas.drawRect(x, y, x + w, y + h, fillPaint)
-            } else {
-                canvas.drawRoundRect(x, y, x + w, y + h, radius, radius, fillPaint)
-            }
-        }
-
-        if (shouldStroke()) {
-            if (radius == 0f) {
-                canvas.drawRect(x, y, x + w, y + h, strokePaint)
-            } else {
-                canvas.drawRoundRect(x, y, x + w, y + h, radius, radius, strokePaint)
-            }
-        }
+        drawer.rect(x, y, w, h, radius)
     }
 
-    fun square(
+    override fun square(
         x: Float,
         y: Float,
         size: Float,
-        radius: Float = 0f
+        radius: Float
     ) {
-        rect(x, y, size, size, radius)
+        drawer.square(x, y, size, radius)
     }
 
-    fun path(value: Path) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        if (shouldFill()) {
-            canvas.drawPath(value, fillPaint)
-        }
-
-        if (shouldStroke()) {
-            canvas.drawPath(value, strokePaint)
-        }
+    override fun path(value: Path) {
+        drawer.path(value)
     }
 
-    fun triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
-        if (!shouldDraw()) {
-            return
-        }
-
-        val trianglePath = Path()
-        trianglePath.moveTo(x1, y1)
-        trianglePath.lineTo(x2, y2)
-        trianglePath.lineTo(x3, y3)
-        trianglePath.lineTo(x1, y1)
-        trianglePath.close()
-
-        path(trianglePath)
+    override fun triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
+        drawer.triangle(x1, y1, x2, y2, x3, y3)
     }
 
     // Transforms
-    // TODO: Add the transforms
-    fun push() {
-        canvas.save()
+    override fun push() {
+        drawer.push()
     }
 
-    fun pop() {
-        canvas.restore()
+    override fun pop() {
+        drawer.pop()
     }
 
-    fun rotate(
+    override fun rotate(
         degrees: Float,
-        originX: Float = width / 2f,
-        originY: Float = height / 2f
+        originX: Float,
+        originY: Float
     ) {
-        canvas.rotate(degrees, originX, originY)
+        drawer.rotate(degrees, originX, originY)
     }
 
-    fun scale(x: Float, y: Float = x) {
-        canvas.scale(x, y)
+    override fun scale(x: Float, y: Float) {
+        drawer.scale(x, y)
     }
 
-    fun scale(x: Float, y: Float = x, pivotX: Float, pivotY: Float) {
-        canvas.scale(x, y, pivotX, pivotY)
+    override fun scale(x: Float, y: Float, pivotX: Float, pivotY: Float) {
+        drawer.scale(x, y, pivotX, pivotY)
     }
 
-    fun translate(x: Float, y: Float) {
-        canvas.translate(x, y)
+    override fun translate(x: Float, y: Float) {
+        drawer.translate(x, y)
     }
 
     // Images
 
-    fun loadImage(@DrawableRes id: Int, w: Int? = null, h: Int? = null): Bitmap {
-        val drawable = ResourcesCompat.getDrawable(context.resources, id, null)!!
-        return drawable.toBitmap(w ?: drawable.intrinsicWidth, h ?: drawable.intrinsicHeight)
+    override fun loadImage(@DrawableRes id: Int, w: Int?, h: Int?): Bitmap {
+        return drawer.loadImage(id, w, h)
     }
 
-    fun image(
+    override fun image(
         img: Bitmap,
         x: Float,
         y: Float,
-        w: Float = img.width.toFloat(),
-        h: Float = img.height.toFloat()
+        w: Float,
+        h: Float
     ) {
-        if (imageMode == ImageMode.Corner) {
-            image(img, x, y, w, h, 0f, 0f)
-        } else {
-            image(img, x - w / 2f, y - h / 2f, w, h, 0f, 0f)
-        }
+        drawer.image(img, x, y, w, h)
     }
 
-    fun image(
+    override fun image(
         img: Bitmap,
         dx: Float,
         dy: Float,
@@ -534,131 +301,46 @@ abstract class CanvasView : View {
         dh: Float,
         sx: Float,
         sy: Float,
-        sw: Float = img.width.toFloat(),
-        sh: Float = img.height.toFloat()
+        sw: Float,
+        sh: Float
     ) {
-        canvas.drawBitmap(
-            img,
-            Rect(sx.toInt(), sy.toInt(), sw.toInt(), sh.toInt()),
-            Rect(dx.toInt(), dy.toInt(), (dx + dw).toInt(), (dy + dh).toInt()),
-            fillPaint
-        )
+        drawer.image(img, dx, dy, dw, dh, sx, sy, sw, sh)
     }
 
-    fun imageMode(imageMode: ImageMode) {
-        this.imageMode = imageMode
+    override fun imageMode(imageMode: ImageMode) {
+        drawer.imageMode(imageMode)
     }
 
-    fun textMode(textMode: TextMode) {
-        this.textMode = textMode
-    }
-
-    private fun shouldDraw(): Boolean {
-        return paintStyle != PaintStyle.None
-    }
-
-    private fun shouldFill(): Boolean {
-        return paintStyle == PaintStyle.Fill || paintStyle == PaintStyle.FillAndStroke
-    }
-
-    private fun shouldStroke(): Boolean {
-        return paintStyle == PaintStyle.Stroke || paintStyle == PaintStyle.FillAndStroke
+    override fun textMode(textMode: TextMode) {
+        drawer.textMode(textMode)
     }
 
     // Masks
 
-    fun clip(path: Path) {
-        canvas.clipPath(path)
+    override fun clip(path: Path) {
+        drawer.clip(path)
     }
 
-    fun clipInverse(path: Path) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            canvas.clipOutPath(path)
-        } else {
-            canvas.clipPath(path, Region.Op.DIFFERENCE)
-        }
+    override fun clipInverse(path: Path) {
+        drawer.clipInverse(path)
     }
 
-    fun mask(
+    override fun mask(
         mask: Bitmap,
-        tempBitmap: Bitmap = Bitmap.createBitmap(
-            mask.width,
-            mask.height,
-            Bitmap.Config.ARGB_8888
-        ),
+        tempBitmap: Bitmap,
         block: () -> Unit
     ): Bitmap {
-        return canvas.getMaskedBitmap(
-            mask,
-            tempBitmap
-        ) {
-            val oldCanvas = canvas
-            canvas = it
-            block()
-            canvas = oldCanvas
-        }
+        return drawer.mask(mask, tempBitmap, block)
     }
 
     // System
 
-    fun dp(size: Float): Float {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, size,
-            context.resources.displayMetrics
-        )
+    override fun dp(size: Float): Float {
+        return drawer.dp(size)
     }
 
-    fun sp(size: Float): Float {
-        return TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP, size,
-            context.resources.displayMetrics
-        )
-    }
-
-
-    enum class ArcMode {
-        Pie,
-        Open
-    }
-
-    enum class StrokeCap {
-        Round,
-        Square,
-        Project
-    }
-
-    enum class StrokeJoin {
-        Miter,
-        Bevel,
-        Round
-    }
-
-    enum class TextAlign {
-        Right, Center, Left
-    }
-
-    enum class TextStyle {
-        Normal,
-        Italic,
-        Bold,
-        BoldItalic
-    }
-
-    enum class PaintStyle {
-        Fill,
-        Stroke,
-        FillAndStroke,
-        None
-    }
-
-    enum class ImageMode {
-        Corner,
-        Center
-    }
-
-    enum class TextMode {
-        Corner,
-        Center
+    override fun sp(size: Float): Float {
+        return drawer.sp(size)
     }
 
 }
