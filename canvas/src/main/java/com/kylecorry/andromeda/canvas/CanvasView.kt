@@ -10,6 +10,12 @@ import androidx.core.view.isVisible
 
 abstract class CanvasView : View, ICanvasDrawer {
 
+    override var canvas: Canvas
+        get() = drawer.canvas
+        set(value) {
+            drawer.canvas = value
+        }
+
     protected lateinit var drawer: ICanvasDrawer
     protected var runEveryCycle: Boolean = true
 
