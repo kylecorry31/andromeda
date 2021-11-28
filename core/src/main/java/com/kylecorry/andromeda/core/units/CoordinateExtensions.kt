@@ -18,6 +18,7 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 
+// TODO: Move the conversion back into Sol
 object CoordinateExtensions {
     fun Coordinate.toDecimalDegrees(precision: Int = 6): String {
         val formattedLatitude = DecimalFormatter.format(latitude, precision)

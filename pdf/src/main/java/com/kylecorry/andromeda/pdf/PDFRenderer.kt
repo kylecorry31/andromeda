@@ -1,0 +1,42 @@
+package com.kylecorry.andromeda.pdf
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.pdf.PdfRenderer
+import android.net.Uri
+import androidx.annotation.ColorInt
+import com.kylecorry.andromeda.core.system.Screen
+
+class PDFRenderer {
+    fun toBitmap(
+        context: Context,
+        uri: Uri,
+        page: Int = 0,
+        scale: Float = Screen.dpi(context) / 72,
+        @ColorInt backgroundColor: Int = Color.WHITE
+    ): Bitmap? {
+        return context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+            PdfRenderer(fd).use { renderer ->
+                val pageCount = renderer.pageCount
+                if (page >= pageCount) {
+                    return null
+                }
+
+                renderer.openPage(page).use { pdfPage ->
+                    val width = scale * pdfPage.width
+                    val height = scale * pdfPage.height
+                    val bitmap =
+                        Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+                    if (backgroundColor != Color.TRANSPARENT) {
+                        val canvas = Canvas(bitmap)
+                        canvas.drawColor(backgroundColor)
+                    }
+                    pdfPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    bitmap
+                }
+            }
+        }
+    }
+}
