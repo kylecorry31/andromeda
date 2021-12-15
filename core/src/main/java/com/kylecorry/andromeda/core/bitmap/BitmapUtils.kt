@@ -6,6 +6,7 @@ import android.media.Image
 import androidx.annotation.ColorInt
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
+import com.kylecorry.andromeda.core.bitmap.BitmapUtils.rotate
 import com.kylecorry.sol.math.statistics.GLCM
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer

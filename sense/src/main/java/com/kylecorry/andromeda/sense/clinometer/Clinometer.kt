@@ -1,17 +1,27 @@
-package com.kylecorry.andromeda.sense.inclinometer
+package com.kylecorry.andromeda.sense.clinometer
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
+import com.kylecorry.sol.math.SolMath.wrap
+import com.kylecorry.sol.math.Vector3
+import com.kylecorry.sol.science.geology.GeologyService
 
-class Inclinometer(context: Context) : AbstractSensor(), IInclinometer {
+abstract class Clinometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+    AbstractSensor(), IClinometer {
+
+    private val geology = GeologyService()
 
     override val angle: Float
         get() = _angle
+
+    override val incline: Float
+        get() = geology.getInclination(_angle)
 
     override val hasValidReading: Boolean
         get() = gotReading
@@ -23,16 +33,18 @@ class Inclinometer(context: Context) : AbstractSensor(), IInclinometer {
     private var _quality = Quality.Unknown
 
     private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(
+            context,
+            sensorDelay
+        ) else LowPassAccelerometer(context, sensorDelay)
 
     private var _angle = 0f
 
     private fun updateSensor(): Boolean {
 
-        // Gravity
         val gravity = accelerometer.acceleration
         _quality = accelerometer.quality
-        _angle = InclinationCalculator.calculate(gravity)
+        _angle = wrap(calculateUnitAngle(gravity), 0f, 360f)
 
         gotReading = true
         notifyListeners()
@@ -46,5 +58,7 @@ class Inclinometer(context: Context) : AbstractSensor(), IInclinometer {
     override fun stopImpl() {
         accelerometer.stop(this::updateSensor)
     }
+
+    protected abstract fun calculateUnitAngle(gravity: Vector3): Float
 
 }

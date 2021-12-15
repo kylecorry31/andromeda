@@ -1,15 +1,12 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
-import com.kylecorry.andromeda.core.math.*
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
-import com.kylecorry.andromeda.sense.compass.AzimuthCalculator
 import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.math.Quaternion
@@ -17,6 +14,8 @@ import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.SolMath.toDegrees
 import com.kylecorry.sol.math.filters.MovingAverageFilter
+import com.kylecorry.sol.science.geology.GeologyService
+import com.kylecorry.sol.units.Bearing
 import kotlin.math.atan2
 import kotlin.math.max
 import kotlin.math.min
@@ -25,6 +24,8 @@ import kotlin.math.sqrt
 // Algorithm from https://www.digikey.com/en/articles/using-an-accelerometer-for-inclination-sensing
 class OrientationSensor(context: Context, smoothingFactor: Int, private val useTrueNorth: Boolean) :
     AbstractSensor(), IOrientationSensor, ICompass {
+
+    private val geology = GeologyService()
 
     override val hasValidReading: Boolean
         get() = gotReading
@@ -87,7 +88,7 @@ class OrientationSensor(context: Context, smoothingFactor: Int, private val useT
             atan2(gravity[0], sqrt(gravity[1] * gravity[1] + gravity[2] * gravity[2])).toDegrees()
         val pitch =
             -atan2(gravity[1], sqrt(gravity[0] * gravity[0] + gravity[2] * gravity[2])).toDegrees()
-        val yaw = AzimuthCalculator.calculate(gravity, magnetometer.rawMagneticField)?.value ?: 0f
+        val yaw = geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField).value
 
         synchronized(lock) {
             QuaternionMath.fromEuler(floatArrayOf(roll, pitch, yaw), _quaternion)

@@ -1,9 +1,5 @@
 package com.kylecorry.andromeda.core.sensors
 
-import android.os.Handler
-import android.os.Looper
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
