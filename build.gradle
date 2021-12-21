@@ -5,11 +5,11 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.0.4'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10'
     }
     ext.groupId = 'com.kylecorry.andromeda'
-    ext.versionName = '2.6.0-beta01'
-    ext.solVersion = '5.6.0-beta03'
+    ext.versionName = '2.6.0'
+    ext.solVersion = '5.6.0'
     ext.targetVersion = 30
     ext.compileVersion = 31
 }
