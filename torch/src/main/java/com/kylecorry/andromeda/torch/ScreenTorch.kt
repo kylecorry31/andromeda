@@ -9,6 +9,10 @@ class ScreenTorch(private val window: Window) : ITorch {
         Screen.setBrightness(window, 1f)
     }
 
+    fun on(brightness: Float){
+        Screen.setBrightness(window, brightness.coerceIn(0f, 1f))
+    }
+
     override fun off() {
         Screen.resetBrightness(window)
     }
