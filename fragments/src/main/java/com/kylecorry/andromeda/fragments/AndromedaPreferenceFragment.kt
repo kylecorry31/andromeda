@@ -124,10 +124,11 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
                 setIconColor(preference.getPreference(i), color)
             }
         } else {
-            if (preference.icon != null && color != null) {
-                preference.icon.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-            } else if (preference.icon != null) {
-                DrawableCompat.clearColorFilter(preference.icon)
+            val icon = preference.icon
+            if (icon != null && color != null) {
+                icon.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
+            } else if (icon != null) {
+                DrawableCompat.clearColorFilter(icon)
             }
         }
     }
