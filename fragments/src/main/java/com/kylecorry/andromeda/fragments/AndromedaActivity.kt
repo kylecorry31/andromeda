@@ -9,7 +9,7 @@ import com.kylecorry.andromeda.permissions.Permissions
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-open class AndromedaActivity : AppCompatActivity() {
+open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
@@ -17,7 +17,7 @@ open class AndromedaActivity : AppCompatActivity() {
     private var resultRequestCode: Int? = null
     private var permissionRequestCode: Int? = null
 
-    fun requestPermissions(permissions: List<String>, action: () -> Unit) {
+    override fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         val notGranted = permissions.filterNot { Permissions.hasPermission(this, it) }
         if (notGranted.isEmpty()){
             action()

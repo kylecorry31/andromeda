@@ -17,7 +17,7 @@ import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-open class AndromedaFragment : Fragment() {
+open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     protected var hasUpdates: Boolean = true
 
@@ -118,7 +118,7 @@ open class AndromedaFragment : Fragment() {
         return lifecycleScope.launch(context, start, block)
     }
 
-    fun requestPermissions(permissions: List<String>, action: () -> Unit) {
+    override fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         val notGranted = permissions.filterNot { Permissions.hasPermission(requireContext(), it) }
         if (notGranted.isEmpty()) {
             action()

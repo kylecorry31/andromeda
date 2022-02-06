@@ -14,7 +14,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.*
 import com.kylecorry.andromeda.core.system.Intents
 
-abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
+abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
@@ -37,17 +37,17 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
-    protected fun requestPermissions(permissions: List<String>, action: () -> Unit) {
+    override fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         permissionAction = action
         permissionLauncher.launch(permissions.toTypedArray())
     }
 
-    protected fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
+    fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
         resultAction = action
         resultLauncher.launch(intent)
     }
 
-    protected fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
+    fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.createFile(filename, type)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -58,7 +58,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
-    protected fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
+    fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.pickFile(type, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -69,7 +69,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
-    protected fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
+    fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
         val intent = Intents.pickFile(types, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -103,6 +103,13 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat() {
     protected fun onClick(pref: Preference?, action: (preference: Preference) -> Unit) {
         pref?.setOnPreferenceClickListener {
             action(it)
+            true
+        }
+    }
+
+    protected fun onChange(pref: Preference?, action: (value: Any) -> Unit) {
+        pref?.setOnPreferenceChangeListener { _, value ->
+            action(value)
             true
         }
     }
