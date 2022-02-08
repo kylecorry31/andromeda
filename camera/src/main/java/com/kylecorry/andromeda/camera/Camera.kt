@@ -67,9 +67,7 @@ class Camera(
                 notifyListeners()
             })
 
-            val cameraSelector = CameraSelector.Builder()
-                .requireLensFacing(if (isBackCamera) CameraSelector.LENS_FACING_BACK else CameraSelector.LENS_FACING_FRONT)
-                .build()
+            val cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
             preview.setSurfaceProvider(previewView?.surfaceProvider)
 
