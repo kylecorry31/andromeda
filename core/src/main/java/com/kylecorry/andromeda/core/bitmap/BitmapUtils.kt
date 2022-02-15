@@ -1,15 +1,14 @@
 package com.kylecorry.andromeda.core.bitmap
 
-import android.content.Context
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.ImageFormat.YUV_420_888
+import android.graphics.Matrix
 import android.media.Image
-import androidx.annotation.ColorInt
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
-import com.kylecorry.andromeda.core.bitmap.BitmapUtils.rotate
 import com.kylecorry.sol.math.statistics.GLCM
-import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
 
 object BitmapUtils {
 
@@ -61,16 +60,30 @@ object BitmapUtils {
     }
 
     fun Image.toBitmap(rotation: Float = 90f): Bitmap {
-        val yuvBuffer = YuvByteBuffer(this, null)
-        val bytes = ByteArray(yuvBuffer.buffer.capacity())
-        yuvBuffer.buffer.get(bytes)
-        val bmp = Toolkit.yuvToRgbBitmap(bytes, width, height, YuvFormat.NV21)
-        return if (rotation != 0f) {
-            val rotated = bmp.rotate(rotation)
-            bmp.recycle()
-            return rotated
+        if (format == YUV_420_888) {
+            val yuvBuffer = YuvByteBuffer(this, null)
+            val bytes = ByteArray(yuvBuffer.buffer.capacity())
+            yuvBuffer.buffer.get(bytes)
+            val bmp = Toolkit.yuvToRgbBitmap(bytes, width, height, YuvFormat.NV21)
+            return if (rotation != 0f) {
+                val rotated = bmp.rotate(rotation)
+                bmp.recycle()
+                return rotated
+            } else {
+                bmp
+            }
         } else {
-            bmp
+            // From https://stackoverflow.com/questions/69151779/how-to-create-bitmap-from-android-mediaimage-in-output-image-format-rgba-8888-fo
+            val buffer = planes[0].buffer
+            val pixelStride = planes[0].pixelStride
+            val rowStride = planes[0].rowStride
+            val rowPadding = rowStride - pixelStride * width
+            val bitmap = Bitmap.createBitmap(
+                width + rowPadding / pixelStride,
+                height, Bitmap.Config.ARGB_8888
+            )
+            bitmap.copyPixelsFromBuffer(buffer)
+            return bitmap
         }
     }
 

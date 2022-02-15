@@ -5,9 +5,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.util.Log
 import android.util.Size
 import androidx.camera.core.*
 import androidx.camera.core.Camera
+import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
+import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -18,6 +21,8 @@ import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ExecutionException
 import kotlin.math.atan
 
 class Camera(
@@ -26,7 +31,8 @@ class Camera(
     private val isBackCamera: Boolean = true,
     private val previewView: PreviewView? = null,
     private val analyze: Boolean = true,
-    private val targetResolution: Size? = null
+    private val targetResolution: Size? = null,
+    private val useYUV: Boolean = false
 ) : AbstractSensor(), ICamera {
 
     override val image: ImageProxy?
@@ -50,7 +56,13 @@ class Camera(
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture?.addListener({
-            cameraProvider = cameraProviderFuture?.get()
+            try {
+                cameraProvider = cameraProviderFuture?.get()
+            } catch (e: CancellationException) {
+                Log.i("Camera", "Unable to open camera because task was cancelled")
+            } catch (e: InterruptedException){
+                Log.i("Camera", "Unable to open camera because task was interrupted")
+            }
             val preview = Preview.Builder()
                 .build()
 
@@ -59,15 +71,17 @@ class Camera(
                     setTargetResolution(targetResolution)
                 }
                 setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                setOutputImageFormat(if (useYUV) OUTPUT_IMAGE_FORMAT_YUV_420_888 else OUTPUT_IMAGE_FORMAT_RGBA_8888)
             }.build()
 
-            imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context), { image ->
+            imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
                 _image = image
                 _hasValidReading = true
                 notifyListeners()
-            })
+            }
 
-            val cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            val cameraSelector =
+                if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
             preview.setSurfaceProvider(previewView?.surfaceProvider)
 
