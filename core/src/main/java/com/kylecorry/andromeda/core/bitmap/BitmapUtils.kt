@@ -60,18 +60,11 @@ object BitmapUtils {
     }
 
     fun Image.toBitmap(rotation: Float = 90f): Bitmap {
-        if (format == YUV_420_888) {
+        val bmp = if (format == YUV_420_888) {
             val yuvBuffer = YuvByteBuffer(this, null)
             val bytes = ByteArray(yuvBuffer.buffer.capacity())
             yuvBuffer.buffer.get(bytes)
-            val bmp = Toolkit.yuvToRgbBitmap(bytes, width, height, YuvFormat.NV21)
-            return if (rotation != 0f) {
-                val rotated = bmp.rotate(rotation)
-                bmp.recycle()
-                return rotated
-            } else {
-                bmp
-            }
+            Toolkit.yuvToRgbBitmap(bytes, width, height, YuvFormat.NV21)
         } else {
             // From https://stackoverflow.com/questions/69151779/how-to-create-bitmap-from-android-mediaimage-in-output-image-format-rgba-8888-fo
             val buffer = planes[0].buffer
@@ -83,7 +76,15 @@ object BitmapUtils {
                 height, Bitmap.Config.ARGB_8888
             )
             bitmap.copyPixelsFromBuffer(buffer)
-            return bitmap
+            bitmap
+        }
+
+        return if (rotation != 0f) {
+            val rotated = bmp.rotate(rotation)
+            bmp.recycle()
+            return rotated
+        } else {
+            bmp
         }
     }
 
