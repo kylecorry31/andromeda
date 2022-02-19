@@ -7,6 +7,7 @@ import com.kylecorry.andromeda.core.toLongCompat
 import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
+import java.io.InputStream
 import java.time.Instant
 
 object GPXParser {
@@ -37,20 +38,33 @@ object GPXParser {
         return XMLConvert.toString(gpx, true)
     }
 
+    fun parse(gpx: InputStream): GPXData {
+        val tree = try {
+            XMLConvert.parse(gpx)
+        } catch (e: Exception) {
+            return GPXData(emptyList(), emptyList())
+        }
+        return parseXML(tree)
+    }
+
     fun parse(gpx: String): GPXData {
         val tree = try {
             XMLConvert.parse(gpx)
         } catch (e: Exception) {
             return GPXData(emptyList(), emptyList())
         }
-        val waypoints = tree.children.mapNotNull {
+        return parseXML(tree)
+    }
+
+    private fun parseXML(root: XMLNode): GPXData {
+        val waypoints = root.children.mapNotNull {
             when (it.tag.lowercase()) {
                 "wpt" -> parseWaypoint(it)
                 else -> null
             }
         }
 
-        val tracks = tree.children.mapNotNull {
+        val tracks = root.children.mapNotNull {
             when (it.tag.lowercase()) {
                 "trk" -> parseTrack(it)
                 else -> null

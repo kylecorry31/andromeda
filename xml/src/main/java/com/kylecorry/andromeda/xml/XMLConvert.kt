@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.xml
 
 import android.util.Xml
 import org.xmlpull.v1.XmlPullParser
+import java.io.InputStream
 
 object XMLConvert {
 
@@ -16,12 +17,20 @@ object XMLConvert {
 
     fun parse(xml: String): XMLNode {
         val inputStream = xml.byteInputStream()
-        inputStream.use { stream ->
+        return parse(inputStream, true)
+    }
+
+    fun parse(stream: InputStream, autoClose: Boolean = false): XMLNode {
+        try {
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
             parser.setInput(stream, null)
             parser.nextTag()
             return getXMLTree(parser)
+        } finally {
+            if (autoClose) {
+                stream.close()
+            }
         }
     }
 

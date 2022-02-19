@@ -28,7 +28,16 @@ class GPXParserTest {
 
     @Test
     fun fromGPX() {
-        val data = GPXParser.parse(gpxWaypointsAndTracks)
+        testFromGPX(true)
+        testFromGPX(false)
+    }
+
+    private fun testFromGPX(stream: Boolean = false){
+        val data = if (stream){
+            GPXParser.parse(gpxWaypointsAndTracks.byteInputStream())
+        } else {
+            GPXParser.parse(gpxWaypointsAndTracks)
+        }
 
         val waypoints = listOf(
             GPXWaypoint(
