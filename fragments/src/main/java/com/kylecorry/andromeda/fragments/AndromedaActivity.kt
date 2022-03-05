@@ -40,8 +40,19 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         startActivityForResult(intent, requestCode)
     }
 
-    fun createFile(filename: String, type: String, action: (uri: Uri?) -> Unit) {
-        val intent = Intents.createFile(filename, type)
+    fun createFile(filename: String, type: String, message: String = filename, action: (uri: Uri?) -> Unit) {
+        val intent = Intents.createFile(filename, type, message)
+        getResult(intent) { successful, data ->
+            if (successful) {
+                action(data?.data)
+            } else {
+                action(null)
+            }
+        }
+    }
+
+    fun createFile(filename: String, types: List<String>, message: String = filename, action: (uri: Uri?) -> Unit) {
+        val intent = Intents.createFile(filename, types, message)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)

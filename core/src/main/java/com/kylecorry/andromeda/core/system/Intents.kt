@@ -67,12 +67,21 @@ object Intents {
         return Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
     }
 
-    fun createFile(filename: String, type: String): Intent {
+    fun createFile(filename: String, type: String, message: String = filename): Intent {
         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = type
         intent.putExtra(Intent.EXTRA_TITLE, filename)
-        return intent
+        return Intent.createChooser(intent, message)
+    }
+
+    fun createFile(filename: String, types: List<String>, message: String = filename): Intent {
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "*/*"
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, types.toTypedArray())
+        intent.putExtra(Intent.EXTRA_TITLE, filename)
+        return Intent.createChooser(intent, message)
     }
 
     fun pickFile(type: String, message: String): Intent {
