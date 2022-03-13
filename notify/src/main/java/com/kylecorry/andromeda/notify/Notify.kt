@@ -233,8 +233,10 @@ object Notify {
         showBigIcon: Boolean = false,
         group: String? = null,
         intent: PendingIntent? = null,
-        actions: List<NotificationCompat.Action> = listOf()
+        actions: List<NotificationCompat.Action> = listOf(),
+        showForegroundImmediate: Boolean = false
     ): Notification {
+
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
             .setSmallIcon(icon)
@@ -243,6 +245,10 @@ object Notify {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOnlyAlertOnce(alertOnlyOnce)
+
+        if (showForegroundImmediate) {
+            builder.foregroundServiceBehavior = NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+        }
 
         if (contents != null) {
             builder.setContentText(contents)
@@ -283,6 +289,7 @@ object Notify {
         contents: String?,
         @DrawableRes icon: Int,
         group: String? = null,
+        showForegroundImmediate: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -292,6 +299,10 @@ object Notify {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setSilent(true)
             .setOnlyAlertOnce(true)
+
+        if (showForegroundImmediate) {
+            builder.foregroundServiceBehavior = NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+        }
 
         if (group != null) {
             builder.setGroup(group)
@@ -327,8 +338,7 @@ object Notify {
     private fun getNotificationManager(context: Context): NotificationManager? {
         return context.getSystemService()
     }
-
-
+    
     val CHANNEL_IMPORTANCE_HIGH =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4
     val CHANNEL_IMPORTANCE_DEFAULT =
