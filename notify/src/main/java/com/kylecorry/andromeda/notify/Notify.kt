@@ -289,6 +289,7 @@ object Notify {
         contents: String?,
         @DrawableRes icon: Int,
         group: String? = null,
+        actions: List<NotificationCompat.Action> = listOf(),
         showForegroundImmediate: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
@@ -310,6 +311,10 @@ object Notify {
 
         if (contents != null) {
             builder.setContentText(contents)
+        }
+
+        for (action in actions) {
+            builder.addAction(action)
         }
 
         val notification = builder.build()
