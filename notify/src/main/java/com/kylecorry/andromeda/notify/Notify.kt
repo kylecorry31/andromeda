@@ -289,6 +289,7 @@ object Notify {
         contents: String?,
         @DrawableRes icon: Int,
         group: String? = null,
+        intent: PendingIntent? = null,
         actions: List<NotificationCompat.Action> = listOf(),
         showForegroundImmediate: Boolean = false
     ): Notification {
@@ -311,6 +312,10 @@ object Notify {
 
         if (contents != null) {
             builder.setContentText(contents)
+        }
+
+        if (intent != null) {
+            builder.setContentIntent(intent)
         }
 
         for (action in actions) {
