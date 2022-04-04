@@ -17,24 +17,15 @@ class GeospatialPDFParser {
         val viewports = getViewports(objects)
 
         for (viewport in viewports) {
-            val measure = getObject(viewport["/measure"] ?: "", objects) ?: continue
+            val measure = objects.getById(viewport["/measure"] ?: "") ?: continue
             if (!isGeoMeasure(measure)) {
                 return null
             }
-            val gcs = getObject(measure["/gcs"] ?: "", objects)
+            val gcs = objects.getById(measure["/gcs"] ?: "")
             return getMetadata(page, viewport, measure, gcs) ?: continue
         }
 
         return null
-    }
-
-    private fun getArray(property: String): List<String> {
-        val matches = arrayRegex.find(property) ?: return emptyList()
-        if (matches.groupValues.size < 2) {
-            return emptyList()
-        }
-
-        return matches.groupValues[1].split(" ")
     }
 
 
@@ -45,10 +36,10 @@ class GeospatialPDFParser {
         gcs: PDFObject?
     ): GeospatialPDFMetadata? {
 
-        val mediabox = getArray(page["/mediabox"] ?: "").map { it.toDouble() }
-        val bbox = getArray(viewport["/bbox"] ?: "").map { it.toDouble() }
-        var lpts = getArray(measure["/lpts"] ?: "").map { it.toDouble() }
-        val gpts = getArray(measure["/gpts"] ?: "").map { it.toDouble() }
+        val mediabox = page.getArray("/mediabox").map { it.toDouble() }
+        val bbox = viewport.getArray("/bbox").map { it.toDouble() }
+        var lpts = measure.getArray("/lpts").map { it.toDouble() }
+        val gpts = measure.getArray("/gpts").map { it.toDouble() }
 
         if (mediabox.size < 4 || bbox.size < 4) {
             return null
@@ -109,24 +100,12 @@ class GeospatialPDFParser {
         return matches.groupValues[1]
     }
 
-    private fun getObject(id: String, objects: List<PDFObject>): PDFObject? {
-        val matches = idRegex.find(id) ?: return null
-        if (matches.groupValues.size >= 2) {
-            return objects.firstOrNull { it.id == matches.groupValues[1] }
-        }
-        return null
-    }
-
     private fun getViewports(objects: List<PDFObject>): List<PDFObject> {
-        return objects.filter {
-            "/viewport".contentEquals(it["/type"], ignoreCase = true)
-        }
+        return objects.getByProperty("/Type", "/viewport")
     }
 
     private fun getPage(objects: List<PDFObject>): PDFObject? {
-        return objects.firstOrNull {
-            "/page".contentEquals(it["/type"], ignoreCase = true)
-        }
+        return objects.getByProperty("/Type", "/page").firstOrNull()
     }
 
     private fun isGeoMeasure(measure: PDFObject): Boolean {
@@ -134,9 +113,6 @@ class GeospatialPDFParser {
     }
 
     companion object {
-        private val idRegex = Regex("(\\d+ \\d+)")
-        private val arrayRegex = Regex("\\[(.*)]")
-
         private val datumNameRegex = Regex("DATUM\\[\"([\\w\\s/\\d]+)\"")
         private val spheroidRegex =
             Regex("SPHEROID\\[\"([\\w\\s/\\d]+)\",(-?\\d+(?:[.,]\\d+)?),(-?\\d+(?:[.,]\\d+)?)")

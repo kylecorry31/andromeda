@@ -46,14 +46,20 @@ class PDFParser {
                     continue
                 }
 
-                if (line.startsWith(">>") || line.startsWith("<<")) {
+                val hasPropertiesStart = line.startsWith("<<")
+                val hasPropertiesEnd = line.endsWith(">>")
+                val arePropertiesSingleLine = hasPropertiesStart && hasPropertiesEnd
+                if ((hasPropertiesStart || hasPropertiesEnd) && !arePropertiesSingleLine) {
                     continue
                 }
 
-
                 if (!inStream) {
-                    lastObject?.let {
-                        properties[it]!!.add(line)
+                    lastObject?.also {
+                        if (arePropertiesSingleLine) {
+                            properties[it]?.addAll(parseSingleLineProperties(line.trim()))
+                        } else {
+                            properties[it]?.add(line.trim())
+                        }
                     }
                 }
 
@@ -79,6 +85,30 @@ class PDFParser {
         }
 
         return objects.sortedBy { it.id }
+    }
+
+    private fun parseSingleLineProperties(line: String): List<String> {
+        val properties = mutableListOf<String>()
+        val allTokens = line.trim().split(Regex("\\s+"))
+        val tokens = allTokens.drop(1).dropLast(1).filter { it.isNotBlank() }
+        if (tokens.isEmpty()) {
+            return emptyList()
+        }
+        var currentProperty = tokens.first()
+        var subPropertyCount = 0
+        for (token in tokens.drop(1)) {
+            if (token.startsWith("/") && subPropertyCount >= 1) {
+                properties.add(currentProperty)
+                currentProperty = token
+                subPropertyCount = 0
+            } else {
+                currentProperty += " $token"
+                subPropertyCount++
+            }
+        }
+
+        properties.add(currentProperty)
+        return properties
     }
 
 }

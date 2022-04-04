@@ -8,4 +8,18 @@ data class PDFObject(val id: String, val properties: List<String>, val streams: 
         return prop.substring(property.length).trim()
     }
 
+    fun getArray(property: String): List<String> {
+        val value = get(property) ?: return emptyList()
+        val matches = arrayRegex.find(value) ?: return emptyList()
+        if (matches.groupValues.size < 2) {
+            return emptyList()
+        }
+
+        return matches.groupValues[1].split(" ")
+    }
+
+    companion object {
+        private val arrayRegex = Regex("\\[(.*)]")
+    }
+
 }
