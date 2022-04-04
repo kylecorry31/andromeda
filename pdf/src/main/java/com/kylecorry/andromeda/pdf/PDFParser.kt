@@ -54,6 +54,10 @@ class PDFParser {
                 }
 
                 if (!inStream) {
+                    if (line.isBlank()) {
+                        continue
+                    }
+
                     lastObject?.also {
                         if (arePropertiesSingleLine) {
                             properties[it]?.addAll(parseSingleLineProperties(line.trim()))

@@ -60,6 +60,7 @@ stream
 Test stream
 Here
 endstream
+
 endobj"""
 
         private val formattedPDF = """%PDF-1.6
@@ -80,6 +81,7 @@ stream
 Test stream
 Here
 endstream
+
 endobj"""
     }
 
