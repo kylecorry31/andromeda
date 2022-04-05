@@ -54,7 +54,8 @@ class GeospatialPDFParser {
 
         // left, top, right, left
         val left = bbox[0]
-        val top = pageHeight - bbox[1]
+        val inverted = bbox[1] > bbox[3]
+        val top = pageHeight - bbox[if (inverted) 1 else 3]
         val width = (bbox[2] - bbox[0]).absoluteValue
         val height = (bbox[3] - bbox[1]).absoluteValue
 
