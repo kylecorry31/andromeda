@@ -101,7 +101,7 @@ class PDFParser {
         var currentProperty = tokens.first()
         var subPropertyCount = 0
         for (token in tokens.drop(1)) {
-            if (token.startsWith("/") && subPropertyCount >= 1) {
+            if (token.startsWith("/") && subPropertyCount >= 1 && areArraysClosed(currentProperty)) {
                 properties.add(currentProperty)
                 currentProperty = token
                 subPropertyCount = 0
@@ -113,6 +113,27 @@ class PDFParser {
 
         properties.add(currentProperty)
         return properties
+    }
+
+    private fun areArraysClosed(text: String): Boolean {
+        return isClosed(text, '[', ']') && isClosed(text, '<', '>')
+    }
+
+    /**
+     * Determines if a string has matching open and close characters.
+     */
+    private fun isClosed(text: String, open: Char, close: Char): Boolean {
+        var openCount = 0
+        var closeCount = 0
+        for (c in text) {
+            if (c == open) {
+                openCount++
+            } else if (c == close) {
+                closeCount++
+            }
+        }
+
+        return openCount == closeCount
     }
 
 }

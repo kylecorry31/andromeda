@@ -15,7 +15,7 @@ data class PDFObject(val id: String, val properties: List<String>, val streams: 
             return emptyList()
         }
 
-        return matches.groupValues[1].split(" ")
+        return matches.groupValues[1].split(" ").filter { it.isNotBlank() }
     }
 
     companion object {
