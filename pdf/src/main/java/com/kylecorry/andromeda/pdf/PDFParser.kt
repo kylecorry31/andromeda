@@ -4,7 +4,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 
-class PDFParser {
+internal class PDFParser {
 
     fun parse(pdf: InputStream, ignoreStreams: Boolean = false): List<PDFObject> {
         val properties = mutableMapOf<String, MutableList<String>>()
