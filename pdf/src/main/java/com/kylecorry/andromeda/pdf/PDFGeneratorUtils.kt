@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.pdf
 import android.graphics.Bitmap
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.units.Coordinate
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 fun catalog(id: String, pages: String): PDFObject {
@@ -146,51 +147,11 @@ fun stream(id: String, contents: ByteArray, properties: List<String> = emptyList
     )
 }
 
-//, listOf("/Resources << /XObject << /X0 4 0 R >> >>")), Add this to the page object properties
-//fun imageResource(id: String, image: Bitmap): PDFObject {
-//    val size = image.rowBytes * image.height
-//    val byteBuffer = ByteBuffer.allocate(size)
-//    image.copyPixelsToBuffer(byteBuffer)
-//    val byteArray = byteBuffer.array()
-//    val stream = ByteArrayOutputStream()
-//    image.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-//
-////    val img = byteArray.joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-//
-//    return stream(
-//        id,
-//        stream.toByteArray(),
-//        listOf(
-//            "/Type /XObject",
-//            "/Subtype /Image",
-//            "/Width ${image.width}",
-//            "/Height ${image.height}",
-//            "/BitsPerComponent 8",
-//            "/Filter /DCTDecode",
-//            "/ColorSpace /DeviceRGB",
-//            "/DecodeParms << /Quality 100 >>"
-//        )
-//    )
-//}
-//
-//fun image(
-//    id: String,
-//    imageName: String,
-//    width: Int,
-//    height: Int,
-//    x: Int = 0,
-//    y: Int = 0
-//): PDFObject {
-//    return stream(id, "Q $width $x 0 $height $y 0 cm $imageName DO Q")
-//}
-
-private fun imageToHex(image: Bitmap): String {
+private fun imageToByteArray(image: Bitmap): ByteArray {
     val size = image.rowBytes * image.height
     val byteBuffer = ByteBuffer.allocate(size)
     image.copyPixelsToBuffer(byteBuffer)
-    val byteArray = byteBuffer.array().filterIndexed { index, _ -> (index + 1) % 4 != 0 }
-
-    return byteArray.joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+    return byteBuffer.array().filterIndexed { index, _ -> (index + 1) % 4 != 0  }.toByteArray()
 }
 
 fun image(
@@ -202,11 +163,18 @@ fun image(
     destHeight: Int = image.height,
     properties: List<String> = emptyList()
 ): PDFObject {
+
+    val stream = ByteArrayOutputStream()
+    val writer = stream.bufferedWriter()
+    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /BPC 8 ID ")
+    writer.flush()
+    stream.write(imageToByteArray(image))
+    writer.write(" > EI Q")
+    writer.flush()
+
     return stream(
         id,
-        "Q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /BPC 8 /F /AHx ID ${
-            imageToHex(image)
-        } > EI Q",
+        stream.toByteArray(),
         properties
     )
 }
