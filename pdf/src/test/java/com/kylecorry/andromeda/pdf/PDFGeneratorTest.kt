@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.pdf
 
+import com.kylecorry.sol.units.Coordinate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -56,7 +57,17 @@ startxref
             catalog("1 0", "2 0"),
             pages("2 0", listOf("3 0")),
             page("3 0", "2 0", 200, 200, listOf("4 0")),
-            text("4 0", "Hello World!", 0, 150, 12)
+            viewport("5 0", "6 0", bbox(0, 0, 200, 200)),
+            text("4 0", "Hello World!", 0, 150, 12),
+            geo(
+                "6 0",
+                gpts = listOf(
+                    Coordinate(41.8895, -71.72549),
+                    Coordinate(41.924248, -71.72549),
+                    Coordinate(41.924248, -71.68764),
+                    Coordinate(41.8895, -71.68764)
+                )
+            )
         )
 
         val generator = PDFGenerator()

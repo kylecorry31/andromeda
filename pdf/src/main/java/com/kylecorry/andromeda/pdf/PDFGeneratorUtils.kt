@@ -1,13 +1,15 @@
 package com.kylecorry.andromeda.pdf
 
 import android.graphics.Bitmap
+import com.kylecorry.sol.math.Vector2
+import com.kylecorry.sol.units.Coordinate
 import java.nio.ByteBuffer
 
 fun catalog(id: String, pages: String): PDFObject {
     return PDFObject(
         id, listOf(
-            "/Type /Catalog",
-            "/Pages $pages R"
+            type("Catalog"),
+            "/Pages ${ref(pages)}"
         ), emptyList()
     )
 }
@@ -15,7 +17,10 @@ fun catalog(id: String, pages: String): PDFObject {
 fun pages(id: String, children: List<String>): PDFObject {
     return PDFObject(
         id,
-        listOf("/Type /Pages", "/Kids [${children.joinToString(" ") { "$it R" }}]"),
+        listOf(
+            type("Pages"),
+            "/Kids ${array(children) { ref(it) }}"
+        ),
         emptyList()
     )
 }
@@ -26,16 +31,107 @@ fun page(
     width: Int,
     height: Int,
     contents: List<String>,
+    viewportIds: List<String> = emptyList(),
+    properties: List<String> = emptyList()
+): PDFObject {
+    return PDFObject(
+        id, listOfNotNull(
+            type("Page"),
+            "/Parent ${ref(parent)}",
+            "/MediaBox [0 0 $width $height]",
+            "/Contents ${array(contents) { ref(it) }}",
+            if (viewportIds.isEmpty()) null else "/VP ${array(viewportIds) { ref(it) }}"
+        ) + properties, emptyList()
+    )
+}
+
+fun viewport(
+    id: String,
+    measureId: String,
+    bbox: DoubleArray,
     properties: List<String> = emptyList()
 ): PDFObject {
     return PDFObject(
         id, listOf(
-            "/Type /Page",
-            "/Parent $parent R",
-            "/MediaBox [0 0 $width $height]",
-            "/Contents [${contents.joinToString(" ") { "$it R" }}]",
+            type("Viewport"),
+            "/Measure ${ref(measureId)}",
+            "/BBox ${array(bbox.toTypedArray())}"
         ) + properties, emptyList()
     )
+}
+
+fun geo(
+    id: String,
+    gpts: List<Coordinate>,
+    lpts: List<Vector2> = listOf(
+        Vector2(0f, 1f),
+        Vector2(0f, 0f),
+        Vector2(1f, 0f),
+        Vector2(1f, 1f)
+    ),
+    gcsId: String? = null,
+    bounds: List<Vector2> = listOf(
+        Vector2(0f, 1f),
+        Vector2(0f, 0f),
+        Vector2(1f, 0f),
+        Vector2(1f, 1f)
+    ),
+    properties: List<String> = emptyList()
+): PDFObject {
+    return PDFObject(
+        id, listOfNotNull(
+            type("Measure"),
+            subtype("GEO"),
+            "/Bounds ${array(bounds.toTypedArray()) { "${it.x} ${it.y}" }}",
+            "/LPTS ${array(lpts.toTypedArray()) { "${it.x} ${it.y}" }}",
+            "/GPTS ${array(gpts.toTypedArray()) { "${it.latitude} ${it.longitude}" }}",
+            gcsId?.let { "/GCS ${ref(it)}" }
+        ) + properties, emptyList()
+    )
+}
+
+fun gcs(
+    id: String,
+    projcs: ProjectedCoordinateSystem,
+    properties: List<String> = emptyList()
+): PDFObject {
+    val datum = projcs.geographic.datum
+    val spheroid = datum.spheroid
+
+    return PDFObject(
+        id, listOf(
+            type("PROJCS"),
+            "/WKT (PROJCS[\"WGS 84\",GEOGCS[\"WGS 84\",DATUM[\"${datum.name}\",SPHEROID[\"${spheroid.name}\",${spheroid.semiMajorAxis},${spheroid.inverseFlattening}]]],PROJECTION[\"${projcs.projection}\"]])"
+        ) + properties, emptyList()
+    )
+}
+
+fun type(type: String): String {
+    return "/Type ${name(type)}"
+}
+
+fun subtype(subtype: String): String {
+    return "/Subtype ${name(subtype)}"
+}
+
+fun name(name: String): String {
+    return if (name.startsWith("/")) name else "/$name"
+}
+
+fun ref(id: String): String {
+    return "$id R"
+}
+
+fun <T> array(arr: List<T>, toString: (T) -> String = { it.toString() }): String {
+    return "[${arr.joinToString(" ") { toString(it) }}]"
+}
+
+fun <T> array(arr: Array<T>, toString: (T) -> String = { it.toString() }): String {
+    return "[${arr.joinToString(" ") { toString(it) }}]"
+}
+
+fun bbox(left: Number, top: Number, right: Number, bottom: Number): DoubleArray {
+    return doubleArrayOf(left.toDouble(), top.toDouble(), right.toDouble(), bottom.toDouble())
 }
 
 fun stream(id: String, contents: String, properties: List<String> = emptyList()): PDFObject {
