@@ -67,6 +67,7 @@ internal class PDFParser {
                     }
                 }
 
+                // TODO: Treat streams as byte arrays
                 if (!ignoreStreams && inStream) {
                     lastObject?.let {
                         if (!streams.containsKey(it)) {
@@ -85,7 +86,11 @@ internal class PDFParser {
 
         val objects = mutableListOf<PDFObject>()
         for (key in properties.keys) {
-            objects.add(PDFObject(key, properties[key]!!, streams[key] ?: emptyList()))
+            objects.add(
+                PDFObject(
+                    key,
+                    properties[key]!!,
+                    streams[key]?.map { it.toByteArray() } ?: emptyList()))
         }
 
         return objects.sortedBy { it.id }

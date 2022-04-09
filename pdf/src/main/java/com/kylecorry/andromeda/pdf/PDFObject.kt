@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.pdf
 
-data class PDFObject(val id: String, val properties: List<String>, val streams: List<String>) {
+data class PDFObject(val id: String, val properties: List<String>, val streams: List<ByteArray>) {
 
     operator fun get(property: String): String? {
         val prop =

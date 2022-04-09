@@ -13,7 +13,19 @@ internal class PDFParserTest {
     fun parse(pdf: String, ignoreStreams: Boolean, expected: List<PDFObject>) {
         val parser = PDFParser()
         val actual = parser.parse(pdf.byteInputStream(), ignoreStreams)
-        assertEquals(expected, actual)
+        assertEquals(expected.size, actual.size)
+        for (i in actual.indices){
+            assertEquals(expected[i], actual[i])
+        }
+    }
+
+    private fun assertEquals(expected: PDFObject, actual: PDFObject){
+        assertEquals(expected.id, actual.id)
+        assertEquals(expected.properties, actual.properties)
+        assertEquals(expected.streams.size, actual.streams.size)
+        for (i in actual.streams.indices){
+            assertArrayEquals(expected.streams[i], actual.streams[i])
+        }
     }
 
 
@@ -27,7 +39,7 @@ internal class PDFParserTest {
                 PDFObject(
                     "4 0",
                     listOf("/Type /Measure", "/Subtype /GEO", "/Reference 3 0 R"),
-                    listOf("Test streamHere")
+                    listOf("Test streamHere".toByteArray())
                 ),
             )
 
