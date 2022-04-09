@@ -147,11 +147,10 @@ fun stream(id: String, contents: ByteArray, properties: List<String> = emptyList
     )
 }
 
-private fun imageToByteArray(image: Bitmap): ByteArray {
-    val size = image.rowBytes * image.height
-    val byteBuffer = ByteBuffer.allocate(size)
-    image.copyPixelsToBuffer(byteBuffer)
-    return byteBuffer.array().filterIndexed { index, _ -> (index + 1) % 4 != 0  }.toByteArray()
+private fun dctImage(image: Bitmap, quality: Int = 100): ByteArray {
+    val stream = ByteArrayOutputStream()
+    image.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+    return stream.toByteArray()
 }
 
 fun image(
@@ -161,14 +160,15 @@ fun image(
     y: Int = 0,
     destWidth: Int = image.width,
     destHeight: Int = image.height,
+    quality: Int = 100,
     properties: List<String> = emptyList()
 ): PDFObject {
 
     val stream = ByteArrayOutputStream()
     val writer = stream.bufferedWriter()
-    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /BPC 8 ID ")
+    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /F /DCT /BPC 8 ID ")
     writer.flush()
-    stream.write(imageToByteArray(image))
+    stream.write(dctImage(image, quality))
     writer.write(" > EI Q")
     writer.flush()
 
