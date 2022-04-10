@@ -1,6 +1,10 @@
 package com.kylecorry.andromeda.pdf
 
 import android.graphics.Bitmap
+import com.kylecorry.andromeda.wkt.CRSWellKnownTextConvert
+import com.kylecorry.andromeda.wkt.WKTNumber
+import com.kylecorry.andromeda.wkt.WKTSection
+import com.kylecorry.andromeda.wkt.WKTString
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.units.Coordinate
 import java.io.ByteArrayOutputStream
@@ -99,10 +103,38 @@ fun gcs(
     val datum = projcs.geographic.datum
     val spheroid = datum.spheroid
 
+    val wkt = WKTSection(
+        "PROJCS", listOf(
+            WKTString("WGS 84"),
+            WKTSection(
+                "GEOGCS", listOf(
+                    WKTString("WGS 84"),
+                    WKTSection(
+                        "DATUM", listOf(
+                            WKTString(datum.name),
+                            WKTSection(
+                                "SPHEROID", listOf(
+                                    WKTString(spheroid.name),
+                                    WKTNumber(spheroid.semiMajorAxis.toDouble()),
+                                    WKTNumber(spheroid.inverseFlattening.toDouble())
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
+            WKTSection(
+                "PROJECTION", listOf(
+                    WKTString(projcs.projection)
+                )
+            )
+        )
+    )
+    
     return PDFObject(
         id, listOf(
             type("PROJCS"),
-            "/WKT (PROJCS[\"WGS 84\",GEOGCS[\"WGS 84\",DATUM[\"${datum.name}\",SPHEROID[\"${spheroid.name}\",${spheroid.semiMajorAxis},${spheroid.inverseFlattening}]]],PROJECTION[\"${projcs.projection}\"]])"
+            "/WKT (${CRSWellKnownTextConvert.fromWKT(wkt)})"
         ) + properties, emptyList()
     )
 }
