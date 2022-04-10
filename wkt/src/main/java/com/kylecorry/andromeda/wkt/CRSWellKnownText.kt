@@ -15,7 +15,7 @@ data class WKTSection(val name: String, val values: List<WKTValue>) : WKTValue {
 
 fun WKTValue.getSection(name: String): WKTSection? {
     if (this is WKTSection) {
-        if (name.equals(name, true)) {
+        if (this.name.equals(name, true)) {
             return this
         }
 

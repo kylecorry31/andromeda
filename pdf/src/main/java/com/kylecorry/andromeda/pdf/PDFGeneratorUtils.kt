@@ -130,7 +130,7 @@ fun gcs(
             )
         )
     )
-    
+
     return PDFObject(
         id, listOf(
             type("PROJCS"),

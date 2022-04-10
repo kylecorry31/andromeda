@@ -15,8 +15,9 @@ class PDFRenderer {
         uri: Uri,
         page: Int = 0,
         scale: Float = Screen.dpi(context) / 72,
+        maxSize: Int = Int.MAX_VALUE,
         @ColorInt backgroundColor: Int = Color.WHITE
-    ): Bitmap? {
+    ): Pair<Bitmap, Float>? {
         return context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
             PdfRenderer(fd).use { renderer ->
                 val pageCount = renderer.pageCount
@@ -25,8 +26,24 @@ class PDFRenderer {
                 }
 
                 renderer.openPage(page).use { pdfPage ->
-                    val width = scale * pdfPage.width
-                    val height = scale * pdfPage.height
+                    var actualScale = scale
+                    var width = scale * pdfPage.width
+                    var height = scale * pdfPage.height
+
+                    if (width > maxSize) {
+                        val newScale = maxSize / width
+                        width *= newScale
+                        height *= newScale
+                        actualScale *= newScale
+                    }
+
+                    if (height > maxSize) {
+                        val newScale = maxSize / height
+                        width *= newScale
+                        height *= newScale
+                        actualScale *= newScale
+                    }
+
                     val bitmap =
                         Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
                     if (backgroundColor != Color.TRANSPARENT) {
@@ -34,7 +51,7 @@ class PDFRenderer {
                         canvas.drawColor(backgroundColor)
                     }
                     pdfPage.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                    bitmap
+                    bitmap to actualScale
                 }
             }
         }
