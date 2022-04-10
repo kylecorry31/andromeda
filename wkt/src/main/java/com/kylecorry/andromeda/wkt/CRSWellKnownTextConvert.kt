@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.pdf
+package com.kylecorry.andromeda.wkt
 
 import java.io.InputStream
 

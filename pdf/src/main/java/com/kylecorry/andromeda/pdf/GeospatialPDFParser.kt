@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.pdf
 
 import com.kylecorry.andromeda.core.units.PixelCoordinate
+import com.kylecorry.andromeda.wkt.CRSWellKnownTextConvert
+import com.kylecorry.andromeda.wkt.getSection
 import com.kylecorry.sol.units.Coordinate
 import java.io.InputStream
 import kotlin.math.absoluteValue
@@ -84,14 +86,14 @@ class GeospatialPDFParser {
 
     private fun getProjection(gcs: String): ProjectedCoordinateSystem? {
         val wkt = CRSWellKnownTextConvert.toWKT(gcs) ?: return null
-        val datum = wkt.getSection("datum")?.get<WKTString>(0)?.value ?: return null
+        val datum = wkt.getSection("datum")?.get<com.kylecorry.andromeda.wkt.WKTString>(0)?.value ?: return null
         val spheroidSec = wkt.getSection("spheroid")
-        val primeMeridian = wkt.getSection("primem")?.get<WKTNumber>(1)?.value ?: 0.0
-        val projection = wkt.getSection("projection")?.get<WKTString>(0)?.value ?: return null
+        val primeMeridian = wkt.getSection("primem")?.get<com.kylecorry.andromeda.wkt.WKTNumber>(1)?.value ?: 0.0
+        val projection = wkt.getSection("projection")?.get<com.kylecorry.andromeda.wkt.WKTString>(0)?.value ?: return null
 
-        val spheroidName = spheroidSec?.get<WKTString>(0)?.value ?: "WGS 84"
-        val semiMajorAxis = spheroidSec?.get<WKTNumber>(1)?.value?.toFloat() ?: 6378137f
-        val inverseFlattening = spheroidSec?.get<WKTNumber>(2)?.value?.toFloat() ?: 298.2572229f
+        val spheroidName = spheroidSec?.get<com.kylecorry.andromeda.wkt.WKTString>(0)?.value ?: "WGS 84"
+        val semiMajorAxis = spheroidSec?.get<com.kylecorry.andromeda.wkt.WKTNumber>(1)?.value?.toFloat() ?: 6378137f
+        val inverseFlattening = spheroidSec?.get<com.kylecorry.andromeda.wkt.WKTNumber>(2)?.value?.toFloat() ?: 298.2572229f
 
         return ProjectedCoordinateSystem(
             GeographicCoordinateSystem(

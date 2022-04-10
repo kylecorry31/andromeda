@@ -43,6 +43,7 @@
             <option value="$PROJECT_DIR$/sound" />
             <option value="$PROJECT_DIR$/speech" />
             <option value="$PROJECT_DIR$/torch" />
+            <option value="$PROJECT_DIR$/wkt" />
             <option value="$PROJECT_DIR$/xml" />
           </set>
         </option>

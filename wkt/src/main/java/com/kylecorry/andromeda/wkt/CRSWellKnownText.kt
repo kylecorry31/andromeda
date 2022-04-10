@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.pdf
+package com.kylecorry.andromeda.wkt
 
 interface WKTValue
 data class WKTString(val value: String) : WKTValue
