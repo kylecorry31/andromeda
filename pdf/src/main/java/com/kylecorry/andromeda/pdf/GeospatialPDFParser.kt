@@ -83,22 +83,26 @@ class GeospatialPDFParser {
     }
 
     private fun getProjection(gcs: String): ProjectedCoordinateSystem? {
-        val datumName = getMatch(datumNameRegex, gcs) ?: return null
-        val spheroidMatches = spheroidRegex.find(gcs)?.groupValues ?: return null
-        val spheroid =
-            Spheroid(spheroidMatches[1], spheroidMatches[2].toFloat(), spheroidMatches[3].toFloat())
-        val datum = Datum(datumName, spheroid)
+        val wkt = CRSWellKnownTextConvert.toWKT(gcs) ?: return null
+        val datum = wkt.getSection("datum")?.get<WKTString>(0)?.value ?: return null
+        val spheroidSec = wkt.getSection("spheroid")
+        val primeMeridian = wkt.getSection("primem")?.get<WKTNumber>(1)?.value ?: 0.0
+        val projection = wkt.getSection("projection")?.get<WKTString>(0)?.value ?: return null
 
-        val primeMeridian = getMatch(primeMeridianRegex, gcs)?.toDouble() ?: return null
-        val projection = getMatch(projectionRegex, gcs) ?: return null
+        val spheroidName = spheroidSec?.get<WKTString>(0)?.value ?: "WGS 84"
+        val semiMajorAxis = spheroidSec?.get<WKTNumber>(1)?.value?.toFloat() ?: 6378137f
+        val inverseFlattening = spheroidSec?.get<WKTNumber>(2)?.value?.toFloat() ?: 298.2572229f
 
-        val geog = GeographicCoordinateSystem(datum, primeMeridian)
-        return ProjectedCoordinateSystem(geog, projection)
-    }
-
-    private fun getMatch(regex: Regex, text: String): String? {
-        val matches = regex.find(text) ?: return null
-        return matches.groupValues[1]
+        return ProjectedCoordinateSystem(
+            GeographicCoordinateSystem(
+                Datum(
+                    datum,
+                    Spheroid(spheroidName, semiMajorAxis, inverseFlattening)
+                ),
+                primeMeridian
+            ),
+            projection
+        )
     }
 
     private fun getViewports(objects: List<PDFObject>): List<PDFObject> {
@@ -112,15 +116,4 @@ class GeospatialPDFParser {
     private fun isGeoMeasure(measure: PDFObject): Boolean {
         return measure["/subtype"]?.contentEquals("/geo", ignoreCase = true) ?: false
     }
-
-    companion object {
-        private val datumNameRegex = Regex("DATUM\\[\"([\\w\\s/\\d]+)\"")
-        private val spheroidRegex =
-            Regex("SPHEROID\\[\"([\\w\\s/\\d]+)\",(-?\\d+(?:[.,]\\d+)?),(-?\\d+(?:[.,]\\d+)?)")
-        private val primeMeridianRegex = Regex("PRIMEM\\[\"[\\w\\s/\\d]+\",(-?\\d+(?:[.,]\\d+)?)")
-        private val projectionRegex = Regex("PROJECTION\\[\"([\\w\\s/\\d]+)\"")
-
-    }
-
-
 }
