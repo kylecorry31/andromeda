@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import androidx.camera.core.ImageProxy
 import com.kylecorry.andromeda.core.sensors.ISensor
 import com.kylecorry.andromeda.core.units.PixelCoordinate
+import java.io.File
+import java.io.OutputStream
 
 interface ICamera: ISensor {
     val image: ImageProxy?
@@ -15,4 +17,9 @@ interface ICamera: ISensor {
     fun getFOV(): Pair<Float, Float>?
     fun stopFocusAndMetering()
     fun startFocusAndMetering(point: PixelCoordinate)
+
+    fun takePhoto(callback: (image: ImageProxy?) -> Unit)
+    suspend fun takePhoto(): ImageProxy?
+    suspend fun takePhoto(file: File): Boolean
+    suspend fun takePhoto(stream: OutputStream): Boolean
 }

@@ -21,8 +21,13 @@ import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
+import java.io.File
+import java.io.OutputStream
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.atan
 
 class Camera(
@@ -32,7 +37,8 @@ class Camera(
     private val previewView: PreviewView? = null,
     private val analyze: Boolean = true,
     private val targetResolution: Size? = null,
-    private val useYUV: Boolean = false
+    private val useYUV: Boolean = false,
+    private val captureSettings: ImageCaptureSettings? = null
 ) : AbstractSensor(), ICamera {
 
     override val image: ImageProxy?
@@ -43,6 +49,7 @@ class Camera(
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
+    private var imageCapture: ImageCapture? = null
 
     private var _hasValidReading = false
 
@@ -60,7 +67,7 @@ class Camera(
                 cameraProvider = cameraProviderFuture?.get()
             } catch (e: CancellationException) {
                 Log.i("Camera", "Unable to open camera because task was cancelled")
-            } catch (e: InterruptedException){
+            } catch (e: InterruptedException) {
                 Log.i("Camera", "Unable to open camera because task was interrupted")
             }
             val preview = Preview.Builder()
@@ -80,6 +87,28 @@ class Camera(
                 notifyListeners()
             }
 
+            if (captureSettings != null) {
+                val builder = ImageCapture.Builder()
+                    .setFlashMode(captureSettings.flashMode)
+                    .setCaptureMode(captureSettings.captureMode)
+
+                captureSettings.quality?.let {
+                    builder.setJpegQuality(captureSettings.quality)
+                }
+
+                captureSettings.targetAspectRatio?.let {
+                    builder.setTargetAspectRatio(captureSettings.targetAspectRatio)
+                }
+
+                targetResolution?.let {
+                    builder.setTargetResolution(targetResolution)
+                }
+
+                imageCapture = builder.build()
+            } else {
+                imageCapture = null
+            }
+
             val cameraSelector =
                 if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
@@ -90,7 +119,8 @@ class Camera(
                 cameraSelector,
                 *listOfNotNull(
                     if (previewView != null) preview else null,
-                    if (analyze) imageAnalysis else null
+                    if (analyze) imageAnalysis else null,
+                    imageCapture
                 ).toTypedArray()
             )
             notifyListeners()
@@ -119,6 +149,11 @@ class Camera(
 
     override fun setTorch(isOn: Boolean) {
         camera?.cameraControl?.enableTorch(isOn)
+        imageCapture?.flashMode = if (isOn) {
+            ImageCapture.FLASH_MODE_ON
+        } else {
+            ImageCapture.FLASH_MODE_OFF
+        }
     }
 
     override fun stopFocusAndMetering() {
@@ -135,6 +170,59 @@ class Camera(
         tryOrNothing {
             camera?.cameraControl?.startFocusAndMetering(action)
         }
+    }
+
+    override fun takePhoto(callback: (image: ImageProxy?) -> Unit) {
+        val imageCapture = imageCapture
+        if (imageCapture == null) {
+            callback(null)
+            return
+        }
+
+        imageCapture.takePicture(ContextCompat.getMainExecutor(context), object :
+            ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                callback(image)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                callback(null)
+            }
+        })
+    }
+
+    override suspend fun takePhoto(): ImageProxy? = suspendCoroutine { cont ->
+        takePhoto {
+            cont.resume(it)
+        }
+    }
+
+    override suspend fun takePhoto(file: File): Boolean = suspendCoroutine { cont ->
+        val options = ImageCapture.OutputFileOptions.Builder(file).build()
+        takePhoto(options, cont)
+    }
+
+    override suspend fun takePhoto(stream: OutputStream): Boolean = suspendCoroutine { cont ->
+        val options = ImageCapture.OutputFileOptions.Builder(stream).build()
+        takePhoto(options, cont)
+    }
+
+    private fun takePhoto(options: ImageCapture.OutputFileOptions, cont: Continuation<Boolean>) {
+        val imageCapture = imageCapture
+        if (imageCapture == null) {
+            cont.resume(false)
+            return
+        }
+        imageCapture.takePicture(options, ContextCompat.getMainExecutor(context), object :
+            ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                cont.resume(true)
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                cont.resume(false)
+            }
+        })
     }
 
     override fun getFOV(): Pair<Float, Float>? {
