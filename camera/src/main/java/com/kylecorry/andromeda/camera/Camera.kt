@@ -100,6 +100,10 @@ class Camera(
                     builder.setTargetAspectRatio(captureSettings.targetAspectRatio)
                 }
 
+                captureSettings.rotation?.let {
+                    builder.setTargetRotation(it)
+                }
+
                 targetResolution?.let {
                     builder.setTargetResolution(targetResolution)
                 }

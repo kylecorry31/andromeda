@@ -1,5 +1,7 @@
 package com.kylecorry.andromeda.fragments
 
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -28,4 +30,11 @@ fun BottomSheetDialogFragment.show(fragment: Fragment, tag: String = javaClass.n
 
 fun BottomSheetDialogFragment.show(activity: FragmentActivity, tag: String = javaClass.name) {
     show(activity.supportFragmentManager, tag)
+}
+
+fun Fragment.onBackPressed(
+    enabled: Boolean = true,
+    onBackPressed: OnBackPressedCallback.() -> Unit
+): OnBackPressedCallback {
+    return requireActivity().onBackPressedDispatcher.addCallback(this, enabled, onBackPressed)
 }

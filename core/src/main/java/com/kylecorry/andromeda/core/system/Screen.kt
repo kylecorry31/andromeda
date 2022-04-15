@@ -2,10 +2,15 @@ package com.kylecorry.andromeda.core.system
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.Point
 import android.os.Build
+import android.util.Size
 import android.view.View
 import android.view.Window
+import android.view.WindowInsets
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 
 object Screen {
 
@@ -72,7 +77,7 @@ object Screen {
     }
 
     @Suppress("DEPRECATION")
-    fun setShowWhenLocked(activity: Activity, showWhenLocked: Boolean){
+    fun setShowWhenLocked(activity: Activity, showWhenLocked: Boolean) {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 -> {
                 activity.setShowWhenLocked(showWhenLocked)
@@ -84,5 +89,48 @@ object Screen {
                 activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
             }
         }
+    }
+
+    fun getWindowHeight(context: Context): Int {
+        return getWindowSize(context).height
+    }
+
+    fun getWindowWidth(context: Context): Int {
+        return getWindowSize(context).width
+    }
+
+    fun getWindowSize(context: Context): Size {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindowSizeSDK30(context)
+        } else {
+            getWindowSizeLegacy(context)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getWindowSizeLegacy(context: Context): Size {
+        val window = context.getSystemService<WindowManager>()!!
+        val point = Point()
+        window.defaultDisplay.getSize(point)
+        return Size(point.x, point.y)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun getWindowSizeSDK30(context: Context): Size {
+        val window = context.getSystemService<WindowManager>()!!
+        val metrics = window.currentWindowMetrics
+        val windowInsets = metrics.windowInsets
+        val insets = windowInsets.getInsetsIgnoringVisibility(
+            WindowInsets.Type.navigationBars()
+                    or WindowInsets.Type.displayCutout()
+        )
+
+        val insetsWidth = insets.right + insets.left
+        val insetsHeight = insets.top + insets.bottom
+        val bounds = metrics.bounds
+        return Size(
+            bounds.width() - insetsWidth,
+            bounds.height() - insetsHeight
+        )
     }
 }

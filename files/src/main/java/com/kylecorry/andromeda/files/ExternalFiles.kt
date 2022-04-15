@@ -6,6 +6,7 @@ import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.InputStream
+import java.io.OutputStream
 import java.lang.Exception
 
 object ExternalFiles {
@@ -35,19 +36,26 @@ object ExternalFiles {
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun write(context: Context, uri: Uri, text: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val outputStream = try {
-                context.contentResolver.openOutputStream(uri)
-            } catch (e: Exception) {
-                return@withContext false
-            }
+            val stream = outputStream(context, uri) ?: return@withContext false
 
             try {
-                outputStream?.write(text.toByteArray())
+                stream.write(text.toByteArray())
                 true
             } catch (e: Exception) {
                 false
             } finally {
-                outputStream?.close()
+                stream.close()
+            }
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun outputStream(context: Context, uri: Uri): OutputStream? {
+        return withContext(Dispatchers.IO) {
+            try {
+                context.contentResolver.openOutputStream(uri)
+            } catch (e: Exception) {
+                null
             }
         }
     }

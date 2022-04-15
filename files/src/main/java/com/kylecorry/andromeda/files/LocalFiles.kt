@@ -3,12 +3,17 @@ package com.kylecorry.andromeda.files
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import java.io.File
 
 object LocalFiles {
 
     fun getUri(context: Context, path: String, authority: String, create: Boolean = false): Uri {
         return FileProvider.getUriForFile(context, authority, getFile(context, path, create))
+    }
+
+    fun getUri(context: Context, path: String, create: Boolean = false): Uri {
+        return getFile(context, path, create).toUri()
     }
 
     private fun create(context: Context, path: String, isDirectory: Boolean) {
@@ -82,6 +87,10 @@ object LocalFiles {
         } else {
             file.writeText(text)
         }
+    }
+
+    fun getLocalPath(file: File): String {
+        return file.path.substringAfter("files/")
     }
 
 
