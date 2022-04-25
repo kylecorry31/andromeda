@@ -24,7 +24,6 @@ import com.kylecorry.andromeda.permissions.Permissions
 import java.io.File
 import java.io.OutputStream
 import java.util.concurrent.CancellationException
-import java.util.concurrent.ExecutionException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -243,9 +242,9 @@ class Camera(
                     val size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
                     val w = size!!.width
                     val h = size.height
-                    val horizonalAngle = (2 * atan(w / (maxFocus!![0] * 2).toDouble())).toFloat()
+                    val horizontalAngle = (2 * atan(w / (maxFocus!![0] * 2).toDouble())).toFloat()
                     val verticalAngle = (2 * atan(h / (maxFocus[0] * 2).toDouble())).toFloat()
-                    return horizonalAngle to verticalAngle
+                    return horizontalAngle to verticalAngle
                 }
             }
             return null
