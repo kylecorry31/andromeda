@@ -5,7 +5,7 @@ import java.io.InputStream
 object CRSWellKnownTextConvert {
 
     fun toWKT(data: String): WKTValue? {
-        if (data.isEmpty()){
+        if (data.isEmpty()) {
             return null
         }
 
@@ -27,9 +27,25 @@ object CRSWellKnownTextConvert {
 
     private fun readNextSection(data: String): Pair<WKTValue, String> {
         val startIdx = data.indexOf("[")
+        val endIdx1 = data.indexOf("]")
+        val endIdx2 = data.indexOf(",")
 
-        if (startIdx == -1) {
+        if (startIdx == -1 && endIdx1 == -1) {
             return WKTSection("", emptyList()) to data
+        }
+
+        if ((startIdx == -1 && endIdx1 != -1) || endIdx1 < startIdx) {
+            return WKTSection(
+                data.substring(0, endIdx1),
+                emptyList()
+            ) to data.substring(endIdx1 + 1)
+        }
+
+        if (endIdx2 < startIdx && endIdx2 != -1) {
+            return WKTSection(
+                data.substring(0, endIdx2),
+                emptyList()
+            ) to data.substring(endIdx2 + 1)
         }
 
         val name = data.substring(0, startIdx)
@@ -56,6 +72,10 @@ object CRSWellKnownTextConvert {
             } else {
                 text = text.substring(1)
             }
+        }
+
+        if (text.isEmpty()) {
+            return WKTSection(name, wkt) to text
         }
 
         return WKTSection(name, wkt) to text.substring(1)
