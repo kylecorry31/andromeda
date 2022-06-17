@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.jobs
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -8,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Intents
+import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.time.Time.toEpochMillis
 import java.time.LocalDateTime
 
@@ -19,6 +21,7 @@ object Alarms {
      * @param pendingIntent The pending intent to launch when the alarm fires
      * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise
      */
+    @SuppressLint("MissingPermission")
     fun set(
         context: Context,
         time: LocalDateTime,
@@ -29,13 +32,13 @@ object Alarms {
         val alarmManager = getAlarmManager(context)
 
         if (!allowWhileIdle || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            if (exact) {
+            if (exact && Permissions.canScheduleExactAlarms(context)) {
                 alarmManager?.setExact(AlarmManager.RTC_WAKEUP, time.toEpochMillis(), pendingIntent)
             } else {
                 alarmManager?.set(AlarmManager.RTC_WAKEUP, time.toEpochMillis(), pendingIntent)
             }
         } else {
-            if (exact) {
+            if (exact && Permissions.canScheduleExactAlarms(context)) {
                 alarmManager?.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     time.toEpochMillis(),
@@ -57,6 +60,7 @@ object Alarms {
      * @param pendingIntent The pending intent to launch when the alarm fires
      * @param viewAlarmPendingIntent The pending intent to launch when the user wants to view or edit the alarm
      */
+    @SuppressLint("MissingPermission")
     fun setAlarmClock(
         context: Context,
         time: LocalDateTime,

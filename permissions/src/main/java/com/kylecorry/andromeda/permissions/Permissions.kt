@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.permissions
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
@@ -12,6 +13,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import com.kylecorry.andromeda.core.system.Android
 import com.kylecorry.andromeda.core.system.Package
 
 object Permissions {
@@ -119,5 +121,19 @@ object Permissions {
         val uri = Uri.fromParts("package", Package.getPackageName(context), null)
         intent.data = uri
         context.startActivity(intent)
+    }
+
+    fun canScheduleExactAlarms(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return true
+        }
+
+        val alarm = context.getSystemService<AlarmManager>()
+
+        return try {
+            alarm?.canScheduleExactAlarms() ?: false
+        } catch (e: Exception) {
+            false
+        }
     }
 }

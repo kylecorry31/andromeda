@@ -62,6 +62,14 @@ object Intents {
         return intent
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun alarmAndReminderSettings(context: Context): Intent {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+        val uri = Uri.fromParts("package", Package.getPackageName(context), null)
+        intent.data = uri
+        return intent
+    }
+
     @RequiresApi(Build.VERSION_CODES.M)
     fun batteryOptimizationSettings(): Intent {
         return Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
