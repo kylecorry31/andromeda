@@ -10,7 +10,7 @@ import java.util.*
 
 class BluetoothService(private val context: Context) {
 
-    private val adapter by lazy { context.getSystemService<BluetoothManager>()?.adapter }
+    val adapter by lazy { context.getSystemService<BluetoothManager>()?.adapter }
 
     val isEnabled: Boolean
         @SuppressLint("MissingPermission")
@@ -19,7 +19,7 @@ class BluetoothService(private val context: Context) {
         }
 
 
-    val devices: List<BluetoothDevice>
+    val bondedDevices: List<BluetoothDevice>
         @SuppressLint("MissingPermission")
         get(){
             return if (Permissions.canUseBluetooth(context) && adapter != null) adapter!!.bondedDevices.toList() else listOf()
