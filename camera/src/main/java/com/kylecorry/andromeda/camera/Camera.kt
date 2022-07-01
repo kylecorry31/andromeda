@@ -18,9 +18,11 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.tryOrLog
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.sol.math.Range
 import java.io.File
 import java.io.OutputStream
 import java.util.concurrent.CancellationException
@@ -42,6 +44,31 @@ class Camera(
 
     override val image: ImageProxy?
         get() = _image
+
+    override val zoom: ZoomInfo?
+        get() {
+            try {
+                val state = camera?.cameraInfo?.zoomState?.value ?: return null
+                return ZoomInfo(
+                    state.zoomRatio,
+                    state.linearZoom,
+                    Range(state.minZoomRatio, state.maxZoomRatio)
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return null
+            }
+        }
+
+    override val sensorRotation: Float
+        get() {
+            return try {
+                camera?.cameraInfo?.sensorRotationDegrees?.toFloat() ?: 0f
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0f
+            }
+        }
 
     private var _image: ImageProxy? = null
 
@@ -92,11 +119,11 @@ class Camera(
                     .setCaptureMode(captureSettings.captureMode)
 
                 captureSettings.quality?.let {
-                    builder.setJpegQuality(captureSettings.quality)
+                    builder.setJpegQuality(it)
                 }
 
                 captureSettings.targetAspectRatio?.let {
-                    builder.setTargetAspectRatio(captureSettings.targetAspectRatio)
+                    builder.setTargetAspectRatio(it)
                 }
 
                 captureSettings.rotation?.let {
@@ -104,7 +131,7 @@ class Camera(
                 }
 
                 targetResolution?.let {
-                    builder.setTargetResolution(targetResolution)
+                    builder.setTargetResolution(it)
                 }
 
                 imageCapture = builder.build()
@@ -138,15 +165,17 @@ class Camera(
         cameraProviderFuture = null
     }
 
-    override fun setZoom(zoom: Float) {
+    override fun setLinearZoom(zoom: Float) {
         camera?.cameraControl?.setLinearZoom(zoom)
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError", "UnsafeOptInUsageError")
+    override fun setZoomRatio(zoom: Float) {
+        camera?.cameraControl?.setZoomRatio(zoom)
+    }
+
     override fun setExposure(index: Int) {
-        try {
+        tryOrLog {
             camera?.cameraControl?.setExposureCompensationIndex(index)
-        } catch (e: Exception) {
         }
     }
 

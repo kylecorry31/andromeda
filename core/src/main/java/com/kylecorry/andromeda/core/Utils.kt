@@ -12,6 +12,22 @@ fun tryOrNothing(block: () -> Unit) {
     }
 }
 
+fun tryOrLog(block: () -> Unit) {
+    try {
+        block()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+fun <T> tryOrDefault(default: T, block: () -> T): T {
+    return try {
+        block()
+    } catch (e: Exception) {
+        default
+    }
+}
+
 fun <T : Comparable<T>> List<T>.rangeOrNull(): Range<T>? {
     val min = minOrNull() ?: return null
     val max = maxOrNull() ?: return null

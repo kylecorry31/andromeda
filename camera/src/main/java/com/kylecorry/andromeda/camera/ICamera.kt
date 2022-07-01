@@ -9,7 +9,10 @@ import java.io.OutputStream
 
 interface ICamera: ISensor {
     val image: ImageProxy?
-    fun setZoom(zoom: Float)
+    val zoom: ZoomInfo?
+    val sensorRotation: Float
+    fun setLinearZoom(zoom: Float)
+    fun setZoomRatio(zoom: Float)
 
     @SuppressLint("UnsafeExperimentalUsageError")
     fun setExposure(index: Int)
