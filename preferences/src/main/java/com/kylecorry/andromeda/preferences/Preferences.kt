@@ -1,9 +1,11 @@
 package com.kylecorry.andromeda.preferences
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.kylecorry.andromeda.core.toDoubleCompat
+import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.sol.units.Coordinate
 import java.time.Instant
 import java.time.LocalDate
@@ -11,6 +13,20 @@ import java.time.LocalDate
 class Preferences(context: Context) {
 
     private val sharedPrefs by lazy { PreferenceManager.getDefaultSharedPreferences(context.applicationContext) }
+
+    val onChange = Topic<String>(
+        { count, _ -> if (count == 1) sharedPrefs.registerOnSharedPreferenceChangeListener(listener) },
+        { count, _ ->
+            if (count == 0) sharedPrefs.unregisterOnSharedPreferenceChangeListener(
+                listener
+            )
+        }
+    )
+
+    private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            onChange.notifySubscribers(key)
+        }
 
     fun remove(key: String) {
         sharedPrefs?.edit { remove(key) }
