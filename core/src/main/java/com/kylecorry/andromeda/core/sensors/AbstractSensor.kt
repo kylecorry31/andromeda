@@ -1,57 +1,50 @@
 package com.kylecorry.andromeda.core.sensors
 
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import com.kylecorry.andromeda.core.topics.Subscriber
+import com.kylecorry.andromeda.core.topics.Topic
 
 abstract class AbstractSensor : ISensor {
 
     override val quality = Quality.Unknown
 
-    private val listeners = mutableSetOf<SensorListener>()
-    private var started = false
+    private val topic = Topic(
+        onSubscriberAdded = { count, _ -> if (count == 1) startImpl() },
+        onSubscriberRemoved = { count, _ -> if (count == 0) stopImpl() }
+    )
 
-    override fun start(listener: SensorListener) {
-        synchronized(listeners) {
-            listeners.add(listener)
-        }
-        if (started) return
-        startImpl()
-        started = true
+    override fun start(subscriber: Subscriber) {
+        subscribe(subscriber)
     }
 
-    override fun stop(listener: SensorListener?) {
-        synchronized(listeners) {
-            if (listener != null) {
-                listeners.remove(listener)
-            } else {
-                listeners.clear()
-            }
+    override fun stop(subscriber: Subscriber?) {
+        if (subscriber == null) {
+            unsubscribeAll()
+        } else {
+            unsubscribe(subscriber)
         }
-        if (listeners.isNotEmpty()) return
-        if (!started) return
-        stopImpl()
-        started = false
     }
-    
-    override suspend fun read() = suspendCancellableCoroutine<Unit> { cont ->
-        val callback: () -> Boolean = {
-            cont.resume(Unit)
-            false
-        }
-        cont.invokeOnCancellation {
-            stop(callback)
-        }
-        start(callback)
+
+    override suspend fun read() {
+        topic.read()
+    }
+
+    override fun subscribe(subscriber: Subscriber) {
+        topic.subscribe(subscriber)
+    }
+
+    override fun unsubscribe(subscriber: Subscriber) {
+        topic.unsubscribe(subscriber)
+    }
+
+    override fun unsubscribeAll() {
+        topic.unsubscribeAll()
     }
 
     protected abstract fun startImpl()
     protected abstract fun stopImpl()
 
     protected fun notifyListeners() {
-        synchronized(listeners) {
-            val finishedListeners = listeners.filter { !it.invoke() }
-            finishedListeners.forEach(::stop)
-        }
+        topic.notifySubscribers()
     }
 
 }
