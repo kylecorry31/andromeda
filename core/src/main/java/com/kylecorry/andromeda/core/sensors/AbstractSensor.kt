@@ -1,16 +1,14 @@
 package com.kylecorry.andromeda.core.sensors
 
+import com.kylecorry.andromeda.core.topics.BaseTopic
 import com.kylecorry.andromeda.core.topics.Subscriber
 import com.kylecorry.andromeda.core.topics.Topic
 
-abstract class AbstractSensor : ISensor {
+abstract class AbstractSensor : BaseTopic(), ISensor {
 
     override val quality = Quality.Unknown
 
-    private val topic = Topic(
-        onSubscriberAdded = { count, _ -> if (count == 1) startImpl() },
-        onSubscriberRemoved = { count, _ -> if (count == 0) stopImpl() }
-    )
+    override val topic = Topic.lazy(::startImpl, ::stopImpl)
 
     override fun start(subscriber: Subscriber) {
         subscribe(subscriber)
@@ -22,22 +20,6 @@ abstract class AbstractSensor : ISensor {
         } else {
             unsubscribe(subscriber)
         }
-    }
-
-    override suspend fun read() {
-        topic.read()
-    }
-
-    override fun subscribe(subscriber: Subscriber) {
-        topic.subscribe(subscriber)
-    }
-
-    override fun unsubscribe(subscriber: Subscriber) {
-        topic.unsubscribe(subscriber)
-    }
-
-    override fun unsubscribeAll() {
-        topic.unsubscribeAll()
     }
 
     protected abstract fun startImpl()

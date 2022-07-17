@@ -47,4 +47,18 @@ class Topic<T>(
             finishedListeners.forEach(::unsubscribe)
         }
     }
+
+    companion object {
+
+        /**
+         * Creates a topic that will start when one subscriber is added and stop when none are left
+         */
+        fun <T> lazy(start: () -> Unit, stop: () -> Unit): Topic<T> {
+            return Topic(
+                { count, _ -> if (count == 1) start() },
+                { count, _ -> if (count == 0) stop() }
+            )
+        }
+    }
+
 }
