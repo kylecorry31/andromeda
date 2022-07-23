@@ -6,15 +6,18 @@ import android.content.Context
 import android.content.DialogInterface
 import android.text.InputType
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.PopupMenu
 import android.widget.TimePicker
 import androidx.annotation.MenuRes
+import androidx.core.view.get
 import com.kylecorry.andromeda.alerts.Alerts
 import com.kylecorry.andromeda.core.toDoubleCompat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 object Pickers {
@@ -60,6 +63,27 @@ object Pickers {
             onDatePick.invoke(null)
         }
         datePickerDialog.show()
+    }
+
+    fun datetime(
+        context: Context,
+        use24Hours: Boolean,
+        default: LocalDateTime = LocalDateTime.now(),
+        onDatetimePick: (value: LocalDateTime?) -> Unit
+    ) {
+        date(context, default.toLocalDate()) { date ->
+            if (date != null) {
+                time(context, use24Hours, default.toLocalTime()) { time ->
+                    if (time != null) {
+                        onDatetimePick(LocalDateTime.of(date, time))
+                    } else {
+                        onDatetimePick(null)
+                    }
+                }
+            } else {
+                onDatetimePick(null)
+            }
+        }
     }
 
     fun menu(anchorView: View, @MenuRes menu: Int, onSelection: (itemId: Int) -> Boolean) {
@@ -234,6 +258,17 @@ object Pickers {
 
         val dialog = builder.create()
         dialog.show()
+    }
+
+    fun getMenuItems(context: Context, @MenuRes id: Int): List<MenuItem> {
+        val items = mutableListOf<MenuItem>()
+        val p = PopupMenu(context, null)
+        p.menuInflater.inflate(id, p.menu)
+        val menu = p.menu
+        for (i in 0 until menu.size()) {
+            items.add(menu[i])
+        }
+        return items
     }
 
 }
