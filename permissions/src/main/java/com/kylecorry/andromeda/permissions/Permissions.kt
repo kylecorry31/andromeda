@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Android
 import com.kylecorry.andromeda.core.system.Package
+import com.kylecorry.andromeda.core.tryOrDefault
 
 object Permissions {
 
@@ -63,27 +64,19 @@ object Permissions {
     }
 
     fun getPermissionName(context: Context, permission: String): String? {
-        return try {
+        return tryOrDefault(null) {
             val info = context.packageManager.getPermissionInfo(permission, 0)
             info.loadLabel(context.packageManager).toString()
-        } catch (e: Exception) {
-            null
         }
     }
 
     fun getRequestedPermissions(context: Context): List<String> {
-        val info = context.packageManager.getPackageInfo(
-            context.packageName,
-            PackageManager.GET_PERMISSIONS
-        )
+        val info = Package.getPackageInfo(context, flags = PackageManager.GET_PERMISSIONS)
         return info.requestedPermissions.asList()
     }
 
     fun getGrantedPermissions(context: Context): List<String> {
-        val info = context.packageManager.getPackageInfo(
-            context.packageName,
-            PackageManager.GET_PERMISSIONS
-        )
+        val info = Package.getPackageInfo(context, flags = PackageManager.GET_PERMISSIONS)
         return info.requestedPermissions.filterIndexed { i, _ -> (info.requestedPermissionsFlags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) == PackageInfo.REQUESTED_PERMISSION_GRANTED }
     }
 

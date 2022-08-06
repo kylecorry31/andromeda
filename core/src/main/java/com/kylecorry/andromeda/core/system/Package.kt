@@ -44,9 +44,9 @@ object Package {
         )
     }
 
-    private fun getPackageInfo(
+    fun getPackageInfo(
         context: Context,
-        packageName: String,
+        packageName: String = getPackageName(context),
         flags: Int = 0
     ): PackageInfo {
         return if (Build.VERSION.SDK_INT >= 33) {

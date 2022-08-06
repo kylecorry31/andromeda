@@ -534,6 +534,7 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             canvas.clipOutPath(path)
         } else {
+            @Suppress("DEPRECATION")
             canvas.clipPath(path, Region.Op.DIFFERENCE)
         }
     }

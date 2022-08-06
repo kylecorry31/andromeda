@@ -12,6 +12,15 @@ import com.kylecorry.sol.units.Coordinate
 
 object Intents {
 
+    inline fun <reified T> getParcelableExtra(intent: Intent, name: String): T? {
+        return if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableExtra(name, T::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(name)
+        }
+    }
+
     fun localIntent(context: Context, action: String): Intent {
         val i = Intent(action)
         i.`package` = context.packageName

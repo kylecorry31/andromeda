@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.Permissions
 
 /**
@@ -30,8 +31,7 @@ class BluetoothScanner(private val context: Context) : AbstractSensor() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    val device =
-                        intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
+                    val device = Intents.getParcelableExtra<BluetoothDevice>(intent, BluetoothDevice.EXTRA_DEVICE)
                     device?.let {
                         val existing = devices.firstOrNull { it.address == device.address }
                         if (existing != null) {
