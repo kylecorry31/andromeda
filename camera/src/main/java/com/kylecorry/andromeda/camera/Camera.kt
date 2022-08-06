@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.util.Log
 import android.util.Size
 import androidx.camera.core.*
@@ -18,6 +19,7 @@ import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.tryOrLog
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
@@ -289,6 +291,28 @@ class Camera(
                 return false
             }
             return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+        }
+
+        fun hasBackCamera(context: Context): Boolean {
+            val cameras = getCameras(context)
+            return cameras.any {
+                it.get(CameraCharacteristics.LENS_FACING) == CameraMetadata.LENS_FACING_BACK
+            }
+        }
+
+        fun hasFrontCamera(context: Context): Boolean {
+            val cameras = getCameras(context)
+            return cameras.any {
+                it.get(CameraCharacteristics.LENS_FACING) == CameraMetadata.LENS_FACING_FRONT
+            }
+        }
+
+        private fun getCameras(context: Context): List<CameraCharacteristics> {
+            return tryOrDefault(emptyList()) {
+                val manager =
+                    context.getSystemService<CameraManager>() ?: return@tryOrDefault emptyList()
+                manager.cameraIdList.map { manager.getCameraCharacteristics(it) }
+            }
         }
     }
 

@@ -79,10 +79,8 @@ class Torch(private val context: Context) : ITorch {
     companion object {
 
         private fun getCameraManager(context: Context): CameraManager? {
-            return try {
+            return tryOrDefault(null) {
                 context.getSystemService()
-            } catch (e: Exception) {
-                null
             }
         }
 
