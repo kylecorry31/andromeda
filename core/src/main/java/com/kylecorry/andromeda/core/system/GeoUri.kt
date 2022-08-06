@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Parcelable
 import com.kylecorry.sol.math.SolMath.roundPlaces
 import com.kylecorry.sol.units.Coordinate
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -13,6 +14,7 @@ data class GeoUri(
     val queryParameters: Map<String, String> = mapOf()
 ) : Parcelable {
 
+    @IgnoredOnParcel
     val uri: Uri = Uri.parse(toString())
 
     override fun toString(): String {
