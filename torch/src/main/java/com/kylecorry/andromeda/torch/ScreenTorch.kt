@@ -5,6 +5,9 @@ import com.kylecorry.andromeda.core.system.Screen
 
 
 class ScreenTorch(private val window: Window) : ITorch {
+
+    override val brightnessLevels: Int = 255
+
     override fun on() {
         Screen.setBrightness(window, 1f)
     }

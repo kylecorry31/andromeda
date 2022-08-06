@@ -1,6 +1,12 @@
 package com.kylecorry.andromeda.torch
 
 interface ITorch {
+
+    /**
+     * The number of brightness levels supported by the torch
+     */
+    val brightnessLevels: Int
+
     /**
      * Turn the torch on
      */

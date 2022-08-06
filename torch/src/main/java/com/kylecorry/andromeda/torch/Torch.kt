@@ -18,6 +18,10 @@ class Torch(private val context: Context) : ITorch {
     private val cameraService by lazy { getCameraManager(context) }
     private val cameraId by lazy { getRearCameraId(context) }
 
+    override val brightnessLevels: Int
+        @SuppressLint("NewApi")
+        get() = if (isDimmable()) getMaxBrightnessLevel() else 1
+
     override fun on() {
         if (!isAvailable()) {
             return
@@ -33,9 +37,9 @@ class Torch(private val context: Context) : ITorch {
             return
         }
         tryOrLog {
-            if (brightness <= 0f){
+            if (brightness <= 0f) {
                 off()
-            } else if (!isDimmable()){
+            } else if (!isDimmable()) {
                 on()
             } else {
                 val maxLevel = getMaxBrightnessLevel()
