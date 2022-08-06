@@ -1,11 +1,18 @@
 package com.kylecorry.andromeda.torch
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.content.getSystemService
+import com.kylecorry.andromeda.core.system.Android
+import com.kylecorry.andromeda.core.tryOrDefault
+import com.kylecorry.andromeda.core.tryOrLog
+import kotlin.math.roundToInt
 
 class Torch(private val context: Context) : ITorch {
     private val cameraService by lazy { getCameraManager(context) }
@@ -15,23 +22,58 @@ class Torch(private val context: Context) : ITorch {
         if (!isAvailable()) {
             return
         }
-        try {
+        tryOrLog {
             cameraService?.setTorchMode(cameraId, true)
-        } catch (e: Exception) {
-            // No flash, ignoring
+        }
+    }
+
+    @SuppressLint("NewApi")
+    override fun on(brightness: Float) {
+        if (!isAvailable()) {
+            return
+        }
+        tryOrLog {
+            if (brightness <= 0f){
+                off()
+            } else if (!isDimmable()){
+                on()
+            } else {
+                val maxLevel = getMaxBrightnessLevel()
+                val level = (brightness * maxLevel).roundToInt().coerceIn(1, maxLevel)
+                cameraService?.turnOnTorchWithStrengthLevel(cameraId, level)
+            }
         }
     }
 
     override fun off() {
-        try {
+        tryOrLog {
             cameraService?.setTorchMode(cameraId, false)
-        } catch (e: Exception) {
-            // No flash, ignoring
         }
     }
 
     override fun isAvailable(): Boolean {
         return isAvailable(context)
+    }
+
+    @SuppressLint("NewApi")
+    override fun isDimmable(): Boolean {
+        if (!isAvailable()) {
+            return false
+        }
+
+        if (Android.sdk < Build.VERSION_CODES.TIRAMISU) {
+            return false
+        }
+
+        return getMaxBrightnessLevel() > 1
+    }
+
+    @RequiresApi(33)
+    private fun getMaxBrightnessLevel(): Int {
+        return tryOrDefault(1) {
+            val characteristics = cameraService?.getCameraCharacteristics(cameraId)
+            characteristics?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL) ?: 1
+        }
     }
 
     companion object {

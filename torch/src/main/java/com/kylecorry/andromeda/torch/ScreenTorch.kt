@@ -9,7 +9,7 @@ class ScreenTorch(private val window: Window) : ITorch {
         Screen.setBrightness(window, 1f)
     }
 
-    fun on(brightness: Float){
+    override fun on(brightness: Float) {
         Screen.setBrightness(window, brightness.coerceIn(0f, 1f))
     }
 
@@ -18,6 +18,10 @@ class ScreenTorch(private val window: Window) : ITorch {
     }
 
     override fun isAvailable(): Boolean {
+        return true
+    }
+
+    override fun isDimmable(): Boolean {
         return true
     }
 }
