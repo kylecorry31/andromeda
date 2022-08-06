@@ -102,6 +102,7 @@ fun Bundle.toMap(): Map<String, Any?> {
     val keys = keySet()
     val map = mutableMapOf<String, Any?>()
     for (key in keys) {
+        @Suppress("DEPRECATION")
         map[key] = get(key)
     }
     return map

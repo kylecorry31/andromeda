@@ -4,11 +4,13 @@ import java.io.InputStream
 
 object CompressionUtils {
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun getShort(stream: InputStream, line: Int, closeStream: Boolean = true): Short? {
         val bytes = getBytes(stream, line, Short.SIZE_BYTES, closeStream) ?: return null
         return bytes.toShort()
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun getInt(stream: InputStream, line: Int, closeStream: Boolean = true): Int? {
         val bytes = getBytes(stream, line, Int.SIZE_BYTES, closeStream) ?: return null
         return bytes.toInt()

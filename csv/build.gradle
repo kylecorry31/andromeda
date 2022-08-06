@@ -37,15 +37,21 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
-    afterEvaluate {
-        publishing {
-            publications {
-                release(MavenPublication) {
-                    from components.release
-                    groupId = group
-                    artifactId = 'csv'
-                    version = version
-                }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = group
+                artifactId = 'csv'
+                version = version
             }
         }
     }
@@ -53,9 +59,9 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:1.1.0'
-    testImplementation "org.junit.platform:junit-platform-runner:1.8.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.8.0"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.0"
+    implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:1.5.1'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.9.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }

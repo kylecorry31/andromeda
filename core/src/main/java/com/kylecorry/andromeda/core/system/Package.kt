@@ -3,7 +3,10 @@ package com.kylecorry.andromeda.core.system
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.os.Build
+import com.kylecorry.andromeda.core.tryOrDefault
 
 object Package {
 
@@ -12,16 +15,13 @@ object Package {
     }
 
     fun getVersionName(context: Context): String {
-        val packageManager = context.packageManager
-        return packageManager.getPackageInfo(getPackageName(context), 0).versionName
+        return getPackageInfo(context, getPackageName(context)).versionName
     }
 
     fun isPackageInstalled(context: Context, packageName: String): Boolean {
-        return try {
-            context.packageManager.getPackageInfo(packageName, 0)
+        return tryOrDefault(false) {
+            getPackageInfo(context, packageName)
             true
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
         }
     }
 
@@ -42,6 +42,22 @@ object Package {
             if (enabled) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
+    }
+
+    private fun getPackageInfo(
+        context: Context,
+        packageName: String,
+        flags: Int = 0
+    ): PackageInfo {
+        return if (Build.VERSION.SDK_INT >= 33) {
+            context.packageManager.getPackageInfo(
+                packageName,
+                PackageManager.PackageInfoFlags.of(flags.toLong())
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(packageName, flags)
+        }
     }
 
 }
