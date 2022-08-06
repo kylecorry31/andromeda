@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.kylecorry.andromeda.location
 
 import android.location.GpsStatus

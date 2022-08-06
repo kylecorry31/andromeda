@@ -108,7 +108,7 @@ class NetworkGPS(
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
         _satellites =
-            if (location.extras?.containsKey("satellites") == true) location.extras.getInt("satellites") else 0
+            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites") ?: 0) else 0
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {
