@@ -14,21 +14,11 @@ import com.kylecorry.andromeda.core.time.Timer
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class AndromedaTileService : TileService() {
 
-    private val stateChecker = Timer {
-        val lastState = qsTile.state
-        val newState = when {
-            isOn() -> Tile.STATE_ACTIVE
-            isDisabled() -> Tile.STATE_UNAVAILABLE
-            isOff() -> Tile.STATE_INACTIVE
-            else -> lastState
-        }
-
-        if (lastState != newState) {
-            qsTile.state = newState
+    fun setState(state: Int) {
+        if (state != qsTile.state) {
+            qsTile.state = state
             qsTile.updateTile()
         }
-
-        onInterval()
     }
 
     fun setTitle(title: String) {
@@ -55,48 +45,4 @@ abstract class AndromedaTileService : TileService() {
         realIcon.setTint(Color.WHITE)
         setIcon(realIcon)
     }
-
-    abstract fun isOn(): Boolean
-
-    open fun isDisabled(): Boolean {
-        return false
-    }
-
-    open fun isOff(): Boolean {
-        return !isOn() && !isDisabled()
-    }
-
-    abstract fun start()
-
-    abstract fun stop()
-
-    open fun onInterval(){
-
-    }
-
-    override fun onClick() {
-        super.onClick()
-        when {
-            isOn() -> {
-                stop()
-                qsTile.state = Tile.STATE_INACTIVE
-            }
-            isOff() -> {
-                start()
-                qsTile.state = Tile.STATE_ACTIVE
-            }
-        }
-        qsTile.updateTile()
-    }
-
-    override fun onStartListening() {
-        super.onStartListening()
-        stateChecker.interval(16)
-    }
-
-    override fun onStopListening() {
-        super.onStopListening()
-        stateChecker.stop()
-    }
-
 }
