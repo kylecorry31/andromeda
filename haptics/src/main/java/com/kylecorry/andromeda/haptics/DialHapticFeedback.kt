@@ -1,14 +1,11 @@
-package com.kylecorry.andromeda.buzz
+package com.kylecorry.andromeda.haptics
 
-import android.content.Context
-import com.kylecorry.andromeda.buzz.Buzz
-import com.kylecorry.andromeda.buzz.HapticFeedbackType
 import com.kylecorry.sol.math.SolMath.deltaAngle
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 class DialHapticFeedback(
-    private val context: Context,
+    private val hapticMotor: IHapticMotor,
     private val vibrateFrequency: Int = 1,
     private val atAngleThreshold: Float = 0.25f
 ) {
@@ -18,7 +15,7 @@ class DialHapticFeedback(
     var angle: Float = 0f
         set(value) {
             if (shouldVibrate(value, lastVibrate)) {
-                Buzz.feedback(context, HapticFeedbackType.Tick)
+                hapticMotor.feedback(HapticFeedbackType.Tick)
                 lastVibrate = value
             }
             field = value
@@ -36,7 +33,7 @@ class DialHapticFeedback(
 
 
     fun stop() {
-        Buzz.off(context)
+        hapticMotor.off()
     }
 
 }

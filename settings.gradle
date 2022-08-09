@@ -1,5 +1,5 @@
 rootProject.name = "Andromeda"
-include ':buzz'
+include ':haptics'
 include ':notify'
 include ':sense'
 include ':torch'

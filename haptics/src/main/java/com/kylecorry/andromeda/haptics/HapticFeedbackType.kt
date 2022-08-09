@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.buzz
+package com.kylecorry.andromeda.haptics
 
 enum class HapticFeedbackType {
     Tick,

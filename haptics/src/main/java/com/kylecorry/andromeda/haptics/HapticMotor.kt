@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.buzz
+package com.kylecorry.andromeda.haptics
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,21 +9,21 @@ import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 
-object Buzz {
+class HapticMotor(private val context: Context) : IHapticMotor {
 
     /**
      * Turns the vibrator on (note: maximum 1 day)
      * @param amplitude the amplitude between 0 and 255, or -1 for the default amplitude
      */
-    fun on(context: Context, amplitude: Int = -1) {
-        oneShot(context, Duration.ofDays(1).toMillis(), amplitude)
+    override fun on(amplitude: Int) {
+        oneShot(Duration.ofDays(1).toMillis(), amplitude)
     }
 
     /**
      * Performs the specified haptic feedback
      */
     @SuppressLint("MissingPermission")
-    fun feedback(context: Context, feedbackType: HapticFeedbackType) {
+    override fun feedback(feedbackType: HapticFeedbackType) {
         if (!Permissions.canVibrate(context)) {
             return
         }
@@ -34,7 +34,7 @@ object Buzz {
                 HapticFeedbackType.HeavyClick -> VibrationEffect.EFFECT_HEAVY_CLICK
                 HapticFeedbackType.DoubleClick -> VibrationEffect.EFFECT_DOUBLE_CLICK
             }
-            getVibrator(context)?.vibrate(VibrationEffect.createPredefined(effectId))
+            getVibrator()?.vibrate(VibrationEffect.createPredefined(effectId))
         } else {
             val vibrationPattern: List<Long> = when (feedbackType) {
                 HapticFeedbackType.Tick -> listOf(125, 30)
@@ -42,7 +42,7 @@ object Buzz {
                 HapticFeedbackType.HeavyClick -> listOf(0, 1, 20, 21)
                 HapticFeedbackType.DoubleClick -> listOf(0, 30, 100, 30)
             }
-            pattern(context, vibrationPattern.map { Duration.ofMillis(it) })
+            pattern(vibrationPattern.map { Duration.ofMillis(it) })
         }
     }
 
@@ -50,11 +50,11 @@ object Buzz {
      * Turns the vibrator off
      */
     @SuppressLint("MissingPermission")
-    fun off(context: Context) {
+    override fun off() {
         if (!Permissions.canVibrate(context)) {
             return
         }
-        getVibrator(context)?.cancel()
+        getVibrator()?.cancel()
     }
 
     /**
@@ -62,8 +62,8 @@ object Buzz {
      * @param onDuration the duration to turn the vibrator on for
      * @param amplitude the amplitude between 0 and 255, or -1 for the default amplitude
      */
-    fun once(context: Context, onDuration: Duration, amplitude: Int = -1) {
-        oneShot(context, onDuration.toMillis(), amplitude)
+    override fun once(onDuration: Duration, amplitude: Int) {
+        oneShot(onDuration.toMillis(), amplitude)
     }
 
     /**
@@ -72,13 +72,12 @@ object Buzz {
      * @param offDuration the duration to turn the vibrator off for
      * @param amplitude the amplitude between 0 and 255, or -1 for the default amplitude
      */
-    fun interval(
-        context: Context,
+    override fun interval(
         onDuration: Duration,
         offDuration: Duration,
-        amplitude: Int = -1
+        amplitude: Int
     ) {
-        pattern(context, listOf(onDuration, offDuration), listOf(amplitude, 0), true)
+        pattern(listOf(onDuration, offDuration), listOf(amplitude, 0), true)
     }
 
     /**
@@ -87,16 +86,15 @@ object Buzz {
      * @param amplitudes the amplitudes between 0 and 255, or -1 for the default amplitude. Must correspond with the durations array.
      * @param repeat true to repeat indefinitely, defaults to false
      */
-    fun pattern(
-        context: Context,
+    override fun pattern(
         durations: List<Duration>,
-        amplitudes: List<Int>? = null,
-        repeat: Boolean = false
+        amplitudes: List<Int>?,
+        repeat: Boolean
     ) {
         if (amplitudes != null) {
-            waveform(context, durations.map { it.toMillis() }, amplitudes, if (repeat) 0 else -1)
+            waveform(durations.map { it.toMillis() }, amplitudes, if (repeat) 0 else -1)
         } else {
-            waveform(context, durations.map { it.toMillis() }, if (repeat) 0 else -1)
+            waveform(durations.map { it.toMillis() }, if (repeat) 0 else -1)
         }
     }
 
@@ -104,36 +102,35 @@ object Buzz {
      * Determines if the device has a vibrator
      * @return true if a vibrator exists, false otherwise
      */
-    fun isAvailable(context: Context): Boolean {
-        return getVibrator(context)?.hasVibrator() == true
+    override fun isAvailable(): Boolean {
+        return getVibrator()?.hasVibrator() == true
     }
 
-    private fun getVibrator(context: Context): Vibrator? {
+    private fun getVibrator(): Vibrator? {
         return context.getSystemService()
     }
 
     @SuppressLint("MissingPermission")
     @Suppress("DEPRECATION")
-    private fun waveform(context: Context, millis: List<Long>, repeatPosition: Int = -1) {
+    private fun waveform(millis: List<Long>, repeatPosition: Int = -1) {
         if (!Permissions.canVibrate(context)) {
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getVibrator(context)?.vibrate(
+            getVibrator()?.vibrate(
                 VibrationEffect.createWaveform(
                     millis.toLongArray(),
                     repeatPosition
                 )
             )
         } else {
-            getVibrator(context)?.vibrate(millis.toLongArray(), repeatPosition)
+            getVibrator()?.vibrate(millis.toLongArray(), repeatPosition)
         }
     }
 
     @SuppressLint("MissingPermission")
     @Suppress("DEPRECATION")
     private fun waveform(
-        context: Context,
         millis: List<Long>,
         amplitudes: List<Int>,
         repeatPosition: Int = -1
@@ -142,7 +139,7 @@ object Buzz {
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getVibrator(context)?.vibrate(
+            getVibrator()?.vibrate(
                 VibrationEffect.createWaveform(
                     millis.toLongArray(),
                     amplitudes.toIntArray(),
@@ -150,20 +147,20 @@ object Buzz {
                 )
             )
         } else {
-            getVibrator(context)?.vibrate(millis.toLongArray(), repeatPosition)
+            getVibrator()?.vibrate(millis.toLongArray(), repeatPosition)
         }
     }
 
     @SuppressLint("MissingPermission")
     @Suppress("DEPRECATION")
-    private fun oneShot(context: Context, millis: Long, amplitude: Int) {
+    private fun oneShot(millis: Long, amplitude: Int) {
         if (!Permissions.canVibrate(context)) {
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getVibrator(context)?.vibrate(VibrationEffect.createOneShot(millis, amplitude))
+            getVibrator()?.vibrate(VibrationEffect.createOneShot(millis, amplitude))
         } else {
-            getVibrator(context)?.vibrate(millis)
+            getVibrator()?.vibrate(millis)
         }
     }
 }
