@@ -4,10 +4,13 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import java.util.*
 
 typealias Subscriber<T> = (T) -> Boolean
 
 interface ITopic<T> {
+    val value: Optional<T>
+
     fun subscribe(subscriber: Subscriber<T>)
     fun unsubscribe(subscriber: Subscriber<T>)
     fun unsubscribeAll()

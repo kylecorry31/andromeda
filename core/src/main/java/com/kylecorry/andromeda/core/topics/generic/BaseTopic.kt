@@ -1,8 +1,12 @@
 package com.kylecorry.andromeda.core.topics.generic
 
+import java.util.*
+
 abstract class BaseTopic<T> : ITopic<T> {
 
     protected abstract val topic: ITopic<T>
+    override val value: Optional<T>
+        get() = topic.value
 
     override fun subscribe(subscriber: Subscriber<T>) {
         topic.subscribe(subscriber)

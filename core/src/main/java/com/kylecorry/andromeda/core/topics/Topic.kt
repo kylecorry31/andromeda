@@ -25,9 +25,7 @@ class Topic(
     }
 
     override fun unsubscribeAll() {
-        synchronized(subscribers) {
-            subscribers.map { it }.forEach(::unsubscribe)
-        }
+        subscribers.map { it }.forEach(::unsubscribe)
     }
 
     override suspend fun read() = suspendCancellableCoroutine<Unit> { cont ->

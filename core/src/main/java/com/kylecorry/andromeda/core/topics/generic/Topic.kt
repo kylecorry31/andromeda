@@ -1,12 +1,17 @@
 package com.kylecorry.andromeda.core.topics.generic
 
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.*
 import kotlin.coroutines.resume
 
 class Topic<T>(
     private val onSubscriberAdded: (count: Int, subscriber: Subscriber<T>) -> Unit = { _, _ -> },
     private val onSubscriberRemoved: (count: Int, subscriber: Subscriber<T>) -> Unit = { _, _ -> },
+    defaultValue: Optional<T> = Optional.empty()
 ) : ITopic<T> {
+
+    override var value: Optional<T> = defaultValue
+        private set
 
     private val subscribers = mutableSetOf<Subscriber<T>>()
 
@@ -25,9 +30,7 @@ class Topic<T>(
     }
 
     override fun unsubscribeAll() {
-        synchronized(subscribers) {
-            subscribers.map { it }.forEach(::unsubscribe)
-        }
+        subscribers.map { it }.forEach(::unsubscribe)
     }
 
     override suspend fun read(): T = suspendCancellableCoroutine { cont ->
@@ -42,6 +45,7 @@ class Topic<T>(
     }
 
     fun notifySubscribers(value: T) {
+        this.value = Optional.of(value)
         synchronized(subscribers) {
             val finishedListeners = subscribers.filter { !it.invoke(value) }
             finishedListeners.forEach(::unsubscribe)
@@ -60,5 +64,4 @@ class Topic<T>(
             )
         }
     }
-
 }

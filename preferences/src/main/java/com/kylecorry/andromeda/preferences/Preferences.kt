@@ -14,13 +14,9 @@ class Preferences(context: Context) {
 
     private val sharedPrefs by lazy { PreferenceManager.getDefaultSharedPreferences(context.applicationContext) }
 
-    val onChange = Topic<String>(
-        { count, _ -> if (count == 1) sharedPrefs.registerOnSharedPreferenceChangeListener(listener) },
-        { count, _ ->
-            if (count == 0) sharedPrefs.unregisterOnSharedPreferenceChangeListener(
-                listener
-            )
-        }
+    val onChange = Topic.lazy<String>(
+        { sharedPrefs.registerOnSharedPreferenceChangeListener(listener) },
+        { sharedPrefs.unregisterOnSharedPreferenceChangeListener(listener) }
     )
 
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
