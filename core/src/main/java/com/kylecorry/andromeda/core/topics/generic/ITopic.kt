@@ -46,6 +46,15 @@ fun <K, T : ITopic<K>> T.asLiveData(): LiveData<K> {
     return liveData
 }
 
+// TODO: Replace these with a pipe
 fun <T, V> ITopic<T>.map(fn: (T) -> V): ITopic<V> {
     return MappedTopic(this, fn)
+}
+
+fun <T> ITopic<T>.distinct(): ITopic<T> {
+    return DistinctTopic(this)
+}
+
+fun <T> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
+    return FilteredTopic(this, predicate)
 }
