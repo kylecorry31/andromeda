@@ -45,3 +45,7 @@ fun <K, T : ITopic<K>> T.asLiveData(): LiveData<K> {
 
     return liveData
 }
+
+fun <T, V> ITopic<T>.map(fn: (T) -> V): ITopic<V> {
+    return MappedTopic(this, fn)
+}
