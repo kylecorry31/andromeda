@@ -57,10 +57,11 @@ class Topic<T>(
         /**
          * Creates a topic that will start when one subscriber is added and stop when none are left
          */
-        fun <T> lazy(start: () -> Unit, stop: () -> Unit): Topic<T> {
+        fun <T> lazy(start: () -> Unit, stop: () -> Unit, defaultValue: Optional<T> = Optional.empty()): Topic<T> {
             return Topic(
                 { count, _ -> if (count == 1) start() },
-                { count, _ -> if (count == 0) stop() }
+                { count, _ -> if (count == 0) stop() },
+                defaultValue
             )
         }
     }
