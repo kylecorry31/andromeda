@@ -12,15 +12,19 @@ class Topic(
 
     override fun subscribe(subscriber: Subscriber) {
         synchronized(subscribers) {
-            subscribers.add(subscriber)
-            onSubscriberAdded(subscribers.size, subscriber)
+            val wasAdded = subscribers.add(subscriber)
+            if (wasAdded) {
+                onSubscriberAdded(subscribers.size, subscriber)
+            }
         }
     }
 
     override fun unsubscribe(subscriber: Subscriber) {
         synchronized(subscribers) {
-            subscribers.remove(subscriber)
-            onSubscriberRemoved(subscribers.size, subscriber)
+            val wasRemoved = subscribers.remove(subscriber)
+            if (wasRemoved) {
+                onSubscriberRemoved(subscribers.size, subscriber)
+            }
         }
     }
 

@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.kylecorry.andromeda.core.topics.generic.AdapterTopic
+import com.kylecorry.andromeda.core.topics.generic.MappedTopic
 
 typealias Subscriber = () -> Boolean
 
@@ -41,4 +43,8 @@ fun <T : ITopic> T.asLiveData(): LiveData<T> {
     }
 
     return liveData
+}
+
+fun <T> ITopic.map(fn: () -> T): com.kylecorry.andromeda.core.topics.generic.ITopic<T> {
+    return AdapterTopic(this, fn)
 }
