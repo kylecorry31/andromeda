@@ -16,7 +16,7 @@ class TorchStateChangedTopic(private val context: Context) : BaseTopic<Boolean>(
     private val callback = object : CameraManager.TorchCallback() {
         override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
             super.onTorchModeChanged(cameraId, enabled)
-            topic.notifySubscribers(enabled)
+            topic.publish(enabled)
         }
     }
 

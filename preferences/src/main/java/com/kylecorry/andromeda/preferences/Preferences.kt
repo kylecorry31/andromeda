@@ -21,7 +21,7 @@ class Preferences(context: Context) {
 
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            onChange.notifySubscribers(key)
+            onChange.publish(key)
         }
 
     fun remove(key: String) {

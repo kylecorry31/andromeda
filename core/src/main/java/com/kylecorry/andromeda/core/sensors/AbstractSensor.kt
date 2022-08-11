@@ -26,7 +26,7 @@ abstract class AbstractSensor : BaseTopic(), ISensor {
     protected abstract fun stopImpl()
 
     protected fun notifyListeners() {
-        topic.notifySubscribers()
+        topic.publish()
     }
 
 }

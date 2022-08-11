@@ -39,7 +39,7 @@ class Topic(
         subscribe(callback)
     }
 
-    fun notifySubscribers() {
+    fun publish() {
         synchronized(subscribers) {
             val finishedListeners = subscribers.filter { !it.invoke() }
             finishedListeners.forEach(::unsubscribe)

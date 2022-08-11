@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.Permissions
 
@@ -27,26 +28,10 @@ class BluetoothScanner(private val context: Context) : AbstractSensor() {
     private var isDoneScanning = false
 
     private val adapter by lazy { BluetoothService(context).adapter }
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                BluetoothDevice.ACTION_FOUND -> {
-                    val device = Intents.getParcelableExtra<BluetoothDevice>(intent, BluetoothDevice.EXTRA_DEVICE)
-                    device?.let {
-                        val existing = devices.firstOrNull { it.address == device.address }
-                        if (existing != null) {
-                            devices.remove(existing)
-                        }
-                        devices.add(device)
-                        notifyListeners()
-                    }
-                }
-                BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    isDoneScanning = true
-                    notifyListeners()
-                }
-            }
-        }
+    private val broadcast by lazy {
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
+        BroadcastReceiverTopic(context, filter)
     }
 
     override val hasValidReading: Boolean
@@ -56,9 +41,7 @@ class BluetoothScanner(private val context: Context) : AbstractSensor() {
     override fun startImpl() {
         isDoneScanning = false
         if (Permissions.hasPermission(context, Manifest.permission.BLUETOOTH_SCAN)) {
-            val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
-            context.registerReceiver(receiver, filter)
+            broadcast.subscribe(this::onReceive)
             adapter?.startDiscovery()
         }
     }
@@ -68,7 +51,28 @@ class BluetoothScanner(private val context: Context) : AbstractSensor() {
         isDoneScanning = false
         if (Permissions.hasPermission(context, Manifest.permission.BLUETOOTH_SCAN)) {
             adapter?.cancelDiscovery()
-            context.unregisterReceiver(receiver)
+            broadcast.unsubscribe(this::onReceive)
         }
+    }
+
+    private fun onReceive(intent: Intent): Boolean {
+        when (intent.action) {
+            BluetoothDevice.ACTION_FOUND -> {
+                val device = Intents.getParcelableExtra<BluetoothDevice>(intent, BluetoothDevice.EXTRA_DEVICE)
+                device?.let {
+                    val existing = devices.firstOrNull { it.address == device.address }
+                    if (existing != null) {
+                        devices.remove(existing)
+                    }
+                    devices.add(device)
+                    notifyListeners()
+                }
+            }
+            BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
+                isDoneScanning = true
+                notifyListeners()
+            }
+        }
+        return true
     }
 }

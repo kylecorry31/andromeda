@@ -10,7 +10,7 @@ internal class FilteredTopic<T>(private val baseTopic: ITopic<T>, private val pr
 
     private fun onValue(value: T): Boolean {
         if (predicate(value)) {
-            topic.notifySubscribers(value)
+            topic.publish(value)
         }
         return true
     }

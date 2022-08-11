@@ -11,7 +11,7 @@ internal class DistinctTopic<T>(private val baseTopic: ITopic<T>) : BaseTopic<T>
     private fun onValue(value: T): Boolean {
         val current = topic.value
         if (current.isEmpty || current.get() != value) {
-            topic.notifySubscribers(value)
+            topic.publish(value)
         }
         return true
     }

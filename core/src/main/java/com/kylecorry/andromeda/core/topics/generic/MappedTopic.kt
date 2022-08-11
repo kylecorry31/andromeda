@@ -10,7 +10,7 @@ internal class MappedTopic<T, V>(private val baseTopic: ITopic<T>, private val m
     )
 
     private fun onValue(value: T): Boolean {
-        topic.notifySubscribers(map(value))
+        topic.publish(map(value))
         return true
     }
 }

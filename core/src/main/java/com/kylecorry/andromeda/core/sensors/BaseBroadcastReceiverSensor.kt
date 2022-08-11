@@ -1,31 +1,30 @@
 package com.kylecorry.andromeda.core.sensors
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
 
 abstract class BaseBroadcastReceiverSensor(
     protected val context: Context,
-    private val intentFilter: IntentFilter
+    intentFilter: IntentFilter
 ) : AbstractSensor() {
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent ?: return
-            context ?: return
-            handleIntent(context, intent)
-            notifyListeners()
-        }
-    }
+    private val receiver = BroadcastReceiverTopic(context, intentFilter)
 
     protected abstract fun handleIntent(context: Context, intent: Intent)
 
     override fun startImpl() {
-        context.registerReceiver(receiver, intentFilter)
+        receiver.subscribe(this::onReceive)
     }
 
     override fun stopImpl() {
-        context.unregisterReceiver(receiver)
+        receiver.unsubscribe(this::onReceive)
+    }
+
+    private fun onReceive(intent: Intent): Boolean {
+        handleIntent(context, intent)
+        notifyListeners()
+        return true
     }
 }

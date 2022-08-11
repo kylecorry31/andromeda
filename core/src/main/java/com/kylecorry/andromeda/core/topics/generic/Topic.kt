@@ -44,7 +44,7 @@ class Topic<T>(
         subscribe(callback)
     }
 
-    fun notifySubscribers(value: T) {
+    fun publish(value: T) {
         this.value = Optional.of(value)
         synchronized(subscribers) {
             val finishedListeners = subscribers.filter { !it.invoke(value) }
