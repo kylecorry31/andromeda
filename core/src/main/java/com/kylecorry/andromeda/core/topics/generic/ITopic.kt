@@ -60,5 +60,5 @@ fun <T> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
 }
 
 fun <T> ITopic<T>.lazyValue(onlyOnStart: Boolean = false, valueProvider: () -> Optional<T>): ITopic<T> {
-    return LazyValueTopic(this, valueProvider)
+    return LazyValueTopic(this, onlyOnStart, valueProvider)
 }
