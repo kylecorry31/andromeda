@@ -58,3 +58,7 @@ fun <T> ITopic<T>.distinct(): ITopic<T> {
 fun <T> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
     return FilteredTopic(this, predicate)
 }
+
+fun <T> ITopic<T>.lazyValue(onlyOnStart: Boolean = false, valueProvider: () -> Optional<T>): ITopic<T> {
+    return LazyValueTopic(this, valueProvider)
+}
