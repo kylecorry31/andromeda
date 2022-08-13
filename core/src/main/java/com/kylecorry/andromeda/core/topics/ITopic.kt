@@ -5,7 +5,6 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.kylecorry.andromeda.core.topics.generic.AdapterTopic
-import com.kylecorry.andromeda.core.topics.generic.MappedTopic
 
 typealias Subscriber = () -> Boolean
 
