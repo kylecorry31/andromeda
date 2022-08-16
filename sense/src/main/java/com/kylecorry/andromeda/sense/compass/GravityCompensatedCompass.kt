@@ -9,13 +9,18 @@ import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.math.SolMath.deltaAngle
+import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.science.geology.GeologyService
 import com.kylecorry.sol.units.Bearing
 import kotlin.math.max
 import kotlin.math.min
 
-class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private val useTrueNorth: Boolean) :
+class GravityCompensatedCompass(
+    context: Context,
+    private val useTrueNorth: Boolean,
+    private val filter: IFilter = MovingAverageFilter(1)
+) :
     AbstractSensor(), ICompass {
 
     private val geology = GeologyService()
@@ -32,9 +37,6 @@ class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private 
         if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
     private val magnetometer = LowPassMagnetometer(context)
 
-    private var filterSize = smoothingFactor * 2 * 2
-    private val filter = MovingAverageFilter(max(1, filterSize))
-
     override var declination = 0f
 
     override val bearing: Bearing
@@ -46,9 +48,9 @@ class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private 
             }
         }
     override val rawBearing: Float
-        get(){
+        get() {
             return if (useTrueNorth) {
-               Bearing.getBearing(Bearing.getBearing(_filteredBearing) + declination)
+                Bearing.getBearing(Bearing.getBearing(_filteredBearing) + declination)
             } else {
                 Bearing.getBearing(_filteredBearing)
             }
@@ -62,7 +64,7 @@ class GravityCompensatedCompass(context: Context, smoothingFactor: Int, private 
 
     private fun updateBearing(newBearing: Float) {
         _bearing += deltaAngle(_bearing, newBearing)
-        _filteredBearing = filter.filter(_bearing.toDouble()).toFloat()
+        _filteredBearing = filter.filter(_bearing)
     }
 
     private fun updateSensor(): Boolean {

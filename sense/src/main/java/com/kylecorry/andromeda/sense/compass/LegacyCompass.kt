@@ -7,21 +7,23 @@ import android.hardware.SensorManager
 import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.BaseSensor
+import com.kylecorry.sol.math.filters.IFilter
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.max
 
 @Suppress("DEPRECATION")
-class LegacyCompass(context: Context, smoothingAmount: Int, private val useTrueNorth: Boolean) :
+class LegacyCompass(
+    context: Context,
+    private val useTrueNorth: Boolean,
+    private val filter: IFilter = MovingAverageFilter(1)
+) :
     BaseSensor(context, Sensor.TYPE_ORIENTATION, SensorManager.SENSOR_DELAY_FASTEST),
     ICompass {
 
     override val hasValidReading: Boolean
         get() = gotReading
     private var gotReading = false
-
-    private var filterSize = smoothingAmount * 2
-    private val filter = MovingAverageFilter(max(1, filterSize))
 
     override var declination = 0f
 
@@ -35,7 +37,7 @@ class LegacyCompass(context: Context, smoothingAmount: Int, private val useTrueN
         }
 
     override val rawBearing: Float
-        get(){
+        get() {
             return if (useTrueNorth) {
                 Bearing.getBearing(Bearing.getBearing(_filteredBearing) + declination)
             } else {
@@ -49,7 +51,7 @@ class LegacyCompass(context: Context, smoothingAmount: Int, private val useTrueN
     override fun handleSensorEvent(event: SensorEvent) {
         _bearing += deltaAngle(_bearing, event.values[0])
 
-        _filteredBearing = filter.filter(_bearing.toDouble()).toFloat()
+        _filteredBearing = filter.filter(_bearing)
         gotReading = true
     }
 

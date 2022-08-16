@@ -13,6 +13,7 @@ import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.SolMath.toDegrees
+import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.science.geology.GeologyService
 import com.kylecorry.sol.units.Bearing
@@ -22,7 +23,11 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 // Algorithm from https://www.digikey.com/en/articles/using-an-accelerometer-for-inclination-sensing
-class OrientationSensor(context: Context, smoothingFactor: Int, private val useTrueNorth: Boolean) :
+class OrientationSensor(
+    context: Context,
+    private val useTrueNorth: Boolean,
+    private val filter: IFilter = MovingAverageFilter(1)
+) :
     AbstractSensor(), IOrientationSensor, ICompass {
 
     private val geology = GeologyService()
@@ -44,9 +49,6 @@ class OrientationSensor(context: Context, smoothingFactor: Int, private val useT
         get() = synchronized(lock) {
             _quaternion.clone()
         }
-
-    private var filterSize = smoothingFactor * 2 * 2
-    private val filter = MovingAverageFilter(max(1, filterSize))
 
     override var declination = 0f
 
@@ -106,7 +108,7 @@ class OrientationSensor(context: Context, smoothingFactor: Int, private val useT
 
     private fun updateBearing(newBearing: Float) {
         _bearing += deltaAngle(_bearing, newBearing)
-        _filteredBearing = filter.filter(_bearing.toDouble()).toFloat()
+        _filteredBearing = filter.filter(_bearing)
     }
 
     override fun startImpl() {
