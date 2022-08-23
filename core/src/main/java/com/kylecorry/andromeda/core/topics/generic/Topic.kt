@@ -17,20 +17,24 @@ class Topic<T>(
 
     override fun subscribe(subscriber: Subscriber<T>) {
         synchronized(subscribers) {
-            subscribers.add(subscriber)
-            onSubscriberAdded(subscribers.size, subscriber)
+            val wasAdded = subscribers.add(subscriber)
+            if (wasAdded) {
+                onSubscriberAdded(subscribers.size, subscriber)
+            }
         }
     }
 
     override fun unsubscribe(subscriber: Subscriber<T>) {
         synchronized(subscribers) {
-            subscribers.remove(subscriber)
-            onSubscriberRemoved(subscribers.size, subscriber)
+            val wasRemoved = subscribers.remove(subscriber)
+            if (wasRemoved) {
+                onSubscriberRemoved(subscribers.size, subscriber)
+            }
         }
     }
 
     override fun unsubscribeAll() {
-        subscribers.map { it }.forEach(::unsubscribe)
+        subscribers.toList().forEach(::unsubscribe)
     }
 
     override suspend fun read(): T = suspendCancellableCoroutine { cont ->
@@ -46,10 +50,10 @@ class Topic<T>(
 
     fun publish(value: T) {
         this.value = Optional.of(value)
-        synchronized(subscribers) {
-            val finishedListeners = subscribers.filter { !it.invoke(value) }
-            finishedListeners.forEach(::unsubscribe)
+        val subs = synchronized(subscribers) {
+            subscribers.toList()
         }
+        subs.filter { !it.invoke(value) }.forEach(::unsubscribe)
     }
 
     companion object {
@@ -57,7 +61,11 @@ class Topic<T>(
         /**
          * Creates a topic that will start when one subscriber is added and stop when none are left
          */
-        fun <T> lazy(start: () -> Unit, stop: () -> Unit, defaultValue: Optional<T> = Optional.empty()): Topic<T> {
+        fun <T> lazy(
+            start: () -> Unit,
+            stop: () -> Unit,
+            defaultValue: Optional<T> = Optional.empty()
+        ): Topic<T> {
             return Topic(
                 { count, _ -> if (count == 1) start() },
                 { count, _ -> if (count == 0) stop() },

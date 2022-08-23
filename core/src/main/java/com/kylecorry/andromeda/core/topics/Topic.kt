@@ -29,7 +29,7 @@ class Topic(
     }
 
     override fun unsubscribeAll() {
-        subscribers.map { it }.forEach(::unsubscribe)
+        subscribers.toList().forEach(::unsubscribe)
     }
 
     override suspend fun read() = suspendCancellableCoroutine<Unit> { cont ->
@@ -44,10 +44,10 @@ class Topic(
     }
 
     fun publish() {
-        synchronized(subscribers) {
-            val finishedListeners = subscribers.filter { !it.invoke() }
-            finishedListeners.forEach(::unsubscribe)
+        val subs = synchronized(subscribers){
+            subscribers.toList()
         }
+        subs.filter { !it.invoke() }.forEach(::unsubscribe)
     }
 
     companion object {

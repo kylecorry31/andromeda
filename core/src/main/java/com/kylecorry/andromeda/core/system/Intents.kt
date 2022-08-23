@@ -118,6 +118,12 @@ object Intents {
         context.startActivity(Intent.createChooser(intent, title))
     }
 
+    fun restart(context: Context, packageName: String = Package.getPackageName(context)): Intent {
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        val componentName = intent!!.component
+        return Intent.makeRestartActivityTask(componentName)
+    }
+
     @SuppressLint("QueryPermissionsNeeded")
     fun hasReceiver(context: Context, intent: Intent): Boolean {
         return intent.resolveActivity(context.packageManager) != null
