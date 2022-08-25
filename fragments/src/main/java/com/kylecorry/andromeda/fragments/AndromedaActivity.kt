@@ -2,8 +2,11 @@ package com.kylecorry.andromeda.fragments
 
 import android.content.Intent
 import android.net.Uri
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.Permissions
 import kotlin.math.absoluteValue
@@ -17,9 +20,12 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
     private var resultRequestCode: Int? = null
     private var permissionRequestCode: Int? = null
 
+    private var volumeAction: ((button: VolumeButton, isPressed: Boolean) -> Boolean) =
+        { _, _ -> false }
+
     override fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         val notGranted = permissions.filterNot { Permissions.hasPermission(this, it) }
-        if (notGranted.isEmpty()){
+        if (notGranted.isEmpty()) {
             action()
             return
         }
@@ -40,7 +46,12 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         startActivityForResult(intent, requestCode)
     }
 
-    fun createFile(filename: String, type: String, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        type: String,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, type, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -51,7 +62,12 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         }
     }
 
-    fun createFile(filename: String, types: List<String>, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        types: List<String>,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, types, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -84,6 +100,26 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         }
     }
 
+    fun onVolumeButtonChange(action: ((button: VolumeButton, isPressed: Boolean) -> Boolean)?) {
+        volumeAction = action ?: { _, _ -> false }
+    }
+
+    fun getFragment(): Fragment? {
+        return supportFragmentManager.fragments.firstOrNull()?.childFragmentManager?.fragments?.firstOrNull()
+    }
+
+    fun setColorTheme(theme: ColorTheme, useDynamicColors: Boolean) {
+        val mode = when (theme) {
+            ColorTheme.Light -> AppCompatDelegate.MODE_NIGHT_NO
+            ColorTheme.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+            ColorTheme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        AppCompatDelegate.setDefaultNightMode(mode)
+        if (useDynamicColors) {
+            useDynamicColors()
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == resultRequestCode) {
@@ -104,6 +140,24 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
             permissionRequestCode = null
             permissionAction = null
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return volumeAction(VolumeButton.Down, true)
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return volumeAction(VolumeButton.Up, true)
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return volumeAction(VolumeButton.Down, false)
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            return volumeAction(VolumeButton.Up, false)
+        }
+        return super.onKeyUp(keyCode, event)
     }
 
 }
