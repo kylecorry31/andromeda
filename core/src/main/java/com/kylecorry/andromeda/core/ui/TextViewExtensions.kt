@@ -1,5 +1,7 @@
 package com.kylecorry.andromeda.core.ui
 
+import android.os.Build
+import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import com.kylecorry.andromeda.core.system.Resources
@@ -42,4 +44,14 @@ fun TextView.setCompoundDrawables(
     )
 
     setCompoundDrawables(leftDrawable, topDrawable, rightDrawable, bottomDrawable)
+}
+
+fun TextView.setIncognitoMode(isIncognito: Boolean) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        imeOptions = if (isIncognito) {
+            imeOptions.or(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING)
+        } else {
+            imeOptions.and(EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING.inv())
+        }
+    }
 }
