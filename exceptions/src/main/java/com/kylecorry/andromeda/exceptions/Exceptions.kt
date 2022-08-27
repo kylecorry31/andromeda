@@ -1,10 +1,10 @@
-package com.kylecorry.andromeda.core.system
+package com.kylecorry.andromeda.exceptions
 
 import android.os.Looper
+import com.kylecorry.andromeda.core.system.CurrentApp
 import com.kylecorry.andromeda.core.tryOrNothing
 import java.time.Duration
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 object Exceptions {
 
