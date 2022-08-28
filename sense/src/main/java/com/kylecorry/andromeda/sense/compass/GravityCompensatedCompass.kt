@@ -11,9 +11,8 @@ import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.filters.MovingAverageFilter
-import com.kylecorry.sol.science.geology.GeologyService
+import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
-import kotlin.math.max
 import kotlin.math.min
 
 class GravityCompensatedCompass(
@@ -22,8 +21,6 @@ class GravityCompensatedCompass(
     private val filter: IFilter = MovingAverageFilter(1)
 ) :
     AbstractSensor(), ICompass {
-
-    private val geology = GeologyService()
 
     override val hasValidReading: Boolean
         get() = gotReading
@@ -73,7 +70,7 @@ class GravityCompensatedCompass(
             return true
         }
 
-        val newBearing = geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
+        val newBearing = Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
 
         val accelAccuracy = accelerometer.quality
         val magAccuracy = magnetometer.quality

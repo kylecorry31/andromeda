@@ -10,18 +10,16 @@ import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.sol.math.SolMath.wrap
 import com.kylecorry.sol.math.Vector3
-import com.kylecorry.sol.science.geology.GeologyService
+import com.kylecorry.sol.science.geology.Geology
 
 abstract class Clinometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
     AbstractSensor(), IClinometer {
-
-    private val geology = GeologyService()
 
     override val angle: Float
         get() = _angle
 
     override val incline: Float
-        get() = geology.getInclination(_angle)
+        get() = Geology.getInclination(_angle)
 
     override val hasValidReading: Boolean
         get() = gotReading

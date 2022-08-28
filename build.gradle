@@ -8,8 +8,8 @@ buildscript {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
     }
     ext.groupId = 'com.kylecorry.andromeda'
-    ext.versionName = '5.0.0-beta07'
-    ext.solVersion = '6.0.0-beta04'
+    ext.versionName = '5.0.0-beta08'
+    ext.solVersion = '6.0.0-beta07'
     ext.targetVersion = 33
     ext.compileVersion = 33
 }

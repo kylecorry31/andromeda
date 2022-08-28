@@ -15,10 +15,9 @@ import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.SolMath.toDegrees
 import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.filters.MovingAverageFilter
-import com.kylecorry.sol.science.geology.GeologyService
+import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
 import kotlin.math.atan2
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -29,8 +28,6 @@ class OrientationSensor(
     private val filter: IFilter = MovingAverageFilter(1)
 ) :
     AbstractSensor(), IOrientationSensor, ICompass {
-
-    private val geology = GeologyService()
 
     override val hasValidReading: Boolean
         get() = gotReading
@@ -90,7 +87,7 @@ class OrientationSensor(
             atan2(gravity[0], sqrt(gravity[1] * gravity[1] + gravity[2] * gravity[2])).toDegrees()
         val pitch =
             -atan2(gravity[1], sqrt(gravity[0] * gravity[0] + gravity[2] * gravity[2])).toDegrees()
-        val yaw = geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField).value
+        val yaw = Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField).value
 
         synchronized(lock) {
             QuaternionMath.fromEuler(floatArrayOf(roll, pitch, yaw), _quaternion)
