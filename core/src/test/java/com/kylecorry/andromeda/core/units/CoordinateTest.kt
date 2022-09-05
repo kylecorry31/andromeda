@@ -202,12 +202,16 @@ class CoordinateTest {
                 Arguments.of("10°2.083333' S, 77°30.5' E", Coordinate(-10.03472, 77.508333)),
                 Arguments.of("10°2.083333' N, 77°30.5' W", Coordinate(10.03472, -77.508333)),
                 Arguments.of("10°2.083333' S, 77°30.5' W", Coordinate(-10.03472, -77.508333)),
+                Arguments.of("10°2.083333′ S, 77°30.5′ W", Coordinate(-10.03472, -77.508333)), // Using prime chars instead of quotes
                 // DMS
                 Arguments.of("10°2'5.0\" N, 77°30'30.0\" E", Coordinate(10.03472, 77.508333)),
                 Arguments.of("10°2'5.0\" S, 77°30'30.0\" E", Coordinate(-10.03472, 77.508333)),
                 Arguments.of("10°2'5.0\" N, 77°30'30.0\" W", Coordinate(10.03472, -77.508333)),
                 Arguments.of("10°2'5.0\" S, 77°30'30.0\" W", Coordinate(-10.03472, -77.508333)),
                 Arguments.of("10°2'5\" S, 77°30'30\" W", Coordinate(-10.03472, -77.508333)),
+                Arguments.of("10°2′5\" S, 77°30′30\" W", Coordinate(-10.03472, -77.508333)), // Using prime chars instead of quotes
+                Arguments.of("10°2'5″ S, 77°30'30″ W", Coordinate(-10.03472, -77.508333)), // Using prime chars instead of quotes
+                Arguments.of("10°2′5″ S, 77°30′30″ W", Coordinate(-10.03472, -77.508333)), // Using prime chars instead of quotes
                 // DD
                 Arguments.of("42.1948, -71.6295", Coordinate(42.1948, -71.6295)),
                 Arguments.of("-90, -180", Coordinate(-90.0, -180.0)),

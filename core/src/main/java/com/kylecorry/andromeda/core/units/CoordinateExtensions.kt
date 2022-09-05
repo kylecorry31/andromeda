@@ -238,7 +238,7 @@ object CoordinateExtensions {
 
     private fun fromDegreesDecimalMinutes(location: String): Coordinate? {
         val ddmRegex =
-            Regex("^(\\d+)°\\s*(\\d+(?:[.,]\\d+)?)'\\s*([nNsS])[,\\s]+(\\d+)°\\s*(\\d+(?:[.,]\\d+)?)'\\s*([wWeE])\$")
+            Regex("^(\\d+)°\\s*(\\d+(?:[.,]\\d+)?)[′']\\s*([nNsS])[,\\s]+(\\d+)°\\s*(\\d+(?:[.,]\\d+)?)[′']\\s*([wWeE])\$")
         val matches = ddmRegex.find(location.trim()) ?: return null
 
         var latitudeDecimal = 0.0
@@ -263,7 +263,7 @@ object CoordinateExtensions {
 
     private fun fromDegreesMinutesSeconds(location: String): Coordinate? {
         val dmsRegex =
-            Regex("^(\\d+)°\\s*(\\d+)'\\s*(\\d+(?:[.,]\\d+)?)\"\\s*([nNsS])[,\\s]+(\\d+)°\\s*(\\d+)'\\s*(\\d+(?:[.,]\\d+)?)\"\\s*([wWeE])\$")
+            Regex("^(\\d+)°\\s*(\\d+)[′']\\s*(\\d+(?:[.,]\\d+)?)[″\"]\\s*([nNsS])[,\\s]+(\\d+)°\\s*(\\d+)[′']\\s*(\\d+(?:[.,]\\d+)?)[″\"]\\s*([wWeE])\$")
         val matches = dmsRegex.find(location.trim()) ?: return null
 
         var latitudeDecimal = 0.0
