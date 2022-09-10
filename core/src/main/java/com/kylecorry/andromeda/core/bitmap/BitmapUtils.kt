@@ -9,7 +9,7 @@ import android.media.Image
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.units.PixelCoordinate
-import com.kylecorry.sol.math.statistics.GLCM
+import com.kylecorry.sol.math.algebra.createMatrix
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -201,9 +201,9 @@ object BitmapUtils {
         step: Pair<Int, Int>,
         channel: ColorChannel,
         excludeTransparent: Boolean = false
-    ): GLCM {
+    ): com.kylecorry.sol.math.algebra.Matrix {
         // TODO: Make this faster with RenderScript
-        val glcm = Array(256) { FloatArray(256) }
+        val glcm = createMatrix(256, 256, 0f)
 
         var total = 0
 
