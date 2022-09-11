@@ -6,9 +6,11 @@ import android.graphics.Color
 import android.graphics.ImageFormat.YUV_420_888
 import android.graphics.Matrix
 import android.media.Image
+import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.units.PixelCoordinate
+import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -195,6 +197,28 @@ object BitmapUtils {
             resultBitmap.recycle()
         }
         return newBitmap
+    }
+
+    fun Bitmap.quantize(bins: Int): Bitmap {
+        return quantize(bins, bins, bins, bins)
+    }
+
+    fun Bitmap.quantize(redBins: Int, blueBins: Int, greenBins: Int, alphaBins: Int): Bitmap {
+        val table = LookupTable()
+        quantize(table.red, redBins)
+        quantize(table.green, greenBins)
+        quantize(table.blue, blueBins)
+        quantize(table.alpha, alphaBins)
+        return Toolkit.lut(this, table)
+    }
+
+    private fun quantize(arr: ByteArray, bins: Int) {
+        if (bins >= 256 || bins <= 0) {
+            return
+        }
+        for (i in arr.indices) {
+            arr[i] = (SolMath.map(arr[i].toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
+        }
     }
 
     fun Bitmap.glcm(
