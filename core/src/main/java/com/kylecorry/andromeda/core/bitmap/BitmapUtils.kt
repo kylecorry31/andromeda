@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.ImageFormat.YUV_420_888
 import android.graphics.Matrix
 import android.media.Image
+import androidx.annotation.ColorInt
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
@@ -217,53 +218,78 @@ object BitmapUtils {
             return
         }
         for (i in arr.indices) {
-            arr[i] = (SolMath.map(arr[i].toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
+            arr[i] = quantize(arr[i], bins)
         }
     }
 
+    private fun quantize(value: Byte, bins: Int): Byte {
+        if (bins == 256 || bins <= 0) {
+            return 0
+        }
+        return (SolMath.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
+    }
+
+    /**
+     * Calculate the Gray-Level Co-Occurrence Matrix (GLCM) of a bitmap. For best results, convert the image to grayscale.
+     * @param steps the step size and direction (X, Y pixels) to calculate the GLCM for
+     * @param channel the color channel to calculate the GLCM for
+     * @param excludeTransparent if true, transparent pixels will be excluded from the GLCM
+     * @param symmetric if true, when (i, j) is found, (j, i) will also be incremented
+     * @param normed if true, the matrix will sum up to 1
+     * @param levels the levels of gray for each pixel, defaults to 256
+     */
     fun Bitmap.glcm(
-        step: Pair<Int, Int>,
+        steps: List<Pair<Int, Int>>,
         channel: ColorChannel,
-        excludeTransparent: Boolean = false
+        excludeTransparent: Boolean = false,
+        symmetric: Boolean = false,
+        normed: Boolean = true,
+        levels: Int = 256
     ): com.kylecorry.sol.math.algebra.Matrix {
         // TODO: Make this faster with RenderScript
-        val glcm = createMatrix(256, 256, 0f)
+        val glcm = createMatrix(levels, levels, 0f)
 
         var total = 0
 
         for (x in 0 until width) {
             for (y in 0 until height) {
-                val neighborX = x + step.first
-                val neighborY = y + step.second
+                for (step in steps) {
+                    val neighborX = x + step.first
+                    val neighborY = y + step.second
 
-                if (neighborX >= width || neighborX < 0) {
-                    continue
+                    if (neighborX >= width || neighborX < 0) {
+                        continue
+                    }
+
+                    if (neighborY >= height || neighborY < 0) {
+                        continue
+                    }
+
+                    val currentPx = getPixel(x, y)
+                    val neighborPx = getPixel(neighborX, neighborY)
+
+                    if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
+                        continue
+                    }
+
+                    if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
+                        continue
+                    }
+
+                    val current = quantize(currentPx.getChannel(channel).toByte(), levels).toInt()
+                    val neighbor = quantize(neighborPx.getChannel(channel).toByte(), levels).toInt()
+
+                    glcm[current][neighbor]++
+                    total++
+                    if (symmetric) {
+                        glcm[neighbor][current]++
+                        total++
+                    }
                 }
-
-                if (neighborY >= height || neighborY < 0) {
-                    continue
-                }
-
-                val currentPx = getPixel(x, y)
-                val neighborPx = getPixel(neighborX, neighborY)
-
-                if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
-                    continue
-                }
-
-                if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
-                    continue
-                }
-
-                val current = currentPx.getChannel(channel)
-                val neighbor = neighborPx.getChannel(channel)
-
-                glcm[current][neighbor]++
-                total++
             }
         }
 
-        if (total > 0) {
+        if (normed && total > 0) {
             for (row in glcm.indices) {
                 for (col in glcm[0].indices) {
                     glcm[row][col] /= total.toFloat()
@@ -275,7 +301,7 @@ object BitmapUtils {
         return glcm
     }
 
-    private fun Int.getChannel(channel: ColorChannel): Int {
+    fun Int.getChannel(channel: ColorChannel): Int {
         return when (channel) {
             ColorChannel.Red -> Color.red(this)
             ColorChannel.Green -> Color.green(this)
