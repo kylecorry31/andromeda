@@ -223,10 +223,25 @@ object BitmapUtils {
     }
 
     private fun quantize(value: Byte, bins: Int): Byte {
-        if (bins == 256 || bins <= 0) {
+        if (bins == 256) {
+            return value
+        }
+
+        if (bins <= 0) {
             return 0
         }
         return (SolMath.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
+    }
+
+    private fun quantize(value: Int, bins: Int): Int {
+        if (bins == 256) {
+            return value
+        }
+
+        if (bins <= 0) {
+            return 0
+        }
+        return (SolMath.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt()
     }
 
     /**
@@ -266,18 +281,19 @@ object BitmapUtils {
                     }
 
                     val currentPx = getPixel(x, y)
-                    val neighborPx = getPixel(neighborX, neighborY)
 
                     if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
                         continue
                     }
 
+                    val neighborPx = getPixel(neighborX, neighborY)
+
                     if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
                         continue
                     }
 
-                    val current = quantize(currentPx.getChannel(channel).toByte(), levels).toInt()
-                    val neighbor = quantize(neighborPx.getChannel(channel).toByte(), levels).toInt()
+                    val current = quantize(currentPx.getChannel(channel), levels)
+                    val neighbor = quantize(neighborPx.getChannel(channel), levels)
 
                     glcm[current][neighbor]++
                     total++
