@@ -115,7 +115,11 @@ object BitmapUtils {
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
-    fun Bitmap.resize(maxWidth: Int, maxHeight: Int): Bitmap {
+    fun Bitmap.resizeExact(width: Int, height: Int): Bitmap {
+        return Toolkit.resize(this, width, height)
+    }
+
+    fun Bitmap.resizeToFit(maxWidth: Int, maxHeight: Int): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
             val ratioBitmap = width.toFloat() / height.toFloat()
             val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
