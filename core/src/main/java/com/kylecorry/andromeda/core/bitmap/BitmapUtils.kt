@@ -1,10 +1,7 @@
 package com.kylecorry.andromeda.core.bitmap
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Color
+import android.graphics.*
 import android.graphics.ImageFormat.YUV_420_888
-import android.graphics.Matrix
 import android.media.Image
 import androidx.annotation.ColorInt
 import com.google.android.renderscript.LookupTable
@@ -263,24 +260,31 @@ object BitmapUtils {
         excludeTransparent: Boolean = false,
         symmetric: Boolean = false,
         normed: Boolean = true,
-        levels: Int = 256
+        levels: Int = 256,
+        region: Rect? = null
     ): com.kylecorry.sol.math.algebra.Matrix {
         // TODO: Make this faster with RenderScript
         val glcm = createMatrix(levels, levels, 0f)
 
         var total = 0
 
-        for (x in 0 until width) {
-            for (y in 0 until height) {
+        val startX = (region?.left ?: 0).coerceIn(0, width)
+        val endX = (region?.right ?: width).coerceIn(0, width)
+
+        val startY = (region?.top ?: 0).coerceIn(0, height)
+        val endY = (region?.bottom ?: height).coerceIn(0, height)
+
+        for (x in startX until endX) {
+            for (y in startY until endY) {
                 for (step in steps) {
                     val neighborX = x + step.first
                     val neighborY = y + step.second
 
-                    if (neighborX >= width || neighborX < 0) {
+                    if (neighborX >= endX || neighborX < startX) {
                         continue
                     }
 
-                    if (neighborY >= height || neighborY < 0) {
+                    if (neighborY >= endY || neighborY < startY) {
                         continue
                     }
 
