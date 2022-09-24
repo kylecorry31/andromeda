@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.files
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,12 +8,12 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.Exception
 
-object ExternalFiles {
+class ExternalFileSystem(private val context: Context) {
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun read(context: Context, uri: Uri): String? {
+    suspend fun read(uri: Uri): String? {
         return withContext(Dispatchers.IO) {
-            val inputStream = stream(context, uri)
+            val inputStream = stream(uri)
 
             try {
                 inputStream?.bufferedReader()?.readText()
@@ -27,16 +26,16 @@ object ExternalFiles {
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun stream(context: Context, uri: Uri): InputStream? {
+    suspend fun stream(uri: Uri): InputStream? {
         return withContext(Dispatchers.IO) {
             context.contentResolver.openInputStream(uri)
         }
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun write(context: Context, uri: Uri, text: String): Boolean {
+    suspend fun write(uri: Uri, text: String): Boolean {
         return withContext(Dispatchers.IO) {
-            val stream = outputStream(context, uri) ?: return@withContext false
+            val stream = outputStream(uri) ?: return@withContext false
 
             try {
                 stream.write(text.toByteArray())
@@ -50,7 +49,7 @@ object ExternalFiles {
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun outputStream(context: Context, uri: Uri): OutputStream? {
+    suspend fun outputStream(uri: Uri): OutputStream? {
         return withContext(Dispatchers.IO) {
             try {
                 context.contentResolver.openOutputStream(uri)

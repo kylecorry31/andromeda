@@ -15,12 +15,12 @@ class FileSaver(private val autoClose: Boolean = true) {
             if (autoClose) {
                 try {
                     input.close()
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     // Do nothing
                 }
                 try {
                     output.close()
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     // Do nothing
                 }
             }
@@ -38,6 +38,12 @@ class FileSaver(private val autoClose: Boolean = true) {
             FileOutputStream(output).use { outputStream ->
                 save(inputStream, outputStream)
             }
+        }
+    }
+
+    fun save(input: File, output: OutputStream) {
+        FileInputStream(input).use { inputStream ->
+            save(inputStream, output)
         }
     }
 

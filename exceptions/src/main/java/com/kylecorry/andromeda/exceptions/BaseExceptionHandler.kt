@@ -3,16 +3,18 @@ package com.kylecorry.andromeda.exceptions
 import android.content.Context
 import com.kylecorry.andromeda.core.system.CurrentApp
 import com.kylecorry.andromeda.core.tryOrLog
-import com.kylecorry.andromeda.files.LocalFiles
+import com.kylecorry.andromeda.files.IFileSystem
+import com.kylecorry.andromeda.files.LocalFileSystem
 
 abstract class BaseExceptionHandler(
     protected val context: Context,
     private val generator: IBugReportGenerator,
-    private val filename: String = "errors/error.txt"
+    private val filename: String = "errors/error.txt",
+    private val fileSystem: IFileSystem = LocalFileSystem(context)
 ) {
 
     fun bind() {
-        if (!LocalFiles.getFile(context, filename, create = false).exists()) {
+        if (!fileSystem.getFile(filename, create = false).exists()) {
             setupHandler()
         }
         handleLastException()
@@ -21,12 +23,12 @@ abstract class BaseExceptionHandler(
     abstract fun handleBugReport(log: String)
 
     private fun handleLastException() {
-        val file = LocalFiles.getFile(context, filename, create = false)
+        val file = fileSystem.getFile(filename, create = false)
         if (!file.exists()) {
             return
         }
-        val error = LocalFiles.read(context, filename)
-        LocalFiles.delete(context, filename)
+        val error = fileSystem.read(filename)
+        fileSystem.delete(filename)
 
         handleBugReport(error)
         setupHandler()
@@ -43,7 +45,7 @@ abstract class BaseExceptionHandler(
 
     private fun recordException(throwable: Throwable) {
         val details = generator.generate(context, throwable)
-        LocalFiles.write(context, filename, details, false)
+        fileSystem.write(filename, details, false)
     }
 
 }
