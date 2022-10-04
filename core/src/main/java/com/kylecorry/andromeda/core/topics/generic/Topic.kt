@@ -34,7 +34,8 @@ class Topic<T>(
     }
 
     override fun unsubscribeAll() {
-        subscribers.toList().forEach(::unsubscribe)
+        val copy = synchronized(subscribers) { subscribers.toList() }
+        copy.forEach(::unsubscribe)
     }
 
     override suspend fun read(): T = suspendCancellableCoroutine { cont ->
