@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.annotation.IdRes
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
@@ -28,11 +29,11 @@ fun Fragment.switchToFragment(
     }
 }
 
-fun BottomSheetDialogFragment.show(fragment: Fragment, tag: String = javaClass.name) {
+fun DialogFragment.show(fragment: Fragment, tag: String = javaClass.name) {
     show(fragment.requireActivity(), tag)
 }
 
-fun BottomSheetDialogFragment.show(activity: FragmentActivity, tag: String = javaClass.name) {
+fun DialogFragment.show(activity: FragmentActivity, tag: String = javaClass.name) {
     show(activity.supportFragmentManager, tag)
 }
 
