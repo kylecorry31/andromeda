@@ -58,4 +58,14 @@ object Colors {
         }
     }
 
+    @ColorInt
+    fun Int.withAlpha(alpha: Int): Int {
+        return Color.argb(
+            alpha,
+            Color.red(this),
+            Color.green(this),
+            Color.blue(this)
+        )
+    }
+
 }
