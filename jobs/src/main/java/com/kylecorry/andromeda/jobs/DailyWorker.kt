@@ -100,9 +100,16 @@ abstract class DailyWorker(
         return Result.success()
     }
 
-    protected abstract fun isEnabled(context: Context): Boolean
+    protected open fun isEnabled(context: Context): Boolean {
+        return true
+    }
+
     protected abstract fun getScheduledTime(context: Context): LocalTime
-    protected abstract fun getLastRunKey(context: Context): String
+
+    protected open fun getLastRunKey(context: Context): String {
+        return "pref_andromeda_daily_worker_last_run_date_$uniqueId"
+    }
+
     protected abstract suspend fun execute(context: Context)
     protected abstract val uniqueId: Int
 

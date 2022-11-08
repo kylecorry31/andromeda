@@ -51,7 +51,10 @@ abstract class IntervalWorker(
         return Result.success()
     }
 
-    protected abstract fun isEnabled(context: Context): Boolean
+    protected open fun isEnabled(context: Context): Boolean {
+        return true
+    }
+
     protected abstract fun getFrequency(context: Context): Duration
     protected abstract suspend fun execute(context: Context)
     protected abstract val uniqueId: Int
