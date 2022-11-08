@@ -5,6 +5,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: badasintended/autojitpack@v1
-        with:
-          version: ${{ github.event.release.tag_name }}
+      - name: Jitpack build
+        run: curl https://jitpack.io/com/github/${{ github.repository	}}/${{ github.event.release.tag_name }}/build.log -m 600
