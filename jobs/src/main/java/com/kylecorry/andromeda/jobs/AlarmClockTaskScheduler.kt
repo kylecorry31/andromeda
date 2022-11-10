@@ -33,6 +33,10 @@ class AlarmClockTaskScheduler(
         once(Duration.between(Instant.now(), time))
     }
 
+    override fun start() {
+        once()
+    }
+
     override fun cancel() {
         Alarms.cancel(context, task())
     }

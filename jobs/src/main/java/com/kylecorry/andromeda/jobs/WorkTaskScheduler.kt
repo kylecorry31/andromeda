@@ -35,7 +35,9 @@ class WorkTaskScheduler(
         val request = OneTimeWorkRequest
             .Builder(task).apply {
                 addTag(uniqueId)
-                setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
+                if (delay > Duration.ZERO) {
+                    setInitialDelay(delay.toMillis(), TimeUnit.MILLISECONDS)
+                }
                 if (constraints != null) {
                     setConstraints(constraints)
                 }
@@ -54,6 +56,10 @@ class WorkTaskScheduler(
 
     override fun once(time: Instant) {
         once(Duration.between(Instant.now(), time))
+    }
+
+    override fun start() {
+        once()
     }
 
     override fun interval(period: Duration, initialDelay: Duration) {

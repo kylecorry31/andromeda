@@ -45,6 +45,10 @@ class AlarmBroadcastTaskScheduler(
         once(Duration.between(Instant.now(), time))
     }
 
+    override fun start() {
+        once()
+    }
+
     override fun interval(period: Duration, initialDelay: Duration) {
         cancel()
         Alarms.setRepeating(
