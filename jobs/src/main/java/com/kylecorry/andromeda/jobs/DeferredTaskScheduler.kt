@@ -44,6 +44,10 @@ class DeferredTaskScheduler(
         once(Duration.between(Instant.now(), time))
     }
 
+    override fun start() {
+        once()
+    }
+
     override fun cancel() {
         val workManager = WorkManager.getInstance(context.applicationContext)
         workManager.cancelUniqueWork(uniqueId)
