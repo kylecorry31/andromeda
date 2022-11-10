@@ -27,7 +27,7 @@ class AlarmBroadcastTaskScheduler(
     private val allowWhileIdle: Boolean = false,
     private val intentExtras: Bundle? = null
 ) :
-    IOneTimeTaskScheduler {
+    IOneTimeTaskScheduler, IPeriodicTaskScheduler {
 
 
     override fun once(delay: Duration) {
@@ -43,6 +43,20 @@ class AlarmBroadcastTaskScheduler(
 
     override fun once(time: Instant) {
         once(Duration.between(Instant.now(), time))
+    }
+
+    override fun interval(period: Duration, initialDelay: Duration) {
+        cancel()
+        Alarms.setRepeating(
+            context,
+            LocalDateTime.now().plus(initialDelay),
+            period,
+            createPendingIntent()
+        )
+    }
+
+    override fun interval(period: Duration, start: Instant) {
+        interval(period, Duration.between(Instant.now(), start))
     }
 
     override fun cancel() {

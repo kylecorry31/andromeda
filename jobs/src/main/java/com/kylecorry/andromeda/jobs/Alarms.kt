@@ -11,6 +11,7 @@ import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.time.Time.toEpochMillis
+import java.time.Duration
 import java.time.LocalDateTime
 
 object Alarms {
@@ -52,6 +53,28 @@ object Alarms {
                 )
             }
         }
+    }
+
+    /**
+     * Create a repeating alarm (inexact)
+     * @param time The time to fire the alarm
+     * @param interval The interval to fire the alarm
+     * @param pendingIntent The pending intent to launch when the alarm fires
+     */
+    @SuppressLint("MissingPermission")
+    fun setRepeating(
+        context: Context,
+        time: LocalDateTime,
+        interval: Duration,
+        pendingIntent: PendingIntent
+    ) {
+        val alarmManager = getAlarmManager(context)
+        alarmManager?.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            time.toEpochMillis(),
+            interval.toMillis(),
+            pendingIntent
+        )
     }
 
     /**
