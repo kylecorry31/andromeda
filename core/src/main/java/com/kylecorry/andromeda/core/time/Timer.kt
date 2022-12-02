@@ -1,40 +1,39 @@
 package com.kylecorry.andromeda.core.time
 
-import android.os.Handler
-import android.os.Looper
-import android.os.SystemClock
 import java.time.Duration
+import kotlin.math.min
 
 class Timer(private val runnable: Runnable) {
 
-    private var running = false
-    private val handler = Handler(Looper.getMainLooper())
+    private val minInterval = Duration.ofMinutes(1).toMillis()
 
-    private var intervalRunnable: Runnable? = null
+    private val timer = TimerHelper {
+        onTimer()
+    }
 
+    private var remainingTime = 0L
+    private var intervalTime = 0L
+    private var lastCalled = 0L
+
+    private fun onTimer() {
+        if (!isRunning()) {
+            return
+        }
+
+        updateRemainingTime()
+
+        if (remainingTime <= 0) {
+            runnable.run()
+            if (intervalTime >= 0L) {
+                schedule(intervalTime, intervalTime)
+            }
+        } else {
+            schedule(remainingTime, intervalTime)
+        }
+    }
 
     fun interval(periodMillis: Long, initialDelayMillis: Long = 0L) {
-        if (running) {
-            stop()
-        }
-
-        running = true
-
-        val r = Runnable {
-            runnable.run()
-            val nextRunnable = intervalRunnable
-            if (nextRunnable != null) {
-                handler.postAtTime(nextRunnable, SystemClock.uptimeMillis() + periodMillis)
-            }
-        }
-
-        intervalRunnable = r
-
-        if (initialDelayMillis == 0L) {
-            handler.post(r)
-        } else {
-            handler.postAtTime(r, SystemClock.uptimeMillis() + initialDelayMillis)
-        }
+        schedule(initialDelayMillis, periodMillis)
     }
 
     fun interval(period: Duration, initialDelay: Duration = Duration.ZERO) {
@@ -42,16 +41,7 @@ class Timer(private val runnable: Runnable) {
     }
 
     fun once(delayMillis: Long) {
-        if (running) {
-            stop()
-        }
-
-        running = true
-        if (delayMillis == 0L){
-            handler.post(runnable)
-        } else {
-            handler.postAtTime(runnable, SystemClock.uptimeMillis() + delayMillis)
-        }
+        schedule(delayMillis, -1L)
     }
 
     fun once(delay: Duration) {
@@ -59,18 +49,30 @@ class Timer(private val runnable: Runnable) {
     }
 
     fun stop() {
-        val iRunnable = intervalRunnable
-        if (iRunnable != null) {
-            handler.removeCallbacks(iRunnable)
-        }
-        intervalRunnable = null
-
-        handler.removeCallbacks(runnable)
-        running = false
+        timer.stop()
     }
 
     fun isRunning(): Boolean {
-        return running
+        return timer.isRunning()
+    }
+
+    private fun schedule(delay: Long, interval: Long) {
+        lastCalled = System.currentTimeMillis()
+        remainingTime = delay
+        intervalTime = interval
+        timer.once(getNextDelay())
+    }
+
+    private fun getNextDelay(): Long {
+        return min(remainingTime, minInterval)
+    }
+
+    private fun updateRemainingTime() {
+        val diff = System.currentTimeMillis() - lastCalled
+        remainingTime -= diff
+        if (remainingTime < 0L) {
+            remainingTime = 0L
+        }
     }
 
 }
