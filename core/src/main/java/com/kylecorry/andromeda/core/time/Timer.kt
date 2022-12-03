@@ -8,14 +8,19 @@ class Timer(private val runnable: Runnable) {
     private val minInterval = Duration.ofMinutes(1).toMillis()
 
     private val timer = TimerHelper {
-        onTimer()
+        if (isLongRunning) {
+            onLongRunningTimer()
+        } else {
+            runnable.run()
+        }
     }
 
     private var remainingTime = 0L
     private var intervalTime = 0L
     private var lastCalled = 0L
+    private var isLongRunning = false
 
-    private fun onTimer() {
+    private fun onLongRunningTimer() {
         if (!isRunning()) {
             return
         }
@@ -57,6 +62,19 @@ class Timer(private val runnable: Runnable) {
     }
 
     private fun schedule(delay: Long, interval: Long) {
+
+        // No need to use the long running logic if the interval is less than the minimum
+        if (delay <= minInterval && interval <= minInterval) {
+            isLongRunning = false
+            if (interval > 0L) {
+                timer.interval(interval, delay)
+            } else {
+                timer.once(delay)
+            }
+            return
+        }
+
+        isLongRunning = true
         lastCalled = System.currentTimeMillis()
         remainingTime = delay
         intervalTime = interval
