@@ -1,96 +1,68 @@
 package com.kylecorry.andromeda.core.time
 
+import com.kylecorry.andromeda.core.coroutines.ControlledRunner
+import kotlinx.coroutines.*
 import java.time.Duration
-import kotlin.math.min
+import kotlin.coroutines.CoroutineContext
 
-class Timer(private val runnable: Runnable) {
+class Timer(
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    private val observeOn: CoroutineContext = Dispatchers.Main,
+    private val action: suspend () -> Unit
+) {
 
-    private val minInterval = Duration.ofMinutes(1).toMillis()
+    private val runner = ControlledRunner<Any>()
 
-    private val timer = TimerHelper {
-        if (isLongRunning) {
-            onLongRunningTimer()
-        } else {
-            runnable.run()
-        }
-    }
-
-    private var remainingTime = 0L
-    private var intervalTime = 0L
-    private var lastCalled = 0L
-    private var isLongRunning = false
-
-    private fun onLongRunningTimer() {
-        if (!isRunning()) {
-            return
-        }
-
-        updateRemainingTime()
-
-        if (remainingTime <= 0) {
-            runnable.run()
-            if (intervalTime >= 0L) {
-                schedule(intervalTime, intervalTime)
-            }
-        } else {
-            schedule(remainingTime, intervalTime)
-        }
-    }
-
-    fun interval(periodMillis: Long, initialDelayMillis: Long = 0L) {
-        schedule(initialDelayMillis, periodMillis)
-    }
+    private var _isRunning = false
 
     fun interval(period: Duration, initialDelay: Duration = Duration.ZERO) {
         interval(period.toMillis(), initialDelay.toMillis())
     }
 
-    fun once(delayMillis: Long) {
-        schedule(delayMillis, -1L)
+    fun interval(periodMillis: Long, initialDelayMillis: Long = 0L) {
+        _isRunning = true
+        scope.launch {
+            runner.cancelPreviousThenRun {
+                if (initialDelayMillis > 0) {
+                    delay(initialDelayMillis)
+                }
+                while (isRunning()) {
+                    withContext(observeOn) {
+                        action()
+                    }
+                    if (periodMillis > 0) {
+                        delay(periodMillis)
+                    }
+                }
+
+            }
+        }
     }
 
     fun once(delay: Duration) {
         once(delay.toMillis())
     }
 
+    fun once(delayMillis: Long) {
+        _isRunning = true
+        scope.launch {
+            runner.cancelPreviousThenRun {
+                if (delayMillis > 0) {
+                    delay(delayMillis)
+                }
+                withContext(observeOn) {
+                    action()
+                }
+            }
+        }
+    }
+
     fun stop() {
-        timer.stop()
+        _isRunning = false
+        runner.cancel()
     }
 
     fun isRunning(): Boolean {
-        return timer.isRunning()
+        return _isRunning
     }
-
-    private fun schedule(delay: Long, interval: Long) {
-
-        // No need to use the long running logic if the interval is less than the minimum
-        if (delay <= minInterval && interval <= minInterval) {
-            isLongRunning = false
-            if (interval > 0L) {
-                timer.interval(interval, delay)
-            } else {
-                timer.once(delay)
-            }
-            return
-        }
-
-        isLongRunning = true
-        lastCalled = System.currentTimeMillis()
-        remainingTime = delay
-        intervalTime = interval
-        timer.once(getNextDelay())
-    }
-
-    private fun getNextDelay(): Long {
-        return min(remainingTime, minInterval)
-    }
-
-    private fun updateRemainingTime() {
-        val diff = System.currentTimeMillis() - lastCalled
-        remainingTime -= diff
-        if (remainingTime < 0L) {
-            remainingTime = 0L
-        }
-    }
-
 }
