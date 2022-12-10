@@ -16,6 +16,11 @@ object CompressionUtils {
         return bytes.toInt()
     }
 
+    fun getByte(stream: InputStream, line: Int, closeStream: Boolean = true): Byte? {
+        val bytes = getBytes(stream, line, 1, closeStream) ?: return null
+        return bytes[0]
+    }
+
     fun getBytes(
         stream: InputStream,
         line: Int,

@@ -5,7 +5,7 @@ fun ByteArray.toShort(): Short {
     if (size != Short.SIZE_BYTES){
         throw IllegalStateException("Byte array does not contain a short")
     }
-    return ((get(0).toUByte().toInt() shl 8) + get(1).toUByte().toInt()).toShort()
+    return ((get(0).toUByte().toInt() shl 8) or get(1).toUByte().toInt()).toShort()
 }
 
 @ExperimentalUnsignedTypes
