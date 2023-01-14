@@ -27,7 +27,9 @@ class Torch(private val context: Context) : ITorch {
             return
         }
         tryOrLog {
-            cameraService?.setTorchMode(cameraId, true)
+            cameraId?.let {
+                cameraService?.setTorchMode(it, true)
+            }
         }
     }
 
@@ -44,14 +46,18 @@ class Torch(private val context: Context) : ITorch {
             } else {
                 val maxLevel = getMaxBrightnessLevel()
                 val level = (brightness * maxLevel).roundToInt().coerceIn(1, maxLevel)
-                cameraService?.turnOnTorchWithStrengthLevel(cameraId, level)
+                cameraId?.let {
+                    cameraService?.turnOnTorchWithStrengthLevel(it, level)
+                }
             }
         }
     }
 
     override fun off() {
         tryOrLog {
-            cameraService?.setTorchMode(cameraId, false)
+            cameraId?.let {
+                cameraService?.setTorchMode(it, false)
+            }
         }
     }
 
@@ -75,8 +81,10 @@ class Torch(private val context: Context) : ITorch {
     @RequiresApi(33)
     private fun getMaxBrightnessLevel(): Int {
         return tryOrDefault(1) {
-            val characteristics = cameraService?.getCameraCharacteristics(cameraId)
-            characteristics?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL) ?: 1
+            cameraId?.let {
+                val characteristics = cameraService?.getCameraCharacteristics(it)
+                characteristics?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
+            } ?: 1
         }
     }
 
@@ -100,7 +108,7 @@ class Torch(private val context: Context) : ITorch {
             try {
                 val cs = getCameraManager(context)
                 val rearCamera = getRearCameraId(context)
-                if (rearCamera.isEmpty() || cs == null) {
+                if (rearCamera == null || cs == null) {
                     return false
                 }
 
@@ -115,21 +123,25 @@ class Torch(private val context: Context) : ITorch {
             }
         }
 
-        private fun getRearCameraId(context: Context): String {
-            val cs = getCameraManager(context)
-            val cameraList = cs?.cameraIdList
-            if (cameraList == null || cameraList.isEmpty()) return ""
-            for (camera in cameraList) {
-                val hasFlash = cs.getCameraCharacteristics(camera)
-                    .get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
-                val facing = cs.getCameraCharacteristics(camera)
-                    .get(CameraCharacteristics.LENS_FACING)
-                if (hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK) {
-                    return camera
-                }
+        private fun getRearCameraId(context: Context): String? {
+            try {
+                val cs = getCameraManager(context)
+                val cameraList = cs?.cameraIdList
+                if (cameraList == null || cameraList.isEmpty()) return null
+                for (camera in cameraList) {
+                    val hasFlash = cs.getCameraCharacteristics(camera)
+                        .get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
+                    val facing = cs.getCameraCharacteristics(camera)
+                        .get(CameraCharacteristics.LENS_FACING)
+                    if (hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK) {
+                        return camera
+                    }
 
+                }
+                return cameraList[0]
+            } catch (e: Exception) {
+                return null
             }
-            return cameraList[0]
         }
     }
 }
