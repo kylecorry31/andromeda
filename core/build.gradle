@@ -69,12 +69,12 @@ dependencies {
     api "com.github.kylecorry31.sol:time:${solVersion}"
     implementation 'com.github.kylecorry31:Geo-Coordinate-Conversion-Java:master'
     implementation 'com.github.kylecorry31:osgb:v1.0.4'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.6'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.junit.platform:junit-platform-runner:1.9.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.1'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
