@@ -18,4 +18,5 @@ interface IFileSystem {
     fun getRelativePath(file: File): String
     fun inputStream(path: String, create: Boolean = true): InputStream
     fun outputStream(path: String): OutputStream
+    fun getMimeType(path: String): String?
 }

@@ -58,4 +58,22 @@ class ExternalFileSystem(private val context: Context) {
             }
         }
     }
+
+    fun getMimeType(uri: Uri): String? {
+        return context.contentResolver.getType(uri)
+    }
+
+    fun getFileName(uri: Uri, withExtension: Boolean = true): String? {
+        val name = uri.lastPathSegment ?: return null
+        return if (withExtension) {
+            name
+        } else {
+            name.substringBeforeLast(".")
+        }
+    }
+
+    fun getExtension(uri: Uri): String? {
+        val name = getFileName(uri, true) ?: return null
+        return name.substringAfterLast(".")
+    }
 }

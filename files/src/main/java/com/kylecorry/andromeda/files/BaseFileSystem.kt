@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.files
 
 import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import java.io.*
@@ -99,5 +100,10 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
 
     override fun outputStream(path: String): OutputStream {
         return FileOutputStream(getFile(path, true))
+    }
+
+    override fun getMimeType(path: String): String? {
+        val file = getFile(path, false)
+        return MimeType.toMimeType(file.extension)
     }
 }
