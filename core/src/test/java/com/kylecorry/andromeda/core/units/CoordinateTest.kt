@@ -5,7 +5,7 @@ import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDecimalDegrees
 import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDegreeDecimalMinutes
 import com.kylecorry.andromeda.core.units.CoordinateExtensions.toDegreeMinutesSeconds
 import com.kylecorry.andromeda.core.units.CoordinateExtensions.toMGRS
-import com.kylecorry.andromeda.core.units.CoordinateExtensions.toOSNG
+import com.kylecorry.andromeda.core.units.CoordinateExtensions.toOSGB
 import com.kylecorry.andromeda.core.units.CoordinateExtensions.toUSNG
 import com.kylecorry.andromeda.core.units.CoordinateExtensions.toUTM
 import com.kylecorry.sol.units.Bearing
@@ -100,9 +100,9 @@ class CoordinateTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideOSNG")
-    fun toOSNG(expected: String, coordinate: Coordinate, precision: Int) {
-        Assert.assertEquals(expected, coordinate.toOSNG(precision))
+    @MethodSource("provideOSGB")
+    fun toOSGB(expected: String, coordinate: Coordinate, precision: Int) {
+        Assert.assertEquals(expected, coordinate.toOSGB(precision))
     }
 
     @ParameterizedTest
@@ -183,7 +183,7 @@ class CoordinateTest {
         }
 
         @JvmStatic
-        fun provideOSNG(): Stream<Arguments> {
+        fun provideOSGB(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of("TG 51409 13177", Coordinate(52.657977, 1.716038), 5),
                 Arguments.of("OR 96706 50582", Coordinate(55.657977, 2.716029), 5),
@@ -268,7 +268,7 @@ class CoordinateTest {
                 Arguments.of("17RKL7090350491", Coordinate(27.5589270380, -83.3203125000)),
                 Arguments.of("5QKC7282879387", Coordinate(20.5998824479, -155.1796880364)),
 
-                // OSNG (OSGB-36)
+                // OSGB (OSGB-36)
                 Arguments.of("TG 51409 13177", Coordinate(52.657977, 1.716038)),
                 Arguments.of("OR 96706 50582", Coordinate(55.657977, 2.716029)),
                 Arguments.of("ST 49851 22534", Coordinate(51.0, -2.716038)),

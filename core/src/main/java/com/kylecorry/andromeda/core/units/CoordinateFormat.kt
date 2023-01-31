@@ -7,5 +7,5 @@ enum class CoordinateFormat(val id: Int) {
     UTM(4),
     MGRS(5),
     USNG(6),
-    OSNG_OSGB36(7)
+    OSGB(7)
 }

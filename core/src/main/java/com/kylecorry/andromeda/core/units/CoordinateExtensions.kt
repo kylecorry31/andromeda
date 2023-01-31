@@ -91,7 +91,7 @@ object CoordinateExtensions {
     }
 
     // TODO: Support precision
-    fun Coordinate.toOSNG(precision: Int = 5): String {
+    fun Coordinate.toOSGB(precision: Int = 5): String {
         try {
             val osgb36 = OSGB36.fromWGS84(latitude, longitude)
             val en = EastingNorthingConversion.fromLatLon(
@@ -183,7 +183,7 @@ object CoordinateExtensions {
             CoordinateFormat.UTM -> fromUTM(location)
             CoordinateFormat.MGRS -> fromMGRS(location)
             CoordinateFormat.USNG -> fromMGRS(location)
-            CoordinateFormat.OSNG_OSGB36 -> fromOSNG(location)
+            CoordinateFormat.OSGB -> fromOSGB(location)
         }
     }
 
@@ -196,7 +196,7 @@ object CoordinateExtensions {
         }
     }
 
-    private fun fromOSNG(location: String): Coordinate? {
+    private fun fromOSGB(location: String): Coordinate? {
         return try {
             val eastingNorthing = try {
                 NationalGrid.fromNationalGrid(location)
