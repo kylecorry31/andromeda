@@ -78,8 +78,13 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         }
     }
 
-    fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = Intents.pickFile(type, message)
+    fun pickFile(
+        type: String,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
+        val intent = Intents.pickFile(type, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -89,8 +94,13 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         }
     }
 
-    fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = Intents.pickFile(types, message)
+    fun pickFile(
+        types: List<String>,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
+        val intent = Intents.pickFile(types, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)

@@ -101,14 +101,16 @@ object Intents {
         return Intent.createChooser(intent, message)
     }
 
-    fun pickFile(type: String, message: String): Intent {
-        val requestFileIntent = Intent(Intent.ACTION_GET_CONTENT)
+    fun pickFile(type: String, message: String, useSAF: Boolean = true): Intent {
+        val requestFileIntent = Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
+        requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = type
         return Intent.createChooser(requestFileIntent, message)
     }
 
-    fun pickFile(types: List<String>, message: String): Intent {
-        val requestFileIntent = Intent(Intent.ACTION_GET_CONTENT)
+    fun pickFile(types: List<String>, message: String, useSAF: Boolean = true): Intent {
+        val requestFileIntent = Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
+        requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = "*/*"
         requestFileIntent.putExtra(Intent.EXTRA_MIME_TYPES, types.toTypedArray())
         return Intent.createChooser(requestFileIntent, message)

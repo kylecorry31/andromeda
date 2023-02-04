@@ -47,7 +47,12 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         resultLauncher.launch(intent)
     }
 
-    fun createFile(filename: String, type: String, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        type: String,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, type, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -58,7 +63,12 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         }
     }
 
-    fun createFile(filename: String, types: List<String>, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        types: List<String>,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, types, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -69,8 +79,13 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         }
     }
 
-    fun pickFile(type: String, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = Intents.pickFile(type, message)
+    fun pickFile(
+        type: String,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
+        val intent = Intents.pickFile(type, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
@@ -80,8 +95,13 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         }
     }
 
-    fun pickFile(types: List<String>, message: String, action: (uri: Uri?) -> Unit) {
-        val intent = Intents.pickFile(types, message)
+    fun pickFile(
+        types: List<String>,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
+        val intent = Intents.pickFile(types, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
                 action(data?.data)
