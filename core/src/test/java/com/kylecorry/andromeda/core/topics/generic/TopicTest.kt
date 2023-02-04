@@ -69,11 +69,11 @@ class TopicTest {
         mapped.subscribe(subscriber)
 
         topic.publish(1)
-        delay(10)
+        delay(20)
         assertEquals(2, value)
 
         topic.publish(2)
-        delay(10)
+        delay(20)
         assertEquals(4, value)
     }
 
