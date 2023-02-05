@@ -9,9 +9,14 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
+import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 fun Fragment.switchToFragment(
     fragment: Fragment,
@@ -50,4 +55,16 @@ fun Activity.useDynamicColors() {
 
 fun Application.useDynamicColors() {
     DynamicColors.applyToActivitiesIfAvailable(this)
+}
+
+fun LifecycleOwner.inBackground(
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    block: suspend CoroutineScope.() -> Unit
+) {
+    when (state) {
+        BackgroundMinimumState.Resumed -> lifecycleScope.launchWhenResumed(block)
+        BackgroundMinimumState.Started -> lifecycleScope.launchWhenStarted(block)
+        BackgroundMinimumState.Created -> lifecycleScope.launchWhenCreated(block)
+        BackgroundMinimumState.Any -> lifecycleScope.launch { block() }
+    }
 }
