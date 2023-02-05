@@ -4,11 +4,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.0'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21'
+        classpath 'com.android.tools.build:gradle:7.4.1'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0'
     }
     ext.groupId = 'com.kylecorry.andromeda'
-    ext.versionName = '5.0.0-beta31'
+    ext.versionName = '5.0.0-beta32'
     ext.solVersion = '6.3.3'
     ext.targetVersion = 33
     ext.compileVersion = 33

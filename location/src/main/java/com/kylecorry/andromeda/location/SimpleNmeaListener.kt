@@ -18,6 +18,7 @@ internal class SimpleNmeaListener(private val onNmeaMessage: (message: String) -
 
 @Suppress("DEPRECATION")
 internal class SimpleLegacyNmeaListener(private val onNmeaMessage: (message: String) -> Unit): GpsStatus.NmeaListener {
+    @Deprecated("Deprecated in Java")
     override fun onNmeaReceived(timestamp: Long, nmea: String?) {
         nmea ?: return
         onNmeaMessage.invoke(nmea)

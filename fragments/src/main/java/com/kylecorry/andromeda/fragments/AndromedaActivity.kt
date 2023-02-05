@@ -130,6 +130,7 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         }
     }
 
+    @Suppress("DEPRECATION")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == resultRequestCode) {
