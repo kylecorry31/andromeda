@@ -19,4 +19,5 @@ interface IFileSystem {
     fun inputStream(path: String, create: Boolean = true): InputStream
     fun outputStream(path: String): OutputStream
     fun getMimeType(path: String): String?
+    fun list(path: String): List<File>
 }

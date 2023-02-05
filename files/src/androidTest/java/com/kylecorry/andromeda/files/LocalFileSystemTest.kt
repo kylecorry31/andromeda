@@ -155,6 +155,31 @@ class LocalFileSystemTest {
         fileSystem.delete("test.txt")
     }
 
+    @Test
+    fun canList() {
+        // Folder doesn't exist
+        assertEquals(0, fileSystem.list("test").size)
+
+        // Empty folder
+        fileSystem.createDirectory("test")
+        assertEquals(0, fileSystem.list("test").size)
+
+        // Returns empty list if file
+        fileSystem.createFile("test.txt")
+        assertEquals(0, fileSystem.list("test.txt").size)
+
+        // Folder with files
+        fileSystem.write("folder/test.txt", "testing")
+        fileSystem.write("folder/test2.txt", "testing2")
+
+        val files = fileSystem.list("folder")
+        assertEquals(2, files.size)
+        assertEquals(listOf("test.txt", "test2.txt"), files.map { it.name })
+
+        fileSystem.delete("test", true)
+        fileSystem.delete("test.txt")
+    }
+
     private fun getBasePath(): String {
         return InstrumentationRegistry.getInstrumentation().context.filesDir.path
     }

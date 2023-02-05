@@ -106,4 +106,8 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
         val file = getFile(path, false)
         return MimeType.toMimeType(file.extension)
     }
+
+    override fun list(path: String): List<File> {
+        return getDirectory(path, false).listFiles()?.toList() ?: emptyList()
+    }
 }
