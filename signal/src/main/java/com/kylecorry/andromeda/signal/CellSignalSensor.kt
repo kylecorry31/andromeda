@@ -63,6 +63,10 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
                             }
                         }
                     }
+
+                    override fun onError(errorCode: Int, detail: Throwable?) {
+                        onCellInfo(mutableListOf())
+                    }
                 })
         }
 
