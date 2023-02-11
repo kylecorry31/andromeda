@@ -5,14 +5,14 @@ import android.util.Range
 import com.kylecorry.andromeda.core.specifications.Specification
 import java.util.*
 
-fun tryOrNothing(block: () -> Unit) {
+inline fun tryOrNothing(block: () -> Unit) {
     try {
         block()
-    } catch (e: Exception) {
+    } catch (_: Exception) {
     }
 }
 
-fun tryOrLog(block: () -> Unit) {
+inline fun tryOrLog(block: () -> Unit) {
     try {
         block()
     } catch (e: Exception) {
@@ -20,7 +20,7 @@ fun tryOrLog(block: () -> Unit) {
     }
 }
 
-fun <T> tryOrDefault(default: T, block: () -> T): T {
+inline fun <T> tryOrDefault(default: T, block: () -> T): T {
     return try {
         block()
     } catch (e: Exception) {
