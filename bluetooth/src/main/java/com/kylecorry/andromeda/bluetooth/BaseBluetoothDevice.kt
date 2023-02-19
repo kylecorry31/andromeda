@@ -6,6 +6,9 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import androidx.core.content.getSystemService
+import com.kylecorry.andromeda.core.io.readUntil
+import com.kylecorry.andromeda.core.io.write
+import com.kylecorry.andromeda.core.io.writeAll
 import com.kylecorry.andromeda.core.tryOrNothing
 import java.io.InputStream
 import java.io.OutputStream
@@ -63,44 +66,31 @@ abstract class BaseBluetoothDevice(private val context: Context, override val ad
     override fun readUntil(predicate: (char: Char) -> Boolean): String {
         if (!isConnected()) return ""
         val input = input ?: return ""
-        val builder = StringBuilder()
-        var b: Int
-        while ((input.read().also { b = it }) > -1) {
-            val char = b.toChar()
-            if (predicate(char)) break
-            builder.append(char)
-        }
-
-        return builder.toString()
+        return input.readUntil(predicate)
     }
 
     override fun readUntil(stop: Char): String {
-        if (!isConnected()) return ""
         return readUntil { it == stop }
     }
 
     override fun readLine(): String {
-        if (!isConnected()) return ""
         return readUntil { it == '\n' }
     }
 
     // Writing
     override fun write(str: String) {
         if (!isConnected()) return
-        output?.write(str.toByteArray())
-        output?.flush()
+        output?.write(str)
     }
 
     override fun write(bytes: ByteArray) {
         if (!isConnected()) return
-        output?.write(bytes)
-        output?.flush()
+        output?.writeAll(bytes)
     }
 
     override fun write(byte: Byte) {
         if (!isConnected()) return
-        output?.write(byte.toInt())
-        output?.flush()
+        output?.write(byte)
     }
 
     override fun getInputStream(): InputStream? {
