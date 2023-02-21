@@ -8,6 +8,7 @@ import androidx.annotation.ColorInt
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
+import com.kylecorry.andromeda.core.bitmap.BitmapUtils.crop
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
@@ -139,14 +140,13 @@ object BitmapUtils {
         }
     }
 
-    // https://stackoverflow.com/questions/13161628/cropping-a-perspective-transformation-of-image-on-android
     fun Bitmap.fixPerspective(
         topLeft: PixelCoordinate,
         topRight: PixelCoordinate,
         bottomLeft: PixelCoordinate,
-        bottomRight: PixelCoordinate
+        bottomRight: PixelCoordinate,
+        shouldRecycleOriginal: Boolean = false
     ): Bitmap {
-        // TODO: Do this in a way which doesn't reduce the size of the source bitmap - maybe just save the transformations and apply them later (this would allow for recalibration)
         val top = topLeft.distanceTo(topRight)
         val bottom = bottomLeft.distanceTo(bottomRight)
         val newWidth = (top + bottom) / 2f
@@ -176,35 +176,47 @@ object BitmapUtils {
 
         val mappedTL = floatArrayOf(0f, 0f)
         matrix.mapPoints(mappedTL)
-        val maptlx = mappedTL[0].roundToInt()
-        val maptly = mappedTL[1].roundToInt()
+        val maptlx = mappedTL[0]
+        val maptly = mappedTL[1]
 
         val mappedTR = floatArrayOf(width.toFloat(), 0f)
         matrix.mapPoints(mappedTR)
-        val maptry = mappedTR[1].roundToInt()
+        val maptry = mappedTR[1]
 
         val mappedLL = floatArrayOf(0f, height.toFloat())
         matrix.mapPoints(mappedLL)
-        val mapllx = mappedLL[0].roundToInt()
+        val mapllx = mappedLL[0]
 
         val shiftX = max(-maptlx, -mapllx)
         val shiftY = max(-maptry, -maptly)
 
+        // Maybe crop to the points before transforming to save memory
+
         val resultBitmap: Bitmap =
             Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-        val newBitmap = Bitmap.createBitmap(
-            resultBitmap,
-            shiftX,
-            shiftY,
-            newWidth.toInt(),
-            newHeight.toInt(),
-            null,
-            true
-        )
-        if (resultBitmap != newBitmap) {
+
+        if (shouldRecycleOriginal && resultBitmap != this) {
+            this.recycle()
+        }
+
+        val cropped = resultBitmap.crop(shiftX, shiftY, newWidth, newHeight)
+
+        if (resultBitmap != cropped) {
             resultBitmap.recycle()
         }
-        return newBitmap
+        return cropped
+    }
+
+    fun Bitmap.crop(x: Float, y: Float, width: Float, height: Float): Bitmap {
+        // Create an empty mutable bitmap
+        val blank = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+        // Create a canvas to draw on
+        val canvas = Canvas(blank)
+
+        // Draw the source bitmap onto the canvas
+        canvas.drawBitmap(this, -x, -y, null)
+
+        return blank
     }
 
     fun Bitmap.quantize(bins: Int): Bitmap {
