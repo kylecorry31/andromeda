@@ -139,7 +139,7 @@ object BitmapUtils {
         }
     }
 
-    fun Bitmap.fixPerspective(
+    fun Bitmap.fixPerspective2(
         topLeft: PixelCoordinate,
         topRight: PixelCoordinate,
         bottomLeft: PixelCoordinate,
@@ -174,37 +174,25 @@ object BitmapUtils {
             4
         )
 
-        val mappedTL = floatArrayOf(0f, 0f)
-        matrix.mapPoints(mappedTL)
-        val maptlx = mappedTL[0]
-        val maptly = mappedTL[1]
+        // Create an empty mutable bitmap
+        val blank = Bitmap.createBitmap(newWidth.toInt(), newHeight.toInt(), Bitmap.Config.ARGB_8888)
+        // Create a canvas to draw on
+        val canvas = Canvas(blank)
 
-        val mappedTR = floatArrayOf(width.toFloat(), 0f)
-        matrix.mapPoints(mappedTR)
-        val maptry = mappedTR[1]
+        if (backgroundColor != null) {
+            canvas.drawColor(backgroundColor)
+        }
 
-        val mappedLL = floatArrayOf(0f, height.toFloat())
-        matrix.mapPoints(mappedLL)
-        val mapllx = mappedLL[0]
+        // Apply matrix to canvas
+        canvas.concat(matrix)
 
-        val shiftX = max(-maptlx, -mapllx)
-        val shiftY = max(-maptry, -maptly)
+        canvas.drawBitmap(this, 0f, 0f, null)
 
-        // Maybe crop to the points before transforming to save memory
-
-        val resultBitmap: Bitmap =
-            Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-
-        if (shouldRecycleOriginal && resultBitmap != this) {
+        if (shouldRecycleOriginal) {
             this.recycle()
         }
 
-        val cropped = resultBitmap.crop(shiftX, shiftY, newWidth, newHeight, backgroundColor)
-
-        if (resultBitmap != cropped) {
-            resultBitmap.recycle()
-        }
-        return cropped
+        return blank
     }
 
     fun Bitmap.crop(
