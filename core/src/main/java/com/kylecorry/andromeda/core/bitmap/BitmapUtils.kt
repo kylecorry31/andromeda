@@ -139,7 +139,7 @@ object BitmapUtils {
         }
     }
 
-    fun Bitmap.fixPerspective2(
+    fun Bitmap.fixPerspective(
         topLeft: PixelCoordinate,
         topRight: PixelCoordinate,
         bottomLeft: PixelCoordinate,
@@ -175,7 +175,7 @@ object BitmapUtils {
         )
 
         // Create an empty mutable bitmap
-        val blank = Bitmap.createBitmap(newWidth.toInt(), newHeight.toInt(), Bitmap.Config.ARGB_8888)
+        val blank = Bitmap.createBitmap(newWidth.toInt(), newHeight.toInt(), config)
         // Create a canvas to draw on
         val canvas = Canvas(blank)
 
