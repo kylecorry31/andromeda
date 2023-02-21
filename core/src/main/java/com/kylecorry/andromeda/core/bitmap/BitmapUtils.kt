@@ -8,7 +8,6 @@ import androidx.annotation.ColorInt
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
-import com.kylecorry.andromeda.core.bitmap.BitmapUtils.crop
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
@@ -145,7 +144,8 @@ object BitmapUtils {
         topRight: PixelCoordinate,
         bottomLeft: PixelCoordinate,
         bottomRight: PixelCoordinate,
-        shouldRecycleOriginal: Boolean = false
+        shouldRecycleOriginal: Boolean = false,
+        @ColorInt backgroundColor: Int? = null
     ): Bitmap {
         val top = topLeft.distanceTo(topRight)
         val bottom = bottomLeft.distanceTo(bottomRight)
@@ -199,7 +199,7 @@ object BitmapUtils {
             this.recycle()
         }
 
-        val cropped = resultBitmap.crop(shiftX, shiftY, newWidth, newHeight)
+        val cropped = resultBitmap.crop(shiftX, shiftY, newWidth, newHeight, backgroundColor)
 
         if (resultBitmap != cropped) {
             resultBitmap.recycle()
@@ -207,11 +207,21 @@ object BitmapUtils {
         return cropped
     }
 
-    fun Bitmap.crop(x: Float, y: Float, width: Float, height: Float): Bitmap {
+    fun Bitmap.crop(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        @ColorInt backgroundColor: Int? = null
+    ): Bitmap {
         // Create an empty mutable bitmap
         val blank = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
         // Create a canvas to draw on
         val canvas = Canvas(blank)
+
+        if (backgroundColor != null) {
+            canvas.drawColor(backgroundColor)
+        }
 
         // Draw the source bitmap onto the canvas
         canvas.drawBitmap(this, -x, -y, null)
