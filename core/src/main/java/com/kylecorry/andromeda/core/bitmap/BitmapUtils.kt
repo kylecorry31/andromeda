@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.core.bitmap
 import android.graphics.*
 import android.graphics.ImageFormat.YUV_420_888
 import android.media.Image
+import android.util.Size
 import androidx.annotation.ColorInt
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
@@ -19,7 +20,7 @@ object BitmapUtils {
         path: String,
         maxWidth: Int,
         maxHeight: Int
-    ): Bitmap {
+    ): Bitmap? {
         return BitmapFactory.Options().run {
             inJustDecodeBounds = true
             BitmapFactory.decodeFile(path, this)
@@ -29,13 +30,18 @@ object BitmapUtils {
         }
     }
 
-    fun getBitmapSize(path: String): Pair<Int, Int> {
+    fun getBitmapSize(path: String): Size? {
         val opts = BitmapFactory.Options().run {
             inJustDecodeBounds = true
             BitmapFactory.decodeFile(path, this)
             this
         }
-        return Pair(opts.outWidth, opts.outHeight)
+        val width = opts.outWidth
+        val height = opts.outHeight
+
+        if (width == -1 || height == -1) return null
+
+        return Size(width, height)
     }
 
     private fun calculateInSampleSize(
