@@ -8,6 +8,7 @@ import com.kylecorry.andromeda.core.toDoubleCompat
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.sol.units.Coordinate
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
@@ -134,5 +135,14 @@ class Preferences(context: Context) : IPreferences {
     override fun getInstant(key: String): Instant? {
         val time = getLong(key) ?: return null
         return Instant.ofEpochMilli(time)
+    }
+
+    override fun putDuration(key: String, duration: Duration) {
+        putLong(key, duration.toMillis())
+    }
+
+    override fun getDuration(key: String): Duration? {
+        val millis = getLong(key) ?: return null
+        return Duration.ofMillis(millis)
     }
 }

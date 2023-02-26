@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.preferences
 
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.sol.units.Coordinate
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
@@ -27,4 +28,6 @@ interface IPreferences {
     fun putLocalDate(key: String, date: LocalDate)
     fun putInstant(key: String, value: Instant)
     fun getInstant(key: String): Instant?
+    fun getDuration(key: String): Duration?
+    fun putDuration(key: String, duration: Duration)
 }

@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.preferences
 
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.sol.units.Coordinate
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
@@ -12,19 +13,25 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
 
     init {
         preferences.onChange.subscribe {
-            println(it)
-            cache.remove(it)
+            synchronized(cache) {
+                cache.remove(it)
+            }
             true
         }
     }
 
     override fun remove(key: String) {
+        synchronized(cache) {
+            cache.remove(key)
+        }
         preferences.remove(key)
-        cache.remove(key)
     }
 
     override fun contains(key: String): Boolean {
-        return cache.contains(key) || preferences.contains(key)
+        val cached = synchronized(cache) {
+            cache.containsKey(key)
+        }
+        return cached || preferences.contains(key)
     }
 
     override fun putInt(key: String, value: Int) {
@@ -99,19 +106,33 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
         return get(key, preferences::getInstant)
     }
 
+    override fun getDuration(key: String): Duration? {
+        return get(key, preferences::getDuration)
+    }
+
+    override fun putDuration(key: String, duration: Duration) {
+        put(key, duration, preferences::putDuration)
+    }
+
     private fun <T> put(key: String, value: T, setter: (String, T) -> Unit) {
+        synchronized(cache) {
+            cache[key] = value
+        }
         setter(key, value)
-        cache[key] = value
     }
 
     private fun <T> get(key: String, getter: (String) -> T?): T? {
-        if (cache.contains(key)) {
-            return cache[key] as T?
+        synchronized(cache) {
+            if (cache.contains(key)) {
+                return cache[key] as T?
+            }
         }
 
         val value = getter(key)
         if (value != null) {
-            cache[key] = value
+            synchronized(cache) {
+                cache[key] = value
+            }
         }
         return value
     }
