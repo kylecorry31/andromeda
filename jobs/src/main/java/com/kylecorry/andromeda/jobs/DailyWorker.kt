@@ -7,6 +7,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.kylecorry.andromeda.core.system.Wakelocks
 import com.kylecorry.andromeda.core.tryOrDefault
+import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.preferences.Preferences
 import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
@@ -18,7 +19,8 @@ abstract class DailyWorker(
     context: Context,
     params: WorkerParameters,
     private val tolerance: Duration = Duration.ofMinutes(30),
-    private val wakelockDuration: Duration? = null
+    private val wakelockDuration: Duration? = null,
+    private val getPreferences: (Context) -> IPreferences = { Preferences(it) }
 ) : CoroutineWorker(context, params) {
 
     private val lock = Object()
@@ -40,7 +42,7 @@ abstract class DailyWorker(
 
             val jobState = synchronized(lock) {
                 val now = LocalDateTime.now()
-                val cache = Preferences(context)
+                val cache = getPreferences(context)
                 val lastRun = cache.getLocalDate(getLastRunKey(context))
                 val shouldSend = isEnabled(context) && lastRun != now.toLocalDate()
 

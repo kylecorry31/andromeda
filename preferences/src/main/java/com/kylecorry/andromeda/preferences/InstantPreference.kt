@@ -4,7 +4,7 @@ import java.time.Instant
 import kotlin.reflect.KProperty
 
 class InstantPreference(
-    private val preferences: Preferences,
+    private val preferences: IPreferences,
     private val name: String,
     private val defaultValue: Instant
 ) {

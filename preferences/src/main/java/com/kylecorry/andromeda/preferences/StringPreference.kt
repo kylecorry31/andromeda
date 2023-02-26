@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.preferences
 import kotlin.reflect.KProperty
 
 class StringPreference(
-    private val preferences: Preferences,
+    private val preferences: IPreferences,
     private val name: String,
     private val defaultValue: String
 ) {

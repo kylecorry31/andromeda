@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.preferences.Preferences
 import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
@@ -14,7 +15,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 abstract class DailyJobReceiver(
-    private val tolerance: Duration = Duration.ofMinutes(30)
+    private val tolerance: Duration = Duration.ofMinutes(30),
+    private val getPreferences: (Context) -> IPreferences = { Preferences(it) }
 ) : BroadcastReceiver() {
 
     private val lock = Object()
@@ -22,7 +24,7 @@ abstract class DailyJobReceiver(
     override fun onReceive(context: Context, intent: Intent?) {
         synchronized(lock) {
             val now = LocalDateTime.now()
-            val cache = Preferences(context)
+            val cache = getPreferences(context)
             val lastRun = cache.getLocalDate(getLastRunKey(context))
             val shouldSend = isEnabled(context) && lastRun != now.toLocalDate()
 

@@ -4,7 +4,7 @@ import java.time.LocalDate
 import kotlin.reflect.KProperty
 
 class LocalDatePreference(
-    private val preferences: Preferences,
+    private val preferences: IPreferences,
     private val name: String,
     private val defaultValue: LocalDate
 ) {

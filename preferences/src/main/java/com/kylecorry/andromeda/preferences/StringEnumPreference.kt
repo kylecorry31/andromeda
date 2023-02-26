@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.preferences
 import kotlin.reflect.KProperty
 
 class StringEnumPreference<T>(
-    private val preferences: Preferences,
+    private val preferences: IPreferences,
     private val name: String,
     private val mappings: Map<String, T>,
     private val defaultValue: T

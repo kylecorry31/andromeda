@@ -4,7 +4,7 @@ import com.kylecorry.sol.units.Coordinate
 import kotlin.reflect.KProperty
 
 class CoordinatePreference(
-    private val preferences: Preferences,
+    private val preferences: IPreferences,
     private val name: String,
     private val defaultValue: Coordinate
 ) {
