@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.print.PrintHelper
-import com.kylecorry.andromeda.core.coroutines.makeSuspend
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.UUID
 import kotlin.coroutines.resume
 
@@ -45,19 +45,15 @@ class Printer(context: Context) {
         return jobName
     }
 
-    suspend fun print(uri: Uri): String {
-        return makeSuspend<String> { cont ->
-            print(uri) {
-                cont.resume(it)
-            }
+    suspend fun print(uri: Uri): String = suspendCancellableCoroutine { cont ->
+        print(uri) {
+            cont.resume(it)
         }
     }
 
-    suspend fun print(bitmap: Bitmap): String {
-        return makeSuspend<String> { cont ->
-            print(bitmap) {
-                cont.resume(it)
-            }
+    suspend fun print(bitmap: Bitmap): String = suspendCancellableCoroutine { cont ->
+        print(bitmap) {
+            cont.resume(it)
         }
     }
 

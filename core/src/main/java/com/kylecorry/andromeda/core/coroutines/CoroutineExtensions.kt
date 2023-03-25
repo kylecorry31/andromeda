@@ -2,16 +2,6 @@ package com.kylecorry.andromeda.core.coroutines
 
 import kotlinx.coroutines.*
 
-suspend inline fun <T> makeSuspend(crossinline action: (TypedContinuationWrapper<T>) -> Unit): T =
-    suspendCancellableCoroutine {
-        action(TypedContinuationWrapper(it))
-    }
-
-suspend inline fun makeSuspend(crossinline action: (ContinuationWrapper) -> Unit) =
-    suspendCancellableCoroutine {
-        action(ContinuationWrapper(it))
-    }
-
 suspend fun <T> onMain(block: suspend CoroutineScope.() -> T): T =
     withContext(Dispatchers.Main, block)
 
