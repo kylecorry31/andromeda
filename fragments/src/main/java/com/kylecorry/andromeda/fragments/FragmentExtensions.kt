@@ -9,13 +9,9 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import androidx.lifecycle.*
 import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.DynamicColorsOptions
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 fun Fragment.switchToFragment(
@@ -57,14 +53,50 @@ fun Application.useDynamicColors() {
     DynamicColors.applyToActivitiesIfAvailable(this)
 }
 
-fun LifecycleOwner.inBackground(
+inline fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
-    block: suspend CoroutineScope.() -> Unit
+    cancelWhenBelowState: Boolean = true,
+    throwOnDestroy: Boolean = false,
+    crossinline block: () -> Unit
 ) {
-    when (state) {
-        BackgroundMinimumState.Resumed -> lifecycleScope.launchWhenResumed(block)
-        BackgroundMinimumState.Started -> lifecycleScope.launchWhenStarted(block)
-        BackgroundMinimumState.Created -> lifecycleScope.launchWhenCreated(block)
-        BackgroundMinimumState.Any -> lifecycleScope.launch { block() }
+    val minimumState = when (state) {
+        BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
+        BackgroundMinimumState.Started -> Lifecycle.State.STARTED
+        BackgroundMinimumState.Created -> Lifecycle.State.CREATED
+        BackgroundMinimumState.Any -> Lifecycle.State.INITIALIZED
+    }
+
+    lifecycleScope.launch {
+        waitUntilState(minimumState, true, throwOnDestroy) {
+            if (cancelWhenBelowState) {
+                block()
+            }
+        }
+
+        if (!cancelWhenBelowState) {
+            block()
+        }
+    }
+}
+
+suspend inline fun <R> LifecycleOwner.waitUntilState(
+    state: Lifecycle.State,
+    unchecked: Boolean = false,
+    throwOnDestroy: Boolean = false,
+    crossinline block: () -> R
+): R? {
+    // The minimum state for withStateAtLeast is CREATED, or else it will throw
+    // If we are waiting for a state below CREATED, we should just run it if unchecked
+    if (unchecked && state < Lifecycle.State.CREATED) {
+        return block()
+    }
+
+    return try {
+        withStateAtLeast(state, block)
+    } catch (e: LifecycleDestroyedException) {
+        if (throwOnDestroy) {
+            throw e
+        }
+        null
     }
 }
