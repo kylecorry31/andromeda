@@ -12,6 +12,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.*
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 fun Fragment.switchToFragment(
@@ -57,7 +58,7 @@ inline fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     throwOnDestroy: Boolean = false,
-    crossinline block: () -> Unit
+    crossinline block: CoroutineScope.() -> Unit
 ) {
     val minimumState = when (state) {
         BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
