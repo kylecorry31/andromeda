@@ -54,11 +54,11 @@ fun Application.useDynamicColors() {
     DynamicColors.applyToActivitiesIfAvailable(this)
 }
 
-inline fun LifecycleOwner.inBackground(
+fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     throwOnDestroy: Boolean = false,
-    crossinline block: CoroutineScope.() -> Unit
+    block: suspend CoroutineScope.() -> Unit
 ) {
     val minimumState = when (state) {
         BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
@@ -68,9 +68,10 @@ inline fun LifecycleOwner.inBackground(
     }
 
     lifecycleScope.launch {
+        val scope = this
         waitUntilState(minimumState, true, throwOnDestroy) {
             if (cancelWhenBelowState) {
-                block()
+                block(scope)
             }
         }
 
@@ -80,24 +81,28 @@ inline fun LifecycleOwner.inBackground(
     }
 }
 
-suspend inline fun <R> LifecycleOwner.waitUntilState(
+suspend inline fun LifecycleOwner.waitUntilState(
     state: Lifecycle.State,
     unchecked: Boolean = false,
     throwOnDestroy: Boolean = false,
-    crossinline block: () -> R
-): R? {
+    crossinline block: suspend () -> Unit
+) {
     // The minimum state for withStateAtLeast is CREATED, or else it will throw
     // If we are waiting for a state below CREATED, we should just run it if unchecked
     if (unchecked && state < Lifecycle.State.CREATED) {
         return block()
     }
 
-    return try {
-        withStateAtLeast(state, block)
+    try {
+        withStateAtLeast(state) {
+            // I'm not sure why this can't run a suspend function - maybe they'll change it in the future or provide more documentation
+            lifecycleScope.launch {
+                block()
+            }
+        }
     } catch (e: LifecycleDestroyedException) {
         if (throwOnDestroy) {
             throw e
         }
-        null
     }
 }
