@@ -23,9 +23,9 @@ class SlugifyTest {
         ", ",
         "áéíóů, aeiou",
     )
-    fun testSlugify(input: String, expected: String) {
-        val actual = input.slugify()
-        assertEquals(expected, actual)
+    fun testSlugify(input: String?, expected: String?) {
+        val actual = input.orEmpty().slugify()
+        assertEquals(expected.orEmpty(), actual)
     }
 
 }
