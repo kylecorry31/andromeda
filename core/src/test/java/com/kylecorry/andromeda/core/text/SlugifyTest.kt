@@ -15,7 +15,13 @@ class SlugifyTest {
         "test 123, test-123",
         "test 123 test, test-123-test",
         "test'something, testsomething",
-        "Hello World! é, hello-world-e"
+        "Hello World! é, hello-world-e",
+        "he?llo world, hello-world",
+        "HELLO WORLD, hello-world",
+        "  hello    world  , hello-world",
+        "?, ",
+        ", ",
+        "áéíóů, aeiou",
     )
     fun testSlugify(input: String, expected: String) {
         val actual = input.slugify()
