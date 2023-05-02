@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.compass
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors
@@ -9,16 +10,25 @@ import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.math.SolMath.deltaAngle
+import com.kylecorry.sol.math.SolMath.toDegrees
 import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
 import kotlin.math.min
 
+/**
+ * A compass that is independent of device orientation
+ * @param context the context
+ * @param useTrueNorth true to use true north, false to use magnetic north
+ * @param filter the filter to use to smooth the bearing
+ * @param useRotationMatrix true to use Android's rotation matrix approach, false to use a custom vector approach
+ */
 class GravityCompensatedCompass(
     context: Context,
     private val useTrueNorth: Boolean,
-    private val filter: IFilter = MovingAverageFilter(1)
+    private val filter: IFilter = MovingAverageFilter(1),
+    private val useRotationMatrix: Boolean = false
 ) :
     AbstractSensor(), ICompass {
 
@@ -59,6 +69,11 @@ class GravityCompensatedCompass(
     private var gotMag = false
     private var gotAccel = false
 
+    private val rotationMatrix = FloatArray(9)
+    private val inclinationMatrix = FloatArray(9)
+    private val orientationAngles = FloatArray(3)
+    private val remappedMatrix = FloatArray(9)
+
     private fun updateBearing(newBearing: Float) {
         _bearing += deltaAngle(_bearing, newBearing)
         _filteredBearing = filter.filter(_bearing)
@@ -70,17 +85,41 @@ class GravityCompensatedCompass(
             return true
         }
 
-        val newBearing = Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
-
         val accelAccuracy = accelerometer.quality
         val magAccuracy = magnetometer.quality
         _quality = Quality.values()[min(accelAccuracy.ordinal, magAccuracy.ordinal)]
 
-        updateBearing(newBearing.value)
+        updateBearing(calculateBearing().value)
         gotReading = true
         notifyListeners()
         return true
     }
+
+    private fun calculateBearing(): Bearing {
+
+        if (!useRotationMatrix) {
+            return Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
+        }
+
+        SensorManager.getRotationMatrix(
+            rotationMatrix,
+            inclinationMatrix,
+            accelerometer.rawAcceleration,
+            magnetometer.rawMagneticField
+        )
+        SensorManager.remapCoordinateSystem(
+            rotationMatrix,
+            SensorManager.AXIS_Y,
+            SensorManager.AXIS_MINUS_X,
+            remappedMatrix
+        )
+        SensorManager.getOrientation(remappedMatrix, orientationAngles)
+
+        val azimuth = orientationAngles[0].toDegrees() - 90
+
+        return Bearing(azimuth)
+    }
+
 
     private fun updateAccel(): Boolean {
         gotAccel = true
