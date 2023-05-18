@@ -22,13 +22,11 @@ import kotlin.math.min
  * @param context the context
  * @param useTrueNorth true to use true north, false to use magnetic north
  * @param filter the filter to use to smooth the bearing
- * @param useRotationMatrix true to use Android's rotation matrix approach, false to use a custom vector approach
  */
 class GravityCompensatedCompass(
     context: Context,
     private val useTrueNorth: Boolean,
-    private val filter: IFilter = MovingAverageFilter(1),
-    private val useRotationMatrix: Boolean = false
+    private val filter: IFilter = MovingAverageFilter(1)
 ) :
     AbstractSensor(), ICompass {
 
@@ -69,11 +67,6 @@ class GravityCompensatedCompass(
     private var gotMag = false
     private var gotAccel = false
 
-    private val rotationMatrix = FloatArray(9)
-    private val inclinationMatrix = FloatArray(9)
-    private val orientationAngles = FloatArray(3)
-    private val remappedMatrix = FloatArray(9)
-
     private fun updateBearing(newBearing: Float) {
         _bearing += deltaAngle(_bearing, newBearing)
         _filteredBearing = filter.filter(_bearing)
@@ -96,28 +89,7 @@ class GravityCompensatedCompass(
     }
 
     private fun calculateBearing(): Bearing {
-
-        if (!useRotationMatrix) {
-            return Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
-        }
-
-        SensorManager.getRotationMatrix(
-            rotationMatrix,
-            inclinationMatrix,
-            accelerometer.rawAcceleration,
-            magnetometer.rawMagneticField
-        )
-        SensorManager.remapCoordinateSystem(
-            rotationMatrix,
-            SensorManager.AXIS_Y,
-            SensorManager.AXIS_MINUS_X,
-            remappedMatrix
-        )
-        SensorManager.getOrientation(remappedMatrix, orientationAngles)
-
-        val azimuth = orientationAngles[0].toDegrees() - 90
-
-        return Bearing(azimuth)
+        return Geology.getAzimuth(accelerometer.acceleration, magnetometer.magneticField)
     }
 
 
