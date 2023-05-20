@@ -55,9 +55,9 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
-    implementation 'androidx.core:core-ktx:1.10.0'
+    implementation "androidx.core:core-ktx:${coreKtxVersion}"
     implementation "com.github.kylecorry31.sol:science:${solVersion}"
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.platform:junit-platform-runner:1.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'

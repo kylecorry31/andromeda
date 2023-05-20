@@ -60,8 +60,8 @@ afterEvaluate {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.10.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "androidx.core:core-ktx:${coreKtxVersion}"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}"
     implementation 'androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.1'
     implementation 'com.github.kylecorry31:renderscript-intrinsics-replacement-toolkit:0.8'
     api "com.github.kylecorry31.sol:units:${solVersion}"
@@ -69,7 +69,7 @@ dependencies {
     api "com.github.kylecorry31.sol:time:${solVersion}"
     implementation 'com.github.kylecorry31:Geo-Coordinate-Conversion-Java:master'
     implementation 'com.github.kylecorry31:osgb:v1.0.4'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.platform:junit-platform-runner:1.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
