@@ -8,11 +8,18 @@ internal class OrientationCalculator {
     private val rotationMatrix = FloatArray(9)
     private val remappedRotationMatrix = FloatArray(9)
     private val orientation = FloatArray(3)
+    private val sensorValues = FloatArray(4)
 
     fun getAzimuth(rotation: FloatArray): Float = synchronized(this) {
-        if (rotation.size != 9) {
+        if (rotation.size < 9) {
             // It is a rotation vector
-            SensorManager.getRotationMatrixFromVector(rotationMatrix, rotation)
+            try {
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, rotation)
+            } catch (e: IllegalArgumentException) {
+                // https://groups.google.com/g/android-developers/c/U3N9eL5BcJk - though this should be fixed by now
+                System.arraycopy(rotation, 0, sensorValues, 0, 4)
+                SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorValues)
+            }
             return getAzimuth(rotationMatrix)
         }
 
