@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.sense.compass
 
 import android.content.Context
-import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors
@@ -9,10 +8,6 @@ import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
-import com.kylecorry.sol.math.SolMath.deltaAngle
-import com.kylecorry.sol.math.SolMath.toDegrees
-import com.kylecorry.sol.math.filters.IFilter
-import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
 import kotlin.math.min
@@ -21,12 +16,10 @@ import kotlin.math.min
  * A compass that is independent of device orientation
  * @param context the context
  * @param useTrueNorth true to use true north, false to use magnetic north
- * @param filter the filter to use to smooth the bearing
  */
 class GravityCompensatedCompass(
     context: Context,
-    private val useTrueNorth: Boolean,
-    private val filter: IFilter = MovingAverageFilter(1)
+    private val useTrueNorth: Boolean
 ) :
     AbstractSensor(), ICompass {
 
@@ -47,30 +40,24 @@ class GravityCompensatedCompass(
     override val bearing: Bearing
         get() {
             return if (useTrueNorth) {
-                Bearing(_filteredBearing).withDeclination(declination)
+                Bearing(_bearing).withDeclination(declination)
             } else {
-                Bearing(_filteredBearing)
+                Bearing(_bearing)
             }
         }
     override val rawBearing: Float
         get() {
             return if (useTrueNorth) {
-                Bearing.getBearing(Bearing.getBearing(_filteredBearing) + declination)
+                Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
             } else {
-                Bearing.getBearing(_filteredBearing)
+                Bearing.getBearing(_bearing)
             }
         }
 
     private var _bearing = 0f
-    private var _filteredBearing = 0f
 
     private var gotMag = false
     private var gotAccel = false
-
-    private fun updateBearing(newBearing: Float) {
-        _bearing += deltaAngle(_bearing, newBearing)
-        _filteredBearing = filter.filter(_bearing)
-    }
 
     private fun updateSensor(): Boolean {
 
@@ -82,7 +69,7 @@ class GravityCompensatedCompass(
         val magAccuracy = magnetometer.quality
         _quality = Quality.values()[min(accelAccuracy.ordinal, magAccuracy.ordinal)]
 
-        updateBearing(calculateBearing().value)
+        _bearing = calculateBearing().value
         gotReading = true
         notifyListeners()
         return true
