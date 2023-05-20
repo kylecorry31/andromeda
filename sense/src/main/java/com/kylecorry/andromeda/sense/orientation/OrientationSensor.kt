@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors
@@ -11,10 +12,7 @@ import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
-import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.SolMath.toDegrees
-import com.kylecorry.sol.math.filters.IFilter
-import com.kylecorry.sol.math.filters.MovingAverageFilter
 import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
 import kotlin.math.atan2
@@ -25,7 +23,7 @@ import kotlin.math.sqrt
 class OrientationSensor(
     context: Context,
     private val useTrueNorth: Boolean,
-    private val filter: IFilter = MovingAverageFilter(1)
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
 ) :
     AbstractSensor(), IOrientationSensor, ICompass {
 
@@ -52,31 +50,30 @@ class OrientationSensor(
     override val bearing: Bearing
         get() {
             return if (useTrueNorth) {
-                Bearing(_filteredBearing).withDeclination(declination)
+                Bearing(_bearing).withDeclination(declination)
             } else {
-                Bearing(_filteredBearing)
+                Bearing(_bearing)
             }
         }
 
     override val rawBearing: Float
         get() {
             return if (useTrueNorth) {
-                Bearing.getBearing(Bearing.getBearing(_filteredBearing) + declination)
+                Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
             } else {
-                Bearing.getBearing(_filteredBearing)
+                Bearing.getBearing(_bearing)
             }
         }
 
     private var _bearing = 0f
-    private var _filteredBearing = 0f
 
     private val _quaternion = Quaternion.zero.toFloatArray()
 
     private var _quality = Quality.Unknown
 
     private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
-    private val magnetometer = LowPassMagnetometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(context, sensorDelay) else LowPassAccelerometer(context, sensorDelay)
+    private val magnetometer = LowPassMagnetometer(context, sensorDelay)
 
     private fun updateSensor(): Boolean {
 
@@ -91,7 +88,7 @@ class OrientationSensor(
 
         synchronized(lock) {
             QuaternionMath.fromEuler(floatArrayOf(roll, pitch, yaw), _quaternion)
-            updateBearing(yaw)
+            _bearing = yaw
         }
 
         val accelAccuracy = accelerometer.quality
@@ -101,11 +98,6 @@ class OrientationSensor(
         gotReading = true
         notifyListeners()
         return true
-    }
-
-    private fun updateBearing(newBearing: Float) {
-        _bearing += deltaAngle(_bearing, newBearing)
-        _filteredBearing = filter.filter(_bearing)
     }
 
     override fun startImpl() {

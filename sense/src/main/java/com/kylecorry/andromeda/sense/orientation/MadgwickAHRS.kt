@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
+import android.hardware.SensorManager
 import android.os.SystemClock
 import com.kylecorry.andromeda.core.math.*
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
@@ -18,18 +19,19 @@ class MadgwickAHRS(
     gain: Float = 2f,
     private val accelerometer: IAccelerometer? = null,
     private val gyro: IGyroscope? = null,
-    private val magnetometer: IMagnetometer? = null
+    private val magnetometer: IMagnetometer? = null,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
 ) : AbstractSensor(),
     IOrientationSensor {
 
     private val _orientation = Quaternion.zero.toFloatArray()
 
     private val _accelerometer: IAccelerometer by lazy {
-        accelerometer ?: LowPassAccelerometer(context)
+        accelerometer ?: LowPassAccelerometer(context, sensorDelay)
     }
-    private val _gyro by lazy { gyro ?: Gyroscope(context) }
+    private val _gyro by lazy { gyro ?: Gyroscope(context, sensorDelay) }
     private val _magnetometer: IMagnetometer by lazy {
-        magnetometer ?: LowPassMagnetometer(context)
+        magnetometer ?: LowPassMagnetometer(context, sensorDelay)
     }
 
     private val lock = Object()

@@ -7,8 +7,8 @@ import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 
-abstract class BaseRotationSensor(context: Context, type: Int) :
-    BaseSensor(context, type, SensorManager.SENSOR_DELAY_FASTEST),
+abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int) :
+    BaseSensor(context, type, sensorDelay),
     IOrientationSensor {
 
     private val lock = Object()

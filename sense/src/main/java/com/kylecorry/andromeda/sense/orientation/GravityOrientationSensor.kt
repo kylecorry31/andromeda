@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.SolMath.toDegrees
@@ -14,7 +15,7 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 // Algorithm from https://www.digikey.com/en/articles/using-an-accelerometer-for-inclination-sensing
-class GravityOrientationSensor(context: Context) : AbstractSensor(), IOrientationSensor {
+class GravityOrientationSensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) : AbstractSensor(), IOrientationSensor {
 
     override val hasValidReading: Boolean
         get() = gotReading
@@ -39,7 +40,7 @@ class GravityOrientationSensor(context: Context) : AbstractSensor(), IOrientatio
     private var _quality = Quality.Unknown
 
     private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(context, sensorDelay) else LowPassAccelerometer(context, sensorDelay)
 
     private fun updateSensor(): Boolean {
 

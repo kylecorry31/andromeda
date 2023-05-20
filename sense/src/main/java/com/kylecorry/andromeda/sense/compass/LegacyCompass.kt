@@ -12,9 +12,10 @@ import kotlin.math.floor
 @Suppress("DEPRECATION")
 class LegacyCompass(
     context: Context,
-    private val useTrueNorth: Boolean
+    private val useTrueNorth: Boolean,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
 ) :
-    BaseSensor(context, Sensor.TYPE_ORIENTATION, SensorManager.SENSOR_DELAY_FASTEST),
+    BaseSensor(context, Sensor.TYPE_ORIENTATION, sensorDelay),
     ICompass {
 
     override val hasValidReading: Boolean

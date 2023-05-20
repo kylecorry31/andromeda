@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.compass
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.Sensors
@@ -19,7 +20,8 @@ import kotlin.math.min
  */
 class GravityCompensatedCompass(
     context: Context,
-    private val useTrueNorth: Boolean
+    private val useTrueNorth: Boolean,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
 ) :
     AbstractSensor(), ICompass {
 
@@ -32,8 +34,11 @@ class GravityCompensatedCompass(
     private var _quality = Quality.Unknown
 
     private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(context) else LowPassAccelerometer(context)
-    private val magnetometer = LowPassMagnetometer(context)
+        if (Sensors.hasGravity(context)) GravitySensor(
+            context,
+            sensorDelay
+        ) else LowPassAccelerometer(context, sensorDelay)
+    private val magnetometer = LowPassMagnetometer(context, sensorDelay)
 
     override var declination = 0f
 

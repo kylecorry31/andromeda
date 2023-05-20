@@ -8,9 +8,10 @@ import com.kylecorry.sol.units.Bearing
 abstract class BaseWorldRotationSensor(
     context: Context,
     private val useTrueNorth: Boolean,
-    type: Int
+    type: Int,
+    sensorDelay: Int
 ) :
-    BaseRotationSensor(context, type), ICompass {
+    BaseRotationSensor(context, type, sensorDelay), ICompass {
 
     override val bearing: Bearing
         get() = Bearing(rawBearing)
