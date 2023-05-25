@@ -1,17 +1,23 @@
 package com.kylecorry.andromeda.core.bitmap
 
 import android.graphics.*
+import android.graphics.BitmapFactory.Options
 import android.graphics.ImageFormat.YUV_420_888
 import android.media.Image
 import android.util.Size
 import androidx.annotation.ColorInt
+import androidx.core.graphics.alpha
+import androidx.core.graphics.blue
+import androidx.core.graphics.get
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
-import kotlin.math.max
+import java.io.InputStream
 import kotlin.math.roundToInt
 
 object BitmapUtils {
@@ -27,6 +33,34 @@ object BitmapUtils {
             inSampleSize = calculateInSampleSize(this, maxWidth, maxHeight)
             inJustDecodeBounds = false
             BitmapFactory.decodeFile(path, this)
+        }
+    }
+
+    /**
+     * Decodes a region of a bitmap. If the region is odd, Android may not respect the size.
+     * @param stream The stream to decode
+     * @param region The region to decode
+     * @param options The options to use when decoding
+     * @param autoClose Whether to close the stream after decoding
+     */
+    fun decodeRegion(
+        stream: InputStream,
+        region: Rect,
+        options: Options? = null,
+        autoClose: Boolean = false
+    ): Bitmap? {
+        try {
+            val decoder = if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.R) {
+                BitmapRegionDecoder.newInstance(stream)
+            } else {
+                @Suppress("DEPRECATION")
+                BitmapRegionDecoder.newInstance(stream, false)
+            } ?: return null
+            return decoder.decodeRegion(region, options)
+        } finally {
+            if (autoClose) {
+                stream.close()
+            }
         }
     }
 
@@ -348,6 +382,60 @@ object BitmapUtils {
             ColorChannel.Blue -> Color.blue(this)
             ColorChannel.Alpha -> Color.alpha(this)
         }
+    }
+
+    @ColorInt
+    fun Bitmap.nearestPixel(x: Float, y: Float): Int? {
+        return nearestPixel(x.roundToInt(), y.roundToInt())
+    }
+
+    @ColorInt
+    fun Bitmap.nearestPixel(x: Int, y: Int): Int? {
+        val x1 = x.coerceIn(0, width - 1)
+        val y1 = y.coerceIn(0, height - 1)
+
+        if (!isInBounds(x1, y1)) {
+            return null
+        }
+
+        return this[x1, y1]
+    }
+
+    @ColorInt
+    fun Bitmap.interpolateBilinear(x: Float, y: Float): Int? {
+        val x1 = x.toInt()
+        val x2 = x1 + 1
+        val y1 = y.toInt()
+        val y2 = y1 + 1
+
+        if (!isInBounds(x1, y1) || !isInBounds(x2, y2)) {
+            return null
+        }
+
+        val x1y1 = this[x1, y1]
+        val x1y2 = this[x1, y2]
+        val x2y1 = this[x2, y1]
+        val x2y2 = this[x2, y2]
+
+        val x1y1Weight = (x2 - x) * (y2 - y)
+        val x1y2Weight = (x2 - x) * (y - y1)
+        val x2y1Weight = (x - x1) * (y2 - y)
+        val x2y2Weight = (x - x1) * (y - y1)
+
+        val red =
+            x1y1.red * x1y1Weight + x1y2.red * x1y2Weight + x2y1.red * x2y1Weight + x2y2.red * x2y2Weight
+        val green =
+            x1y1.green * x1y1Weight + x1y2.green * x1y2Weight + x2y1.green * x2y1Weight + x2y2.green * x2y2Weight
+        val blue =
+            x1y1.blue * x1y1Weight + x1y2.blue * x1y2Weight + x2y1.blue * x2y1Weight + x2y2.blue * x2y2Weight
+        val alpha =
+            x1y1.alpha * x1y1Weight + x1y2.alpha * x1y2Weight + x2y1.alpha * x2y1Weight + x2y2.alpha * x2y2Weight
+
+        return Color.argb(alpha.toInt(), red.toInt(), green.toInt(), blue.toInt())
+    }
+
+    fun Bitmap.isInBounds(x: Int, y: Int): Boolean {
+        return x in 0 until width && y in 0 until height
     }
 
 }
