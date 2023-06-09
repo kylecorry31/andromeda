@@ -59,7 +59,7 @@ afterEvaluate {
 
 dependencies {
     implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:1.9.0'
+    implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:1.9.1'
     testImplementation 'org.junit.platform:junit-platform-runner:1.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.9.2'
