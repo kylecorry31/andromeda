@@ -12,6 +12,7 @@ import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Android
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.tryOrLog
+import com.kylecorry.andromeda.core.tryOrNothing
 import kotlin.math.roundToInt
 
 class Torch(private val context: Context) : ITorch {
@@ -96,51 +97,37 @@ class Torch(private val context: Context) : ITorch {
             }
         }
 
-        fun isAvailable(context: Context): Boolean {
-            try {
+        /**
+         * Checks if the device has a flashlight
+         * @param context the context
+         * @param onlyCheckSystemFeature true to only check if the device has the system feature, false to check if the device has a rear camera with flash. Checking the system feature only is faster.
+         */
+        fun isAvailable(context: Context, onlyCheckSystemFeature: Boolean = false): Boolean {
+            tryOrNothing {
                 if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                     return false
                 }
-            } catch (e: Exception) {
-                // Could not check the package manager - do nothing
             }
 
-            try {
-                val cs = getCameraManager(context)
-                val rearCamera = getRearCameraId(context)
-                if (rearCamera == null || cs == null) {
-                    return false
-                }
+            if (onlyCheckSystemFeature) {
+                return true
+            }
 
-                val hasFlash = cs.getCameraCharacteristics(rearCamera)
-                    .get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
-                val facing = cs.getCameraCharacteristics(rearCamera)
-                    .get(CameraCharacteristics.LENS_FACING)
-
-                return hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK
-            } catch (e: Exception) {
-                return false
+            return tryOrDefault(false) {
+                getRearCameraId(context) != null
             }
         }
 
         private fun getRearCameraId(context: Context): String? {
-            try {
+            return tryOrDefault(null) {
                 val cs = getCameraManager(context)
-                val cameraList = cs?.cameraIdList
-                if (cameraList == null || cameraList.isEmpty()) return null
-                for (camera in cameraList) {
-                    val hasFlash = cs.getCameraCharacteristics(camera)
-                        .get(CameraCharacteristics.FLASH_INFO_AVAILABLE)
-                    val facing = cs.getCameraCharacteristics(camera)
-                        .get(CameraCharacteristics.LENS_FACING)
-                    if (hasFlash == true && facing == CameraMetadata.LENS_FACING_BACK) {
-                        return camera
-                    }
-
+                cs?.cameraIdList?.firstOrNull {
+                    val hasFlash = cs.getCameraCharacteristics(it)
+                        .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+                    val facingBack = cs.getCameraCharacteristics(it)
+                        .get(CameraCharacteristics.LENS_FACING) == CameraMetadata.LENS_FACING_BACK
+                    hasFlash && facingBack
                 }
-                return cameraList[0]
-            } catch (e: Exception) {
-                return null
             }
         }
     }
