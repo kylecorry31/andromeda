@@ -9,6 +9,8 @@ import android.os.Looper
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
+import com.kylecorry.andromeda.core.tryOrDefault
+import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.units.*
 import java.time.Duration
@@ -79,20 +81,18 @@ class GPS(
     private var _mslAltitude: Float? = null
 
     init {
-        try {
-            if (Permissions.canGetFineLocation(context)) {
+        tryOrNothing {
+            if (Permissions.canGetLocation(context)) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER),
                     false
                 )
             }
-        } catch (e: Exception) {
-            // Do nothing
         }
     }
 
     override fun startImpl() {
-        if (!Permissions.canGetFineLocation(context)) {
+        if (!Permissions.canGetLocation(context)) {
             return
         }
 
@@ -109,15 +109,17 @@ class GPS(
             Looper.getMainLooper()
         )
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            nmeaListener?.let {
-                locationManager?.addNmeaListener(it, Handler(Looper.getMainLooper()))
-            }
-        } else {
-            try {
-                @Suppress("DEPRECATION")
-                locationManager?.addNmeaListener(legacyNmeaListener)
-            } catch (e: Exception) {
+        // Can only get NMEA with fine location permission
+        if (Permissions.canGetFineLocation(context)) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                nmeaListener?.let {
+                    locationManager?.addNmeaListener(it, Handler(Looper.getMainLooper()))
+                }
+            } else {
+                tryOrNothing {
+                    @Suppress("DEPRECATION")
+                    locationManager?.addNmeaListener(legacyNmeaListener)
+                }
             }
         }
     }
@@ -184,17 +186,14 @@ class GPS(
 
     companion object {
         fun isAvailable(context: Context): Boolean {
-            if (!Permissions.canGetFineLocation(context)) {
+            if (!Permissions.canGetLocation(context)) {
                 return false
             }
 
             val lm = context.getSystemService<LocationManager>()
-            try {
+            return tryOrDefault(false) {
                 return lm?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
-            } catch (e: Exception) {
-                // Do nothing
             }
-            return false
         }
     }
 }

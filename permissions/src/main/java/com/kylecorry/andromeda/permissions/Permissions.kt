@@ -27,6 +27,10 @@ object Permissions {
         }
     }
 
+    fun canGetLocation(context: Context): Boolean {
+        return canGetFineLocation(context) || canGetCoarseLocation(context)
+    }
+
     fun canGetFineLocation(context: Context): Boolean {
         return hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
     }

@@ -8,6 +8,8 @@ import android.os.Looper
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
+import com.kylecorry.andromeda.core.tryOrDefault
+import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.units.*
 import java.time.Duration
@@ -65,20 +67,18 @@ class NetworkGPS(
     private var _mslAltitude: Float? = null
 
     init {
-        try {
-            if (Permissions.canGetCoarseLocation(context)) {
+        tryOrNothing {
+            if (Permissions.canGetLocation(context)) {
                 updateLastLocation(
                     locationManager?.getLastKnownLocation(LocationManager.NETWORK_PROVIDER),
                     false
                 )
             }
-        } catch (e: Exception) {
-            // Do nothing
         }
     }
 
     override fun startImpl() {
-        if (!Permissions.canGetCoarseLocation(context)) {
+        if (!Permissions.canGetLocation(context)) {
             return
         }
 
@@ -108,7 +108,8 @@ class NetworkGPS(
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
         _satellites =
-            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites") ?: 0) else 0
+            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites")
+                ?: 0) else 0
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {
@@ -151,17 +152,14 @@ class NetworkGPS(
 
     companion object {
         fun isAvailable(context: Context): Boolean {
-            if (!Permissions.canGetCoarseLocation(context)) {
+            if (!Permissions.canGetLocation(context)) {
                 return false
             }
 
             val lm = context.getSystemService<LocationManager>()
-            try {
+            return tryOrDefault(false) {
                 return lm?.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ?: false
-            } catch (e: Exception) {
-                // Do nothing
             }
-            return false
         }
     }
 }

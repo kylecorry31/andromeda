@@ -17,6 +17,5 @@ internal class SimpleLocationListener(private val onLocationChangedFn: (location
     }
 
     override fun onProviderEnabled(provider: String) {
-
     }
 }
