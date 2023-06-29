@@ -19,9 +19,9 @@ import com.kylecorry.andromeda.core.tryOrDefault
 
 object Permissions {
 
-    fun isBackgroundLocationEnabled(context: Context): Boolean {
+    fun isBackgroundLocationEnabled(context: Context, requireFineLocation: Boolean = false): Boolean {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            canGetFineLocation(context)
+            (requireFineLocation && canGetFineLocation(context)) || canGetLocation(context)
         } else {
             hasPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
