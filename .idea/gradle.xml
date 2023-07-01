@@ -13,6 +13,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/alerts" />
+            <option value="$PROJECT_DIR$/background" />
             <option value="$PROJECT_DIR$/battery" />
             <option value="$PROJECT_DIR$/bluetooth" />
             <option value="$PROJECT_DIR$/camera" />
@@ -27,7 +28,6 @@
             <option value="$PROJECT_DIR$/fragments" />
             <option value="$PROJECT_DIR$/gpx" />
             <option value="$PROJECT_DIR$/haptics" />
-            <option value="$PROJECT_DIR$/jobs" />
             <option value="$PROJECT_DIR$/json" />
             <option value="$PROJECT_DIR$/list" />
             <option value="$PROJECT_DIR$/location" />
@@ -40,7 +40,6 @@
             <option value="$PROJECT_DIR$/print" />
             <option value="$PROJECT_DIR$/qr" />
             <option value="$PROJECT_DIR$/sense" />
-            <option value="$PROJECT_DIR$/services" />
             <option value="$PROJECT_DIR$/signal" />
             <option value="$PROJECT_DIR$/sms" />
             <option value="$PROJECT_DIR$/sound" />
