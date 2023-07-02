@@ -36,12 +36,15 @@ abstract class IntervalService(
     private var isWakelockManaged = false
 
     private val timer = Timer {
-        if (isWakelockManaged) {
-            acquireWakelock(tag, wakelockDuration)
-        }
-        doWork()
-        if (isWakelockManaged) {
-            releaseWakelock()
+        try {
+            if (isWakelockManaged) {
+                acquireWakelock(tag, wakelockDuration)
+            }
+            doWork()
+        } finally {
+            if (isWakelockManaged) {
+                releaseWakelock()
+            }
         }
     }
 
