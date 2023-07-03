@@ -133,4 +133,30 @@ object Permissions {
             false
         }
     }
+
+    fun canCreateForegroundServices(context: Context, fromBackground: Boolean = false): Boolean {
+        // Nothing special was needed before Android P
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return true
+        }
+
+        val hasPermission = hasPermission(context, Manifest.permission.FOREGROUND_SERVICE)
+
+        // Before Android S, the permission was enough to create foreground services at any time
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return hasPermission
+        }
+
+        if (!hasPermission) {
+            return false
+        }
+
+        // On Android S, the permission is not enough to create foreground services from the background
+        // unless the app is ignoring battery optimizations
+        if (fromBackground) {
+            return isIgnoringBatteryOptimizations(context)
+        }
+
+        return true
+    }
 }
