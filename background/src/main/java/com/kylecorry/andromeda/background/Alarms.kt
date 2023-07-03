@@ -12,6 +12,7 @@ import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.time.Time.toEpochMillis
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDateTime
 
 object Alarms {
@@ -20,38 +21,99 @@ object Alarms {
      * Create an alarm
      * @param time The time to fire the alarm
      * @param pendingIntent The pending intent to launch when the alarm fires
-     * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise
+     * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise. If exact alarms are not allowed, the alarm will fire within 10 minutes, and respect the isWindowCentered parameter.
+     * @param allowWhileIdle True if the alarm can fire while the device is idle, false otherwise
+     * @param inexactWindow The window of time in which the inexact alarm can fire. If false, the system will decide. Minimum is 10 minutes on most devices.
+     * @param isWindowCentered True if the inexact window should be centered around the time, false if the window should be after the time.
      */
     @SuppressLint("MissingPermission")
     fun set(
         context: Context,
-        time: LocalDateTime,
+        time: Instant,
         pendingIntent: PendingIntent,
         exact: Boolean = true,
-        allowWhileIdle: Boolean = false
+        allowWhileIdle: Boolean = false,
+        inexactWindow: Duration? = null,
+        isWindowCentered: Boolean = false
+    ) {
+        if (exact) {
+            exactAlarm(context, time, allowWhileIdle, pendingIntent, isWindowCentered)
+        } else if (inexactWindow != null) {
+            windowedAlarm(context, time, inexactWindow, isWindowCentered, pendingIntent)
+        } else {
+            inexactAlarm(context, time, allowWhileIdle, pendingIntent)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun exactAlarm(
+        context: Context,
+        time: Instant,
+        allowWhileIdle: Boolean,
+        pendingIntent: PendingIntent,
+        isFallbackWindowCentered: Boolean = false
+    ) {
+
+        if (!Permissions.canScheduleExactAlarms(context)) {
+            // Fall back to a windowed alarm
+            windowedAlarm(
+                context,
+                time,
+                Duration.ofMinutes(10),
+                isFallbackWindowCentered,
+                pendingIntent
+            )
+            return
+        }
+
+        val alarmManager = getAlarmManager(context)
+        if (allowWhileIdle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager?.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                time.toEpochMilli(),
+                pendingIntent
+            )
+        } else {
+            alarmManager?.setExact(AlarmManager.RTC_WAKEUP, time.toEpochMilli(), pendingIntent)
+        }
+    }
+
+    private fun windowedAlarm(
+        context: Context,
+        time: Instant,
+        window: Duration,
+        isWindowCentered: Boolean,
+        pendingIntent: PendingIntent,
     ) {
         val alarmManager = getAlarmManager(context)
-
-        if (!allowWhileIdle || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            if (exact && Permissions.canScheduleExactAlarms(context)) {
-                alarmManager?.setExact(AlarmManager.RTC_WAKEUP, time.toEpochMillis(), pendingIntent)
-            } else {
-                alarmManager?.set(AlarmManager.RTC_WAKEUP, time.toEpochMillis(), pendingIntent)
-            }
+        val start = if (isWindowCentered) {
+            time.minus(window.dividedBy(2))
         } else {
-            if (exact && Permissions.canScheduleExactAlarms(context)) {
-                alarmManager?.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    time.toEpochMillis(),
-                    pendingIntent
-                )
-            } else {
-                alarmManager?.setAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    time.toEpochMillis(),
-                    pendingIntent
-                )
-            }
+            time
+        }
+        alarmManager?.setWindow(
+            AlarmManager.RTC_WAKEUP,
+            start.toEpochMilli(),
+            window.toMillis(),
+            pendingIntent
+        )
+    }
+
+    private fun inexactAlarm(
+        context: Context,
+        time: Instant,
+        allowWhileIdle: Boolean,
+        pendingIntent: PendingIntent
+    ) {
+        val alarmManager = getAlarmManager(context)
+        if (allowWhileIdle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager?.setAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                time.toEpochMilli(),
+                pendingIntent
+            )
+        } else {
+            alarmManager?.set(AlarmManager.RTC_WAKEUP, time.toEpochMilli(), pendingIntent)
         }
     }
 
@@ -64,14 +126,14 @@ object Alarms {
     @SuppressLint("MissingPermission")
     fun setRepeating(
         context: Context,
-        time: LocalDateTime,
+        time: Instant,
         interval: Duration,
         pendingIntent: PendingIntent
     ) {
         val alarmManager = getAlarmManager(context)
         alarmManager?.setRepeating(
             AlarmManager.RTC_WAKEUP,
-            time.toEpochMillis(),
+            time.toEpochMilli(),
             interval.toMillis(),
             pendingIntent
         )
@@ -86,12 +148,12 @@ object Alarms {
     @SuppressLint("MissingPermission")
     fun setAlarmClock(
         context: Context,
-        time: LocalDateTime,
+        time: Instant,
         pendingIntent: PendingIntent,
         viewAlarmPendingIntent: PendingIntent
     ) {
         val alarmManager = getAlarmManager(context) ?: return
-        val info = AlarmManager.AlarmClockInfo(time.toEpochMillis(), viewAlarmPendingIntent)
+        val info = AlarmManager.AlarmClockInfo(time.toEpochMilli(), viewAlarmPendingIntent)
         alarmManager.setAlarmClock(info, pendingIntent)
     }
 

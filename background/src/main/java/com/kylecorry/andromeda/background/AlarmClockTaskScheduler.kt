@@ -23,7 +23,7 @@ class AlarmClockTaskScheduler(
     override fun once(delay: Duration) {
         Alarms.setAlarmClock(
             context,
-            LocalDateTime.now().plus(delay),
+            Instant.now().plus(delay),
             task(),
             viewTask
         )

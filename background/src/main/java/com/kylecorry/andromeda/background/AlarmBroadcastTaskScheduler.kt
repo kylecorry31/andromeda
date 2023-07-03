@@ -25,6 +25,8 @@ class AlarmBroadcastTaskScheduler(
     private val uniqueId: Int,
     private val exact: Boolean = true,
     private val allowWhileIdle: Boolean = false,
+    private val inexactWindow: Duration = Duration.ofMinutes(10),
+    private val isWindowCentered: Boolean = false,
     private val intentExtras: Bundle? = null
 ) :
     IOneTimeTaskScheduler, IPeriodicTaskScheduler {
@@ -34,10 +36,12 @@ class AlarmBroadcastTaskScheduler(
         cancel()
         Alarms.set(
             context,
-            LocalDateTime.now().plus(delay),
+            Instant.now().plus(delay),
             createPendingIntent(),
             exact,
-            allowWhileIdle
+            allowWhileIdle,
+            inexactWindow,
+            isWindowCentered
         )
     }
 
@@ -53,7 +57,7 @@ class AlarmBroadcastTaskScheduler(
         cancel()
         Alarms.setRepeating(
             context,
-            LocalDateTime.now().plus(initialDelay),
+            Instant.now().plus(initialDelay),
             period,
             createPendingIntent()
         )
