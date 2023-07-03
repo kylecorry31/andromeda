@@ -13,7 +13,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.system.Android
+import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.system.Package
 import com.kylecorry.andromeda.core.tryOrDefault
 
@@ -132,6 +132,19 @@ object Permissions {
         } catch (e: Exception) {
             false
         }
+    }
+
+    /**
+     * Requests that the user allow the app to schedule exact alarms
+     * You should display a notice with instructions before calling this - unfortunately Android does not do that by default
+     */
+    @SuppressLint("NewApi")
+    fun requestScheduleExactAlarms(context: Context) {
+        if (canScheduleExactAlarms(context)) {
+            return
+        }
+
+        context.startActivity(Intents.alarmAndReminderSettings(context))
     }
 
     fun canCreateForegroundServices(context: Context, fromBackground: Boolean = false): Boolean {
