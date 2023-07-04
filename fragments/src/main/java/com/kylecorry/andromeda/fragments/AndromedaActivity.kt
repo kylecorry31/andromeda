@@ -2,13 +2,17 @@ package com.kylecorry.andromeda.fragments
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.kylecorry.andromeda.core.system.Intents
+import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.andromeda.permissions.SpecialPermission
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -16,12 +20,18 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
+    private lateinit var specialPermissionLauncher: SpecialPermissionLauncher
 
     private var resultRequestCode: Int? = null
     private var permissionRequestCode: Int? = null
 
     private var volumeAction: ((button: VolumeButton, isPressed: Boolean) -> Boolean) =
         { _, _ -> false }
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
+        specialPermissionLauncher = SpecialPermissionLauncher(this, this)
+    }
 
     override fun requestPermissions(permissions: List<String>, action: () -> Unit) {
         val notGranted = permissions.filterNot { Permissions.hasPermission(this, it) }
@@ -37,6 +47,14 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
             notGranted.toTypedArray(),
             requestCode
         )
+    }
+
+    override fun requestPermission(
+        permission: SpecialPermission,
+        rationale: PermissionRationale,
+        action: () -> Unit
+    ) {
+        specialPermissionLauncher.requestPermission(permission, rationale, action)
     }
 
     fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {

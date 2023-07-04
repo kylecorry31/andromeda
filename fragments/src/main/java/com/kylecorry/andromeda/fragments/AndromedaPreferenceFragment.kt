@@ -11,13 +11,22 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.preference.*
+import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
+import androidx.preference.SeekBarPreference
+import androidx.preference.SwitchPreferenceCompat
 import com.kylecorry.andromeda.core.system.Intents
+import com.kylecorry.andromeda.permissions.PermissionRationale
+import com.kylecorry.andromeda.permissions.SpecialPermission
 
 abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var specialPermissionLauncher: SpecialPermissionLauncher
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
@@ -35,6 +44,15 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         ) {
             permissionAction?.invoke()
         }
+        specialPermissionLauncher = SpecialPermissionLauncher(requireContext(), this)
+    }
+
+    override fun requestPermission(
+        permission: SpecialPermission,
+        rationale: PermissionRationale,
+        action: () -> Unit
+    ) {
+        specialPermissionLauncher.requestPermission(permission, rationale, action)
     }
 
     override fun requestPermissions(permissions: List<String>, action: () -> Unit) {

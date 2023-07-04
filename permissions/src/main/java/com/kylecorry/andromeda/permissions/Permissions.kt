@@ -100,6 +100,20 @@ object Permissions {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasPermission(context: Context, permission: SpecialPermission): Boolean {
+        return when (permission) {
+            SpecialPermission.SCHEDULE_EXACT_ALARMS -> canScheduleExactAlarms(context)
+            SpecialPermission.IGNORE_BATTERY_OPTIMIZATIONS -> isIgnoringBatteryOptimizations(context)
+        }
+    }
+
+    fun requestPermission(context: Context, permission: SpecialPermission) {
+        when (permission) {
+            SpecialPermission.SCHEDULE_EXACT_ALARMS -> requestScheduleExactAlarms(context)
+            SpecialPermission.IGNORE_BATTERY_OPTIMIZATIONS -> requestIgnoreBatteryOptimization(context)
+        }
+    }
+
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -111,6 +125,8 @@ object Permissions {
         }
 
         if (!hasPermission(context, Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)) {
+            // Can't directly request this permission, so send the user to the settings page
+            context.startActivity(Intents.batteryOptimizationSettings())
             return
         }
 

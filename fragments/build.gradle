@@ -58,6 +58,7 @@ afterEvaluate {
 dependencies {
     implementation project(':core')
     implementation project(':permissions')
+    implementation project(':alerts')
     implementation "androidx.core:core-ktx:${coreKtxVersion}"
     implementation "androidx.appcompat:appcompat:${appCompatVersion}"
     implementation 'androidx.preference:preference-ktx:1.2.0'

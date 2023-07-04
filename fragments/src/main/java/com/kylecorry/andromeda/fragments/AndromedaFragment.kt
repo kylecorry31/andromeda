@@ -11,8 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
-import kotlinx.coroutines.*
+import com.kylecorry.andromeda.permissions.SpecialPermission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -23,6 +28,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     private var resultLauncher: ActivityResultLauncher<Intent>? = null
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
+    private lateinit var specialPermissionLauncher: SpecialPermissionLauncher
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
@@ -47,7 +53,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         ) {
             permissionAction?.invoke()
         }
-
+        specialPermissionLauncher = SpecialPermissionLauncher(requireContext(), this)
     }
 
     override fun onDestroy() {
@@ -126,6 +132,14 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         }
         permissionAction = action
         permissionLauncher?.launch(notGranted.toTypedArray())
+    }
+
+    override fun requestPermission(
+        permission: SpecialPermission,
+        rationale: PermissionRationale,
+        action: () -> Unit
+    ) {
+        specialPermissionLauncher.requestPermission(permission, rationale, action)
     }
 
     fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
