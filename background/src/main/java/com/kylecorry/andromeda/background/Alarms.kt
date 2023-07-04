@@ -21,7 +21,7 @@ object Alarms {
      * Create an alarm
      * @param time The time to fire the alarm
      * @param pendingIntent The pending intent to launch when the alarm fires
-     * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise. If exact alarms are not allowed, the alarm will fire within 10 minutes, and respect the isWindowCentered parameter.
+     * @param exact True if the alarm needs to fire at exactly the time specified, false otherwise. If exact alarms are not allowed, an inexact alarm will be used.
      * @param allowWhileIdle True if the alarm can fire while the device is idle, false otherwise
      * @param inexactWindow The window of time in which the inexact alarm can fire. If false, the system will decide. Minimum is 10 minutes on most devices.
      * @param isWindowCentered True if the inexact window should be centered around the time, false if the window should be after the time.
@@ -37,7 +37,7 @@ object Alarms {
         isWindowCentered: Boolean = false
     ) {
         if (exact) {
-            exactAlarm(context, time, allowWhileIdle, pendingIntent, isWindowCentered)
+            exactAlarm(context, time, allowWhileIdle, pendingIntent)
         } else if (inexactWindow != null) {
             windowedAlarm(context, time, inexactWindow, isWindowCentered, pendingIntent)
         } else {
@@ -50,19 +50,12 @@ object Alarms {
         context: Context,
         time: Instant,
         allowWhileIdle: Boolean,
-        pendingIntent: PendingIntent,
-        isFallbackWindowCentered: Boolean = false
+        pendingIntent: PendingIntent
     ) {
 
         if (!Permissions.canScheduleExactAlarms(context)) {
-            // Fall back to a windowed alarm
-            windowedAlarm(
-                context,
-                time,
-                Duration.ofMinutes(10),
-                isFallbackWindowCentered,
-                pendingIntent
-            )
+            // Fall back to an inexact alarm
+            inexactAlarm(context, time, allowWhileIdle, pendingIntent)
             return
         }
 
