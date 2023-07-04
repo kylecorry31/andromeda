@@ -41,7 +41,8 @@ internal class SpecialPermissionLauncher(
             rationale.title,
             rationale.message,
             cancelText = rationale.cancel ?: context.getString(android.R.string.cancel),
-            okText = rationale.ok ?: context.getString(android.R.string.ok)
+            okText = rationale.ok ?: context.getString(android.R.string.ok),
+            allowLinks = true
         ) { cancelled ->
             if (!cancelled) {
                 this.action = action
