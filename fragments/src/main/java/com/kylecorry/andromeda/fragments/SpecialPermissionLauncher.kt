@@ -11,7 +11,7 @@ import com.kylecorry.andromeda.permissions.SpecialPermission
 
 internal class SpecialPermissionLauncher(
     private val context: Context,
-    private val lifecycle: LifecycleOwner
+    lifecycle: LifecycleOwner
 ) {
 
     private var action: (() -> Unit)? = null
@@ -20,6 +20,10 @@ internal class SpecialPermissionLauncher(
         if (event == Lifecycle.Event.ON_RESUME) {
             onResume()
         }
+    }
+
+    init {
+        lifecycle.lifecycle.addObserver(observer)
     }
 
     fun requestPermission(
@@ -40,7 +44,6 @@ internal class SpecialPermissionLauncher(
             okText = rationale.ok ?: context.getString(android.R.string.ok)
         ) { cancelled ->
             if (!cancelled) {
-                lifecycle.lifecycle.addObserver(observer)
                 this.action = action
                 Permissions.requestPermission(context, permission)
             } else {
@@ -52,6 +55,5 @@ internal class SpecialPermissionLauncher(
     private fun onResume(){
         action?.invoke()
         action = null
-        lifecycle.lifecycle.removeObserver(observer)
     }
 }
