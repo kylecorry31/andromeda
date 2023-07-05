@@ -15,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.andromeda.core.tryOrLog
 
 object Notify {
 
@@ -57,6 +58,15 @@ object Notify {
             setShowBadge(showBadge)
         }
         getNotificationManager(context)?.createNotificationChannel(channel)
+    }
+
+    fun deleteChannel(context: Context, id: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return
+        }
+        tryOrLog {
+            getNotificationManager(context)?.deleteNotificationChannel(id)
+        }
     }
 
     fun channels(context: Context): List<NotificationChannel> {
