@@ -80,7 +80,7 @@ class WorkTaskScheduler(
 
         workManager.enqueueUniquePeriodicWork(
             uniqueId,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingPeriodicWorkPolicy.UPDATE,
             request
         )
     }

@@ -31,9 +31,8 @@ abstract class CanvasView : View, ICanvasDrawer {
         defStyleAttr
     )
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas ?: return
         if (!isSetup && setupAfterVisible && !isVisible) {
             return
         }

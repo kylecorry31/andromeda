@@ -77,7 +77,7 @@ abstract class IntervalService(
         super.onDestroy()
     }
 
-    private fun onReceive(intent: Intent): Boolean {
+    private fun onReceive(@Suppress("UNUSED_PARAMETER") intent: Intent): Boolean {
         timer.once(Duration.ZERO)
         return true
     }

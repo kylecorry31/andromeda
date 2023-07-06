@@ -23,7 +23,7 @@ class Preferences(context: Context) : IPreferences {
 
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            onChange.publish(key)
+            key?.let { onChange.publish(it) }
         }
 
     override fun remove(key: String) {

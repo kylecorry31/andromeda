@@ -15,8 +15,8 @@ buildscript {
     ext.materialVersion = '1.9.0'
     ext.coroutinesVersion = '1.7.2'
     ext.desugarVersion = '2.0.3'
-    ext.targetVersion = 33
-    ext.compileVersion = 33
+    ext.targetVersion = 34
+    ext.compileVersion = 34
 }
 
 allprojects {
