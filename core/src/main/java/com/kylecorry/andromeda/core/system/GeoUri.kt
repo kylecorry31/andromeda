@@ -2,12 +2,15 @@ package com.kylecorry.andromeda.core.system
 
 import android.net.Uri
 import android.os.Parcelable
+import com.kylecorry.andromeda.core.units.CoordinateParceler
 import com.kylecorry.sol.math.SolMath.roundPlaces
 import com.kylecorry.sol.units.Coordinate
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 
 @Parcelize
+@TypeParceler<Coordinate, CoordinateParceler>()
 data class GeoUri(
     val coordinate: Coordinate,
     val altitude: Float? = null,
