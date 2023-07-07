@@ -77,7 +77,7 @@ abstract class IntervalService(
             isWakelockManaged = true
             receiver.subscribe(this::onReceive)
             if (useOneTimeWorkers) {
-                oneTimeWorker.once(period)
+                oneTimeWorker.start()
             } else {
                 periodicWorker.interval(period)
             }
