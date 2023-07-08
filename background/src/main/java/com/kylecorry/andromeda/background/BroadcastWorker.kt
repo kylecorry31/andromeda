@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.net.toUri
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.kylecorry.andromeda.core.system.Intents
 
 /**
  * A worker that broadcasts an intent
@@ -16,11 +17,10 @@ import androidx.work.WorkerParameters
 class BroadcastWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
     override fun doWork(): Result {
-        val action = inputData.getString("action")
+        val action = inputData.getString("action") ?: return Result.failure()
         val type = inputData.getString("type") ?: "text/plain"
         val dataUri = inputData.getString("dataUri")
-        val intent = Intent(action)
-        intent.`package` = applicationContext.packageName
+        val intent = Intents.localIntent(applicationContext, action)
         intent.type = type
         if (dataUri != null) {
             intent.data = dataUri.toUri()

@@ -4,17 +4,27 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import androidx.core.content.ContextCompat
 import com.kylecorry.andromeda.core.topics.generic.BaseTopic
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrLog
 
-class BroadcastReceiverTopic(private val context: Context, private val intentFilter: IntentFilter) :
+class BroadcastReceiverTopic(
+    private val context: Context,
+    private val intentFilter: IntentFilter,
+    private val listenToBroadcastsFromOtherApps: Boolean = false
+) :
     BaseTopic<Intent>() {
 
     override val topic: Topic<Intent> = Topic.lazy(this::start, this::stop)
 
     private fun start() {
-        context.registerReceiver(receiver, intentFilter)
+        val flags = if (listenToBroadcastsFromOtherApps) {
+            ContextCompat.RECEIVER_EXPORTED
+        } else {
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        }
+        ContextCompat.registerReceiver(context, receiver, intentFilter, flags)
     }
 
     private fun stop() {
