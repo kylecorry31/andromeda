@@ -9,14 +9,13 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-// TODO: Add support for expedited jobs
-
 /**
  * This class uses the WorkManager for deferrable tasks
  * @param context the context
  * @param task the task to run
  * @param uniqueId a unique ID describing this task
  * @param expedited determines if this should be expedited (not yet implemented)
+ * @param flexDuration the flex duration for the task (only for periodic tasks)
  * @param constraints the constraints around the work
  */
 class WorkTaskScheduler(
@@ -25,6 +24,7 @@ class WorkTaskScheduler(
     private val uniqueId: String,
     private val expedited: Boolean = false,
     private val constraints: Constraints? = null,
+    private val flexDuration: Duration? = null,
     private val input: Bundle? = null
 ) : IOneTimeTaskScheduler, IPeriodicTaskScheduler {
 
@@ -43,6 +43,9 @@ class WorkTaskScheduler(
                 }
                 if (input != null) {
                     setInputData(Data.Builder().putAll(input.toMap()).build())
+                }
+                if (expedited) {
+                    setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 }
             }
             .build()
@@ -66,7 +69,13 @@ class WorkTaskScheduler(
         val workManager = WorkManager.getInstance(context.applicationContext)
 
         val request = PeriodicWorkRequest
-            .Builder(task, period.toMillis(), TimeUnit.MILLISECONDS).apply {
+            .Builder(
+                task,
+                period.toMillis(),
+                TimeUnit.MILLISECONDS,
+                (flexDuration ?: period).toMillis(),
+                TimeUnit.MILLISECONDS
+            ).apply {
                 addTag(uniqueId)
                 setInitialDelay(initialDelay.toMillis(), TimeUnit.MILLISECONDS)
                 if (constraints != null) {
@@ -74,6 +83,9 @@ class WorkTaskScheduler(
                 }
                 if (input != null) {
                     setInputData(Data.Builder().putAll(input.toMap()).build())
+                }
+                if (expedited) {
+                    setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 }
             }
             .build()
