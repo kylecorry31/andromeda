@@ -33,6 +33,16 @@ object Notify {
         getNotificationManager(context)?.notify(notificationId, notification)
     }
 
+    /**
+     * Sends a notification if the notification is already shown, otherwise it is a no-op
+     */
+    fun update(context: Context, notificationId: Int, notification: Notification) {
+        if (!isActive(context, notificationId)) {
+            return
+        }
+        send(context, notificationId, notification)
+    }
+
     fun cancel(context: Context, notificationId: Int) {
         getNotificationManager(context)?.cancel(notificationId)
     }
