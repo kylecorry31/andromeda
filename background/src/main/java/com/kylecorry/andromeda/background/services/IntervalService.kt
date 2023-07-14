@@ -24,7 +24,7 @@ abstract class IntervalService(
     abstract val period: Duration
 
     private val receiver by lazy {
-        BroadcastReceiverTopic(this, IntentFilter.create(action, "text/plain"))
+        BroadcastReceiverTopic(applicationContext, IntentFilter(action))
     }
 
     private val periodicWorker by lazy {
@@ -82,7 +82,7 @@ abstract class IntervalService(
                 periodicWorker.interval(period)
             }
         }
-        return START_STICKY_COMPATIBILITY
+        return START_STICKY
     }
 
     override fun onDestroy() {

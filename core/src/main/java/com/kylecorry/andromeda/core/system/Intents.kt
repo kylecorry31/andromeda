@@ -22,10 +22,9 @@ object Intents {
     }
 
     fun localIntent(context: Context, action: String): Intent {
-        val i = Intent(action)
-        i.`package` = context.packageName
-        i.addCategory(Intent.CATEGORY_DEFAULT)
-        return i
+        return Intent(action).apply {
+            `package` = context.packageName
+        }
     }
 
     fun startService(context: Context, intent: Intent, foreground: Boolean = false) {
@@ -102,14 +101,16 @@ object Intents {
     }
 
     fun pickFile(type: String, message: String, useSAF: Boolean = true): Intent {
-        val requestFileIntent = Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
+        val requestFileIntent =
+            Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = type
         return Intent.createChooser(requestFileIntent, message)
     }
 
     fun pickFile(types: List<String>, message: String, useSAF: Boolean = true): Intent {
-        val requestFileIntent = Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
+        val requestFileIntent =
+            Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = "*/*"
         requestFileIntent.putExtra(Intent.EXTRA_MIME_TYPES, types.toTypedArray())
