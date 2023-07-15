@@ -12,7 +12,7 @@ import java.time.Duration
 /**
  * To run as a foreground service, override [getForegroundInfo] and return a [ForegroundInfo] object.
  */
-abstract class AndromedaService: Service() {
+abstract class AndromedaService : Service() {
     open val tag: String
         get() = javaClass.name
 
@@ -23,7 +23,14 @@ abstract class AndromedaService: Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val foregroundInfo = getForegroundInfo()
         if (foregroundInfo != null) {
-            startForeground(foregroundInfo.id, foregroundInfo.notification)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && foregroundInfo.foregroundServiceTypeOverride != null) {
+                startForeground(
+                    foregroundInfo.id,
+                    foregroundInfo.notification,
+                    foregroundInfo.foregroundServiceTypeOverride.fold(0) { acc, element -> acc or element })
+            } else {
+                startForeground(foregroundInfo.id, foregroundInfo.notification)
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -46,7 +53,7 @@ abstract class AndromedaService: Service() {
     private var wakelock: PowerManager.WakeLock? = null
 
     @SuppressLint("WakelockTimeout")
-    fun acquireWakelock(tag: String = this.tag, duration: Duration? = null){
+    fun acquireWakelock(tag: String = this.tag, duration: Duration? = null) {
         try {
             if (wakelock?.isHeld != true) {
                 wakelock = Wakelocks.get(this, tag)

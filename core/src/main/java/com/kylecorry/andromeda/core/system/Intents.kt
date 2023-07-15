@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.kylecorry.sol.units.Coordinate
 
 object Intents {
@@ -28,8 +29,8 @@ object Intents {
     }
 
     fun startService(context: Context, intent: Intent, foreground: Boolean = false) {
-        if (foreground && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
+        if (foreground) {
+            ContextCompat.startForegroundService(context, intent)
         } else {
             context.startService(intent)
         }
@@ -37,7 +38,8 @@ object Intents {
 
     fun pendingIntentExists(context: Context, requestCode: Int, intent: Intent): Boolean {
         return PendingIntent.getBroadcast(
-            context, requestCode,
+            context,
+            requestCode,
             intent,
             PendingIntent.FLAG_NO_CREATE or
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
@@ -60,7 +62,7 @@ object Intents {
     }
 
     fun geo(location: Coordinate): Intent {
-        return url("geo:${location.latitude},${location.longitude}")
+        return url(GeoUri(location).toString())
     }
 
     fun appSettings(context: Context): Intent {
