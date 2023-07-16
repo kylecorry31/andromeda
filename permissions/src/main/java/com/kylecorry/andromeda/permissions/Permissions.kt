@@ -237,6 +237,9 @@ object Permissions {
             // TODO: Also if the user grants access to a USB device
             ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE to listOf(
                 Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.UWB_RANGING,
                 Manifest.permission.CHANGE_NETWORK_STATE,
                 Manifest.permission.CHANGE_WIFI_STATE,
                 Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
@@ -257,10 +260,8 @@ object Permissions {
             // TODO: The user must have allowed screen capture for the app
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION to null,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE to listOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAPTURE_AUDIO_OUTPUT
+                Manifest.permission.RECORD_AUDIO
             ),
-            // TODO: Also if this is holding the default dialer role
             ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL to listOf(
                 Manifest.permission.MANAGE_OWN_CALLS
             ),
