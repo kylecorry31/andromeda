@@ -72,6 +72,23 @@ object Intents {
         return intent
     }
 
+    fun notificationSettings(context: Context, channel: String? = null): Intent {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return appSettings(context)
+        }
+
+        return if (channel == null) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            }
+        } else {
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                putExtra(Settings.EXTRA_CHANNEL_ID, channel)
+            }
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     fun alarmAndReminderSettings(context: Context): Intent {
         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
