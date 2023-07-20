@@ -3,13 +3,11 @@ package com.kylecorry.andromeda.bluetooth
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
-import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.permissions.Permissions
 
 /**
@@ -40,7 +38,7 @@ class BluetoothLEScanner(private val context: Context) : AbstractSensor() {
     }
 
     @SuppressLint("MissingPermission")
-    private val timeout = Timer {
+    private val timeout = CoroutineTimer {
         if (Permissions.hasPermission(context, Manifest.permission.BLUETOOTH_SCAN)) {
             adapter?.bluetoothLeScanner?.stopScan(receiver)
             isDoneScanning = true

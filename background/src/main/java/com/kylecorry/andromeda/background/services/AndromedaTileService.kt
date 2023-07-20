@@ -3,13 +3,11 @@ package com.kylecorry.andromeda.background.services
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
-import com.kylecorry.andromeda.core.time.Timer
 
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class AndromedaTileService : TileService() {

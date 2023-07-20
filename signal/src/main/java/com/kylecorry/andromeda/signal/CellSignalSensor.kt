@@ -10,7 +10,7 @@ import androidx.core.content.getSystemService
 import androidx.core.math.MathUtils
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
@@ -32,7 +32,7 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
     private var oldSignals = listOf<RawCellSignal>()
     private var hasReading = false
 
-    private val intervalometer = Timer {
+    private val intervalometer = CoroutineTimer {
         tryOrNothing {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && updateCellCache) {
                 updateCellInfoCache()

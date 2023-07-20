@@ -3,14 +3,14 @@ package com.kylecorry.andromeda.background.services
 import android.os.Build
 import android.service.quicksettings.Tile
 import androidx.annotation.RequiresApi
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
 import java.time.Duration
 
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class PollingTileService(private val interval: Duration = Duration.ofMillis(16)) :
     AndromedaTileService() {
 
-    private val stateChecker = Timer {
+    private val stateChecker = CoroutineTimer {
         val lastState = qsTile.state
         val newState = when {
             isOn() -> Tile.STATE_ACTIVE

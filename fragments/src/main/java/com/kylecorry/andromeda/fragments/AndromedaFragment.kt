@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.Throttle
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
@@ -33,7 +33,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
 
-    private val updateTimer = Timer {
+    private val updateTimer = CoroutineTimer {
         onUpdateWrapper()
     }
 

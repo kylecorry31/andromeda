@@ -6,7 +6,8 @@ import androidx.core.os.bundleOf
 import com.kylecorry.andromeda.background.BroadcastWorker
 import com.kylecorry.andromeda.background.TaskSchedulerFactory
 import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.andromeda.core.time.ITimer
 import java.time.Duration
 
 /**
@@ -15,11 +16,13 @@ import java.time.Duration
  * @param alwaysOnThreshold Determines when to switch from always on mode (constant wakelock) to scheduled jobs. Always on mode will be more accurate under 15 minutes, the scheduled jobs are inexact.
  * @param wakelockDuration The wakelock duration when running in deferred mode
  * @param useOneTimeWorkers Use one time workers instead of a periodic worker when over the always on threshold. Using one time workers can lead to slightly more on time intervals and it also allows variable durations.
+ * @param alwaysOnTimerProvider The timer to use for always on timer provider, by default it uses a coroutine timer (impacted by doze)
  */
 abstract class IntervalService(
     private val alwaysOnThreshold: Duration = Duration.ofMinutes(15),
     private val wakelockDuration: Duration? = null,
-    private val useOneTimeWorkers: Boolean = false
+    private val useOneTimeWorkers: Boolean = false,
+    private val alwaysOnTimerProvider: (suspend () -> Unit) -> ITimer = { action -> CoroutineTimer { action() } }
 ) : AndromedaService() {
     abstract val period: Duration
 
@@ -46,7 +49,7 @@ abstract class IntervalService(
     private var isWakelockManaged = false
     private var isEnabled = false
 
-    private val timer = Timer {
+    private val timer = alwaysOnTimerProvider {
         try {
             if (isWakelockManaged) {
                 acquireWakelock(tag, wakelockDuration)
@@ -90,7 +93,7 @@ abstract class IntervalService(
         releaseWakelock()
         receiver.unsubscribe(this::onReceive)
         timer.stop()
-        if (useOneTimeWorkers){
+        if (useOneTimeWorkers) {
             oneTimeWorker.cancel()
         } else {
             periodicWorker.cancel()

@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.sound
 
 import android.media.AudioTrack
-import com.kylecorry.andromeda.core.time.Timer
+import com.kylecorry.andromeda.core.time.CoroutineTimer
 
 open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 
@@ -9,7 +9,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 
     private var releaseWhenOff = false
 
-    private val fadeOffIntervalometer = Timer {
+    private val fadeOffIntervalometer = CoroutineTimer {
         volume -= 0.1f
         sound.setVolume(volume.coerceIn(0f, 1f))
         if (volume <= 0f){
@@ -17,7 +17,7 @@ open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
         }
     }
 
-    private val fadeOnTimer: Timer = Timer {
+    private val fadeOnTimer: CoroutineTimer = CoroutineTimer {
         volume += 0.1f
         sound.setVolume(volume.coerceIn(0f, 1f))
         if (volume >= 1f){
