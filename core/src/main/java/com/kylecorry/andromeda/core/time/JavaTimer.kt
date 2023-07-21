@@ -16,6 +16,7 @@ import kotlin.coroutines.CoroutineContext
 class JavaTimer(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val observeOn: CoroutineContext = Dispatchers.Main,
+    private val actionBehavior: TimerActionBehavior = TimerActionBehavior.Replace,
     private val action: suspend () -> Unit
 ) : ITimer {
 
@@ -27,7 +28,7 @@ class JavaTimer(
     private val task = object : java.util.TimerTask() {
         override fun run() {
             scope.launch {
-                runner.cancelPreviousThenRun {
+                runner.run(actionBehavior) {
                     withContext(observeOn) {
                         action()
                     }

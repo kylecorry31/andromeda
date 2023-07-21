@@ -9,26 +9,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
-import java.util.Timer
 import kotlin.coroutines.CoroutineContext
 
 /**
  * A timer based on the Android Handler (based on uptime)
+ * @param scope The scope to run the action on
+ * @param observeOn The context to observe the action on
+ * @param action The action to run
  */
 class HandlerTimer(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val observeOn: CoroutineContext = Dispatchers.Main,
+    looper: Looper = Looper.getMainLooper(),
+    private val actionBehavior: TimerActionBehavior = TimerActionBehavior.Replace,
     private val action: suspend () -> Unit
 ) : ITimer {
 
     private val runner = ControlledRunner<Any>()
 
     private var _isRunning = false
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler = Handler(looper)
 
     private val runnable = Runnable {
         scope.launch {
-            runner.cancelPreviousThenRun {
+            runner.run(actionBehavior) {
                 withContext(observeOn) {
                     action()
                 }
