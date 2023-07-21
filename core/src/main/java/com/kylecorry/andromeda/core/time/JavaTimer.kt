@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.core.time
 
 import com.kylecorry.andromeda.core.coroutines.ControlledRunner
+import com.kylecorry.andromeda.core.tryOrNothing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class JavaTimer(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val observeOn: CoroutineContext = Dispatchers.Main,
     private val action: suspend () -> Unit
-): ITimer {
+) : ITimer {
 
     private val runner = ControlledRunner<Any>()
 
@@ -40,8 +41,12 @@ class JavaTimer(
     }
 
     override fun interval(periodMillis: Long, initialDelayMillis: Long) {
+        if (_isRunning) {
+            tryOrNothing {
+                timer.cancel()
+            }
+        }
         _isRunning = true
-        timer.cancel()
         timer.scheduleAtFixedRate(task, initialDelayMillis, periodMillis)
     }
 
@@ -50,14 +55,20 @@ class JavaTimer(
     }
 
     override fun once(delayMillis: Long) {
+        if (_isRunning) {
+            tryOrNothing {
+                timer.cancel()
+            }
+        }
         _isRunning = true
-        timer.cancel()
         timer.schedule(task, delayMillis)
     }
 
     override fun stop() {
+        if (_isRunning){
+            timer.cancel()
+        }
         _isRunning = false
-        timer.cancel()
         runner.cancel()
     }
 
