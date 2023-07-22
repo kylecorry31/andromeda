@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.ApiStatus.Experimental
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
@@ -16,9 +17,10 @@ import kotlin.coroutines.CoroutineContext
  * @param scope The scope to run the action on
  * @param observeOn The context to observe the action on
  * @param looper The looper to run the timer on
- * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only)
+ * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only). Action behavior of Wait is not supported yet.
  * @param action The action to run
  */
+@Experimental
 class HandlerTimer(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val observeOn: CoroutineContext = Dispatchers.Main,

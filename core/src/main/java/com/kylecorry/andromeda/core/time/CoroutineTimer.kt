@@ -1,6 +1,5 @@
 package com.kylecorry.andromeda.core.time
 
-import android.os.SystemClock
 import com.kylecorry.andromeda.core.coroutines.ControlledRunner
 import kotlinx.coroutines.*
 import java.time.Duration
@@ -10,19 +9,37 @@ import kotlin.coroutines.CoroutineContext
  * A timer based on coroutine delays (based on uptime)
  * @param scope The scope to run the timer on
  * @param observeOn The context to observe the action on
- * @param waitForAction If true, the timer will wait for the action to complete before starting the next interval (variable interval), otherwise the timer will attempt to maintain a constant interval (skipping intervals if the action takes too long). This behavior may be replaced by TimerActionBehavior.
+ * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only).
  * @param action The action to run
  */
 class CoroutineTimer(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     private val observeOn: CoroutineContext = Dispatchers.Main,
-    private val waitForAction: Boolean = true,
+    private val actionBehavior: TimerActionBehavior = TimerActionBehavior.Wait,
     private val action: suspend () -> Unit
 ) : ITimer {
 
-    private val runner = ControlledRunner<Any>()
+    private val timerRunner = ControlledRunner<Any>()
+    private val actionRunner = ControlledRunner<Any>()
 
     private var _isRunning = false
+
+    private suspend fun run() {
+        if (actionBehavior == TimerActionBehavior.Wait) {
+            withContext(observeOn) {
+                action()
+            }
+        } else {
+            // Run it in the background
+            scope.launch {
+                actionRunner.run(actionBehavior) {
+                    withContext(observeOn) {
+                        action()
+                    }
+                }
+            }
+        }
+    }
 
     override fun interval(period: Duration, initialDelay: Duration) {
         interval(period.toMillis(), initialDelay.toMillis())
@@ -31,22 +48,13 @@ class CoroutineTimer(
     override fun interval(periodMillis: Long, initialDelayMillis: Long) {
         _isRunning = true
         scope.launch {
-            runner.cancelPreviousThenRun {
+            timerRunner.cancelPreviousThenRun {
                 if (initialDelayMillis > 0) {
                     delay(initialDelayMillis)
                 }
                 while (isRunning()) {
-                    val startTime = SystemClock.uptimeMillis()
-                    withContext(observeOn) {
-                        action()
-                    }
-                    val endTime = SystemClock.uptimeMillis()
-                    val actionTime = endTime - startTime
-                    val period =
-                        periodMillis - if (waitForAction) 0 else (actionTime % periodMillis)
-                    if (period > 0) {
-                        delay(period)
-                    } else if (periodMillis > 0) {
+                    run()
+                    if (periodMillis > 0) {
                         delay(periodMillis)
                     }
                 }
@@ -62,7 +70,7 @@ class CoroutineTimer(
     override fun once(delayMillis: Long) {
         _isRunning = true
         scope.launch {
-            runner.cancelPreviousThenRun {
+            timerRunner.cancelPreviousThenRun {
                 if (delayMillis > 0) {
                     delay(delayMillis)
                 }
@@ -75,7 +83,8 @@ class CoroutineTimer(
 
     override fun stop() {
         _isRunning = false
-        runner.cancel()
+        timerRunner.cancel()
+        actionRunner.cancel()
     }
 
     override fun isRunning(): Boolean {

@@ -13,5 +13,8 @@ internal suspend fun <T> ControlledRunner<T>.run(
         TimerActionBehavior.Replace -> {
             cancelPreviousThenRun(action)
         }
+        else -> {
+            // Do nothing - wait is not supported by the controlled runner
+        }
     }
 }
