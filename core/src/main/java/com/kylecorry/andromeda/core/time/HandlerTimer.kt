@@ -15,6 +15,8 @@ import kotlin.coroutines.CoroutineContext
  * A timer based on the Android Handler (based on uptime)
  * @param scope The scope to run the action on
  * @param observeOn The context to observe the action on
+ * @param looper The looper to run the timer on
+ * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only)
  * @param action The action to run
  */
 class HandlerTimer(
