@@ -28,11 +28,18 @@ object Intents {
         }
     }
 
-    fun startService(context: Context, intent: Intent, foreground: Boolean = false) {
+    fun startService(
+        context: Context,
+        intent: Intent,
+        foreground: Boolean = false,
+        useApplicationContext: Boolean = true
+    ) {
+        val ctx = if (useApplicationContext) context.applicationContext else context
+
         if (foreground) {
-            ContextCompat.startForegroundService(context, intent)
+            ContextCompat.startForegroundService(ctx, intent)
         } else {
-            context.startService(intent)
+            ctx.startService(intent)
         }
     }
 
