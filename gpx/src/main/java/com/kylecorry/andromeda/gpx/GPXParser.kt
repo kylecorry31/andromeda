@@ -12,6 +12,8 @@ import java.time.Instant
 
 object GPXParser {
 
+    private val validWaypointTags = arrayOf("wpt", "trkpt", "rtept")
+
     fun toGPX(data: GPXData, creator: String): String {
         val children = mutableListOf<XMLNode>()
         for (waypoint in data.waypoints) {
@@ -42,7 +44,7 @@ object GPXParser {
         val tree = try {
             XMLConvert.parse(gpx)
         } catch (e: Exception) {
-            return GPXData(emptyList(), emptyList())
+            return GPXData(emptyList(), emptyList(), emptyList())
         }
         return parseXML(tree)
     }
@@ -51,28 +53,26 @@ object GPXParser {
         val tree = try {
             XMLConvert.parse(gpx)
         } catch (e: Exception) {
-            return GPXData(emptyList(), emptyList())
+            return GPXData(emptyList(), emptyList(), emptyList())
         }
         return parseXML(tree)
     }
 
     private fun parseXML(root: XMLNode): GPXData {
-        val waypoints = root.children.mapNotNull {
+
+        val waypoints = mutableListOf<GPXWaypoint>()
+        val tracks = mutableListOf<GPXTrack>()
+        val routes = mutableListOf<GPXRoute>()
+
+        root.children.forEach {
             when (it.tag.lowercase()) {
-                "wpt" -> parseWaypoint(it)
-                else -> null
+                "wpt" -> parseWaypoint(it)?.let { waypoint -> waypoints.add(waypoint) }
+                "trk" -> parseTrack(it)?.let { track -> tracks.add(track) }
+                "rte" -> parseRoute(it)?.let { route -> routes.add(route) }
             }
         }
 
-        val tracks = root.children.mapNotNull {
-            when (it.tag.lowercase()) {
-                "trk" -> parseTrack(it)
-                else -> null
-            }
-        }
-
-
-        return GPXData(waypoints, tracks)
+        return GPXData(waypoints, tracks, routes)
     }
 
     private fun parseTrack(node: XMLNode): GPXTrack? {
@@ -92,6 +92,25 @@ object GPXParser {
         return GPXTrack(name, type, id, comment, segments)
     }
 
+    private fun parseRoute(node: XMLNode): GPXRoute? {
+        if (node.tag.lowercase() != "rte") {
+            return null
+        }
+
+        val points = node.children.filter { it.tag.lowercase() == "rtept" }.mapNotNull {
+            parseWaypoint(it)
+        }
+
+        val name = node.children.firstOrNull { it.tag.lowercase() == "name" }?.text
+        val comment = node.children.firstOrNull { it.tag.lowercase() == "cmt" }?.text
+        val description = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
+        val number = node.children.firstOrNull { it.tag.lowercase() == "number" }?.text?.toLongCompat()
+        val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
+        val source = node.children.firstOrNull { it.tag.lowercase() == "src" }?.text
+
+        return GPXRoute(name, description, comment, source, number, type, points)
+    }
+
     private fun parseSegment(node: XMLNode): GPXTrackSegment? {
         if (node.tag.lowercase() != "trkseg") {
             return null
@@ -101,7 +120,7 @@ object GPXParser {
     }
 
     private fun parseWaypoint(node: XMLNode): GPXWaypoint? {
-        if (node.tag.lowercase() != "wpt" && node.tag.lowercase() != "trkpt") {
+        if (!validWaypointTags.contains(node.tag.lowercase())) {
             return null
         }
         val lat =
@@ -197,5 +216,38 @@ object GPXParser {
         }
 
         return XMLNode("trkseg", emptyMap(), null, children)
+    }
+
+    private fun toXML(route: GPXRoute): XMLNode {
+        val children = mutableListOf<XMLNode>()
+        if (route.name != null) {
+            children.add(XMLNode.text("name", TextUtils.htmlEncode(route.name)))
+        }
+
+        if (route.comment != null) {
+            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(route.comment)))
+        }
+
+        if (route.description != null) {
+            children.add(XMLNode.text("desc", TextUtils.htmlEncode(route.description)))
+        }
+
+        if (route.number != null) {
+            children.add(XMLNode.text("number", TextUtils.htmlEncode(route.number.toString())))
+        }
+
+        if (route.type != null) {
+            children.add(XMLNode.text("type", TextUtils.htmlEncode(route.type)))
+        }
+
+        if (route.source != null) {
+            children.add(XMLNode.text("src", TextUtils.htmlEncode(route.source)))
+        }
+
+        for (point in route.points) {
+            children.add(toXML(point, "rtept"))
+        }
+
+        return XMLNode("rte", emptyMap(), null, children)
     }
 }

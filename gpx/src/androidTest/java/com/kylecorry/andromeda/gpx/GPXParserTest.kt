@@ -32,11 +32,11 @@ class GPXParserTest {
         testFromGPX(false)
     }
 
-    private fun testFromGPX(stream: Boolean = false){
-        val data = if (stream){
-            GPXParser.parse(gpxWaypointsAndTracks.byteInputStream())
+    private fun testFromGPX(stream: Boolean = false) {
+        val data = if (stream) {
+            GPXParser.parse(gpx.byteInputStream())
         } else {
-            GPXParser.parse(gpxWaypointsAndTracks)
+            GPXParser.parse(gpx)
         }
 
         val waypoints = listOf(
@@ -129,13 +129,41 @@ class GPXParserTest {
             )
         )
 
+        val route = GPXRoute(
+            "Test route",
+            "Test desc",
+            "Test cmt",
+            "gps",
+            3,
+            "Test type",
+            listOf(
+                GPXWaypoint(
+                    Coordinate(32.0, 101.0),
+                    null,
+                    3f,
+                    null,
+                    Instant.parse("2016-06-17T23:41:03Z"),
+                    null
+                ),
+                GPXWaypoint(
+                    Coordinate(34.0, 11.0),
+                    null,
+                    6f,
+                    null,
+                    Instant.parse("2018-06-17T23:41:03Z"),
+                    null
+                )
+            )
+        )
+
         assertEquals(
             GPXData(
                 waypoints,
                 listOf(
                     track1,
                     track2
-                )
+                ),
+                listOf(route)
             ),
             data
         )
@@ -156,7 +184,7 @@ class GPXParserTest {
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
-        assertEquals(xml, GPXParser.toGPX(GPXData(waypoints, listOf()), "Trail Sense"))
+        assertEquals(xml, GPXParser.toGPX(GPXData(waypoints, emptyList(), emptyList()), "Trail Sense"))
     }
 
     @Test
@@ -251,8 +279,36 @@ class GPXParserTest {
                 )
             )
         )
+
+        val route = GPXRoute(
+            "Test route",
+            "Test desc",
+            "Test cmt",
+            "gps",
+            3,
+            "Test type",
+            listOf(
+                GPXWaypoint(
+                    Coordinate(32.0, 101.0),
+                    null,
+                    3f,
+                    null,
+                    Instant.parse("2016-06-17T23:41:03Z"),
+                    null
+                ),
+                GPXWaypoint(
+                    Coordinate(34.0, 11.0),
+                    null,
+                    6f,
+                    null,
+                    Instant.parse("2018-06-17T23:41:03Z"),
+                    null
+                )
+            )
+        )
+
         val tracks = listOf(track1, track2)
-        assertEquals(xml, GPXParser.toGPX(GPXData(waypoints, tracks), "Trail Sense"))
+        assertEquals(xml, GPXParser.toGPX(GPXData(waypoints, tracks, listOf(route)), "Trail Sense"))
     }
 
 
@@ -272,7 +328,7 @@ class GPXParserTest {
     </wpt>
 </gpx>"""
 
-    private val gpxWaypointsAndTracks = """<?xml version="1.0"?>
+    private val gpx = """<?xml version="1.0"?>
 <gpx version="1.1" creator="Trail Sense" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xmlns:trailsense="https://kylecorry.com/Trail-Sense" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd https://kylecorry.com/Trail-Sense https://kylecorry.com/Trail-Sense/trailsense.xsd">
     <wpt lat="37.778259000" lon="-122.391386000">
         <ele>3.4</ele>
@@ -328,6 +384,22 @@ class GPXParserTest {
             </trkpt>
         </trkseg>
     </trk>
+    <rte>
+        <name>Test route</name>
+        <desc>Test desc</desc>
+        <cmt>Test cmt</cmt>
+        <number>3</number>
+        <type>Test type</type>
+        <src>gps</src>
+        <rtept lat="32" lon="101">
+            <ele>3</ele>
+            <time>2016-06-17T23:41:03Z</time>
+        </rtept>
+        <rtept lat="34" lon="11">
+            <ele>6</ele>
+            <time>2018-06-17T23:41:03Z</time>
+        </rtept>
+    </rte>
 </gpx>"""
 
 
