@@ -24,6 +24,10 @@ object GPXParser {
             children.add(toXML(track))
         }
 
+        for (route in data.routes){
+            children.add(toXML(route))
+        }
+
         val gpx = XMLNode(
             "gpx", mapOf(
                 "version" to "1.1",
@@ -195,7 +199,7 @@ object GPXParser {
         }
 
         if (track.id != null) {
-            children.add(XMLNode.text("number", TextUtils.htmlEncode(track.id.toString())))
+            children.add(XMLNode.text("number", track.id.toString()))
         }
 
         if (track.type != null) {
@@ -233,7 +237,7 @@ object GPXParser {
         }
 
         if (route.number != null) {
-            children.add(XMLNode.text("number", TextUtils.htmlEncode(route.number.toString())))
+            children.add(XMLNode.text("number", route.number.toString()))
         }
 
         if (route.type != null) {
