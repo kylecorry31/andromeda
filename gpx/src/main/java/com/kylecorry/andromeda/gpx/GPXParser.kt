@@ -170,7 +170,7 @@ object GPXParser {
             children.add(
                 XMLNode(
                     "extensions", mapOf(), null, listOf(
-                        XMLNode.text("trailsense:group", waypoint.group)
+                        XMLNode.text("trailsense:group", TextUtils.htmlEncode(waypoint.group))
                     )
                 )
             )
