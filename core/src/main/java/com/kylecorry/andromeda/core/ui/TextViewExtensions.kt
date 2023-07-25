@@ -59,11 +59,8 @@ fun TextView.setIncognitoMode(isIncognito: Boolean) {
 /**
  * If the text hasn't changed, this will save some CPU cycles
  */
-var TextView.textDistinct: CharSequence?
-    set(value){
-        if (this.text != value) {
-            this.text = value
-        }
+fun TextView.setTextDistinct(text: CharSequence?) {
+    if (this.text != text) {
+        this.text = text
     }
-    get() = text
-
+}
