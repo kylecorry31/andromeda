@@ -39,6 +39,14 @@ class StringEnumPreferenceTest {
     }
 
     @Test
+    fun canGetDefaultValueAndSave() {
+        val pref by StringEnumPreference(preferences, prefName, mapping, TestEnum.One, saveDefault = true)
+
+        assertEquals(TestEnum.One, pref)
+        assertEquals("1", preferences.getString(prefName))
+    }
+
+    @Test
     fun canGetValue() {
         preferences.putString(prefName, "2")
         val pref by StringEnumPreference(preferences, prefName, mapping, TestEnum.One)

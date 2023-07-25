@@ -39,6 +39,14 @@ class IntEnumPreferenceTest {
     }
 
     @Test
+    fun canGetDefaultValueAndSave() {
+        val pref by IntEnumPreference(preferences, prefName, mapping, TestEnum.One, saveDefault = true)
+
+        assertEquals(TestEnum.One, pref)
+        assertEquals(1, preferences.getInt(prefName))
+    }
+
+    @Test
     fun canGetValue() {
         preferences.putInt(prefName, 2)
         val pref by IntEnumPreference(preferences, prefName, mapping, TestEnum.One)

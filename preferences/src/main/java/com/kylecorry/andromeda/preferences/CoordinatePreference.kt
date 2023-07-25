@@ -6,11 +6,16 @@ import kotlin.reflect.KProperty
 class CoordinatePreference(
     private val preferences: IPreferences,
     private val name: String,
-    private val defaultValue: Coordinate
+    private val defaultValue: Coordinate,
+    private val saveDefault: Boolean = false
 ) {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Coordinate {
-        return preferences.getCoordinate(name) ?: defaultValue
+        val value = preferences.getCoordinate(name)
+        if (value == null && saveDefault) {
+            preferences.putCoordinate(name, defaultValue)
+        }
+        return value ?: defaultValue
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Coordinate) {

@@ -33,6 +33,14 @@ class BooleanPreferenceTest {
     }
 
     @Test
+    fun canGetDefaultValueAndSave() {
+        val pref by BooleanPreference(preferences, prefName, false, saveDefault = true)
+
+        assertFalse(pref)
+        assertEquals(false, preferences.getBoolean(prefName))
+    }
+
+    @Test
     fun canGetValue() {
         preferences.putBoolean(prefName, true)
         val pref by BooleanPreference(preferences, prefName, false)

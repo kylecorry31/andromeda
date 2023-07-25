@@ -5,11 +5,16 @@ import kotlin.reflect.KProperty
 class DoublePreference(
     private val preferences: IPreferences,
     private val name: String,
-    private val defaultValue: Double
+    private val defaultValue: Double,
+    private val saveDefault: Boolean = false
 ) {
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return preferences.getDouble(name) ?: defaultValue
+        val value = preferences.getDouble(name)
+        if (value == null && saveDefault) {
+            preferences.putDouble(name, defaultValue)
+        }
+        return value ?: defaultValue
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
