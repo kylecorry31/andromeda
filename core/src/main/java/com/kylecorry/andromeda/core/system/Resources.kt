@@ -4,6 +4,7 @@ import android.R
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.LocaleList
+import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.MenuItem
 import android.widget.PopupMenu
@@ -96,5 +97,9 @@ object Resources {
             "US", "LR" -> false
             else -> true
         }
+    }
+
+    fun uses24HourClock(context: Context): Boolean {
+        return DateFormat.is24HourFormat(context)
     }
 }
