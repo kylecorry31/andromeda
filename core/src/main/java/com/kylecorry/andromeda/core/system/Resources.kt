@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.core.system
 import android.R
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.LocaleList
 import android.util.TypedValue
 import android.view.MenuItem
 import android.widget.PopupMenu
@@ -13,7 +14,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.os.ConfigurationCompat
 import androidx.core.view.get
+import java.util.Locale
 
 object Resources {
     fun dp(context: Context, size: Float): Float {
@@ -77,5 +80,21 @@ object Resources {
             items.add(menu[i])
         }
         return items
+    }
+
+    fun getLocale(context: Context): Locale {
+        val config = context.applicationContext.resources.configuration
+        val locales = ConfigurationCompat.getLocales(config)
+        return locales.get(0) ?: Locale.getDefault()
+    }
+
+    fun isMetricPreferred(context: Context): Boolean {
+        val locale = getLocale(context)
+        // As of 2023, the US and Liberia are the only countries which heavily use imperial units
+        // Myanmar is sometimes viewed as a third, but they use metric for most things and local units for others (which are not supported by my apps)
+        return when (locale.country) {
+            "US", "LR" -> false
+            else -> true
+        }
     }
 }
