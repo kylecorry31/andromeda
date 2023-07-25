@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.core.system
 
 import android.content.res.Resources
-import android.os.Build
+import androidx.core.os.ConfigurationCompat
 import java.util.*
 
 class ResourceCache(private val resources: Resources) {
@@ -33,11 +33,8 @@ class ResourceCache(private val resources: Resources) {
     }
 
     private fun getLocale(): Locale {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            resources.configuration.locales[0]
-        } else {
-            @Suppress("DEPRECATION")
-            resources.configuration.locale
-        }
+        val config = resources.configuration
+        val locales = ConfigurationCompat.getLocales(config)
+        return locales.get(0) ?: Locale.getDefault()
     }
 }

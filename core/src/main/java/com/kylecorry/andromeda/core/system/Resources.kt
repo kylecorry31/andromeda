@@ -92,7 +92,7 @@ object Resources {
         val locale = getLocale(context)
         // As of 2023, the US and Liberia are the only countries which heavily use imperial units
         // Myanmar is sometimes viewed as a third, but they use metric for most things and local units for others (which are not supported by my apps)
-        return when (locale.country) {
+        return when (locale.country.uppercase()) {
             "US", "LR" -> false
             else -> true
         }
