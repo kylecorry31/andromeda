@@ -36,6 +36,31 @@ class ZipUtilsTest {
     }
 
     @Test
+    fun canZipWithFolder() {
+        val zip = fileSystem.getFile("test.zip", true)
+        fileSystem.write("test.txt", "testing")
+        fileSystem.write("other.text", "other")
+        fileSystem.write("folder/test2.txt", "testing")
+        fileSystem.write("folder/otherFolder/other2.txt", "other")
+
+        assertTrue(zip.length() == 0L)
+
+        ZipUtils.zip(
+            zip,
+            fileSystem.getFile("test.txt"),
+            fileSystem.getFile("other.text"),
+            fileSystem.getDirectory("folder")
+        )
+
+        assertTrue(zip.length() > 0L)
+
+        fileSystem.delete("test.txt")
+        fileSystem.delete("other.txt")
+        fileSystem.delete("test.zip")
+        fileSystem.delete("folder", true)
+    }
+
+    @Test
     fun canUnzip() {
         val zip = fileSystem.getFile("test.zip", true)
         fileSystem.write("test.txt", "testing")
@@ -46,12 +71,47 @@ class ZipUtilsTest {
 
         assertEquals("testing", fileSystem.read("test/test.txt"))
         assertEquals("other", fileSystem.read("test/other.txt"))
-        assertEquals(listOf("test.txt", "other.txt"), fileSystem.getDirectory("test").list()!!.toList())
+        assertEquals(
+            listOf("test.txt", "other.txt"),
+            fileSystem.getDirectory("test").list()!!.toList()
+        )
 
         fileSystem.delete("test", true)
         fileSystem.delete("test.txt")
         fileSystem.delete("other.txt")
         fileSystem.delete("test.zip")
+    }
+
+    @Test
+    fun canUnzipWithFolder() {
+        val zip = fileSystem.getFile("test.zip", true)
+        fileSystem.write("test.txt", "testing")
+        fileSystem.write("other.txt", "other")
+        fileSystem.write("folder/test2.txt", "testing")
+        fileSystem.write("folder/otherFolder/other2.txt", "other")
+        ZipUtils.zip(
+            zip,
+            fileSystem.getFile("test.txt"),
+            fileSystem.getFile("other.txt"),
+            fileSystem.getDirectory("folder")
+        )
+
+        ZipUtils.unzip(zip, fileSystem.getDirectory("test", true))
+
+        assertEquals("testing", fileSystem.read("test/test.txt"))
+        assertEquals("other", fileSystem.read("test/other.txt"))
+        assertEquals("testing", fileSystem.read("test/folder/test2.txt"))
+        assertEquals("other", fileSystem.read("test/folder/otherFolder/other2.txt"))
+        assertEquals(
+            listOf("test.txt", "other.txt", "folder"),
+            fileSystem.getDirectory("test").list()!!.toList()
+        )
+
+        fileSystem.delete("test", true)
+        fileSystem.delete("test.txt")
+        fileSystem.delete("other.txt")
+        fileSystem.delete("test.zip")
+        fileSystem.delete("folder", true)
     }
 
     @Test

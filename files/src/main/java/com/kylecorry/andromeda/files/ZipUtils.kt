@@ -16,25 +16,32 @@ object ZipUtils {
     }
 
     /**
-     * Zip files to a stream - does not support zipping directories yet
+     * Zip files to a stream
      */
     fun zip(toStream: OutputStream, vararg files: File) {
         val saver = FileSaver(false)
         val zip = ZipOutputStream(toStream)
         zip.use {
             files.forEach { file ->
-                val entry = ZipEntry(file.name)
-                it.putNextEntry(entry)
-                saver.save(file, zip)
+                addFileToZip(zip, file, saver)
             }
         }
     }
 
-    private fun getAllFiles(file: File): List<File> {
-        return if (file.isDirectory) {
-            listOf(file) + (file.listFiles()?.flatMap { getAllFiles(it) } ?: emptyList())
+    private fun addFileToZip(
+        zip: ZipOutputStream,
+        file: File,
+        saver: FileSaver,
+        rootPath: String = ""
+    ) {
+        if (file.isDirectory) {
+            file.listFiles()?.forEach {
+                addFileToZip(zip, it, saver, rootPath + file.name + "/")
+            }
         } else {
-            listOf(file)
+            val entry = ZipEntry(rootPath + file.name)
+            zip.putNextEntry(entry)
+            saver.save(file, zip)
         }
     }
 
