@@ -6,11 +6,7 @@ class FileSaver(private val autoClose: Boolean = true) {
 
     fun save(input: InputStream, output: OutputStream) {
         try {
-            val buf = ByteArray(1024)
-            var len: Int
-            while (input.read(buf).also { len = it } > 0) {
-                output.write(buf, 0, len)
-            }
+            input.copyTo(output, 1024)
         } finally {
             if (autoClose) {
                 try {
