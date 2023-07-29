@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.MutablePreferences
@@ -16,6 +17,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceManager
 import com.kylecorry.andromeda.core.cache.MemoryCachedValue
 import com.kylecorry.andromeda.core.topics.generic.Topic
@@ -235,6 +237,10 @@ class SynchronousDataStorePreferences(
     }
 
     companion object {
+
+        fun PreferenceManager.useDataStore(dataStore: SynchronousDataStorePreferences){
+            preferenceDataStore = dataStore.dataStore as PreferenceDataStore
+        }
 
         fun deleteDataStore(context: Context, name: String) {
             val datastoreFile = context.applicationContext.preferencesDataStoreFile(name)
