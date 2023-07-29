@@ -1,20 +1,31 @@
 package com.kylecorry.andromeda.preferences
 
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
 
-internal class PreferencesTest {
+internal class SynchronousDataStorePreferencesTest {
 
-    private lateinit var preferences: DefaultSharedPreferences
+    private lateinit var preferences: SynchronousDataStorePreferences
 
     @Before
     fun setup(){
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        preferences = DefaultSharedPreferences(ctx)
+        preferences = SynchronousDataStorePreferences(ctx, "settings")
+    }
+
+    @After
+    fun teardown(){
+        val ctx = InstrumentationRegistry.getInstrumentation().context
+        preferences.close()
+        val file = ctx.applicationContext.preferencesDataStoreFile("settings")
+        file.delete()
     }
 
     @Test
