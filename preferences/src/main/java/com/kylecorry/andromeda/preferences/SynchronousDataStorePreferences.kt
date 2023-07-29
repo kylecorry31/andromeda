@@ -217,9 +217,35 @@ class SynchronousDataStorePreferences(
         putLong(key, duration.toMillis())
     }
 
-    override fun getAll(): Map<String, *> {
+    override fun getAll(): Collection<Preference> {
         return getBlocking {
-            it.toMap()
+            it.toMap().mapNotNull { entry ->
+                val type = getPreferenceType(entry.value)
+                type?.let { Preference(entry.key, type, entry.value) }
+            }
+        }
+    }
+
+    override fun putAll(preferences: Collection<Preference>, clearOthers: Boolean) {
+        editBlocking {
+            if (clearOthers) {
+                it.clear()
+            }
+            preferences.forEach { pref ->
+                when (pref.type) {
+                    PreferenceType.Boolean -> it[booleanPreferencesKey(pref.key)] = pref.value as Boolean
+                    PreferenceType.String -> it[stringPreferencesKey(pref.key)] = pref.value as String
+                    PreferenceType.Int -> it[intPreferencesKey(pref.key)] = pref.value as Int
+                    PreferenceType.Long -> it[longPreferencesKey(pref.key)] = pref.value as Long
+                    PreferenceType.Float -> it[floatPreferencesKey(pref.key)] = pref.value as Float
+                }
+            }
+        }
+    }
+
+    override fun clear() {
+        editBlocking {
+            it.clear()
         }
     }
 

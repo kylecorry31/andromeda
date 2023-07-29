@@ -18,10 +18,12 @@ internal class CachedPreferencesTest {
         val ctx = InstrumentationRegistry.getInstrumentation().context
         basePreferences = SynchronousDataStorePreferences(ctx, "settings")
         preferences = CachedPreferences(basePreferences)
+        preferences.clear()
     }
 
     @After
     fun teardown(){
+        preferences.clear()
         preferences.close()
     }
 

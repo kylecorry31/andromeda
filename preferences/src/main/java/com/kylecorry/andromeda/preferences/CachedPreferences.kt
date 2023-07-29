@@ -112,8 +112,30 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
     /**
      * This is not cached
      */
-    override fun getAll(): Map<String, *> {
+    override fun getAll(): Collection<Preference> {
         return preferences.getAll()
+    }
+
+    override fun putAll(preferences: Collection<Preference>, clearOthers: Boolean) {
+        if (!clearOthers) {
+            synchronized(cache) {
+                cache.clear()
+            }
+        } else {
+            synchronized(cache) {
+                preferences.forEach {
+                    cache.remove(it.key)
+                }
+            }
+        }
+        this.preferences.putAll(preferences, clearOthers)
+    }
+
+    override fun clear() {
+        synchronized(cache) {
+            cache.clear()
+        }
+        preferences.clear()
     }
 
     override fun close() {

@@ -7,7 +7,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
-interface IPreferences: Closeable {
+interface IPreferences : Closeable {
     val onChange: Topic<String>
     fun remove(key: String)
     fun contains(key: String): Boolean
@@ -31,5 +31,7 @@ interface IPreferences: Closeable {
     fun getInstant(key: String): Instant?
     fun getDuration(key: String): Duration?
     fun putDuration(key: String, duration: Duration)
-    fun getAll(): Map<String, *>
+    fun getAll(): Collection<Preference>
+    fun putAll(preferences: Collection<Preference>, clearOthers: Boolean = false)
+    fun clear()
 }

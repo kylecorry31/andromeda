@@ -18,10 +18,12 @@ internal class SynchronousDataStorePreferencesTest {
     fun setup() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
         preferences = SynchronousDataStorePreferences(ctx, "settings")
+        preferences.clear()
     }
 
     @After
     fun teardown() {
+        preferences.clear()
         preferences.close()
     }
 
@@ -226,6 +228,86 @@ internal class SynchronousDataStorePreferencesTest {
             ctx,
             "settings_canMigrateDefaultSharedPreferencesPartialKeys"
         )
+    }
+
+    @Test
+    fun canGetAll(){
+        preferences.putInt("test_int", 1)
+        preferences.putBoolean("test_bool", true)
+        preferences.putString("test_string", "test")
+        preferences.putFloat("test_float", 1.2f)
+        preferences.putLong("test_long", 2L)
+
+        val all = preferences.getAll()
+
+        assertEquals(5, all.size)
+        assertEquals(listOf(
+            Preference("test_bool", PreferenceType.Boolean, true),
+            Preference("test_float", PreferenceType.Float, 1.2f),
+            Preference("test_int", PreferenceType.Int, 1),
+            Preference("test_long", PreferenceType.Long, 2L),
+            Preference("test_string", PreferenceType.String, "test")
+        ), all.sortedBy { it.key })
+    }
+
+    @Test
+    fun canPutAllWithClear(){
+        preferences.putInt("test_int", 1)
+        preferences.putString("test_string", "test")
+        preferences.putLong("test_long", 2L)
+        preferences.putLong("test_long2", 3L)
+
+        preferences.putAll(listOf(
+            Preference("test_bool", PreferenceType.Boolean, false),
+            Preference("test_float", PreferenceType.Float, 1.3f),
+            Preference("test_int", PreferenceType.Int, 2),
+            Preference("test_long", PreferenceType.Long, 3L),
+            Preference("test_string", PreferenceType.String, "test2")
+        ), true)
+
+
+        val all = preferences.getAll()
+
+        assertEquals(5, all.size)
+        assertEquals(listOf(
+            Preference("test_bool", PreferenceType.Boolean, false),
+            Preference("test_float", PreferenceType.Float, 1.3f),
+            Preference("test_int", PreferenceType.Int, 2),
+            Preference("test_long", PreferenceType.Long, 3L),
+            Preference("test_string", PreferenceType.String, "test2")
+        ), all.sortedBy { it.key })
+
+        // Remove all the prefs
+        preferences.clear()
+    }
+
+    @Test
+    fun canPutAllWithoutClear(){
+        preferences.putInt("test_int", 1)
+        preferences.putString("test_string", "test")
+        preferences.putLong("test_long", 2L)
+        preferences.putLong("test_long2", 3L)
+
+        preferences.putAll(listOf(
+            Preference("test_bool", PreferenceType.Boolean, false),
+            Preference("test_float", PreferenceType.Float, 1.3f),
+            Preference("test_int", PreferenceType.Int, 2),
+            Preference("test_long", PreferenceType.Long, 3L),
+            Preference("test_string", PreferenceType.String, "test2")
+        ), false)
+
+
+        val all = preferences.getAll()
+
+        assertEquals(6, all.size)
+        assertEquals(listOf(
+            Preference("test_bool", PreferenceType.Boolean, false),
+            Preference("test_float", PreferenceType.Float, 1.3f),
+            Preference("test_int", PreferenceType.Int, 2),
+            Preference("test_long", PreferenceType.Long, 3L),
+            Preference("test_long2", PreferenceType.Long, 3L),
+            Preference("test_string", PreferenceType.String, "test2")
+        ), all.sortedBy { it.key })
     }
 
 }

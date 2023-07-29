@@ -12,7 +12,8 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
-class DefaultSharedPreferences(context: Context) : IPreferences {
+class DefaultSharedPreferences(context: Context, private val commitChanges: Boolean = false) :
+    IPreferences {
 
     /**
      * Same as mode private shared prefs with name <<package>>_preferences
@@ -30,7 +31,7 @@ class DefaultSharedPreferences(context: Context) : IPreferences {
         }
 
     override fun remove(key: String) {
-        sharedPrefs?.edit { remove(key) }
+        sharedPrefs?.edit(commitChanges) { remove(key) }
     }
 
     override fun contains(key: String): Boolean {
@@ -38,27 +39,27 @@ class DefaultSharedPreferences(context: Context) : IPreferences {
     }
 
     override fun putInt(key: String, value: Int) {
-        sharedPrefs?.edit { putInt(key, value) }
+        sharedPrefs?.edit(commitChanges) { putInt(key, value) }
     }
 
     override fun putBoolean(key: String, value: Boolean) {
-        sharedPrefs?.edit { putBoolean(key, value) }
+        sharedPrefs?.edit(commitChanges) { putBoolean(key, value) }
     }
 
     override fun putString(key: String, value: String) {
-        sharedPrefs?.edit { putString(key, value) }
+        sharedPrefs?.edit(commitChanges) { putString(key, value) }
     }
 
     override fun putFloat(key: String, value: Float) {
-        sharedPrefs?.edit { putFloat(key, value) }
+        sharedPrefs?.edit(commitChanges) { putFloat(key, value) }
     }
 
     override fun putDouble(key: String, value: Double) {
-        sharedPrefs?.edit { putString(key, value.toString()) }
+        sharedPrefs?.edit(commitChanges) { putString(key, value.toString()) }
     }
 
     override fun putLong(key: String, value: Long) {
-        sharedPrefs?.edit { putLong(key, value) }
+        sharedPrefs?.edit(commitChanges) { putLong(key, value) }
     }
 
     override fun getInt(key: String): Int? {
@@ -144,8 +145,33 @@ class DefaultSharedPreferences(context: Context) : IPreferences {
         putLong(key, duration.toMillis())
     }
 
-    override fun getAll(): Map<String, *> {
-        return sharedPrefs?.all ?: emptyMap<String, Any>()
+    override fun getAll(): Collection<Preference> {
+        val all = sharedPrefs?.all ?: emptyMap<String, Any>()
+        return all.mapNotNull { (key, value) ->
+            val type = getPreferenceType(value)
+            type?.let { Preference(key, it, value) }
+        }
+    }
+
+    override fun putAll(preferences: Collection<Preference>, clearOthers: Boolean) {
+        sharedPrefs.edit(commitChanges) {
+            if (clearOthers) {
+                clear()
+            }
+            preferences.forEach {
+                when (it.type) {
+                    PreferenceType.Int -> putInt(it.key, it.value as Int)
+                    PreferenceType.Boolean -> putBoolean(it.key, it.value as Boolean)
+                    PreferenceType.String -> putString(it.key, it.value as String)
+                    PreferenceType.Float -> putFloat(it.key, it.value as Float)
+                    PreferenceType.Long -> putLong(it.key, it.value as Long)
+                }
+            }
+        }
+    }
+
+    override fun clear() {
+        sharedPrefs.edit(commitChanges) { clear() }
     }
 
     override fun close() {
