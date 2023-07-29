@@ -15,18 +15,18 @@ internal class SynchronousDataStorePreferencesTest {
     private lateinit var preferences: SynchronousDataStorePreferences
 
     @Before
-    fun setup(){
+    fun setup() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
         preferences = SynchronousDataStorePreferences(ctx, "settings")
     }
 
     @After
-    fun teardown(){
+    fun teardown() {
         preferences.close()
     }
 
     @Test
-    fun cachesDouble(){
+    fun cachesDouble() {
         val value = 3.141592654
         preferences.putDouble("test_double", value)
 
@@ -40,7 +40,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesInt(){
+    fun cachesInt() {
         val value = 1
         val key = "test_int"
         preferences.putInt(key, value)
@@ -55,7 +55,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesString(){
+    fun cachesString() {
         val value = "test"
         val key = "test_string"
         preferences.putString(key, value)
@@ -70,7 +70,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesFloat(){
+    fun cachesFloat() {
         val value = 1.2f
         val key = "test_float"
         preferences.putFloat(key, value)
@@ -85,7 +85,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesBoolean(){
+    fun cachesBoolean() {
         val value = true
         val key = "test_bool"
         preferences.putBoolean(key, value)
@@ -100,7 +100,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesLong(){
+    fun cachesLong() {
         val value = 2L
         val key = "test_long"
         preferences.putLong(key, value)
@@ -115,7 +115,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesInstant(){
+    fun cachesInstant() {
         val value = Instant.ofEpochMilli(1000)
         val key = "test_instant"
         preferences.putInstant(key, value)
@@ -130,7 +130,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun cachesLocalDate(){
+    fun cachesLocalDate() {
         val value = LocalDate.of(2021, 1, 2)
         val key = "test_local_date"
         preferences.putLocalDate(key, value)
@@ -145,7 +145,7 @@ internal class SynchronousDataStorePreferencesTest {
     }
 
     @Test
-    fun updatesCacheValue(){
+    fun updatesCacheValue() {
         val key = "test_int"
         preferences.putInt(key, 1)
 
@@ -156,6 +156,76 @@ internal class SynchronousDataStorePreferencesTest {
         assertEquals(preferences.getInt(key), 2)
 
         preferences.remove(key)
+    }
+
+    @Test
+    fun canMigrateDefaultSharedPreferencesAllKeys() {
+        val ctx = InstrumentationRegistry.getInstrumentation().context
+        val sharedPrefs = DefaultSharedPreferences(ctx)
+        sharedPrefs.putInt("test_int", 1)
+        sharedPrefs.putFloat("test_float", 1.2f)
+
+        val dataStore = SynchronousDataStorePreferences(
+            ctx,
+            "settings_canMigrateDefaultSharedPreferencesAllKeys",
+            migrations = listOf(
+                SynchronousDataStorePreferences.getDefaultSharedPreferencesMigration(ctx)
+            )
+        )
+
+        assertEquals(dataStore.getInt("test_int"), 1)
+        assertEquals(dataStore.getFloat("test_float"), 1.2f)
+
+        // Verify shared prefs are empty
+        assertEquals(sharedPrefs.getInt("test_int"), null)
+        assertEquals(sharedPrefs.getFloat("test_float"), null)
+
+        // Cleanup
+        dataStore.remove("test_int")
+        dataStore.remove("test_float")
+        dataStore.close()
+        sharedPrefs.close()
+        SynchronousDataStorePreferences.deleteDataStore(
+            ctx,
+            "settings_canMigrateDefaultSharedPreferencesAllKeys"
+        )
+    }
+
+    @Test
+    fun canMigrateDefaultSharedPreferencesPartialKeys() {
+        val ctx = InstrumentationRegistry.getInstrumentation().context
+        val sharedPrefs = DefaultSharedPreferences(ctx)
+        sharedPrefs.putInt("test_int", 1)
+        sharedPrefs.putFloat("test_float", 1.2f)
+
+        val dataStore = SynchronousDataStorePreferences(
+            ctx,
+            "settings_canMigrateDefaultSharedPreferencesPartialKeys",
+            migrations = listOf(
+                SynchronousDataStorePreferences.getDefaultSharedPreferencesMigration(
+                    ctx,
+                    listOf("test_int")
+                )
+            )
+        )
+
+        assertEquals(dataStore.getInt("test_int"), 1)
+        assertEquals(dataStore.getFloat("test_float"), null)
+
+        // Verify shared prefs are empty
+        assertEquals(sharedPrefs.getInt("test_int"), null)
+        assertEquals(sharedPrefs.getFloat("test_float"), 1.2f)
+
+        // Cleanup
+        dataStore.remove("test_int")
+        dataStore.remove("test_float")
+        sharedPrefs.remove("test_float")
+        dataStore.close()
+        sharedPrefs.close()
+        SynchronousDataStorePreferences.deleteDataStore(
+            ctx,
+            "settings_canMigrateDefaultSharedPreferencesPartialKeys"
+        )
     }
 
 }
