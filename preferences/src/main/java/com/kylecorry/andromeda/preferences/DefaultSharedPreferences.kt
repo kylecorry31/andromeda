@@ -14,6 +14,9 @@ import java.time.LocalDate
 
 class DefaultSharedPreferences(context: Context) : IPreferences {
 
+    /**
+     * Same as mode private shared prefs with name <<package>>_preferences
+     */
     private val sharedPrefs by lazy { PreferenceManager.getDefaultSharedPreferences(context.applicationContext) }
 
     override val onChange = Topic.lazy<String>(
