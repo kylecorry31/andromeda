@@ -114,6 +114,13 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
         put(key, duration, preferences::putDuration)
     }
 
+    /**
+     * This is not cached
+     */
+    override fun getAll(): Map<String, *> {
+        return preferences.getAll()
+    }
+
     private fun <T> put(key: String, value: T, setter: (String, T) -> Unit) {
         synchronized(cache) {
             cache[key] = value

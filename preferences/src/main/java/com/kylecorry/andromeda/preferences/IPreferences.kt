@@ -30,4 +30,5 @@ interface IPreferences {
     fun getInstant(key: String): Instant?
     fun getDuration(key: String): Duration?
     fun putDuration(key: String, duration: Duration)
+    fun getAll(): Map<String, *>
 }
