@@ -22,10 +22,7 @@ internal class SynchronousDataStorePreferencesTest {
 
     @After
     fun teardown(){
-        val ctx = InstrumentationRegistry.getInstrumentation().context
         preferences.close()
-        val file = ctx.applicationContext.preferencesDataStoreFile("settings")
-        file.delete()
     }
 
     @Test

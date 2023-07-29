@@ -12,12 +12,7 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
     private val cache = mutableMapOf<String, Any?>()
 
     init {
-        preferences.onChange.subscribe {
-            synchronized(cache) {
-                cache.remove(it)
-            }
-            true
-        }
+        preferences.onChange.subscribe(this::onPreferenceChanged)
     }
 
     override fun remove(key: String) {
@@ -121,6 +116,11 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
         return preferences.getAll()
     }
 
+    override fun close() {
+        preferences.onChange.unsubscribe(this::onPreferenceChanged)
+        preferences.close()
+    }
+
     private fun <T> put(key: String, value: T, setter: (String, T) -> Unit) {
         synchronized(cache) {
             cache[key] = value
@@ -142,5 +142,12 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
             }
         }
         return value
+    }
+
+    private fun onPreferenceChanged(key: String): Boolean {
+        synchronized(cache) {
+            cache.remove(key)
+        }
+        return true
     }
 }

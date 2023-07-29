@@ -145,6 +145,10 @@ class DefaultSharedPreferences(context: Context) : IPreferences {
         return sharedPrefs?.all ?: emptyMap<String, Any>()
     }
 
+    override fun close() {
+        sharedPrefs?.unregisterOnSharedPreferenceChangeListener(listener)
+    }
+
     override fun getDuration(key: String): Duration? {
         val millis = getLong(key) ?: return null
         return Duration.ofMillis(millis)

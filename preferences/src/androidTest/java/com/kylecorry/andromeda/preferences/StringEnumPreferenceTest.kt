@@ -27,6 +27,7 @@ class StringEnumPreferenceTest {
     @After
     fun teardown() {
         preferences.remove(prefName)
+        preferences.close()
     }
 
     @Test

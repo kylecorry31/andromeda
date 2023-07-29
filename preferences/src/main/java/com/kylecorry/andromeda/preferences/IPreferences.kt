@@ -2,11 +2,12 @@ package com.kylecorry.andromeda.preferences
 
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.sol.units.Coordinate
+import java.io.Closeable
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
-interface IPreferences {
+interface IPreferences: Closeable {
     val onChange: Topic<String>
     fun remove(key: String)
     fun contains(key: String): Boolean

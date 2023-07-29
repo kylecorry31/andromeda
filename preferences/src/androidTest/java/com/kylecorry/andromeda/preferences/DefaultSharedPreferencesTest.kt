@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.preferences
 
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -15,6 +16,11 @@ internal class DefaultSharedPreferencesTest {
     fun setup(){
         val ctx = InstrumentationRegistry.getInstrumentation().context
         preferences = DefaultSharedPreferences(ctx)
+    }
+
+    @After
+    fun teardown(){
+        preferences.close()
     }
 
     @Test

@@ -229,7 +229,18 @@ class SynchronousDataStorePreferences(
         }.toMap()
     }
 
+    override fun close() {
+        job?.cancel()
+        scope.cancel()
+    }
+
     companion object {
+
+        fun deleteDataStore(context: Context, name: String) {
+            val datastoreFile = context.applicationContext.preferencesDataStoreFile(name)
+            datastoreFile.delete()
+        }
+
         fun getDefaultSharedPreferencesMigration(
             context: Context,
             keysToMigrate: Collection<String>? = null
@@ -249,10 +260,4 @@ class SynchronousDataStorePreferences(
             }, keysToMigrate.toSet())
         }
     }
-
-    override fun close() {
-        job?.cancel()
-        scope.cancel()
-    }
-
 }
