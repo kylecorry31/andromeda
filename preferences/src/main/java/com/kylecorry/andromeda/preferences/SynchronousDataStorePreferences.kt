@@ -2,7 +2,6 @@ package com.kylecorry.andromeda.preferences
 
 import android.content.Context
 import androidx.datastore.core.DataMigration
-import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.MutablePreferences
@@ -28,6 +27,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -55,18 +55,32 @@ class SynchronousDataStorePreferences(
 
     private val cache = MemoryCachedValue<Preferences>()
     private var job: Job? = null
+    private var isTrackingChanges = false
 
     init {
-        // Initial load
+        // Change tracking
         job = scope.launch {
-            cache.getOrPut { dataStore.data.first() }
+            dataStore.data.collectLatest {
+                // Change detection
+                if (isTrackingChanges) {
+                    val last = cache.get()?.toMap()
+                    val current = it.toMap()
+                    val changes = last?.changes(current) ?: emptyList()
+                    changes.forEach(onChange::publish)
+                }
+
+                cache.put(it)
+            }
         }
     }
 
-    override val onChange: Topic<String> = Topic()
+    override val onChange: Topic<String> = Topic.lazy(
+        { isTrackingChanges = true },
+        { isTrackingChanges = false }
+    )
 
     override fun remove(key: String) {
-        editBlocking(key) {
+        editBlocking {
             // Since this doesn't allow for Any types, we just ignore the exception
             tryOrNothing {
                 it.remove(stringPreferencesKey(key))
@@ -86,37 +100,37 @@ class SynchronousDataStorePreferences(
     }
 
     override fun putInt(key: String, value: Int) {
-        editBlocking(key) {
+        editBlocking {
             it[intPreferencesKey(key)] = value
         }
     }
 
     override fun putBoolean(key: String, value: Boolean) {
-        editBlocking(key) {
+        editBlocking {
             it[booleanPreferencesKey(key)] = value
         }
     }
 
     override fun putString(key: String, value: String) {
-        editBlocking(key) {
+        editBlocking {
             it[stringPreferencesKey(key)] = value
         }
     }
 
     override fun putFloat(key: String, value: Float) {
-        editBlocking(key) {
+        editBlocking {
             it[floatPreferencesKey(key)] = value
         }
     }
 
     override fun putDouble(key: String, value: Double) {
-        editBlocking(key) {
+        editBlocking {
             it[doublePreferencesKey(key)] = value
         }
     }
 
     override fun putLong(key: String, value: Long) {
-        editBlocking(key) {
+        editBlocking {
             it[longPreferencesKey(key)] = value
         }
     }
@@ -215,13 +229,12 @@ class SynchronousDataStorePreferences(
         block(data)
     }
 
-    private inline fun editBlocking(key: String, crossinline block: (MutablePreferences) -> Unit) {
+    private inline fun editBlocking(crossinline block: (MutablePreferences) -> Unit) {
         runBlocking {
             val prefs = dataStore.edit {
                 block(it)
             }
             cache.put(prefs)
-            onChange.publish(key)
         }
     }
 
@@ -238,7 +251,7 @@ class SynchronousDataStorePreferences(
 
     companion object {
 
-        fun PreferenceManager.useDataStore(dataStore: SynchronousDataStorePreferences){
+        fun PreferenceManager.useDataStore(dataStore: SynchronousDataStorePreferences) {
             preferenceDataStore = dataStore.dataStore as PreferenceDataStore
         }
 
