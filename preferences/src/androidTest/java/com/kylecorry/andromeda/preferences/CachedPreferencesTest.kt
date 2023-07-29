@@ -15,7 +15,7 @@ internal class CachedPreferencesTest {
     @Before
     fun setup(){
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        basePreferences = Preferences(ctx)
+        basePreferences = DefaultSharedPreferences(ctx)
         preferences = CachedPreferences(basePreferences)
     }
 

@@ -8,7 +8,7 @@ import org.junit.Test
 
 class StringEnumPreferenceTest {
 
-    private lateinit var preferences: Preferences
+    private lateinit var preferences: DefaultSharedPreferences
     private val prefName = "string_enum_preference_test"
 
     private val mapping = mapOf(
@@ -20,7 +20,7 @@ class StringEnumPreferenceTest {
     @Before
     fun setup() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        preferences = Preferences(ctx)
+        preferences = DefaultSharedPreferences(ctx)
         preferences.remove(prefName)
     }
 

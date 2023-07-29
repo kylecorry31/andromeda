@@ -12,7 +12,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
-class Preferences(context: Context) : IPreferences {
+class DefaultSharedPreferences(context: Context) : IPreferences {
 
     private val sharedPrefs by lazy { PreferenceManager.getDefaultSharedPreferences(context.applicationContext) }
 

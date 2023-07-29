@@ -9,12 +9,12 @@ import java.time.LocalDate
 
 internal class PreferencesTest {
 
-    private lateinit var preferences: Preferences
+    private lateinit var preferences: DefaultSharedPreferences
 
     @Before
     fun setup(){
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        preferences = Preferences(ctx)
+        preferences = DefaultSharedPreferences(ctx)
     }
 
     @Test

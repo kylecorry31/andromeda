@@ -8,13 +8,13 @@ import org.junit.Test
 
 class BooleanPreferenceTest {
 
-    private lateinit var preferences: Preferences
+    private lateinit var preferences: DefaultSharedPreferences
     private val prefName = "boolean_preference_test"
 
     @Before
     fun setup() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        preferences = Preferences(ctx)
+        preferences = DefaultSharedPreferences(ctx)
         preferences.remove(prefName)
     }
 

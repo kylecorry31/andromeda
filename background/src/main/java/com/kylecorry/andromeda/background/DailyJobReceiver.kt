@@ -7,7 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import com.kylecorry.andromeda.preferences.IPreferences
-import com.kylecorry.andromeda.preferences.Preferences
+import com.kylecorry.andromeda.preferences.DefaultSharedPreferences
 import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
 import java.time.LocalDate
@@ -16,7 +16,7 @@ import java.time.LocalTime
 
 abstract class DailyJobReceiver(
     private val tolerance: Duration = Duration.ofMinutes(30),
-    private val getPreferences: (Context) -> IPreferences = { Preferences(it) }
+    private val getPreferences: (Context) -> IPreferences = { DefaultSharedPreferences(it) }
 ) : BroadcastReceiver() {
 
     private val lock = Object()
