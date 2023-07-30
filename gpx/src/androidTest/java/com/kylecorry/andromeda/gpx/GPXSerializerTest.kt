@@ -28,7 +28,7 @@ class GPXSerializerTest {
             "Test type",
             1,
             "Test comment",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -77,7 +77,7 @@ class GPXSerializerTest {
             "Test type2",
             2,
             "Test comment2",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -161,7 +161,7 @@ class GPXSerializerTest {
             "Test type",
             1,
             "Test comment",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -210,7 +210,7 @@ class GPXSerializerTest {
             "Test type2",
             2,
             "Test comment2",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(

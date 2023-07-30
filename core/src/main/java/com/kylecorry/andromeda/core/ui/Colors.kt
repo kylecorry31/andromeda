@@ -68,4 +68,8 @@ object Colors {
         )
     }
 
+    fun toHex(@ColorInt color: Int): String {
+        return String.format("#%06X", 0xFFFFFF and color)
+    }
+
 }

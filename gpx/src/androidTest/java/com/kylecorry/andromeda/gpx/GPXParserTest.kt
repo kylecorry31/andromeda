@@ -56,7 +56,7 @@ class GPXParserTest {
             "Test type",
             1,
             "Test comment",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -105,7 +105,7 @@ class GPXParserTest {
             "Test type2",
             2,
             "Test comment2",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -207,7 +207,7 @@ class GPXParserTest {
             "Test type",
             1,
             "Test comment",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
@@ -256,7 +256,7 @@ class GPXParserTest {
             "Test type2",
             2,
             "Test comment2",
-            listOf(
+            segments = listOf(
                 GPXTrackSegment(
                     listOf(
                         GPXWaypoint(
