@@ -1,11 +1,9 @@
 package com.kylecorry.andromeda.preferences
 
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
@@ -163,7 +161,7 @@ internal class SynchronousDataStorePreferencesTest {
     @Test
     fun canMigrateDefaultSharedPreferencesAllKeys() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        val sharedPrefs = DefaultSharedPreferences(ctx)
+        val sharedPrefs = SharedPreferences(ctx)
         sharedPrefs.putInt("test_int", 1)
         sharedPrefs.putFloat("test_float", 1.2f)
 
@@ -196,7 +194,7 @@ internal class SynchronousDataStorePreferencesTest {
     @Test
     fun canMigrateDefaultSharedPreferencesPartialKeys() {
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        val sharedPrefs = DefaultSharedPreferences(ctx)
+        val sharedPrefs = SharedPreferences(ctx)
         sharedPrefs.putInt("test_int", 1)
         sharedPrefs.putFloat("test_float", 1.2f)
 

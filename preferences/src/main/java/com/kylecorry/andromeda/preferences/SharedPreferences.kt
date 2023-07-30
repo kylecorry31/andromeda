@@ -3,7 +3,6 @@ package com.kylecorry.andromeda.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.preference.PreferenceManager
 import com.kylecorry.andromeda.core.toDoubleCompat
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -12,13 +11,19 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
-class DefaultSharedPreferences(context: Context, private val commitChanges: Boolean = false) :
+/**
+ * A wrapper around SharedPreferences that allows for easy access to preferences.
+ * This uses the default shared preferences file by default (name = <<package>>_preferences, mode = private).
+ */
+class SharedPreferences(
+    context: Context,
+    private val name: String = "${context.packageName}_preferences",
+    private val mode: Int = Context.MODE_PRIVATE,
+    private val commitChanges: Boolean = false
+) :
     IPreferences {
 
-    /**
-     * Same as mode private shared prefs with name <<package>>_preferences
-     */
-    private val sharedPrefs by lazy { PreferenceManager.getDefaultSharedPreferences(context.applicationContext) }
+    private val sharedPrefs by lazy { context.applicationContext.getSharedPreferences(name, mode) }
 
     override val onChange = Topic.lazy<String>(
         { sharedPrefs.registerOnSharedPreferenceChangeListener(listener) },

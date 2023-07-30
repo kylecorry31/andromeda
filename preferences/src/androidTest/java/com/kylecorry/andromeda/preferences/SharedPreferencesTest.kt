@@ -8,14 +8,14 @@ import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
 
-internal class DefaultSharedPreferencesTest {
+internal class SharedPreferencesTest {
 
-    private lateinit var preferences: DefaultSharedPreferences
+    private lateinit var preferences: SharedPreferences
 
     @Before
     fun setup(){
         val ctx = InstrumentationRegistry.getInstrumentation().context
-        preferences = DefaultSharedPreferences(ctx)
+        preferences = SharedPreferences(ctx)
         preferences.clear()
     }
 

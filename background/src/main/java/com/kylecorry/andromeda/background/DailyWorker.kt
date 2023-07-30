@@ -8,7 +8,7 @@ import androidx.work.WorkerParameters
 import com.kylecorry.andromeda.core.system.Wakelocks
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.preferences.IPreferences
-import com.kylecorry.andromeda.preferences.DefaultSharedPreferences
+import com.kylecorry.andromeda.preferences.SharedPreferences
 import com.kylecorry.sol.time.Time.toZonedDateTime
 import java.time.Duration
 import java.time.LocalDate
@@ -20,7 +20,7 @@ abstract class DailyWorker(
     params: WorkerParameters,
     private val tolerance: Duration = Duration.ofMinutes(30),
     private val wakelockDuration: Duration? = null,
-    private val getPreferences: (Context) -> IPreferences = { DefaultSharedPreferences(it) }
+    private val getPreferences: (Context) -> IPreferences = { SharedPreferences(it) }
 ) : CoroutineWorker(context, params) {
 
     private val lock = Object()

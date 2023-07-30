@@ -5,7 +5,7 @@ import android.content.Context
 class PreferenceMigrator(
     private val context: Context,
     private val versionKey: String,
-    private val preferences: IPreferences = DefaultSharedPreferences(context)
+    private val preferences: IPreferences = SharedPreferences(context)
 ) {
 
     private val lock = Object()
