@@ -2,16 +2,43 @@ package com.kylecorry.andromeda.xml
 
 import android.util.Xml
 import org.xmlpull.v1.XmlPullParser
+import java.io.BufferedWriter
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 
 object XMLConvert {
 
     fun toString(xml: XMLNode, isRoot: Boolean = true): String {
-        val children = xml.children.joinToString("") { toString(it, false) }
+        return ByteArrayOutputStream().use { stream ->
+            write(xml, stream, isRoot)
+            stream.toString()
+        }
+    }
+
+    fun write(xml: XMLNode, stream: OutputStream, isRoot: Boolean = true) {
+        stream.bufferedWriter().use { writer ->
+            write(xml, writer, isRoot)
+        }
+    }
+
+    private fun write(xml: XMLNode, writer: BufferedWriter, isRoot: Boolean = true) {
+        if (isRoot) {
+            writer.write("<?xml version=\"1.0\"?>")
+        }
         val attributes = if (xml.attributes.isEmpty()) "" else " " + xml.attributes.toList()
             .joinToString(" ") { "${it.first}=\"${it.second}\"" }
-        val rootTag = if (isRoot) "<?xml version=\"1.0\"?>" else ""
-        return "${rootTag}<${xml.tag}${attributes}>${xml.text ?: ""}${children}</${xml.tag}>"
+        writer.write("<${xml.tag}")
+        writer.write(attributes)
+        writer.write(">")
+        xml.text?.let {
+            writer.write(it)
+        }
+        xml.children.forEach {
+            write(it, writer, false)
+        }
+        writer.write("</${xml.tag}>")
     }
 
 

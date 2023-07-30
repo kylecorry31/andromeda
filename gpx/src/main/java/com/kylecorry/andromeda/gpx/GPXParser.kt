@@ -7,14 +7,17 @@ import com.kylecorry.andromeda.core.toLongCompat
 import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
+import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 import java.time.Instant
 
 object GPXParser {
 
     private val validWaypointTags = arrayOf("wpt", "trkpt", "rtept")
 
-    fun toGPX(data: GPXData, creator: String): String {
+    fun toGPX(data: GPXData, creator: String, stream: OutputStream){
         val children = mutableListOf<XMLNode>()
         for (waypoint in data.waypoints) {
             children.add(toXML(waypoint, "wpt"))
@@ -41,7 +44,14 @@ object GPXParser {
             children
         )
 
-        return XMLConvert.toString(gpx, true)
+        XMLConvert.write(gpx, stream, true)
+    }
+
+    fun toGPX(data: GPXData, creator: String): String {
+        ByteArrayOutputStream().use { stream ->
+            toGPX(data, creator, stream)
+            return stream.toString()
+        }
     }
 
     fun parse(gpx: InputStream): GPXData {
