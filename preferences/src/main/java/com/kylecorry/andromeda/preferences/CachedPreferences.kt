@@ -1,32 +1,40 @@
 package com.kylecorry.andromeda.preferences
 
+import com.kylecorry.andromeda.core.coroutines.ControlledRunner
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.sol.units.Coordinate
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
+import java.util.concurrent.ConcurrentHashMap
 
-class CachedPreferences(private val preferences: IPreferences) : IPreferences {
+class CachedPreferences(
+    private val preferences: IPreferences,
+    private val shouldPreloadAllPrefs: Boolean = false
+) : IPreferences {
     override val onChange: Topic<String> = preferences.onChange
 
-    private val cache = mutableMapOf<String, Any?>()
+    private val cache = ConcurrentHashMap<String, Any?>()
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private val runner = ControlledRunner<Unit>()
 
     init {
+        loadPrefs()
         preferences.onChange.subscribe(this::onPreferenceChanged)
     }
 
     override fun remove(key: String) {
-        synchronized(cache) {
-            cache.remove(key)
-        }
+        cache.remove(key)
         preferences.remove(key)
     }
 
     override fun contains(key: String): Boolean {
-        val cached = synchronized(cache) {
-            cache.containsKey(key)
-        }
-        return cached || preferences.contains(key)
+        return cache.containsKey(key) || preferences.contains(key)
     }
 
     override fun putInt(key: String, value: Int) {
@@ -118,58 +126,65 @@ class CachedPreferences(private val preferences: IPreferences) : IPreferences {
 
     override fun putAll(preferences: Collection<Preference>, clearOthers: Boolean) {
         if (!clearOthers) {
-            synchronized(cache) {
-                cache.clear()
-            }
-        } else {
-            synchronized(cache) {
-                preferences.forEach {
-                    cache.remove(it.key)
-                }
-            }
+            cache.clear()
         }
+
+        preferences.forEach { preference ->
+            cache[preference.key] = preference.value
+        }
+
         this.preferences.putAll(preferences, clearOthers)
     }
 
     override fun clear() {
-        synchronized(cache) {
-            cache.clear()
-        }
+        cache.clear()
         preferences.clear()
     }
 
     override fun close() {
+        runner.cancel()
+        scope.cancel()
         preferences.onChange.unsubscribe(this::onPreferenceChanged)
         preferences.close()
     }
 
     private fun <T> put(key: String, value: T, setter: (String, T) -> Unit) {
-        synchronized(cache) {
-            cache[key] = value
-        }
+        cache[key] = value
         setter(key, value)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> get(key: String, getter: (String) -> T?): T? {
-        synchronized(cache) {
-            if (cache.contains(key)) {
-                return cache[key] as T?
-            }
+        cache.getOrDefault(key, null)?.let {
+            return it as T
         }
 
         val value = getter(key)
         if (value != null) {
-            synchronized(cache) {
-                cache[key] = value
-            }
+            cache[key] = value
         }
         return value
     }
 
     private fun onPreferenceChanged(key: String): Boolean {
-        synchronized(cache) {
-            cache.remove(key)
-        }
+        cache.remove(key)
+        loadPrefs(100)
         return true
+    }
+
+    private fun loadPrefs(debounce: Long = 0) {
+        if (!shouldPreloadAllPrefs) {
+            return
+        }
+        scope.launch {
+            runner.cancelPreviousThenRun {
+                // This will give some delay if a cancellation occurs, so it won't reload the prefs too often
+                if (debounce > 0) {
+                    delay(debounce)
+                }
+                val all = preferences.getAll()
+                cache.putAll(all.map { it.key to it.value })
+            }
+        }
     }
 }
