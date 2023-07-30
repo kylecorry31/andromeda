@@ -99,7 +99,8 @@ object GPXParser {
         }
 
         val name = node.children.firstOrNull { it.tag.lowercase() == "name" }?.text
-        val comment = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
+        val comment = node.children.firstOrNull { it.tag.lowercase() == "cmt" }?.text
+        val description = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
         val id = node.children.firstOrNull { it.tag.lowercase() == "number" }?.text?.toLongCompat()
         val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
         val extensions = node.children.firstOrNull { it.tag.lowercase() == "extensions" }
@@ -108,7 +109,7 @@ object GPXParser {
         val lineStyle = extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:linestyle" }?.text
         val group = extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
 
-        return GPXTrack(name, type, id, comment, colorInt, lineStyle, group, segments)
+        return GPXTrack(name, type, id, description, comment, colorInt, lineStyle, group, segments)
     }
 
     private fun parseRoute(node: XMLNode): GPXRoute? {
@@ -149,6 +150,8 @@ object GPXParser {
             if (node.attributes.containsKey("lon")) node.attributes["lon"]?.toDoubleCompat() else null
         val name = node.children.firstOrNull { it.tag.lowercase() == "name" }?.text
         val desc = node.children.firstOrNull { it.tag.lowercase() == "desc" }?.text
+        val comment = node.children.firstOrNull { it.tag.lowercase() == "cmt" }?.text
+        val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
         val time = node.children.firstOrNull { it.tag.lowercase() == "time" }?.text
         val ele = node.children.firstOrNull { it.tag.lowercase() == "ele" }?.text?.toFloatCompat()
         val symbol = node.children.firstOrNull { it.tag.lowercase() == "sym" }?.text
@@ -172,7 +175,7 @@ object GPXParser {
             null
         }
 
-        return GPXWaypoint(Coordinate(lat, lon), name, ele, desc, instant, group, symbol, colorInt)
+        return GPXWaypoint(Coordinate(lat, lon), name, ele, type, desc, comment, instant, group, symbol, colorInt)
     }
 
     private fun toXML(waypoint: GPXWaypoint, tag: String): XMLNode {
@@ -186,8 +189,14 @@ object GPXParser {
         if (waypoint.name != null) {
             children.add(XMLNode.text("name", TextUtils.htmlEncode(waypoint.name)))
         }
+        if (waypoint.type != null) {
+            children.add(XMLNode.text("type", TextUtils.htmlEncode(waypoint.type)))
+        }
+        if (waypoint.description != null) {
+            children.add(XMLNode.text("desc", TextUtils.htmlEncode(waypoint.description)))
+        }
         if (waypoint.comment != null) {
-            children.add(XMLNode.text("desc", TextUtils.htmlEncode(waypoint.comment)))
+            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(waypoint.comment)))
         }
         if (waypoint.symbol != null) {
             children.add(XMLNode.text("sym", TextUtils.htmlEncode(waypoint.symbol)))
@@ -221,8 +230,12 @@ object GPXParser {
             children.add(XMLNode.text("name", TextUtils.htmlEncode(track.name)))
         }
 
+        if (track.description != null) {
+            children.add(XMLNode.text("desc", TextUtils.htmlEncode(track.description)))
+        }
+
         if (track.comment != null) {
-            children.add(XMLNode.text("desc", TextUtils.htmlEncode(track.comment)))
+            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(track.comment)))
         }
 
         if (track.id != null) {

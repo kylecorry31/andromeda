@@ -15,9 +15,9 @@ class GPXParserTest {
                     Coordinate(37.778259, -122.391386),
                     "Beacon 1",
                     3.4f,
-                    "A test comment",
-                    Instant.parse("2016-06-17T23:41:03Z"),
-                    "Test Group"
+                    description = "A test comment",
+                    time = Instant.parse("2016-06-17T23:41:03Z"),
+                    group ="Test Group"
                 ),
                 GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
             ),
@@ -44,9 +44,9 @@ class GPXParserTest {
                 Coordinate(37.778259, -122.391386),
                 "Beacon 1",
                 3.4f,
-                "A test comment",
-                Instant.parse("2016-06-17T23:41:03Z"),
-                "Test Group"
+                description = "A test comment",
+                time = Instant.parse("2016-06-17T23:41:03Z"),
+                group = "Test Group"
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
@@ -64,16 +64,14 @@ class GPXParserTest {
                             null,
                             -3.14f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time =  Instant.parse("2016-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(32.0, 10.0),
                             null,
                             6.28f,
                             null,
-                            Instant.parse("2017-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2017-06-17T23:41:03Z")
                         )
                     )
                 ),
@@ -84,16 +82,14 @@ class GPXParserTest {
                             null,
                             1f,
                             null,
-                            Instant.parse("2017-06-17T23:41:03Z"),
-                            null
+                            time =  Instant.parse("2017-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(31.0, 11.0),
                             null,
                             2f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         )
                     )
                 )
@@ -113,16 +109,14 @@ class GPXParserTest {
                             null,
                             3f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(33.0, 11.0),
                             null,
                             6f,
                             null,
-                            Instant.parse("2018-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2018-06-17T23:41:03Z")
                         )
                     )
                 )
@@ -142,16 +136,14 @@ class GPXParserTest {
                     null,
                     3f,
                     null,
-                    Instant.parse("2016-06-17T23:41:03Z"),
-                    null
+                    time = Instant.parse("2016-06-17T23:41:03Z")
                 ),
                 GPXWaypoint(
                     Coordinate(34.0, 11.0),
                     null,
                     6f,
                     null,
-                    Instant.parse("2018-06-17T23:41:03Z"),
-                    null
+                    time = Instant.parse("2018-06-17T23:41:03Z")
                 )
             )
         )
@@ -178,9 +170,9 @@ class GPXParserTest {
                 Coordinate(37.778259, -122.391386),
                 "Beacon 1 & 0.5",
                 3.4f,
-                "A test comment",
-                Instant.parse("2016-06-17T23:41:03Z"),
-                "Test Group"
+                description = "A test comment",
+                time = Instant.parse("2016-06-17T23:41:03Z"),
+                group = "Test Group"
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
@@ -196,9 +188,9 @@ class GPXParserTest {
                 Coordinate(37.778259, -122.391386),
                 "Beacon 1",
                 3.4f,
-                "A test comment",
-                Instant.parse("2016-06-17T23:41:03Z"),
-                "Test Group"
+                description = "A test comment",
+                time = Instant.parse("2016-06-17T23:41:03Z"),
+                group = "Test Group"
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
@@ -215,16 +207,14 @@ class GPXParserTest {
                             null,
                             -3.14f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(32.0, 10.0),
                             null,
                             6.28f,
                             null,
-                            Instant.parse("2017-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2017-06-17T23:41:03Z")
                         )
                     )
                 ),
@@ -235,16 +225,14 @@ class GPXParserTest {
                             null,
                             1f,
                             null,
-                            Instant.parse("2017-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2017-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(31.0, 11.0),
                             null,
                             2f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         )
                     )
                 )
@@ -264,16 +252,14 @@ class GPXParserTest {
                             null,
                             3f,
                             null,
-                            Instant.parse("2016-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(33.0, 11.0),
                             null,
                             6f,
                             null,
-                            Instant.parse("2018-06-17T23:41:03Z"),
-                            null
+                            time = Instant.parse("2018-06-17T23:41:03Z")
                         )
                     )
                 )
@@ -293,16 +279,14 @@ class GPXParserTest {
                     null,
                     3f,
                     null,
-                    Instant.parse("2016-06-17T23:41:03Z"),
-                    null
+                    time = Instant.parse("2016-06-17T23:41:03Z")
                 ),
                 GPXWaypoint(
                     Coordinate(34.0, 11.0),
                     null,
                     6f,
                     null,
-                    Instant.parse("2018-06-17T23:41:03Z"),
-                    null
+                    time = Instant.parse("2018-06-17T23:41:03Z")
                 )
             )
         )
