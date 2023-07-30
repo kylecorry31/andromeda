@@ -3,6 +3,8 @@ package com.kylecorry.andromeda.files
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.kylecorry.andromeda.core.io.write
+import com.kylecorry.andromeda.core.io.writeAll
 import com.kylecorry.andromeda.core.tryOrLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -40,7 +42,7 @@ class ExternalFileSystem(private val context: Context) {
             val stream = outputStream(uri) ?: return@withContext false
 
             try {
-                stream.write(text.toByteArray())
+                stream.write(text)
                 true
             } catch (e: Exception) {
                 false
