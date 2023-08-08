@@ -9,10 +9,17 @@ import com.kylecorry.andromeda.core.topics.generic.BaseTopic
 import com.kylecorry.andromeda.core.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrLog
 
+/**
+ * A topic that listens to broadcasts
+ * @param context the context to listen in
+ * @param intentFilter the intent filter to listen for
+ * @param listenToBroadcastsFromOtherApps true to listen to broadcasts from other apps
+ */
 class BroadcastReceiverTopic(
     private val context: Context,
     private val intentFilter: IntentFilter,
-    private val listenToBroadcastsFromOtherApps: Boolean = false
+    private val listenToBroadcastsFromOtherApps: Boolean = false,
+    private val isStickyBroadcast: Boolean = false
 ) :
     BaseTopic<Intent>() {
 
@@ -24,7 +31,12 @@ class BroadcastReceiverTopic(
         } else {
             ContextCompat.RECEIVER_NOT_EXPORTED
         }
-        ContextCompat.registerReceiver(context, receiver, intentFilter, flags)
+        val intent = ContextCompat.registerReceiver(context, receiver, intentFilter, flags)
+        if (isStickyBroadcast) {
+            intent?.let {
+                topic.publish(it)
+            }
+        }
     }
 
     private fun stop() {

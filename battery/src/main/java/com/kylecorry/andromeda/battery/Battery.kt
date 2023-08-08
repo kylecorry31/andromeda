@@ -4,11 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.BaseBroadcastReceiverSensor
 
 class Battery(context: Context) : IBattery,
-    BaseBroadcastReceiverSensor(context, IntentFilter("android.intent.action.BATTERY_CHANGED")) {
+    BaseBroadcastReceiverSensor(
+        context,
+        IntentFilter("android.intent.action.BATTERY_CHANGED"),
+        isStickyBroadcast = true
+    ) {
     override val percent: Float
         get() {
             val pct = (getInt(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: 0).toFloat()

@@ -7,10 +7,17 @@ import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
 
 abstract class BaseBroadcastReceiverSensor(
     protected val context: Context,
-    intentFilter: IntentFilter
+    intentFilter: IntentFilter,
+    listenToBroadcastsFromOtherApps: Boolean = false,
+    isStickyBroadcast: Boolean = false
 ) : AbstractSensor() {
 
-    private val receiver = BroadcastReceiverTopic(context, intentFilter)
+    private val receiver = BroadcastReceiverTopic(
+        context,
+        intentFilter,
+        listenToBroadcastsFromOtherApps,
+        isStickyBroadcast
+    )
 
     protected abstract fun handleIntent(context: Context, intent: Intent)
 
@@ -22,7 +29,7 @@ abstract class BaseBroadcastReceiverSensor(
         receiver.unsubscribe(this::onReceive)
     }
 
-    private fun onReceive(intent: Intent): Boolean {
+    protected fun onReceive(intent: Intent): Boolean {
         handleIntent(context, intent)
         notifyListeners()
         return true
