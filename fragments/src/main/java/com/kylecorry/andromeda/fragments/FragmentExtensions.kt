@@ -56,6 +56,24 @@ fun Application.useDynamicColors() {
     DynamicColors.applyToActivitiesIfAvailable(this)
 }
 
+inline fun LifecycleOwner.repeatInBackground(
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    crossinline block: suspend CoroutineScope.() -> Unit
+){
+    val minimumState = when (state) {
+        BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
+        BackgroundMinimumState.Started -> Lifecycle.State.STARTED
+        BackgroundMinimumState.Created -> Lifecycle.State.CREATED
+        BackgroundMinimumState.Any -> Lifecycle.State.CREATED
+    }
+
+    lifecycleScope.launch {
+        repeatOnLifecycle(minimumState){
+            block()
+        }
+    }
+}
+
 fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
