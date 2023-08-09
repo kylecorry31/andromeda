@@ -220,4 +220,13 @@ object Alerts {
             it.show()
         }
     }
+
+    inline fun withLoading(context: Context, title: String, action: () -> Unit) {
+        val loadingAlert = loading(context, title)
+        try {
+            action()
+        } finally {
+            loadingAlert.dismiss()
+        }
+    }
 }
