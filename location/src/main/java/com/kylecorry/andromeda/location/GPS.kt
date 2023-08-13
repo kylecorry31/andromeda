@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.getSystemService
+import androidx.core.location.LocationCompat
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -111,12 +112,12 @@ class GPS(
 
         // Can only get NMEA with fine location permission
         if (Permissions.canGetFineLocation(context)) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                nmeaListener?.let {
-                    locationManager?.addNmeaListener(it, Handler(Looper.getMainLooper()))
-                }
-            } else {
-                tryOrNothing {
+            tryOrNothing {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    nmeaListener?.let {
+                        locationManager?.addNmeaListener(it, Handler(Looper.getMainLooper()))
+                    }
+                } else {
                     @Suppress("DEPRECATION")
                     locationManager?.addNmeaListener(legacyNmeaListener)
                 }
@@ -150,7 +151,8 @@ class GPS(
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
         _satellites =
-            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites") ?: 0) else 0
+            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites")
+                ?: 0) else 0
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {
@@ -160,20 +162,17 @@ class GPS(
             else -> Quality.Unknown
         }
         _horizontalAccuracy = accuracy ?: 0f
-        _verticalAccuracy =
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && location.hasVerticalAccuracy()) {
-                location.verticalAccuracyMeters
-            } else {
-                null
-            }
+        _verticalAccuracy = if (LocationCompat.hasVerticalAccuracy(location)) {
+            LocationCompat.getVerticalAccuracyMeters(location)
+        } else {
+            null
+        }
         // TODO: Add speed accuracy to IGPS
         _speed = if (location.hasSpeed()) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && location.hasSpeedAccuracy()) {
-                if (location.speed < location.speedAccuracyMetersPerSecond * 0.68) {
-                    0f
-                } else {
-                    location.speed
-                }
+            if (LocationCompat.hasSpeedAccuracy(location) &&
+                location.speed < LocationCompat.getSpeedAccuracyMetersPerSecond(location) * 0.68
+            ) {
+                0f
             } else {
                 location.speed
             }
