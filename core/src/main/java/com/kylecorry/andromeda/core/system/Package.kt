@@ -18,6 +18,15 @@ object Package {
         return getPackageInfo(context, getPackageName(context)).versionName
     }
 
+    fun getVersionCode(context: Context): Long {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getPackageInfo(context, getPackageName(context)).longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            getPackageInfo(context, getPackageName(context)).versionCode.toLong()
+        }
+    }
+
     fun isPackageInstalled(context: Context, packageName: String): Boolean {
         return tryOrDefault(false) {
             getPackageInfo(context, packageName)
