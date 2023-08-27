@@ -10,6 +10,6 @@ interface IGPS: ISensor, IAltimeter, IClock, ISpeedometer {
     val location: Coordinate
     val verticalAccuracy: Float?
     val horizontalAccuracy: Float?
-    val satellites: Int
+    val satellites: Int?
     val mslAltitude: Float?
 }

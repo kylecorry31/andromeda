@@ -7,7 +7,9 @@ import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.getSystemService
+import androidx.core.location.GnssStatusCompat
 import androidx.core.location.LocationCompat
+import androidx.core.location.LocationManagerCompat
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -29,8 +31,8 @@ class GPS(
     override val hasValidReading: Boolean
         get() = location != Coordinate.zero
 
-    override val satellites: Int
-        get() = _satellites
+    override val satellites: Int?
+        get() = _gnssSatellites ?: _satellites
 
     override val quality: Quality
         get() = _quality
@@ -71,12 +73,21 @@ class GPS(
         updateNmeaString(it)
     }
 
+    private val gnssListener = SimpleGnssStatusListener { status ->
+        val satellitesUsedInFix = (0 until status.satelliteCount).count { s ->
+            status.usedInFix(s)
+        }
+
+        _gnssSatellites = satellitesUsedInFix
+    }
+
     private var _altitude = 0f
     private var _time = Instant.now()
     private var _quality = Quality.Unknown
     private var _horizontalAccuracy: Float? = null
     private var _verticalAccuracy: Float? = null
-    private var _satellites: Int = 0
+    private var _satellites: Int? = null
+    private var _gnssSatellites: Int? = null
     private var _speed: Float = 0f
     private var _location = Coordinate.zero
     private var _mslAltitude: Float? = null
@@ -102,6 +113,8 @@ class GPS(
             false
         )
 
+        _gnssSatellites = null
+
         locationManager?.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             frequency.toMillis(),
@@ -123,15 +136,36 @@ class GPS(
                 }
             }
         }
+
+        // Listen to the GNSS status for satellite count
+        if (Permissions.canGetFineLocation(context)) {
+            tryOrNothing {
+                locationManager?.let {
+                    LocationManagerCompat.registerGnssStatusCallback(
+                        it,
+                        gnssListener,
+                        Handler(Looper.getMainLooper())
+                    )
+                }
+            }
+        }
     }
 
     override fun stopImpl() {
         locationManager?.removeUpdates(locationListener)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            nmeaListener?.let { locationManager?.removeNmeaListener(it) }
-        } else {
-            @Suppress("DEPRECATION")
-            locationManager?.removeNmeaListener(legacyNmeaListener)
+        tryOrNothing {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                nmeaListener?.let { locationManager?.removeNmeaListener(it) }
+            } else {
+                @Suppress("DEPRECATION")
+                locationManager?.removeNmeaListener(legacyNmeaListener)
+            }
+        }
+
+        tryOrNothing {
+            locationManager?.let {
+                LocationManagerCompat.unregisterGnssStatusCallback(it, gnssListener)
+            }
         }
     }
 
@@ -150,9 +184,13 @@ class GPS(
 
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
-        _satellites =
-            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites")
-                ?: 0) else 0
+
+        _satellites = if (location.extras?.containsKey("satellites") == true) {
+            location.extras?.getInt("satellites")
+        } else {
+            null
+        }
+
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {

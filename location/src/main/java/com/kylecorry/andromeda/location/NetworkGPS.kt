@@ -26,8 +26,7 @@ class NetworkGPS(
     override val hasValidReading: Boolean
         get() = hadRecentValidReading()
 
-    override val satellites: Int
-        get() = _satellites
+    override val satellites: Int? = null
 
     override val quality: Quality
         get() = _quality
@@ -50,8 +49,7 @@ class NetworkGPS(
     override val altitude: Float
         get() = _altitude
 
-    override val mslAltitude: Float?
-        get() = _mslAltitude
+    override val mslAltitude: Float? = null
 
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
@@ -61,10 +59,8 @@ class NetworkGPS(
     private var _quality = Quality.Unknown
     private var _horizontalAccuracy: Float? = null
     private var _verticalAccuracy: Float? = null
-    private var _satellites: Int = 0
     private var _speed: Float = 0f
     private var _location = Coordinate.zero
-    private var _mslAltitude: Float? = null
 
     init {
         tryOrNothing {
@@ -107,9 +103,6 @@ class NetworkGPS(
 
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
-        _satellites =
-            if (location.extras?.containsKey("satellites") == true) (location.extras?.getInt("satellites")
-                ?: 0) else 0
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {
