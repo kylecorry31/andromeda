@@ -23,6 +23,7 @@ import java.time.Instant
 class GPS(
     private val context: Context,
     private val notifyNmeaChanges: Boolean = false,
+    private val notifyGnssStatusChanges: Boolean = false,
     private val frequency: Duration = Duration.ofSeconds(20),
     private val minDistance: Distance = Distance.meters(0f)
 ) : AbstractSensor(),
@@ -79,6 +80,8 @@ class GPS(
         }
 
         _gnssSatellites = satellitesUsedInFix
+
+        if (notifyGnssStatusChanges) notifyListeners()
     }
 
     private var _altitude = 0f
