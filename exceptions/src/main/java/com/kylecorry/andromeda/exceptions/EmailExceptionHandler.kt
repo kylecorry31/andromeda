@@ -8,8 +8,16 @@ class EmailExceptionHandler(
     context: Context,
     generator: IBugReportGenerator,
     filename: String = "errors/error.txt",
+    shouldRestartApp: Boolean = true,
+    shouldWrapSystemExceptionHandler: Boolean = false,
     private val messageProvider: (context: Context, log: String) -> BugReportEmailMessage,
-) : BaseExceptionHandler(context, generator, filename) {
+) : BaseExceptionHandler(
+    context,
+    generator,
+    filename,
+    shouldRestartApp = shouldRestartApp,
+    shouldWrapSystemExceptionHandler = shouldWrapSystemExceptionHandler
+) {
 
     override fun handleBugReport(log: String) {
         val message = messageProvider(context, log)

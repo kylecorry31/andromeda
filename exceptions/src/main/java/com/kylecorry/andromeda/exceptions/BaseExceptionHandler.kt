@@ -10,7 +10,9 @@ abstract class BaseExceptionHandler(
     protected val context: Context,
     private val generator: IBugReportGenerator,
     private val filename: String = "errors/error.txt",
-    private val fileSystem: IFileSystem = LocalFileSystem(context)
+    private val fileSystem: IFileSystem = LocalFileSystem(context),
+    private val shouldRestartApp: Boolean = true,
+    private val shouldWrapSystemExceptionHandler: Boolean = false
 ) {
 
     fun bind() {
@@ -35,11 +37,19 @@ abstract class BaseExceptionHandler(
     }
 
     private fun setupHandler() {
-        Exceptions.onUncaughtException {
-            recordException(it)
-            tryOrLog {
-                CurrentApp.restart(context)
+        val handler = { throwable: Throwable ->
+            recordException(throwable)
+            if (shouldRestartApp) {
+                tryOrLog {
+                    CurrentApp.restart(context)
+                }
             }
+        }
+
+        if (shouldWrapSystemExceptionHandler) {
+            Exceptions.wrapOnUncaughtException(handler)
+        } else {
+            Exceptions.onUncaughtException(handler)
         }
     }
 
