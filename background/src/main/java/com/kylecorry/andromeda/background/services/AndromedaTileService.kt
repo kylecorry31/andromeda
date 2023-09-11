@@ -1,8 +1,10 @@
 package com.kylecorry.andromeda.background.services
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.IBinder
 import android.service.quicksettings.TileService
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
@@ -11,6 +13,16 @@ import androidx.core.graphics.drawable.toBitmap
 
 @RequiresApi(Build.VERSION_CODES.N)
 abstract class AndromedaTileService : TileService() {
+
+    // Potential fix for a bug in Android where it fails to reach the IQSService
+    // https://github.com/firemaples/EverTranslator/issues/130
+    override fun onBind(intent: Intent?): IBinder? {
+        return try {
+            super.onBind(intent)
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun setState(state: Int) {
         if (state != qsTile.state) {
