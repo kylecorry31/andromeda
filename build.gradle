@@ -9,7 +9,7 @@ buildscript {
     }
     ext.groupId = 'com.kylecorry.andromeda'
     ext.versionName = '7.0.0-beta02'
-    ext.solVersion = '7.1.2'
+    ext.solVersion = '8.0.0'
     ext.coreKtxVersion = '1.10.1'
     ext.appCompatVersion = '1.6.1'
     ext.materialVersion = '1.9.0'
