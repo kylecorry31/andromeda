@@ -45,6 +45,8 @@ class ExpansionLayout(context: Context?, attrs: AttributeSet?) : LinearLayout(co
             addView(value, 1)
         }
 
+    var isEnabled = true
+
     init {
         orientation = VERTICAL
     }
@@ -53,6 +55,9 @@ class ExpansionLayout(context: Context?, attrs: AttributeSet?) : LinearLayout(co
      * Expand the panel
      */
     fun expand() {
+        if (!isEnabled){
+            return
+        }
         _body?.isVisible = true
         _onExpandStateChanged?.invoke(isExpanded())
     }
@@ -61,6 +66,9 @@ class ExpansionLayout(context: Context?, attrs: AttributeSet?) : LinearLayout(co
      * Collapse the panel
      */
     fun collapse() {
+        if (!isEnabled){
+            return
+        }
         _body?.isVisible = false
         _onExpandStateChanged?.invoke(isExpanded())
     }
