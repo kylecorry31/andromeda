@@ -45,8 +45,6 @@ class ExpansionLayout(context: Context?, attrs: AttributeSet?) : LinearLayout(co
             addView(value, 1)
         }
 
-    var isEnabled = true
-
     init {
         orientation = VERTICAL
     }
