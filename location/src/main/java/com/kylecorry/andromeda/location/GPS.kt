@@ -7,7 +7,6 @@ import android.location.LocationManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.getSystemService
-import androidx.core.location.GnssStatusCompat
 import androidx.core.location.LocationCompat
 import androidx.core.location.LocationManagerCompat
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
@@ -58,6 +57,14 @@ class GPS(
 
     override val mslAltitude: Float?
         get() = _mslAltitude
+    override val bearing: Bearing?
+        get() = _bearing?.let { Bearing(it) }
+    override val rawBearing: Float?
+        get() = _bearing
+    override val bearingAccuracy: Float?
+        get() = _bearingAccuracy
+    override val speedAccuracy: Float?
+        get() = _speedAccuracy
 
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
@@ -76,7 +83,7 @@ class GPS(
 
     private val gnssListener = SimpleGnssStatusListener { status, hasFix ->
 
-        if (!hasFix){
+        if (!hasFix) {
             _gnssSatellites = 0
         }
 
@@ -97,6 +104,9 @@ class GPS(
     private var _satellites: Int? = null
     private var _gnssSatellites: Int? = null
     private var _speed: Float = 0f
+    private var _speedAccuracy: Float? = null
+    private var _bearing: Float? = null
+    private var _bearingAccuracy: Float? = null
     private var _location = Coordinate.zero
     private var _mslAltitude: Float? = null
 
@@ -213,17 +223,34 @@ class GPS(
         } else {
             null
         }
-        // TODO: Add speed accuracy to IGPS
+
+        _speedAccuracy = if (LocationCompat.hasSpeedAccuracy(location)) {
+            LocationCompat.getSpeedAccuracyMetersPerSecond(location)
+        } else {
+            null
+        }
+
         _speed = if (location.hasSpeed()) {
-            if (LocationCompat.hasSpeedAccuracy(location) &&
-                location.speed < LocationCompat.getSpeedAccuracyMetersPerSecond(location) * 0.68
-            ) {
+            val currentSpeedAccuracy = _speedAccuracy
+            if (currentSpeedAccuracy != null && location.speed < currentSpeedAccuracy * 0.68) {
                 0f
             } else {
                 location.speed
             }
         } else {
             0f
+        }
+
+        _bearing = if (location.hasBearing()) {
+            location.bearing
+        } else {
+            null
+        }
+
+        _bearingAccuracy = if (LocationCompat.hasBearingAccuracy(location)) {
+            LocationCompat.getBearingAccuracyDegrees(location)
+        } else {
+            null
         }
 
         if (notify) notifyListeners()
