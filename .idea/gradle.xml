@@ -44,6 +44,7 @@
             <option value="$PROJECT_DIR$/sms" />
             <option value="$PROJECT_DIR$/sound" />
             <option value="$PROJECT_DIR$/speech" />
+            <option value="$PROJECT_DIR$/tensorflow" />
             <option value="$PROJECT_DIR$/torch" />
             <option value="$PROJECT_DIR$/wkt" />
             <option value="$PROJECT_DIR$/xml" />
