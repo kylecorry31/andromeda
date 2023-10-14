@@ -83,14 +83,6 @@ startxref
         }
     }
 
-    @Test
-    fun deserializeActual(){
-        val file = File("C:\\Users\\Kyle\\Downloads\\RI_Chepachet_20210227_TM_geo.pdf")
-        val serializer = PDFSerializer(true)
-        val actual = serializer.deserialize(file.inputStream())
-        println(actual)
-    }
-
     private fun assertEquals(expected: PDFObject, actual: PDFObject){
         assertEquals(expected.id, actual.id)
         assertEquals(expected.properties, actual.properties)
