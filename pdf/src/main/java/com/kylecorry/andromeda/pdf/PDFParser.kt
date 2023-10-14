@@ -18,7 +18,7 @@ internal class PDFParser {
         val streamEnd = Regex("endstream")
         BufferedReader(InputStreamReader(pdf)).use { reader ->
             while (true) {
-                val line = reader.readLine() ?: break
+                var line = reader.readLine() ?: break
                 if (line.matches(objectStart)) {
                     val matches = objectStart.find(line) ?: continue
                     val key = matches.groupValues[1]
@@ -35,10 +35,13 @@ internal class PDFParser {
                     continue
                 }
 
-                if (line.matches(streamStart)) {
+                var justFoundStreamStart = false
+
+                if (!inStream && line.contains(streamStart)) {
                     inStream = true
                     streamIndex++
-                    continue
+                    justFoundStreamStart = true
+                    line = line.replace(streamStart, "")
                 }
 
                 if (line.matches(streamEnd)) {
@@ -46,14 +49,17 @@ internal class PDFParser {
                     continue
                 }
 
-                val hasPropertiesStart = line.startsWith("<<")
-                val hasPropertiesEnd = line.endsWith(">>")
+                val propertyStartIdx = line.indexOf("<<")
+                val propertyEndIdx = line.indexOf(">>")
+
+                val hasPropertiesStart = propertyStartIdx != -1
+                val hasPropertiesEnd = propertyEndIdx != -1 && propertyEndIdx > propertyStartIdx
                 val arePropertiesSingleLine = hasPropertiesStart && hasPropertiesEnd
                 if ((hasPropertiesStart || hasPropertiesEnd) && !arePropertiesSingleLine) {
                     continue
                 }
 
-                if (!inStream) {
+                if (!inStream || justFoundStreamStart) {
                     if (line.isBlank()) {
                         continue
                     }
@@ -68,7 +74,7 @@ internal class PDFParser {
                 }
 
                 // TODO: Treat streams as byte arrays
-                if (!ignoreStreams && inStream) {
+                if (!ignoreStreams && inStream && !justFoundStreamStart) {
                     lastObject?.let {
                         if (!streams.containsKey(it)) {
                             streams[it] = mutableListOf()
@@ -98,8 +104,16 @@ internal class PDFParser {
 
     private fun parseSingleLineProperties(line: String): List<String> {
         val properties = mutableListOf<String>()
-        val allTokens = line.trim().split(Regex("\\s+"))
-        val tokens = allTokens.drop(1).dropLast(1).filter { it.isNotBlank() }
+        val allTokens = line
+            .replace("/", " /")
+            .replace("<<", " << ")
+            .replace(">>", " >> ")
+            .replace("[", " [")
+            .replace("]", "] ")
+            .replace(Regex("\\[\\s+"), "[")
+            .trim()
+            .split(Regex("\\s+"))
+        val tokens = allTokens.filter { it.isNotBlank() }.drop(1).dropLast(1)
         if (tokens.isEmpty()) {
             return emptyList()
         }
