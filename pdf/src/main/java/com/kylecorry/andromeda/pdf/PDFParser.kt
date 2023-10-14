@@ -5,14 +5,16 @@ import com.kylecorry.andromeda.core.io.readUntil
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.nio.Buffer
 
 internal class PDFParser {
 
     fun parse(pdf: InputStream, ignoreStreams: Boolean = false): List<PDFObject> {
+        val reader = pdf.bufferedReader()
         val objects = mutableListOf<PDFObject>()
         val builder = StringBuilder()
         var b: Int
-        while (pdf.read().also { b = it } != -1) {
+        while (reader.read().also { b = it } != -1) {
             builder.append(b.toChar())
 
             if (b.toChar() == '\n') {
@@ -20,7 +22,7 @@ internal class PDFParser {
             }
 
             if (builder.toString().endsWith("obj")) {
-                objects.add(parseObject(builder.toString(), pdf, !ignoreStreams))
+                objects.add(parseObject(builder.toString(), reader, !ignoreStreams))
                 builder.clear()
             }
         }
@@ -28,7 +30,9 @@ internal class PDFParser {
     }
 
     private fun parseObject(
-        startToken: String, stream: InputStream, shouldParseStreams: Boolean
+        startToken: String,
+        stream: BufferedReader,
+        shouldParseStreams: Boolean
     ): PDFObject {
         val properties = mutableListOf<String>()
         val streams = mutableListOf<ByteArray>()
@@ -55,7 +59,7 @@ internal class PDFParser {
         return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
     }
 
-    private fun parseStream(stream: InputStream, shouldParse: Boolean): String {
+    private fun parseStream(stream: BufferedReader, shouldParse: Boolean): String {
         val builder = StringBuilder()
         var b: Int
         while (stream.read().also { b = it } != -1) {
@@ -74,7 +78,7 @@ internal class PDFParser {
         return builder.toString()
     }
 
-    private fun parseProperties(stream: InputStream): List<String> {
+    private fun parseProperties(stream: BufferedReader): List<String> {
         // Properties are a list af key value pairs
         // Keys start with / and will have a value after them (which may be a value, nested properties, or an array)
         // There does not need to be a space between the key and the value if the value starts with a /, [, <<, or (
