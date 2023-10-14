@@ -1,5 +1,7 @@
 package com.kylecorry.andromeda.pdf
 
+import com.kylecorry.andromeda.core.io.readLine
+import com.kylecorry.andromeda.core.io.readUntil
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -7,152 +9,142 @@ import java.io.InputStreamReader
 internal class PDFParser {
 
     fun parse(pdf: InputStream, ignoreStreams: Boolean = false): List<PDFObject> {
-        val properties = mutableMapOf<String, MutableList<String>>()
-        val streams = mutableMapOf<String, MutableList<String>>()
-        var lastObject: String? = null
-        var streamIndex = -1
-        var inStream = false
-        val objectStart = Regex("(\\d+ \\d+) obj")
-        val objectEnd = Regex("endobj")
-        val streamStart = Regex("stream")
-        val streamEnd = Regex("endstream")
-        BufferedReader(InputStreamReader(pdf)).use { reader ->
-            while (true) {
-                var line = reader.readLine() ?: break
-                if (line.matches(objectStart)) {
-                    val matches = objectStart.find(line) ?: continue
-                    val key = matches.groupValues[1]
-                    properties[key] = mutableListOf()
-                    lastObject = key
-                    streamIndex = -1
-                    inStream = false
-                    continue
-                }
-
-                if (line.matches(objectEnd)) {
-                    lastObject = null
-                    inStream = false
-                    continue
-                }
-
-                var justFoundStreamStart = false
-
-                if (!inStream && line.contains(streamStart)) {
-                    inStream = true
-                    streamIndex++
-                    justFoundStreamStart = true
-                    line = line.replace(streamStart, "")
-                }
-
-                if (line.matches(streamEnd)) {
-                    inStream = false
-                    continue
-                }
-
-                val propertyStartIdx = line.indexOf("<<")
-                val propertyEndIdx = line.indexOf(">>")
-
-                val hasPropertiesStart = propertyStartIdx != -1
-                val hasPropertiesEnd = propertyEndIdx != -1 && propertyEndIdx > propertyStartIdx
-                val arePropertiesSingleLine = hasPropertiesStart && hasPropertiesEnd
-                if ((hasPropertiesStart || hasPropertiesEnd) && !arePropertiesSingleLine) {
-                    continue
-                }
-
-                if (!inStream || justFoundStreamStart) {
-                    if (line.isBlank()) {
-                        continue
-                    }
-
-                    lastObject?.also {
-                        if (arePropertiesSingleLine) {
-                            properties[it]?.addAll(parseSingleLineProperties(line.trim()))
-                        } else {
-                            properties[it]?.add(line.trim())
-                        }
-                    }
-                }
-
-                // TODO: Treat streams as byte arrays
-                if (!ignoreStreams && inStream && !justFoundStreamStart) {
-                    lastObject?.let {
-                        if (!streams.containsKey(it)) {
-                            streams[it] = mutableListOf()
-                        }
-
-                        if (streams[it]!!.size <= streamIndex) {
-                            streams[it]!!.add("")
-                        }
-
-                        streams[it]!![streamIndex] += line
-                    }
-                }
-            }
-        }
-
         val objects = mutableListOf<PDFObject>()
-        for (key in properties.keys) {
-            objects.add(
-                PDFObject(
-                    key,
-                    properties[key]!!,
-                    streams[key]?.map { it.toByteArray() } ?: emptyList()))
-        }
+        val builder = StringBuilder()
+        var b: Int
+        while (pdf.read().also { b = it } != -1) {
+            builder.append(b.toChar())
 
-        return objects.sortedBy { it.id }
+            if (b.toChar() == '\n') {
+                builder.clear()
+            }
+
+            if (builder.toString().endsWith("obj")) {
+                objects.add(parseObject(builder.toString(), pdf, !ignoreStreams))
+                builder.clear()
+            }
+        }
+        return objects
     }
 
-    private fun parseSingleLineProperties(line: String): List<String> {
+    private fun parseObject(
+        startToken: String, stream: InputStream, shouldParseStreams: Boolean
+    ): PDFObject {
         val properties = mutableListOf<String>()
-        val allTokens = line
-            .replace("/", " /")
-            .replace("<<", " << ")
-            .replace(">>", " >> ")
-            .replace("[", " [")
-            .replace("]", "] ")
-            .replace(Regex("\\[\\s+"), "[")
-            .trim()
-            .split(Regex("\\s+"))
-        val tokens = allTokens.filter { it.isNotBlank() }.drop(1).dropLast(1)
-        if (tokens.isEmpty()) {
-            return emptyList()
-        }
-        var currentProperty = tokens.first()
-        var subPropertyCount = 0
-        for (token in tokens.drop(1)) {
-            if (token.startsWith("/") && subPropertyCount >= 1 && areArraysClosed(currentProperty)) {
-                properties.add(currentProperty)
-                currentProperty = token
-                subPropertyCount = 0
-            } else {
-                currentProperty += " $token"
-                subPropertyCount++
+        val streams = mutableListOf<ByteArray>()
+        val id = startToken.replace("obj", "").trim()
+        val builder = StringBuilder()
+        var b: Int
+        while (stream.read().also { b = it } != -1) {
+            builder.append(b.toChar())
+            // If << is encountered, parse properties
+            if (builder.toString().endsWith("<<")) {
+                builder.clear()
+                properties.addAll(parseProperties(stream))
+            }
+            // If stream is encountered, parse stream
+            if (builder.toString().endsWith("stream")) {
+                builder.clear()
+                streams.add(parseStream(stream, shouldParseStreams).toByteArray())
+            }
+            // If endobj is encountered, return
+            if (builder.toString().endsWith("endobj")) {
+                return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
             }
         }
-
-        properties.add(currentProperty)
-        return properties
+        return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
     }
 
-    private fun areArraysClosed(text: String): Boolean {
-        return isClosed(text, '[', ']') && isClosed(text, '<', '>')
-    }
+    private fun parseStream(stream: InputStream, shouldParse: Boolean): String {
+        val builder = StringBuilder()
+        var b: Int
+        while (stream.read().also { b = it } != -1) {
+            if (b.toChar() != '\n') {
+                builder.append(b.toChar())
+            }
 
-    /**
-     * Determines if a string has matching open and close characters.
-     */
-    private fun isClosed(text: String, open: Char, close: Char): Boolean {
-        var openCount = 0
-        var closeCount = 0
-        for (c in text) {
-            if (c == open) {
-                openCount++
-            } else if (c == close) {
-                closeCount++
+            if (!shouldParse && b.toChar() == '\n') {
+                builder.clear()
+            }
+
+            if (builder.endsWith("endstream")) {
+                return builder.toString().dropLast(9).trim()
             }
         }
+        return builder.toString()
+    }
 
-        return openCount == closeCount
+    private fun parseProperties(stream: InputStream): List<String> {
+        // Properties are a list af key value pairs
+        // Keys start with / and will have a value after them (which may be a value, nested properties, or an array)
+        // There does not need to be a space between the key and the value if the value starts with a /, [, <<, or (
+        // Properties end with >>
+
+        val properties = mutableMapOf<String, String>()
+        val builder = StringBuilder()
+        var b: Int
+        var key: String? = null
+        var isReadingKey = false
+        while (stream.read().also { b = it } != -1) {
+            builder.append(b.toChar())
+
+            // If << is encountered, parse properties
+            if (key != null && builder.toString().endsWith("<<")) {
+                val props = parseProperties(stream)
+                properties[key] = props.joinToString(" ")
+                builder.clear()
+                key = null
+            }
+
+            // If >> is encountered, return
+            if (builder.toString().endsWith(">>")) {
+                if (key != null) {
+                    properties[key] = builder.toString().dropLast(2).trim()
+                }
+                return properties.map { "${it.key} ${it.value}" }
+            }
+
+            // If / is encountered, parse key
+            if (!isReadingKey && key == null && builder.toString().endsWith("/")) {
+                builder.clear()
+                builder.append("/")
+                isReadingKey = true
+            }
+
+            // If it is reading a key and a space is encountered, parse value
+            if (isReadingKey && b.toChar() in listOf(
+                    ' ', '\n', '/', '[', '(', '<'
+                ) && builder.toString().trim().length > 1
+            ) {
+                key = builder.toString().dropLast(1).trim()
+                builder.clear()
+                builder.append(b.toChar())
+                isReadingKey = false
+            }
+
+            // TODO: Handle arrays properly
+            val str = builder.toString().trim()
+            val arrayStartCount = str.count { it == '[' }
+            val arrayEndCount = str.count { it == ']' }
+            val parenStartCount = str.count { it == '(' }
+            val parenEndCount = str.count { it == ')' }
+            if (key != null && b.toChar() == '/' && str.trim().length > 1 && arrayStartCount == arrayEndCount && parenStartCount == parenEndCount) {
+                val value = builder.toString().dropLast(1).trim()
+                properties[key] = value
+                // A new key is starting
+                builder.clear()
+                builder.append(b.toChar())
+                isReadingKey = true
+                key = null
+            }
+
+        }
+
+        if (key != null) {
+            properties[key] = builder.toString().trim()
+        }
+
+        return properties.map { "${it.key} ${it.value}" }
     }
 
 }
