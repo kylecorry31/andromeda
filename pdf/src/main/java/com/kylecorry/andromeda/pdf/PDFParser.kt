@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.pdf
 
 import com.kylecorry.andromeda.core.io.readLine
 import com.kylecorry.andromeda.core.io.readUntil
+import com.kylecorry.sol.math.RingBuffer
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -60,23 +61,37 @@ internal class PDFParser {
     }
 
     private fun parseStream(stream: BufferedReader, shouldParse: Boolean): String {
+        return readUntil(stream, "endstream", shouldParse)
+    }
+
+    // TODO: Extract this
+    private fun readUntil(
+        reader: BufferedReader,
+        stop: String,
+        saveContent: Boolean = true,
+        trimLines: Boolean = true
+    ): String {
         val builder = StringBuilder()
         var b: Int
-        while (stream.read().also { b = it } != -1) {
-            if (b.toChar() != '\n') {
+        while (reader.read().also { b = it } != -1) {
+            if (!trimLines || b.toChar() != '\n') {
                 builder.append(b.toChar())
             }
 
-            if (!shouldParse && b.toChar() == '\n') {
-                builder.clear()
+            if (!saveContent && builder.length > stop.length) {
+                builder.deleteAt(0)
             }
 
-            if (builder.endsWith("endstream")) {
-                return builder.toString().dropLast(9).trim()
+            if (builder.endsWith(stop)) {
+                return builder.toString().dropLast(stop.length)
             }
         }
         return builder.toString()
     }
+
+    private val keyTerminals = listOf(
+        ' ', '\n', '/', '[', '(', '<'
+    )
 
     private fun parseProperties(stream: BufferedReader): List<String> {
         // Properties are a list af key value pairs
@@ -115,12 +130,12 @@ internal class PDFParser {
                 isReadingKey = true
             }
 
-            // If it is reading a key and a space is encountered, parse value
-            if (isReadingKey && b.toChar() in listOf(
-                    ' ', '\n', '/', '[', '(', '<'
-                ) && builder.toString().trim().length > 1
-            ) {
+            // If it is reading a key and a terminal is encountered, start parsing value
+            if (isReadingKey && b.toChar() in keyTerminals && builder.toString().trim().length > 1) {
+                // Remove the terminal and trim whitespace
                 key = builder.toString().dropLast(1).trim()
+
+                // Start reading the value
                 builder.clear()
                 builder.append(b.toChar())
                 isReadingKey = false
