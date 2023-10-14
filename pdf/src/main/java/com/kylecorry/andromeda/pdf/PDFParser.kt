@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.pdf
 
 import com.kylecorry.andromeda.core.io.forEachChar
-import com.kylecorry.andromeda.core.io.readUntil
+import com.kylecorry.andromeda.core.io.readLinesUntil
 import com.kylecorry.andromeda.core.text.areBracketsBalanced
 import java.io.BufferedReader
 import java.io.InputStream
@@ -55,7 +55,7 @@ internal class PDFParser {
             // Stream start
             if (builder.endsWith("stream")) {
                 builder.clear()
-                streams.add(parseStream(stream, shouldParseStreams).toByteArray())
+                streams.add(parseStream(stream, shouldParseStreams))
             }
 
             // Object end
@@ -67,8 +67,8 @@ internal class PDFParser {
         return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
     }
 
-    private fun parseStream(reader: BufferedReader, shouldParse: Boolean): String {
-        return reader.readUntil("endstream", shouldParse, trimLines = true)
+    private fun parseStream(reader: BufferedReader, shouldParse: Boolean): ByteArray {
+        return reader.readLinesUntil("endstream", shouldParse, trimLines = true).toByteArray()
     }
 
     private fun parseParameters(stream: BufferedReader): List<String> {

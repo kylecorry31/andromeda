@@ -21,12 +21,43 @@ fun InputStream.readUntil(stop: Char): String {
     return readUntil { it == stop }
 }
 
+fun BufferedReader.readLinesUntil(
+    stopSequence: String,
+    saveContent: Boolean = true,
+    trimLines: Boolean = true
+): String {
+    val builder = StringBuilder()
+
+    while (true) {
+        var line = readLine() ?: break
+        if (trimLines) {
+            line = line.trim()
+        }
+
+        if (saveContent) {
+            builder.append(line)
+        }
+
+        if (line.trim().endsWith(stopSequence)) {
+            return if (saveContent) {
+                val idx = builder.indexOf(stopSequence)
+                builder.substring(0, idx)
+            } else {
+                ""
+            }
+        }
+    }
+
+    return builder.toString()
+}
+
 fun BufferedReader.readUntil(
     stopSequence: String,
     saveContent: Boolean = true,
     trimLines: Boolean = true
 ): String {
     val builder = StringBuilder()
+
     forEachChar { char ->
         if (!trimLines || char != '\n') {
             builder.append(char)
@@ -37,7 +68,7 @@ fun BufferedReader.readUntil(
         }
 
         if (builder.endsWith(stopSequence)) {
-            return builder.toString().dropLast(stopSequence.length)
+            return if (saveContent) builder.toString().dropLast(stopSequence.length) else ""
         }
     }
     return builder.toString()
