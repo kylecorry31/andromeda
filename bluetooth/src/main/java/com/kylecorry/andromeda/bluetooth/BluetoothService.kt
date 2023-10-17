@@ -41,6 +41,10 @@ class BluetoothService(private val context: Context) {
         return InsecureBluetoothDevice(context, address, uuid)
     }
 
+    fun getGattDevice(address: String): BluetoothGattDevice {
+        return BluetoothGattDevice(context, address)
+    }
+
     companion object {
         val DEFAULT_SERIAL_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }
