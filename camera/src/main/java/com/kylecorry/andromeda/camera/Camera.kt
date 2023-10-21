@@ -25,6 +25,7 @@ import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.math.Range
+import com.kylecorry.sol.math.SolMath.toDegrees
 import java.io.File
 import java.io.OutputStream
 import java.util.concurrent.CancellationException
@@ -261,6 +262,7 @@ class Camera(
 
     override fun getFOV(): Pair<Float, Float>? {
         val manager = context.getSystemService<CameraManager>() ?: return null
+
         try {
             val desiredOrientation =
                 if (isBackCamera) CameraCharacteristics.LENS_FACING_BACK else CameraCharacteristics.LENS_FACING_FRONT
@@ -275,13 +277,19 @@ class Camera(
                     val h = size.height
                     val horizontalAngle = (2 * atan(w / (maxFocus!![0] * 2).toDouble())).toFloat()
                     val verticalAngle = (2 * atan(h / (maxFocus[0] * 2).toDouble())).toFloat()
-                    return horizontalAngle to verticalAngle
+                    return horizontalAngle.toDegrees() to verticalAngle.toDegrees()
                 }
             }
             return null
         } catch (e: Exception) {
             return null
         }
+    }
+
+    override fun getZoomedFOV(): Pair<Float, Float>? {
+        val fov = getFOV() ?: return null
+        val zoom = zoom?.ratio?.coerceAtLeast(0.05f) ?: return fov
+        return fov.first / zoom to fov.second / zoom
     }
 
     companion object {
