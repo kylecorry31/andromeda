@@ -6,8 +6,10 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CaptureRequest
 import android.util.Log
 import android.util.Size
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.Camera
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
@@ -42,7 +44,8 @@ class Camera(
     private val analyze: Boolean = true,
     private val targetResolution: Size? = null,
     private val useYUV: Boolean = false,
-    private val captureSettings: ImageCaptureSettings? = null
+    private val captureSettings: ImageCaptureSettings? = null,
+    private val shouldStabilizePreview: Boolean = true
 ) : AbstractSensor(), ICamera {
 
     override val image: ImageProxy?
@@ -85,6 +88,7 @@ class Camera(
     override val hasValidReading: Boolean
         get() = _hasValidReading
 
+    @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     override fun startImpl() {
         if (!Permissions.isCameraEnabled(context)) {
             return
@@ -100,6 +104,19 @@ class Camera(
                 Log.i("Camera", "Unable to open camera because task was interrupted")
             }
             val preview = Preview.Builder()
+                .also {
+                    if (!shouldStabilizePreview) {
+                        Camera2Interop.Extender(it)
+                            .setCaptureRequestOption(
+                                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                            )
+                            .setCaptureRequestOption(
+                                CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
+                                CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
+                            )
+                    }
+                }
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder().apply {
@@ -156,6 +173,7 @@ class Camera(
                     imageCapture
                 ).toTypedArray()
             )
+
             notifyListeners()
         }, ContextCompat.getMainExecutor(context))
 
@@ -268,16 +286,45 @@ class Camera(
                 if (isBackCamera) CameraCharacteristics.LENS_FACING_BACK else CameraCharacteristics.LENS_FACING_FRONT
             for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
-                val orientation = characteristics.get(CameraCharacteristics.LENS_FACING)!!
+                val orientation = characteristics.get(CameraCharacteristics.LENS_FACING)
                 if (orientation == desiredOrientation) {
+                    val activePixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                        ?: continue
+                    val fullPixelSize =
+                        characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+                            ?: continue
                     val maxFocus =
                         characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                            ?: continue
                     val size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
-                    val w = size!!.width
-                    val h = size.height
-                    val horizontalAngle = (2 * atan(w / (maxFocus!![0] * 2).toDouble())).toFloat()
-                    val verticalAngle = (2 * atan(h / (maxFocus[0] * 2).toDouble())).toFloat()
-                    return horizontalAngle.toDegrees() to verticalAngle.toDegrees()
+                        ?: continue
+                    val sensorOrientation =
+                        characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
+                            ?: continue
+
+                    val w = size.width * activePixelSize.width() / fullPixelSize.width.toFloat()
+                    val h = size.height * activePixelSize.height() / fullPixelSize.height.toFloat()
+                    // TODO: The approach outlined in this stackoverflow post also handles cropping
+                    // https://stackoverflow.com/questions/39965408/what-is-the-android-camera2-api-equivalent-of-camera-parameters-gethorizontalvie
+                    val horizontalFOV = 2 * atan(w / (2 * maxFocus[0]))
+                    val verticalFOV = 2 * atan(h / (2 * maxFocus[0]))
+
+                    val isFlipped = sensorOrientation == 90 || sensorOrientation == 270
+
+                    val hFOV = if (isFlipped) {
+                        verticalFOV
+                    } else {
+                        horizontalFOV
+                    }
+
+                    val vFOV = if (isFlipped) {
+                        horizontalFOV
+                    } else {
+                        verticalFOV
+                    }
+
+
+                    return hFOV.toDegrees() to vFOV.toDegrees()
                 }
             }
             return null
