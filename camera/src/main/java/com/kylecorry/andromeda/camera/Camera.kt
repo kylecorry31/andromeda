@@ -106,6 +106,7 @@ class Camera(
             val preview = Preview.Builder()
                 .also {
                     if (!shouldStabilizePreview) {
+                        // https://issuetracker.google.com/issues/230013960?pli=1
                         Camera2Interop.Extender(it)
                             .setCaptureRequestOption(
                                 CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
