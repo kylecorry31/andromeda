@@ -89,6 +89,8 @@ class Camera(
     override val hasValidReading: Boolean
         get() = _hasValidReading
 
+    private var cachedFOV: Pair<Float, Float>? = null
+
     @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     override fun startImpl() {
         if (!Permissions.isCameraEnabled(context)) {
@@ -188,6 +190,7 @@ class Camera(
         cameraProvider = null
         cameraProviderFuture?.cancel(true)
         cameraProviderFuture = null
+        cachedFOV = null
     }
 
     override fun setLinearZoom(zoom: Float) {
@@ -294,6 +297,9 @@ class Camera(
     }
 
     override fun getFOV(): Pair<Float, Float>? {
+        cachedFOV?.let { return it }
+
+
         val manager = context.getSystemService<CameraManager>() ?: return null
 
         try {
@@ -335,7 +341,9 @@ class Camera(
                 verticalFOV
             }
 
-            return hFOV.toDegrees() to vFOV.toDegrees()
+            val fov = hFOV.toDegrees() to vFOV.toDegrees()
+            cachedFOV = fov
+            return fov
         } catch (e: Exception) {
             return null
         }
