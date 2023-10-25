@@ -9,6 +9,7 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.util.Log
 import android.util.Size
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.Camera
@@ -106,16 +107,18 @@ class Camera(
             val preview = Preview.Builder()
                 .also {
                     if (!shouldStabilizePreview) {
-                        // https://issuetracker.google.com/issues/230013960?pli=1
-                        Camera2Interop.Extender(it)
-                            .setCaptureRequestOption(
-                                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
-                            )
-                            .setCaptureRequestOption(
-                                CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
-                                CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
-                            )
+                        tryOrLog {
+                            // https://issuetracker.google.com/issues/230013960?pli=1
+                            Camera2Interop.Extender(it)
+                                .setCaptureRequestOption(
+                                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                                    CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                                )
+                                .setCaptureRequestOption(
+                                    CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
+                                    CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
+                                )
+                        }
                     }
                 }
                 .build()
@@ -279,56 +282,60 @@ class Camera(
         })
     }
 
+    @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
+    fun getCameraId(): String? {
+        try {
+            val info = camera?.cameraInfo ?: return getDefaultCameraId(context, isBackCamera)
+            val camera2Info = Camera2CameraInfo.from(info)
+            return camera2Info.cameraId
+        } catch (e: Exception) {
+            return getDefaultCameraId(context, isBackCamera)
+        }
+    }
+
     override fun getFOV(): Pair<Float, Float>? {
         val manager = context.getSystemService<CameraManager>() ?: return null
 
         try {
-            val desiredOrientation =
-                if (isBackCamera) CameraCharacteristics.LENS_FACING_BACK else CameraCharacteristics.LENS_FACING_FRONT
-            for (cameraId in manager.cameraIdList) {
-                val characteristics = manager.getCameraCharacteristics(cameraId)
-                val orientation = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (orientation == desiredOrientation) {
-                    val activePixelSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
-                        ?: continue
-                    val fullPixelSize =
-                        characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
-                            ?: continue
-                    val maxFocus =
-                        characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                            ?: continue
-                    val size = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
-                        ?: continue
-                    val sensorOrientation =
-                        characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
-                            ?: continue
+            val id = getCameraId() ?: return null
 
-                    val w = size.width * activePixelSize.width() / fullPixelSize.width.toFloat()
-                    val h = size.height * activePixelSize.height() / fullPixelSize.height.toFloat()
-                    // TODO: The approach outlined in this stackoverflow post also handles cropping
-                    // https://stackoverflow.com/questions/39965408/what-is-the-android-camera2-api-equivalent-of-camera-parameters-gethorizontalvie
-                    val horizontalFOV = 2 * atan(w / (2 * maxFocus[0]))
-                    val verticalFOV = 2 * atan(h / (2 * maxFocus[0]))
+            val characteristics = manager.getCameraCharacteristics(id)
+            val activePixelSize =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                    ?: return null
+            val fullPixelSize =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+                    ?: return null
+            val maxFocus =
+                characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                    ?: return null
+            val size =
+                characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: return null
+            val sensorOrientation =
+                characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: return null
 
-                    val isFlipped = sensorOrientation == 90 || sensorOrientation == 270
+            val w = size.width * activePixelSize.width() / fullPixelSize.width.toFloat()
+            val h = size.height * activePixelSize.height() / fullPixelSize.height.toFloat()
+            // TODO: The approach outlined in this stackoverflow post also handles cropping
+            // https://stackoverflow.com/questions/39965408/what-is-the-android-camera2-api-equivalent-of-camera-parameters-gethorizontalvie
+            val horizontalFOV = 2 * atan(w / (2 * maxFocus[0]))
+            val verticalFOV = 2 * atan(h / (2 * maxFocus[0]))
 
-                    val hFOV = if (isFlipped) {
-                        verticalFOV
-                    } else {
-                        horizontalFOV
-                    }
+            val isFlipped = sensorOrientation == 90 || sensorOrientation == 270
 
-                    val vFOV = if (isFlipped) {
-                        horizontalFOV
-                    } else {
-                        verticalFOV
-                    }
-
-
-                    return hFOV.toDegrees() to vFOV.toDegrees()
-                }
+            val hFOV = if (isFlipped) {
+                verticalFOV
+            } else {
+                horizontalFOV
             }
-            return null
+
+            val vFOV = if (isFlipped) {
+                horizontalFOV
+            } else {
+                verticalFOV
+            }
+
+            return hFOV.toDegrees() to vFOV.toDegrees()
         } catch (e: Exception) {
             return null
         }
@@ -360,6 +367,18 @@ class Camera(
             val cameras = getCameras(context)
             return cameras.any {
                 it.get(CameraCharacteristics.LENS_FACING) == CameraMetadata.LENS_FACING_FRONT
+            }
+        }
+
+        private fun getDefaultCameraId(context: Context, isBackCamera: Boolean): String? {
+            return tryOrDefault(null){
+                val manager =
+                    context.getSystemService<CameraManager>() ?: return@tryOrDefault null
+                manager.cameraIdList.firstOrNull {
+                    val characteristics = manager.getCameraCharacteristics(it)
+                    val orientation = characteristics.get(CameraCharacteristics.LENS_FACING)
+                    orientation == if (isBackCamera) CameraMetadata.LENS_FACING_BACK else CameraMetadata.LENS_FACING_FRONT
+                }
             }
         }
 

@@ -20,6 +20,7 @@ interface ICamera : ISensor {
 
     /**
      * Get the field of view of the camera in degrees (horizontal, vertical) if available.
+     * The FOV direction is based on when the phone is in portrait mode.
      *
      * Note: The chosen camera will be the first that matches the orientation of this camera. This should correspond to the zoom ratio of 1.
      */
@@ -27,6 +28,7 @@ interface ICamera : ISensor {
 
     /**
      * Get the field of view of the camera in degrees (horizontal, vertical) adjusted by the zoom ratio if available.
+     * The FOV direction is based on when the phone is in portrait mode.
      *
      * Note: The chosen camera will be the first that matches the orientation of this camera.
      */
