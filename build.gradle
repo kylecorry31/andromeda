@@ -10,11 +10,11 @@ buildscript {
     ext.groupId = 'com.kylecorry.andromeda'
     ext.versionName = '7.0.0-beta02'
     ext.solVersion = '8.0.0'
-    ext.coreKtxVersion = '1.10.1'
+    ext.coreKtxVersion = '1.12.0'
     ext.appCompatVersion = '1.6.1'
-    ext.materialVersion = '1.9.0'
-    ext.coroutinesVersion = '1.7.2'
-    ext.desugarVersion = '2.0.3'
+    ext.materialVersion = '1.10.0'
+    ext.coroutinesVersion = '1.7.3'
+    ext.desugarVersion = '2.0.4'
     ext.targetVersion = 34
     ext.compileVersion = 34
 }

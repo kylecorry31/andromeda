@@ -23,6 +23,7 @@ internal class OrientationCalculator {
             return getAzimuth(rotationMatrix)
         }
 
+        // TODO: If the device is vertical, the AR coordinate space should be used
         SensorManager.remapCoordinateSystem(
             rotation,
             SensorManager.AXIS_Y,
