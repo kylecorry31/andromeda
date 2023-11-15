@@ -11,16 +11,24 @@ import androidx.recyclerview.widget.RecyclerView
 class ListView<T>(
     private val view: RecyclerView,
     @LayoutRes private val itemLayoutId: Int,
+    private val getId: (T) -> Long? = { null },
     private val onViewBind: (View, T) -> Unit
 ) {
 
     private val adapter: Adapter
     private val layoutInflater: LayoutInflater
-    private val layoutManager: LinearLayoutManager
+    private var layoutManager: LinearLayoutManager
+
+    private val separator: DividerItemDecoration
 
     init {
         layoutManager = LinearLayoutManager(view.context)
         view.layoutManager = layoutManager
+
+        separator = DividerItemDecoration(
+            view.context,
+            layoutManager.orientation
+        )
 
         layoutInflater = LayoutInflater.from(view.context)
 
@@ -28,19 +36,25 @@ class ListView<T>(
         view.adapter = adapter
     }
 
+    fun setLayoutManager(manager: LinearLayoutManager) {
+        layoutManager = manager
+        view.layoutManager = layoutManager
+        separator.setOrientation(layoutManager.orientation)
+    }
+
     fun setData(data: List<T>) {
         adapter.data = data
     }
 
     fun addLineSeparator() {
-        val dividerItemDecoration = DividerItemDecoration(
-            view.context,
-            layoutManager.orientation
-        )
-        view.addItemDecoration(dividerItemDecoration)
+        view.addItemDecoration(separator)
     }
 
-    fun scrollToPosition(position: Int, smooth: Boolean = true){
+    fun removeLineSeparator() {
+        view.removeItemDecoration(separator)
+    }
+
+    fun scrollToPosition(position: Int, smooth: Boolean = true) {
         if (smooth) {
             view.smoothScrollToPosition(position)
         } else {
@@ -63,6 +77,10 @@ class ListView<T>(
 
         override fun getItemCount(): Int {
             return data.size
+        }
+
+        override fun getItemId(position: Int): Long {
+            return getId(data[position]) ?: super.getItemId(position)
         }
 
         override fun onBindViewHolder(holder: Holder, position: Int) {
