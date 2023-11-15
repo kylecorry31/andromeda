@@ -34,14 +34,14 @@ class GridView<T>(
     }
 
     fun setData(data: List<T>) {
-        setData(data, List(data.size) { 1 })
+        setSpannedData(data, List(data.size) { 1 })
     }
 
-    fun setData(data: List<SpannedItem<T>>) {
-        setData(data.map { it.item }, data.map { it.span })
+    fun setSpannedData(data: List<SpannedItem<T>>) {
+        setSpannedData(data.map { it.item }, data.map { it.span })
     }
 
-    fun setData(data: List<T>, spans: List<Int>) {
+    fun setSpannedData(data: List<T>, spans: List<Int>) {
         list.setData(data)
         this.spans = spans
     }
