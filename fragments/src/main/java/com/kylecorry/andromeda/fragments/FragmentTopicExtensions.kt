@@ -33,13 +33,16 @@ fun <T> Fragment.observe(
 fun <T> Fragment.observeFlow(
     flow: Flow<T>,
     state: BackgroundMinimumState = BackgroundMinimumState.Any,
+    collectOn: CoroutineContext = Dispatchers.Default,
     observeOn: CoroutineContext = Dispatchers.Main,
     listener: suspend (T) -> Unit
 ) {
     repeatInBackground(state) {
-        withContext(observeOn) {
+        withContext(collectOn) {
             flow.collect {
-                listener(it)
+                withContext(observeOn) {
+                    listener(it)
+                }
             }
         }
     }
