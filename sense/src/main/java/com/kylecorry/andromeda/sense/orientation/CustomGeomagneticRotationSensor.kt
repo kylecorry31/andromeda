@@ -59,6 +59,8 @@ class CustomGeomagneticRotationSensor(
             _bearing = _orientation.getAzimuth(rotationMatrix)
         }
 
+        notifyListeners()
+
         return true
     }
 

@@ -6,7 +6,8 @@ import com.kylecorry.sol.math.SolMath.toDegrees
 internal class OrientationCalculator {
 
     private val rotationMatrix = FloatArray(9)
-    private val remappedRotationMatrix = FloatArray(9)
+    private val remappedRotationMatrix9 = FloatArray(9)
+    private val remappedRotationMatrix16 = FloatArray(16)
     private val orientation = FloatArray(3)
     private val sensorValues = FloatArray(4)
 
@@ -21,6 +22,12 @@ internal class OrientationCalculator {
                 SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorValues)
             }
             return getAzimuth(rotationMatrix)
+        }
+
+        val remappedRotationMatrix = if (rotation.size == 9) {
+            remappedRotationMatrix9
+        } else {
+            remappedRotationMatrix16
         }
 
         // TODO: If the device is vertical, the AR coordinate space should be used
