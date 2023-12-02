@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.kylecorry.luna.coroutines.IFlowable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 
 typealias Subscriber<T> = (T) -> Boolean
 
-interface ITopic<T> {
+interface ITopic<T>: IFlowable<T> {
     val value: Optional<T>
 
     fun subscribe(subscriber: Subscriber<T>)

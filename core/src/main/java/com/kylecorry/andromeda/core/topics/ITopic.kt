@@ -5,10 +5,11 @@ import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.kylecorry.andromeda.core.topics.generic.AdapterTopic
+import com.kylecorry.luna.coroutines.IFlowable
 
 typealias Subscriber = () -> Boolean
 
-interface ITopic {
+interface ITopic: IFlowable<Unit> {
     fun subscribe(subscriber: Subscriber)
     fun unsubscribe(subscriber: Subscriber)
     fun unsubscribeAll()

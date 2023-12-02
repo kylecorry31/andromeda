@@ -1,5 +1,8 @@
 package com.kylecorry.andromeda.core.topics
 
+import android.util.Log
+import com.kylecorry.luna.coroutines.ListenerFlowWrapper
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
@@ -44,8 +47,23 @@ class Topic(
         subscribe(callback)
     }
 
+    override val flow: Flow<Unit> = object : ListenerFlowWrapper<Unit>() {
+        override fun start() {
+            subscribe(this::onSensorUpdate)
+        }
+
+        override fun stop() {
+            unsubscribe(this::onSensorUpdate)
+        }
+
+        private fun onSensorUpdate(): Boolean {
+            emit(Unit)
+            return true
+        }
+    }.flow
+
     fun publish() {
-        val subs = synchronized(subscribers){
+        val subs = synchronized(subscribers) {
             subscribers.toList()
         }
         subs.filter { !it.invoke() }.forEach(::unsubscribe)

@@ -19,4 +19,7 @@ abstract class BaseTopic : ITopic {
     override suspend fun read() {
         topic.read()
     }
+
+    override val flow
+        get() = topic.flow
 }

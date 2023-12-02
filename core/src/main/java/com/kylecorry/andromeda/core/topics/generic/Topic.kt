@@ -1,5 +1,7 @@
 package com.kylecorry.andromeda.core.topics.generic
 
+import com.kylecorry.luna.coroutines.ListenerFlowWrapper
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
 import kotlin.coroutines.resume
@@ -48,6 +50,21 @@ class Topic<T>(
         }
         subscribe(callback)
     }
+
+    override val flow: Flow<T> = object : ListenerFlowWrapper<T>() {
+        override fun start() {
+            subscribe(this::onUpdate)
+        }
+
+        override fun stop() {
+            unsubscribe(this::onUpdate)
+        }
+
+        private fun onUpdate(value: T): Boolean {
+            emit(value)
+            return true
+        }
+    }.flow
 
     fun publish(value: T) {
         this.value = Optional.of(value)

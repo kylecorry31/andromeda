@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.core.topics.generic
 
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 abstract class BaseTopic<T> : ITopic<T> {
@@ -23,4 +24,7 @@ abstract class BaseTopic<T> : ITopic<T> {
     override suspend fun read(): T {
         return topic.read()
     }
+
+    override val flow: Flow<T>
+        get() = topic.flow
 }
