@@ -8,6 +8,7 @@ import com.kylecorry.andromeda.sense.Sensors
 import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
+import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.andromeda.sense.magnetometer.LowPassMagnetometer
 import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.units.Bearing
@@ -21,7 +22,12 @@ import kotlin.math.min
 class GravityCompensatedCompass(
     context: Context,
     private val useTrueNorth: Boolean,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    private val accelerometer: IAccelerometer = if (Sensors.hasGravity(context)) GravitySensor(
+        context,
+        sensorDelay
+    ) else LowPassAccelerometer(context, sensorDelay),
+    private val magnetometer: IMagnetometer = LowPassMagnetometer(context, sensorDelay)
 ) :
     AbstractSensor(), ICompass {
 
@@ -32,13 +38,6 @@ class GravityCompensatedCompass(
     override val quality: Quality
         get() = _quality
     private var _quality = Quality.Unknown
-
-    private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(
-            context,
-            sensorDelay
-        ) else LowPassAccelerometer(context, sensorDelay)
-    private val magnetometer = LowPassMagnetometer(context, sensorDelay)
 
     override var declination = 0f
 
