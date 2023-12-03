@@ -44,6 +44,8 @@ class OrientationSensor(
         get() = synchronized(lock) {
             _quaternion.clone()
         }
+    override val headingAccuracy: Float?
+        get() = null
 
     override var declination = 0f
 

@@ -23,6 +23,8 @@ class CustomGeomagneticRotationSensor(
 
     private val lock = Object()
 
+    override val headingAccuracy: Float?
+        get() = null
 
     override fun startImpl() {
         magnetometer.start(this::onSensorUpdate)

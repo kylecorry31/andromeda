@@ -45,6 +45,8 @@ class MadgwickAHRS(
                 _orientation.clone()
             }
         }
+    override val headingAccuracy: Float?
+        get() = null
 
 
     private var hasMag = false

@@ -6,4 +6,5 @@ import com.kylecorry.andromeda.core.sensors.ISensor
 interface IOrientationSensor: ISensor {
     val orientation: Quaternion
     val rawOrientation: FloatArray
+    val headingAccuracy: Float?
 }

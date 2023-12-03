@@ -34,6 +34,8 @@ class GravityOrientationSensor(context: Context, sensorDelay: Int = SensorManage
         get() = synchronized(lock){
             _quaternion.clone()
         }
+    override val headingAccuracy: Float?
+        get() = null
 
     private val _quaternion = Quaternion.zero.toFloatArray()
 

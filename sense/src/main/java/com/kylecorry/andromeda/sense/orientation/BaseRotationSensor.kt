@@ -6,6 +6,7 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
+import com.kylecorry.sol.math.SolMath.toDegrees
 
 abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int) :
     BaseSensor(context, type, sensorDelay),
@@ -26,6 +27,12 @@ abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int)
             }
         }
 
+    override val headingAccuracy: Float?
+        get() = synchronized(lock) {
+            _headingAccuracy
+        }
+
+    private var _headingAccuracy: Float? = null
     private val _quaternion = Quaternion.zero.toFloatArray()
 
     private var _hasReading = false
@@ -45,6 +52,12 @@ abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int)
             _quaternion[2] = z
             _quaternion[3] = w
             QuaternionMath.inverse(_quaternion, _quaternion)
+
+            _headingAccuracy = if (event.values.size > 4) {
+                event.values[4].toDegrees()
+            } else {
+                null
+            }
         }
         _hasReading = true
     }
