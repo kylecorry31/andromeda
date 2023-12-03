@@ -38,6 +38,8 @@ class Gyroscope(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_
                 _quaternion.clone()
             }
         }
+    override val headingAccuracy: Float?
+        get() = null
 
     private val _quaternion = Quaternion.zero.toFloatArray()
     private val _angularRate = FloatArray(3)
