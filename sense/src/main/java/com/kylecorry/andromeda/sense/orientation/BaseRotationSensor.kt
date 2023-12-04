@@ -51,7 +51,6 @@ abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int)
             _quaternion[1] = y
             _quaternion[2] = z
             _quaternion[3] = w
-            QuaternionMath.inverse(_quaternion, _quaternion)
 
             _headingAccuracy = if (event.values.size > 4 && event.values[4] > 0f) {
                 event.values[4].toDegrees()

@@ -4,16 +4,20 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import com.kylecorry.andromeda.sense.BaseSensor
+import com.kylecorry.sol.math.Euler
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.SolMath.toDegrees
-import com.kylecorry.andromeda.sense.BaseSensor
-import com.kylecorry.sol.math.Euler
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-class Gyroscope(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST, private val threshold: Float = 0.00001f) :
+class Gyroscope(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    private val threshold: Float = 0.00001f
+) :
     BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay),
     IGyroscope {
 
@@ -52,7 +56,7 @@ class Gyroscope(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_
     private var _hasReading = false
     private var lastTime = 0L
 
-    private val deltaRotationVector = FloatArray(4)
+    private val deltaRotationVector = Quaternion.zero.toFloatArray()
 
     private val lock = Object()
 
@@ -69,9 +73,9 @@ class Gyroscope(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_
         lastTime = event.timestamp
 
 
-        var axisX = -event.values[1]
-        var axisY = -event.values[0]
-        var axisZ = -event.values[2]
+        var axisX = event.values[0]
+        var axisY = event.values[1]
+        var axisZ = event.values[2]
 
         val omegaMagnitude = sqrt(axisX * axisX + axisY * axisY + axisZ * axisZ)
 
