@@ -50,13 +50,7 @@ class OrientationSensor(
     override var declination = 0f
 
     override val bearing: Bearing
-        get() {
-            return if (useTrueNorth) {
-                Bearing(_bearing).withDeclination(declination)
-            } else {
-                Bearing(_bearing)
-            }
-        }
+        get() = Bearing(rawBearing)
 
     override val rawBearing: Float
         get() {

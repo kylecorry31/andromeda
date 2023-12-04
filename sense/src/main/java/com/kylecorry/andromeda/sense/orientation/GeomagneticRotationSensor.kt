@@ -11,13 +11,7 @@ import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.andromeda.sense.compass.ICompass
 
 class GeomagneticRotationSensor(
-    context: Context,
-    useTrueNorth: Boolean,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
-) :
-    BaseWorldRotationSensor(
-        context,
-        useTrueNorth,
-        Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR,
-        sensorDelay
-    )
+    context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
+) : BaseRotationSensor(
+    context, Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR, sensorDelay
+)

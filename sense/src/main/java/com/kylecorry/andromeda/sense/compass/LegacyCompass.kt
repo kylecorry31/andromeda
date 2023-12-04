@@ -4,10 +4,8 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
-import com.kylecorry.sol.units.Bearing
 import com.kylecorry.andromeda.sense.BaseSensor
-import kotlin.math.abs
-import kotlin.math.floor
+import com.kylecorry.sol.units.Bearing
 
 @Suppress("DEPRECATION")
 class LegacyCompass(
@@ -25,21 +23,13 @@ class LegacyCompass(
     override var declination = 0f
 
     override val bearing: Bearing
-        get() {
-            return if (useTrueNorth) {
-                Bearing(_bearing).withDeclination(declination)
-            } else {
-                Bearing(_bearing)
-            }
-        }
+        get() = Bearing(rawBearing)
 
     override val rawBearing: Float
-        get() {
-            return if (useTrueNorth) {
-                Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
-            } else {
-                Bearing.getBearing(_bearing)
-            }
+        get() = if (useTrueNorth) {
+            Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
+        } else {
+            Bearing.getBearing(_bearing)
         }
 
     private var _bearing = 0f

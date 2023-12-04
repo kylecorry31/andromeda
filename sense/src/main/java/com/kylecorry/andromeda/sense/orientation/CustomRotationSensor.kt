@@ -18,14 +18,11 @@ class CustomRotationSensor(
     private val magnetometer: IMagnetometer,
     private val accelerometer: IAccelerometer,
     private val gyro: IGyroscope,
-    private val useTrueNorth: Boolean,
     private val gyroWeight: Float = 0.998f
-) : AbstractSensor(), IOrientationSensor, ICompass {
+) : AbstractSensor(), IOrientationSensor {
 
     private val rotationMatrix = FloatArray(16)
     private val _quaternion = Quaternion.zero.toFloatArray()
-    private val _orientation = OrientationCalculator()
-    private var _bearing = 0f
 
     private val lock = Object()
 
@@ -104,8 +101,6 @@ class CustomRotationSensor(
             _quaternion[2] = z * (1 - alpha) + gz * alpha
             _quaternion[3] = w * (1 - alpha) + gw * alpha
             QuaternionMath.normalize(_quaternion, _quaternion)
-
-            _bearing = _orientation.getAzimuth(_quaternion)
         }
 
         notifyListeners()
@@ -136,20 +131,6 @@ class CustomRotationSensor(
 
     override val headingAccuracy: Float?
         get() = null
-
-    override val bearing: Bearing
-        get() = Bearing(rawBearing)
-
-    override var declination: Float = 0.0f
-
-    override val rawBearing: Float
-        get() {
-            return if (useTrueNorth) {
-                Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
-            } else {
-                Bearing.getBearing(_bearing)
-            }
-        }
 
     override val hasValidReading: Boolean
         get() = magnetometer.hasValidReading && accelerometer.hasValidReading

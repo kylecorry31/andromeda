@@ -1,62 +1,55 @@
 package com.kylecorry.andromeda.sense.clinometer
 
-import android.content.Context
-import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.andromeda.sense.Sensors
-import com.kylecorry.andromeda.sense.accelerometer.GravitySensor
-import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
-import com.kylecorry.andromeda.sense.accelerometer.LowPassAccelerometer
-import com.kylecorry.sol.math.SolMath.wrap
-import com.kylecorry.sol.math.Vector3
+import com.kylecorry.andromeda.sense.orientation.IOrientationSensor
+import com.kylecorry.andromeda.sense.orientation.OrientationUtils
 import com.kylecorry.sol.science.geology.Geology
 
-abstract class Clinometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
-    AbstractSensor(), IClinometer {
+/**
+ * A clinometer sensor
+ * @param orientationSensor The orientation sensor to use
+ * @param isAugmentedReality True if the clinometer should be in AR mode (device held vertically), otherwise the spine of the device is used
+ */
+class Clinometer(
+    private val orientationSensor: IOrientationSensor,
+    var isAugmentedReality: Boolean = false
+) : AbstractSensor(), IClinometer {
 
-    override val angle: Float
-        get() = _angle
+    private var _angle = 0f
+    private val rotationMatrix = FloatArray(16)
+    private val orientation = FloatArray(3)
+
+    override val hasValidReading: Boolean
+        get() = orientationSensor.hasValidReading
 
     override val incline: Float
         get() = Geology.getInclination(_angle)
 
-    override val hasValidReading: Boolean
-        get() = gotReading
-
-    private var gotReading = false
-
-    override val quality: Quality
-        get() = _quality
-    private var _quality = Quality.Unknown
-
-    private val accelerometer: IAccelerometer =
-        if (Sensors.hasGravity(context)) GravitySensor(
-            context,
-            sensorDelay
-        ) else LowPassAccelerometer(context, sensorDelay)
-
-    private var _angle = 0f
-
-    private fun updateSensor(): Boolean {
-
-        val gravity = accelerometer.acceleration
-        _quality = accelerometer.quality
-        _angle = wrap(calculateUnitAngle(gravity), 0f, 360f)
-
-        gotReading = true
-        notifyListeners()
-        return true
-    }
-
     override fun startImpl() {
-        accelerometer.start(this::updateSensor)
+        orientationSensor.start(this::onSensorUpdate)
     }
 
     override fun stopImpl() {
-        accelerometer.stop(this::updateSensor)
+        orientationSensor.stop(this::onSensorUpdate)
     }
 
-    protected abstract fun calculateUnitAngle(gravity: Vector3): Float
-
+    private fun onSensorUpdate(): Boolean {
+        _angle = if (isAugmentedReality) {
+            OrientationUtils.getAROrientation(
+                orientationSensor,
+                rotationMatrix,
+                orientation
+            )
+            orientation[1]
+        } else {
+            OrientationUtils.getCompassOrientation(
+                orientationSensor,
+                rotationMatrix,
+                orientation
+            )
+            -orientation[1]
+        }
+        notifyListeners()
+        return true
+    }
 }

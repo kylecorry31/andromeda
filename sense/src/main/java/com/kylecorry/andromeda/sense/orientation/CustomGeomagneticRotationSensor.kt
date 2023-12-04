@@ -13,13 +13,10 @@ import kotlin.math.sqrt
 class CustomGeomagneticRotationSensor(
     private val magnetometer: IMagnetometer,
     private val accelerometer: IAccelerometer,
-    private val useTrueNorth: Boolean,
-) : AbstractSensor(), IOrientationSensor, ICompass {
+) : AbstractSensor(), IOrientationSensor {
 
     private val rotationMatrix = FloatArray(16)
     private val _quaternion = Quaternion.zero.toFloatArray()
-    private val _orientation = OrientationCalculator()
-    private var _bearing = 0f
     private val temp = FloatArray(4)
 
     private val lock = Object()
@@ -57,8 +54,6 @@ class CustomGeomagneticRotationSensor(
             // TODO: Instead of inverting, use the correct values from the rotation matrix
             QuaternionMath.inverse(temp, temp)
             temp.copyInto(_quaternion)
-
-            _bearing = _orientation.getAzimuth(rotationMatrix)
         }
 
         notifyListeners()
@@ -74,19 +69,6 @@ class CustomGeomagneticRotationSensor(
         get() {
             return synchronized(lock) {
                 _quaternion
-            }
-        }
-    override val bearing: Bearing
-        get() = Bearing(rawBearing)
-
-    override var declination: Float = 0.0f
-
-    override val rawBearing: Float
-        get() {
-            return if (useTrueNorth) {
-                Bearing.getBearing(Bearing.getBearing(_bearing) + declination)
-            } else {
-                Bearing.getBearing(_bearing)
             }
         }
 
