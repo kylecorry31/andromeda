@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.location
+package com.kylecorry.andromeda.sense.location
 
 import androidx.core.location.GnssStatusCompat
 

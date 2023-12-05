@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.location
+package com.kylecorry.andromeda.sense.location
 
 import com.kylecorry.andromeda.core.tryOrDefault
 

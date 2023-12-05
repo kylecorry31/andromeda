@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.kylecorry.andromeda.location
+package com.kylecorry.andromeda.sense.location
 
 import android.location.GpsStatus
 import android.location.OnNmeaMessageListener

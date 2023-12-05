@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.location
+package com.kylecorry.andromeda.sense.location
 
 import android.location.Location
 import android.location.LocationListener

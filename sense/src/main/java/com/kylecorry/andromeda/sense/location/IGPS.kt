@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.location
+package com.kylecorry.andromeda.sense.location
 
 import com.kylecorry.andromeda.core.sensors.IAltimeter
 import com.kylecorry.andromeda.core.sensors.IClock
@@ -52,4 +52,17 @@ interface IGPS: ISensor, IAltimeter, IClock, ISpeedometer {
      * The speed accuracy in meters per second at the 68% confidence level
      */
     val speedAccuracy: Float?
+}
+
+fun IGPS.hasFix(): Boolean {
+    if (!hasValidReading) {
+        return false
+    }
+
+    // Satellites are only null when the device doesn't report them
+    if (satellites == null) {
+        return true
+    }
+
+    return (satellites ?: 0) >= 0
 }

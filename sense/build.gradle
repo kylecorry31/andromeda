@@ -55,6 +55,8 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
+    implementation project(':permissions')
+    implementation project(':preferences')
     implementation "androidx.core:core-ktx:${coreKtxVersion}"
     implementation "com.github.kylecorry31:sol:${solVersion}"
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
