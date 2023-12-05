@@ -16,8 +16,8 @@ abstract class BaseTopic : ITopic {
         topic.unsubscribeAll()
     }
 
-    override suspend fun read() {
-        topic.read()
+    override suspend fun read(isSatisfied: () -> Boolean) {
+        topic.read(isSatisfied)
     }
 
     override val flow

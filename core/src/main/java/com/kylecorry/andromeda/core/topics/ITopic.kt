@@ -13,7 +13,7 @@ interface ITopic: IFlowable<Unit> {
     fun subscribe(subscriber: Subscriber)
     fun unsubscribe(subscriber: Subscriber)
     fun unsubscribeAll()
-    suspend fun read()
+    suspend fun read(isSatisfied: () -> Boolean = { true })
 }
 
 fun <T : ITopic> T.asLiveData(): LiveData<T> {
