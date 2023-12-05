@@ -11,7 +11,7 @@ import com.kylecorry.sol.units.Bearing
 class LegacyCompass(
     context: Context,
     private val useTrueNorth: Boolean,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
 ) :
     BaseSensor(context, Sensor.TYPE_ORIENTATION, sensorDelay),
     ICompass {

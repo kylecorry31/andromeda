@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.sense.barometer
+package com.kylecorry.andromeda.sense.altitude
 
 import android.util.Log
 import com.kylecorry.andromeda.core.coroutines.onDefault
@@ -7,6 +7,7 @@ import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.IAltimeter
 import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.preferences.IPreferences
+import com.kylecorry.andromeda.sense.barometer.IBarometer
 import com.kylecorry.andromeda.sense.location.IGPS
 import com.kylecorry.andromeda.sense.location.filters.GPSPassThroughAltitudeFilter
 import com.kylecorry.andromeda.sense.location.filters.IGPSAltitudeFilter

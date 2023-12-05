@@ -23,7 +23,7 @@ import kotlin.math.sqrt
 class OrientationSensor(
     context: Context,
     private val useTrueNorth: Boolean,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME
 ) :
     AbstractSensor(), IOrientationSensor, ICompass {
 

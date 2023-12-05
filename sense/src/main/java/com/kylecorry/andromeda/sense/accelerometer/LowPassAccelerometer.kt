@@ -10,7 +10,7 @@ import com.kylecorry.andromeda.sense.BaseSensor
 
 class LowPassAccelerometer(
     context: Context,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
     filterSize: Float = 0.05f
 ) :
     BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),

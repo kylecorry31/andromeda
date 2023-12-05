@@ -8,5 +8,5 @@ import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class GameRotationSensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+class GameRotationSensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME) :
     BaseRotationSensor(context, Sensor.TYPE_GAME_ROTATION_VECTOR, sensorDelay)

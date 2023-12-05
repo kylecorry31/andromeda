@@ -7,7 +7,7 @@ import android.hardware.SensorManager
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Magnetometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+class Magnetometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME) :
     BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, sensorDelay),
     IMagnetometer {
 

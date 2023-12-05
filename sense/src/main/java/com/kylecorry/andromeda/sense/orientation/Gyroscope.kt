@@ -15,7 +15,7 @@ import kotlin.math.sqrt
 
 class Gyroscope(
     context: Context,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
     private val threshold: Float = 0.00001f
 ) :
     BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay),

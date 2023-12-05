@@ -13,7 +13,7 @@ import kotlin.math.withSign
 // TODO: Use the quaternions from the other sensors
 class DeviceOrientation(
     private val context: Context,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME
 ) : AbstractSensor() {
     override fun startImpl() {
         accelerometer.start(this::onAccelerometer)

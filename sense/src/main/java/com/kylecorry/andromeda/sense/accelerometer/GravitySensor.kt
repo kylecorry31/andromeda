@@ -7,7 +7,7 @@ import android.hardware.SensorManager
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class GravitySensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+class GravitySensor(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME) :
     BaseSensor(context, Sensor.TYPE_GRAVITY, sensorDelay), IAccelerometer {
 
     override val hasValidReading: Boolean

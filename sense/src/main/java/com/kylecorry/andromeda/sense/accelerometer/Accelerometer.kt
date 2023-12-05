@@ -7,7 +7,7 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Vector3
 
-class Accelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_FASTEST) :
+class Accelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME) :
     BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),
     IAccelerometer {
 
