@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.system.Package
@@ -99,10 +100,14 @@ object Permissions {
     }
 
     fun hasPermission(context: Context, permission: String): Boolean {
+        // The first call seems to check for notifications permission in addition, and the second checks for ops
         return ContextCompat.checkSelfPermission(
             context,
             permission
-        ) == PackageManager.PERMISSION_GRANTED
+        ) == PackageManager.PERMISSION_GRANTED && PermissionChecker.checkSelfPermission(
+            context,
+            permission
+        ) == PermissionChecker.PERMISSION_GRANTED
     }
 
     fun hasPermission(context: Context, permission: SpecialPermission): Boolean {
