@@ -4,10 +4,11 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.IAltimeter
 import com.kylecorry.andromeda.sense.barometer.Barometer
+import com.kylecorry.andromeda.sense.barometer.IBarometer
 import com.kylecorry.sol.units.Pressure
 
 class BarometricAltimeter(
-    private val barometer: Barometer,
+    private val barometer: IBarometer,
     var seaLevelPressure: Pressure = Pressure.hpa(SensorManager.PRESSURE_STANDARD_ATMOSPHERE)
 ) : AbstractSensor(), IAltimeter {
 
