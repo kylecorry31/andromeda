@@ -33,44 +33,51 @@ object Permissions {
         }
     }
 
-    fun canGetLocation(context: Context): Boolean {
-        return canGetFineLocation(context) || canGetCoarseLocation(context)
+    fun canGetLocation(context: Context, checkAppOps: Boolean = false): Boolean {
+        return canGetFineLocation(context, checkAppOps) || canGetCoarseLocation(
+            context,
+            checkAppOps
+        )
     }
 
-    fun canGetFineLocation(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+    fun canGetFineLocation(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.ACCESS_FINE_LOCATION, checkAppOps)
     }
 
-    fun canGetCoarseLocation(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+    fun canGetCoarseLocation(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION, checkAppOps)
     }
 
-    fun canUseFlashlight(context: Context): Boolean {
-        return hasPermission(context, "android.permission.FLASHLIGHT") || isCameraEnabled(context)
+    fun canUseFlashlight(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(
+            context,
+            "android.permission.FLASHLIGHT",
+            checkAppOps
+        ) || isCameraEnabled(context, checkAppOps)
     }
 
-    fun isCameraEnabled(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.CAMERA)
+    fun isCameraEnabled(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.CAMERA, checkAppOps)
     }
 
-    fun canUseBluetooth(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.BLUETOOTH)
+    fun canUseBluetooth(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.BLUETOOTH, checkAppOps)
     }
 
-    fun canRecognizeActivity(context: Context): Boolean {
+    fun canRecognizeActivity(context: Context, checkAppOps: Boolean = false): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            hasPermission(context, Manifest.permission.ACTIVITY_RECOGNITION)
+            hasPermission(context, Manifest.permission.ACTIVITY_RECOGNITION, checkAppOps)
         } else {
             true
         }
     }
 
-    fun canVibrate(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.VIBRATE)
+    fun canVibrate(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.VIBRATE, checkAppOps)
     }
 
-    fun canRecordAudio(context: Context): Boolean {
-        return hasPermission(context, Manifest.permission.RECORD_AUDIO)
+    fun canRecordAudio(context: Context, checkAppOps: Boolean = false): Boolean {
+        return hasPermission(context, Manifest.permission.RECORD_AUDIO, checkAppOps)
     }
 
     fun getPermissionName(context: Context, permission: String): String? {
@@ -99,15 +106,18 @@ object Permissions {
         }
     }
 
-    fun hasPermission(context: Context, permission: String): Boolean {
-        // The first call seems to check for notifications permission in addition, and the second checks for ops
-        return ContextCompat.checkSelfPermission(
+    fun hasPermission(context: Context, permission: String, checkAppOps: Boolean = false): Boolean {
+        val hasPermission = ContextCompat.checkSelfPermission(
             context,
             permission
-        ) == PackageManager.PERMISSION_GRANTED && PermissionChecker.checkSelfPermission(
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasAppOps = !checkAppOps || PermissionChecker.checkSelfPermission(
             context,
             permission
         ) == PermissionChecker.PERMISSION_GRANTED
+
+        return hasPermission && hasAppOps
     }
 
     fun hasPermission(context: Context, permission: SpecialPermission): Boolean {
