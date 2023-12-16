@@ -74,7 +74,7 @@ class FusedAltimeter(
 
     override fun stopImpl() {
         updateTimer.stop()
-        gps.stop(null)
+        gps.stop(this::onGPSUpdate)
         barometer.stop(this::onBarometerUpdate)
     }
 
