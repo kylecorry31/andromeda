@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.hardware.SensorManager
+import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.compass.ICompass
@@ -49,7 +50,7 @@ class CustomRotationSensor(
 
     private val temp = FloatArray(4)
 
-    private fun update() {
+    private suspend fun update() {
         synchronized(lock) {
             if (!accelerometer.hasValidReading || !magnetometer.hasValidReading) {
                 return
@@ -103,7 +104,9 @@ class CustomRotationSensor(
             QuaternionMath.normalize(_quaternion, _quaternion)
         }
 
-        notifyListeners()
+        onMain {
+            notifyListeners()
+        }
     }
 
     private fun onSensorUpdate(): Boolean {
