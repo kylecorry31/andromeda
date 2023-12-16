@@ -194,7 +194,11 @@ class FusedAltimeter(
 
     private suspend fun recalibrate() {
         if (barometer.pressure > 0f) {
-            gps.read { gpsFilter.hasValidReading }
+            gpsFilter.reset()
+            gps.read {
+                onGPSUpdate()
+                gpsFilter.hasValidReading
+            }
             setLastSeaLevelPressure(
                 Meteorology.getSeaLevelPressure(
                     Pressure.hpa(barometer.pressure),
