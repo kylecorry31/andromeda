@@ -96,7 +96,7 @@ class Camera(
 
     private var cachedFOV: Pair<Float, Float>? = null
 
-    @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
+    @OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     override fun startImpl() {
         if (!Permissions.isCameraEnabled(context)) {
             return
@@ -291,12 +291,11 @@ class Camera(
         })
     }
 
-    @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
+    @OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     fun getCameraId(): String? {
         try {
-            val info = camera?.cameraInfo ?: return getDefaultCameraId(context, isBackCamera)
-            val camera2Info = Camera2CameraInfo.from(info)
-            return camera2Info.cameraId
+            val info = getCamera2Info() ?: return getDefaultCameraId(context, isBackCamera)
+            return info.cameraId
         } catch (e: Exception) {
             return getDefaultCameraId(context, isBackCamera)
         }
@@ -305,26 +304,20 @@ class Camera(
     override fun getFOV(): Pair<Float, Float>? {
         cachedFOV?.let { return it }
 
-
-        val manager = context.getSystemService<CameraManager>() ?: return null
-
         try {
-            val id = getCameraId() ?: return null
-
-            val characteristics = manager.getCameraCharacteristics(id)
             val activePixelSize =
-                characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                getCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
                     ?: return null
             val fullPixelSize =
-                characteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+                getCharacteristic(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
                     ?: return null
             val maxFocus =
-                characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                getCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
                     ?: return null
             val size =
-                characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: return null
+                getCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: return null
             val sensorOrientation =
-                characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: return null
+                getCharacteristic(CameraCharacteristics.SENSOR_ORIENTATION) ?: return null
 
             val w = size.width * activePixelSize.width() / fullPixelSize.width.toFloat()
             val h = size.height * activePixelSize.height() / fullPixelSize.height.toFloat()
