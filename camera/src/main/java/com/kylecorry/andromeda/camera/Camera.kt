@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
+import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.tryOrLog
@@ -51,7 +52,9 @@ class Camera(
     private val targetResolution: Size? = null,
     private val useYUV: Boolean = false,
     private val captureSettings: ImageCaptureSettings? = null,
-    private val shouldStabilizePreview: Boolean = true
+    private val shouldStabilizePreview: Boolean = true,
+    @AspectRatio.Ratio
+    private val targetAspectRatio: Int = AspectRatio.RATIO_DEFAULT,
 ) : AbstractSensor(), ICamera {
 
     override val image: ImageProxy?
@@ -91,6 +94,8 @@ class Camera(
 
     private var _hasValidReading = false
 
+    private var preview: Preview? = null
+
     override val hasValidReading: Boolean
         get() = _hasValidReading
 
@@ -111,8 +116,10 @@ class Camera(
             } catch (e: InterruptedException) {
                 Log.i("Camera", "Unable to open camera because task was interrupted")
             }
-            val preview = Preview.Builder()
+            preview = Preview.Builder()
                 .also {
+                    it.setTargetAspectRatio(targetAspectRatio)
+
                     // TODO: This might not be needed now that the method is exposed
                     if (!shouldStabilizePreview) {
                         tryOrLog {
@@ -132,6 +139,7 @@ class Camera(
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder().apply {
+                setTargetAspectRatio(targetAspectRatio)
                 if (targetResolution != null) {
                     setTargetResolution(targetResolution)
                 }
@@ -154,9 +162,7 @@ class Camera(
                     builder.setJpegQuality(it)
                 }
 
-                captureSettings.targetAspectRatio?.let {
-                    builder.setTargetAspectRatio(it)
-                }
+                builder.setTargetAspectRatio(targetAspectRatio)
 
                 captureSettings.rotation?.let {
                     builder.setTargetRotation(it)
@@ -174,7 +180,7 @@ class Camera(
             val cameraSelector =
                 if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
 
-            preview.setSurfaceProvider(previewView?.surfaceProvider)
+            preview?.setSurfaceProvider(previewView?.surfaceProvider)
 
             camera = cameraProvider?.bindToLifecycle(
                 lifecycleOwner,
@@ -438,6 +444,36 @@ class Camera(
         return getCharacteristic(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)?.any {
             it != CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
         } == true
+    }
+
+    fun getPreviewSize(): Size? {
+        return tryOrDefault(null) {
+            val resolution = preview?.resolutionInfo?.resolution ?: return@tryOrDefault null
+            val rotation = preview?.resolutionInfo?.rotationDegrees ?: return@tryOrDefault null
+            val rotated = if (rotation == 90 || rotation == 270) {
+                Size(resolution.height, resolution.width)
+            } else {
+                resolution
+            }
+            val viewSize =
+                previewView?.let { Size(it.width, it.height) } ?: return@tryOrDefault null
+
+            when (previewView.scaleType) {
+                PreviewView.ScaleType.FILL_START, PreviewView.ScaleType.FILL_CENTER, PreviewView.ScaleType.FILL_END -> {
+                    viewSize
+                }
+
+                PreviewView.ScaleType.FIT_START, PreviewView.ScaleType.FIT_CENTER, PreviewView.ScaleType.FIT_END -> {
+                    // If it is smaller than the view, return the view size
+                    if (rotated.width <= viewSize.width && rotated.height <= viewSize.height) {
+                        return@tryOrDefault viewSize
+                    }
+
+                    // Otherwise it gets scaled to fit the view
+                    MathUtils.scaleToBounds(rotated, viewSize)
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalCamera2Interop::class)

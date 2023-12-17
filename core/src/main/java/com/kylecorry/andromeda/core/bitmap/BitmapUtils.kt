@@ -14,6 +14,7 @@ import androidx.core.graphics.red
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
+import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
@@ -158,16 +159,8 @@ object BitmapUtils {
 
     fun Bitmap.resizeToFit(maxWidth: Int, maxHeight: Int): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
-            val ratioBitmap = width.toFloat() / height.toFloat()
-            val ratioMax = maxWidth.toFloat() / maxHeight.toFloat()
-            var finalWidth = maxWidth
-            var finalHeight = maxHeight
-            if (ratioMax > ratioBitmap) {
-                finalWidth = (maxHeight.toFloat() * ratioBitmap).toInt()
-            } else {
-                finalHeight = (maxWidth.toFloat() / ratioBitmap).toInt()
-            }
-            Bitmap.createScaledBitmap(this, finalWidth, finalHeight, true)
+            val scaledSize = MathUtils.scaleToBounds(Size(width, height), Size(maxWidth, maxHeight))
+            Bitmap.createScaledBitmap(this, scaledSize.width, scaledSize.height, true)
         } else {
             this
         }
