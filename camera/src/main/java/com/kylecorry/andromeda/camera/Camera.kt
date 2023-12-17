@@ -9,8 +9,12 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.util.Log
 import android.util.Size
+import androidx.annotation.OptIn
+import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.camera2.interop.CaptureRequestOptions
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.Camera
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
@@ -31,6 +35,7 @@ import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath.toDegrees
 import java.io.File
 import java.io.OutputStream
+import java.time.Duration
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -108,6 +113,7 @@ class Camera(
             }
             val preview = Preview.Builder()
                 .also {
+                    // TODO: This might not be needed now that the method is exposed
                     if (!shouldStabilizePreview) {
                         tryOrLog {
                             // https://issuetracker.google.com/issues/230013960?pli=1
@@ -355,6 +361,121 @@ class Camera(
         return fov.first / zoom to fov.second / zoom
     }
 
+    override fun setFocusDistancePercentage(distance: Float?) {
+        if (distance == null) {
+            setCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_MODE,
+                CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+            )
+            return
+        }
+
+        val min = getCharacteristic(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE) ?: 0f
+        val max = getCharacteristic(CameraCharacteristics.LENS_INFO_HYPERFOCAL_DISTANCE) ?: 0f
+        val scaled = min + distance * (max - min)
+        // Disable auto focus
+        setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF)
+        setCaptureRequestOption(CaptureRequest.LENS_FOCUS_DISTANCE, scaled)
+    }
+
+    override fun setStabilization(opticalStabilization: Boolean, videoStabilization: Boolean) {
+        setCaptureRequestOption(
+            CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+            if (videoStabilization) CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON else CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+        )
+
+        setCaptureRequestOption(
+            CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE,
+            if (opticalStabilization) CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_ON else CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
+        )
+    }
+
+    override fun setExposureTime(exposureTime: Duration?) {
+        if (exposureTime == null) {
+            setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_MODE,
+                CameraMetadata.CONTROL_AE_MODE_ON
+            )
+            return
+        }
+
+        val nanos = exposureTime.toNanos()
+        setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_OFF)
+        setCaptureRequestOption(CaptureRequest.SENSOR_EXPOSURE_TIME, nanos)
+    }
+
+    override fun setSensitivity(isoSensitivity: Int?) {
+        if (isoSensitivity == null) {
+            setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_MODE,
+                CameraMetadata.CONTROL_AE_MODE_ON
+            )
+            return
+        }
+
+        setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CameraMetadata.CONTROL_AE_MODE_OFF)
+        setCaptureRequestOption(CaptureRequest.SENSOR_SENSITIVITY, isoSensitivity)
+    }
+
+    override fun getExposureTimeRange(): Range<Duration>? {
+        val range =
+            getCharacteristic(CameraCharacteristics.SENSOR_INFO_EXPOSURE_TIME_RANGE) ?: return null
+        return Range(Duration.ofNanos(range.lower), Duration.ofNanos(range.upper))
+    }
+
+    override fun getSensitivityRange(): Range<Int>? {
+        val range =
+            getCharacteristic(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: return null
+        return Range(range.lower, range.upper)
+    }
+
+    override fun getExposureCompensationRange(): Range<Int>? {
+        val range =
+            getCharacteristic(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE) ?: return null
+        return Range(range.lower, range.upper)
+    }
+
+    override fun isOpticalStabilizationSupported(): Boolean {
+        return getCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)?.any {
+            it != CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
+        } == true
+    }
+
+    override fun isVideoStabilizationSupported(): Boolean {
+        return getCharacteristic(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)?.any {
+            it != CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+        } == true
+    }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun getCamera2Controller(): Camera2CameraControl? {
+        val control = camera?.cameraControl ?: return null
+        return Camera2CameraControl.from(control)
+    }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun getCamera2Info(): Camera2CameraInfo? {
+        val info = camera?.cameraInfo ?: return null
+        return Camera2CameraInfo.from(info)
+    }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun <T> getCharacteristic(key: CameraCharacteristics.Key<T>): T? {
+        val info = getCamera2Info() ?: return null
+        return info.getCameraCharacteristic(key)
+    }
+
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun <T : Any> setCaptureRequestOption(key: CaptureRequest.Key<T>, value: T) {
+        tryOrDefault(false) {
+            val control = getCamera2Controller() ?: return
+            val newCaptureRequestOptions = CaptureRequestOptions.Builder()
+                .setCaptureRequestOption(key, value)
+                .build()
+            control.addCaptureRequestOptions(newCaptureRequestOptions)
+        }
+    }
+
     companion object {
         @SuppressLint("UnsupportedChromeOsCameraSystemFeature")
         fun isAvailable(context: Context): Boolean {
@@ -379,7 +500,7 @@ class Camera(
         }
 
         private fun getDefaultCameraId(context: Context, isBackCamera: Boolean): String? {
-            return tryOrDefault(null){
+            return tryOrDefault(null) {
                 val manager =
                     context.getSystemService<CameraManager>() ?: return@tryOrDefault null
                 manager.cameraIdList.firstOrNull {
