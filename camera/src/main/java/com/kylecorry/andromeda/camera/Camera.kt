@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.camera
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.RectF
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
@@ -446,7 +447,45 @@ class Camera(
         } == true
     }
 
-    fun getPreviewSize(): Size? {
+    override fun getPreviewRect(cropToView: Boolean): RectF? {
+        return tryOrDefault(null) {
+            val size = getPreviewSize(cropToView) ?: return@tryOrDefault null
+            val previewX = previewView?.x ?: 0f
+            val previewY = previewView?.y ?: 0f
+            val left = when (previewView?.scaleType) {
+                PreviewView.ScaleType.FILL_START, PreviewView.ScaleType.FIT_START -> 0
+                PreviewView.ScaleType.FILL_CENTER, PreviewView.ScaleType.FIT_CENTER -> {
+                    (previewView.width - size.width) / 2
+                }
+
+                PreviewView.ScaleType.FILL_END, PreviewView.ScaleType.FIT_END -> {
+                    previewView.width - size.width
+                }
+
+                else -> 0
+            }
+            val top = when (previewView?.scaleType) {
+                PreviewView.ScaleType.FILL_START, PreviewView.ScaleType.FIT_START -> 0
+                PreviewView.ScaleType.FILL_CENTER, PreviewView.ScaleType.FIT_CENTER -> {
+                    (previewView.height - size.height) / 2
+                }
+
+                PreviewView.ScaleType.FILL_END, PreviewView.ScaleType.FIT_END -> {
+                    previewView.height - size.height
+                }
+
+                else -> 0
+            }
+            RectF(
+                previewX + left,
+                previewY + top,
+                previewX + left + size.width,
+                previewY + top + size.height
+            )
+        }
+    }
+
+    override fun getPreviewSize(cropToView: Boolean): Size? {
         return tryOrDefault(null) {
             val resolution = preview?.resolutionInfo?.resolution ?: return@tryOrDefault null
             val rotation = preview?.resolutionInfo?.rotationDegrees ?: return@tryOrDefault null
@@ -460,7 +499,21 @@ class Camera(
 
             when (previewView.scaleType) {
                 PreviewView.ScaleType.FILL_START, PreviewView.ScaleType.FILL_CENTER, PreviewView.ScaleType.FILL_END -> {
-                    viewSize
+                    if (cropToView) {
+                        viewSize
+                    } else {
+                        // Calculate the size of the preview after it's been scaled to fill the preview
+                        val ratioBitmap = rotated.width.toFloat() / rotated.height.toFloat()
+                        val ratioMax = viewSize.width.toFloat() / viewSize.height.toFloat()
+                        var finalWidth = viewSize.width
+                        var finalHeight = viewSize.height
+                        if (ratioMax > ratioBitmap) {
+                            finalHeight = (viewSize.width.toFloat() / ratioBitmap).toInt()
+                        } else {
+                            finalWidth = (viewSize.height.toFloat() * ratioBitmap).toInt()
+                        }
+                        Size(finalWidth, finalHeight)
+                    }
                 }
 
                 PreviewView.ScaleType.FIT_START, PreviewView.ScaleType.FIT_CENTER, PreviewView.ScaleType.FIT_END -> {
@@ -469,8 +522,18 @@ class Camera(
                         return@tryOrDefault viewSize
                     }
 
+                    // TODO: Extract this to a method
                     // Otherwise it gets scaled to fit the view
-                    MathUtils.scaleToBounds(rotated, viewSize)
+                    val ratioBitmap = rotated.width.toFloat() / rotated.height.toFloat()
+                    val ratioMax = viewSize.width.toFloat() / viewSize.height.toFloat()
+                    var finalWidth = viewSize.width
+                    var finalHeight = viewSize.height
+                    if (ratioMax > ratioBitmap) {
+                        finalWidth = (viewSize.height.toFloat() * ratioBitmap).toInt()
+                    } else {
+                        finalHeight = (viewSize.width.toFloat() / ratioBitmap).toInt()
+                    }
+                    Size(finalWidth, finalHeight)
                 }
             }
         }

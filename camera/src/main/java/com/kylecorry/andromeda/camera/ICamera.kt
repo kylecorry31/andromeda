@@ -1,8 +1,10 @@
 package com.kylecorry.andromeda.camera
 
 import android.annotation.SuppressLint
+import android.graphics.RectF
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
+import android.util.Size
 import androidx.camera.core.ImageProxy
 import com.kylecorry.andromeda.core.annotations.ExperimentalUsage
 import com.kylecorry.andromeda.core.sensors.ISensor
@@ -109,4 +111,18 @@ interface ICamera : ISensor {
      */
     @ExperimentalUsage("This uses unstable APIs and may not work on all devices")
     fun isVideoStabilizationSupported(): Boolean
+
+    /**
+     * Get the size of the camera preview.
+     * @param cropToView true to crop the preview to the view, false to include the entire preview
+     * @return the size of the preview or null if not available
+     */
+    fun getPreviewSize(cropToView: Boolean = true): Size?
+
+    /**
+     * Get the rect of the camera preview.
+     * @param cropToView true to crop the preview to the view, false to include the entire preview
+     * @return the rect of the preview or null if not available
+     */
+    fun getPreviewRect(cropToView: Boolean = true): RectF?
 }
