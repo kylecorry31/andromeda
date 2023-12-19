@@ -101,6 +101,8 @@ class Camera(
         get() = _hasValidReading
 
     private var cachedFOV: Pair<Float, Float>? = null
+    private var cachedFullPreviewSize: Size? = null
+    private var cachedCroppedPreviewSize: Size? = null
 
     @OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     override fun startImpl() {
@@ -486,7 +488,14 @@ class Camera(
     }
 
     override fun getPreviewSize(cropToView: Boolean): Size? {
-        return tryOrDefault(null) {
+        // TODO: When should this be reset?
+        if (cropToView && cachedCroppedPreviewSize != null){
+            return cachedCroppedPreviewSize
+        } else if (!cropToView && cachedFullPreviewSize != null){
+            return cachedFullPreviewSize
+        }
+
+        val size = tryOrDefault(null) {
             val resolution = preview?.resolutionInfo?.resolution ?: return@tryOrDefault null
             val rotation = preview?.resolutionInfo?.rotationDegrees ?: return@tryOrDefault null
             val rotated = if (rotation == 90 || rotation == 270) {
@@ -537,6 +546,36 @@ class Camera(
                 }
             }
         }
+
+        if (cropToView){
+            cachedCroppedPreviewSize = size
+        } else {
+            cachedFullPreviewSize = size
+        }
+
+        return size
+    }
+
+    override fun getPreviewFOV(cropToView: Boolean): Pair<Float, Float>? {
+        val fov = getZoomedFOV() ?: return null
+
+        if (!cropToView) {
+            return fov
+        }
+
+        val fullPreviewSize = getPreviewSize(false) ?: return null
+        val croppedPreviewSize = getPreviewSize(true) ?: return null
+        val xFov = if (fullPreviewSize.width > croppedPreviewSize.width) {
+            fov.first * (croppedPreviewSize.width / fullPreviewSize.width.toFloat())
+        } else {
+            fov.first
+        }
+        val yFov = if (fullPreviewSize.height > croppedPreviewSize.height) {
+            fov.second * (croppedPreviewSize.height / fullPreviewSize.height.toFloat())
+        } else {
+            fov.second
+        }
+        return Pair(xFov, yFov)
     }
 
     @OptIn(ExperimentalCamera2Interop::class)

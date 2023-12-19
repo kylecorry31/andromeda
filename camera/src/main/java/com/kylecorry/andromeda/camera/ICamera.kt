@@ -125,4 +125,11 @@ interface ICamera : ISensor {
      * @return the rect of the preview or null if not available
      */
     fun getPreviewRect(cropToView: Boolean = true): RectF?
+
+    /**
+     * Get the field of view of the camera preview in degrees (horizontal, vertical)
+     * @param cropToView true to crop the preview to the view, false to include the entire preview
+     * @return the FOV of the preview or null if not available
+     */
+    fun getPreviewFOV(cropToView: Boolean): Pair<Float, Float>?
 }
