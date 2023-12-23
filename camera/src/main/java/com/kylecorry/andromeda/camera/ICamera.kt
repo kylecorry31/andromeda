@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.camera
 
+import android.graphics.Rect
 import android.graphics.RectF
+import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
 import androidx.camera.core.ImageProxy
 import com.kylecorry.andromeda.core.annotations.ExperimentalUsage
@@ -129,4 +131,26 @@ interface ICamera : ISensor {
      * @return the FOV of the preview or null if not available
      */
     fun getPreviewFOV(cropToView: Boolean): Pair<Float, Float>?
+
+    /**
+     * Get the intrinsic calibration of the camera.
+     * It will be an array of [fx, fy, cx, cy, skew] in active array pixels.
+     * @return the intrinsic calibration or null if not available
+
+     */
+    fun getIntrinsicCalibration(): FloatArray?
+
+    /**
+     * Get the active array size of the camera in pixels.
+     * @param preCorrection true to get the active array size before lens correction, false to get the active array size after lens correction
+     * @return the active array size or null if not available
+     */
+    fun getActiveArraySize(preCorrection: Boolean = false): Rect?
+
+    /**
+     * Get the distortion correction of the camera.
+     * It will be an array of [k1, k2, k3, k4, k5] or null if not available.
+     * @return the distortion correction or null if not available
+     */
+    fun getDistortionCorrection(): FloatArray?
 }

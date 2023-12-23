@@ -3,11 +3,13 @@ package com.kylecorry.andromeda.camera
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import androidx.annotation.OptIn
@@ -313,9 +315,7 @@ class Camera(
         cachedFOV?.let { return it }
 
         try {
-            val activePixelSize =
-                getCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
-                    ?: return null
+            val activePixelSize = getActiveArraySize(false) ?: return null
             val fullPixelSize =
                 getCharacteristic(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
                     ?: return null
@@ -575,6 +575,33 @@ class Camera(
             fov.second
         }
         return Pair(xFov, yFov)
+    }
+
+    override fun getIntrinsicCalibration(): FloatArray? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getCharacteristic(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION)
+        } else {
+            null
+        }
+    }
+
+    override fun getActiveArraySize(preCorrection: Boolean): Rect? {
+        return if (preCorrection && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getCharacteristic(CameraCharacteristics.SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE)
+        } else {
+            getCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+        }
+    }
+
+    override fun getDistortionCorrection(): FloatArray? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getCharacteristic(CameraCharacteristics.LENS_DISTORTION)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            @Suppress("DEPRECATION")
+            getCharacteristic(CameraCharacteristics.LENS_RADIAL_DISTORTION)
+        } else {
+            null
+        }
     }
 
     @OptIn(ExperimentalCamera2Interop::class)
