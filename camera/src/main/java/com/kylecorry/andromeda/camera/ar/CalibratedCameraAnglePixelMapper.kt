@@ -130,11 +130,11 @@ class CalibratedCameraAnglePixelMapper(
         val cy = calibration[3]
 
         // This represents the x and y in the active array
+        // Not adding the optical center until after distortion correction
         val preX = fx * (world.x / world.z)
         val preY = fy * (world.y / world.z)
 
-        // TODO: Why does this need to be normalized? It is an order of magnitude off if not normalized.
-        // TODO: Should this be divided by the focal length instead?
+        // TODO: Don't assume the optical center is the center of the active array - use the distance to the edge furthest from the optical center
         val normalizedX = preX / (preActiveArray.width() / 2f)
         val normalizedY = preY / (preActiveArray.height() / 2f)
 
@@ -147,13 +147,15 @@ class CalibratedCameraAnglePixelMapper(
         }
 
         val correctedX = if (applyDistortionCorrection && distortion != null) {
-            preX * radialDistortion + distortion[3] * (2 * preX * preY) + distortion[4] * (rSquared + 2 * preX * preX)
+            val xc = normalizedX * radialDistortion + distortion[3] * (2 * normalizedX * normalizedY) + distortion[4] * (rSquared + 2 * normalizedX * normalizedX)
+            xc * preActiveArray.width() / 2f
         } else {
             preX
         } + cx
 
         val correctedY = if (applyDistortionCorrection && distortion != null) {
-            preY * radialDistortion + distortion[3] * (rSquared + 2 * preX * preY) + distortion[4] * (2 * preY * preY)
+            val yc = normalizedY * radialDistortion + distortion[3] * (rSquared + 2 * normalizedX * normalizedY) + distortion[4] * (2 * normalizedY * normalizedY)
+            yc * preActiveArray.height() / 2f
         } else {
             preY
         } + cy
