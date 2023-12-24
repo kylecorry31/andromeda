@@ -9,6 +9,7 @@ import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.sol.math.geometry.Size
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 
 /**
@@ -133,55 +134,65 @@ class CalibratedCameraAnglePixelMapper(
         val cx = calibration[2]
         val cy = calibration[3]
 
-        // This represents the x and y in the active array
-        val preX = fx * (world.x / world.z)
-        val preY = fy * (world.y / world.z)
-
-        // TODO: Why does this need to be normalized? It is an order of magnitude off if not normalized.
-        // TODO: Should this be divided by the focal length instead?
-        val normalizedX = preX / (preActiveArray.width() / 2f)
-        val normalizedY = preY / (preActiveArray.height() / 2f)
+        // Get the pixel in the pre-active array
+        val preX = fx * (world.x / world.z) + cx
+        val preY = fy * (world.y / world.z) + cy
 
         // Correct for distortion
-        val rSquared = normalizedX * normalizedX + normalizedY * normalizedY
-        val radialDistortion = if (applyDistortionCorrection && distortion != null) {
-            1 + distortion[0] * rSquared + distortion[1] * rSquared * rSquared + distortion[2] * rSquared * rSquared * rSquared
+        val corrected = if (applyDistortionCorrection && distortion != null) {
+            undistort(preX, preY, preActiveArray, cx, cy, distortion)
         } else {
-            1f
+            Vector2(preX, preY)
         }
 
-        val correctedX = if (applyDistortionCorrection && distortion != null) {
-            preX * radialDistortion + distortion[3] * (2 * preX * preY) + distortion[4] * (rSquared + 2 * preX * preX)
-        } else {
-            preX
-        } + cx
+        // Translate to the active array
+        val activeX = corrected.x - activeArray.left
+        val activeY = corrected.y - activeArray.top
 
-        val correctedY = if (applyDistortionCorrection && distortion != null) {
-            preY * radialDistortion + distortion[3] * (rSquared + 2 * preX * preY) + distortion[4] * (2 * preY * preY)
-        } else {
-            preY
-        } + cy
-
-        // Clip to active array
-        val activeX = correctedX - activeArray.left
-        val activeY = correctedY - activeArray.top
-
+        // The y axis is inverted (TODO: Why?)
         val invertedY = activeArray.height() - activeY
 
-        val pctX = activeX / activeArray.width()
-        val pctY = invertedY / activeArray.height()
-
-        // Unzoom the image
+        // Unzoom the output image
         val zoom = getZoom()
         val rectLeft = imageRect.centerX() - zoom * imageRect.width() / 2f
         val rectWidth = zoom * imageRect.width()
         val rectTop = imageRect.centerY() - zoom * imageRect.height() / 2f
         val rectHeight = zoom * imageRect.height()
 
+        // Scale to the output image dimensions
+        val pctX = activeX / activeArray.width()
+        val pctY = invertedY / activeArray.height()
         val pixelX = pctX * rectWidth + rectLeft
         val pixelY = pctY * rectHeight + rectTop
 
         return PixelCoordinate(pixelX, pixelY)
+    }
+
+    private fun undistort(
+        x: Float,
+        y: Float,
+        activeArray: Rect,
+        cx: Float,
+        cy: Float,
+        distortion: FloatArray
+    ): Vector2 {
+        val sizeX = max(cx - activeArray.left, activeArray.right - cx)
+        val sizeY = max(cy - activeArray.top, activeArray.bottom - cy)
+
+        val normalizedX = (x - cx) / sizeX
+        val normalizedY = (y - cy) / sizeY
+
+        val rSquared = normalizedX * normalizedX + normalizedY * normalizedY
+
+        val radialDistortion =
+            1 + distortion[0] * rSquared + distortion[1] * rSquared * rSquared + distortion[2] * rSquared * rSquared * rSquared
+
+        val xc =
+            normalizedX * radialDistortion + distortion[3] * (2 * normalizedX * normalizedY) + distortion[4] * (rSquared + 2 * normalizedX * normalizedX)
+        val yc =
+            normalizedY * radialDistortion + distortion[3] * (rSquared + 2 * normalizedX * normalizedY) + distortion[4] * (2 * normalizedY * normalizedY)
+
+        return Vector2(xc * sizeX + cx, yc * sizeY + cy)
     }
 
     private fun toCartesian(
