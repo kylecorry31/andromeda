@@ -139,7 +139,7 @@ interface ICamera : ISensor {
      * @return the intrinsic calibration or null if not available
 
      */
-    fun getIntrinsicCalibration(): FloatArray?
+    fun getIntrinsicCalibration(estimateIfUnavailable: Boolean = true): FloatArray?
 
     /**
      * Get the active array size of the camera in pixels.

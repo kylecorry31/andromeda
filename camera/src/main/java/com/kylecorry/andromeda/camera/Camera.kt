@@ -483,9 +483,9 @@ class Camera(
 
     override fun getPreviewSize(cropToView: Boolean): Size? {
         // TODO: When should this be reset?
-        if (cropToView && cachedCroppedPreviewSize != null){
+        if (cropToView && cachedCroppedPreviewSize != null) {
             return cachedCroppedPreviewSize
-        } else if (!cropToView && cachedFullPreviewSize != null){
+        } else if (!cropToView && cachedFullPreviewSize != null) {
             return cachedFullPreviewSize
         }
 
@@ -541,7 +541,7 @@ class Camera(
             }
         }
 
-        if (cropToView){
+        if (cropToView) {
             cachedCroppedPreviewSize = size
         } else {
             cachedFullPreviewSize = size
@@ -572,12 +572,33 @@ class Camera(
         return Pair(xFov, yFov)
     }
 
-    override fun getIntrinsicCalibration(): FloatArray? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    override fun getIntrinsicCalibration(estimateIfUnavailable: Boolean): FloatArray? {
+        val calibration = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getCharacteristic(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION)
         } else {
             null
         }
+
+        if (calibration != null || !estimateIfUnavailable) {
+            return calibration
+        }
+
+        // Estimate the calibration
+        val activeArraySize = getActiveArraySize(true) ?: getActiveArraySize(false) ?: return null
+        val fullPixelSize = getFullArraySize() ?: return null
+        val focalLength = getFocalLength() ?: return null
+        val size = getSensorSize() ?: return null
+
+        val w = size.width * activeArraySize.width() / fullPixelSize.width.toFloat()
+        val h = size.height * activeArraySize.height() / fullPixelSize.height.toFloat()
+
+        val fx = focalLength * activeArraySize.width() / w
+        val fy = focalLength * activeArraySize.height() / h
+
+        val cx = activeArraySize.width() / 2f
+        val cy = activeArraySize.height() / 2f
+
+        return floatArrayOf(fx, fy, cx, cy, 0f)
     }
 
     override fun getActiveArraySize(preCorrection: Boolean): Rect? {
