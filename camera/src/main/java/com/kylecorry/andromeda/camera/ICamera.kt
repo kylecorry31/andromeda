@@ -4,6 +4,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
+import android.util.SizeF
 import androidx.camera.core.ImageProxy
 import com.kylecorry.andromeda.core.annotations.ExperimentalUsage
 import com.kylecorry.andromeda.core.sensors.ISensor
@@ -148,9 +149,27 @@ interface ICamera : ISensor {
     fun getActiveArraySize(preCorrection: Boolean = false): Rect?
 
     /**
+     * Get the full array size of the camera in pixels.
+     * @return the full array size or null if not available
+     */
+    fun getFullArraySize(): Size?
+
+    /**
      * Get the distortion correction of the camera.
      * It will be an array of [k1, k2, k3, k4, k5] or null if not available.
      * @return the distortion correction or null if not available
      */
     fun getDistortionCorrection(): FloatArray?
+
+    /**
+     * Get the sensor size of the camera in millimeters.
+     * @return the sensor size or null if not available
+     */
+    fun getSensorSize(): SizeF?
+
+    /**
+     * Get the focal length of the camera in millimeters.
+     * @return the focal length or null if not available
+     */
+    fun getFocalLength(): Float?
 }

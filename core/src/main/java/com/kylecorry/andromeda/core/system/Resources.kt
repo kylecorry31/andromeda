@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.core.system
 
 import android.R
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.LocaleList
 import android.text.format.DateFormat
@@ -101,5 +102,16 @@ object Resources {
 
     fun uses24HourClock(context: Context): Boolean {
         return DateFormat.is24HourFormat(context)
+    }
+
+    fun getLocalizedContext(context: Context, locale: Locale): Context {
+        val currentConfig = context.resources.configuration
+        val configCopy = Configuration(currentConfig)
+        configCopy.setLocale(locale)
+        return context.createConfigurationContext(configCopy)
+    }
+
+    fun getLocalizedResources(context: Context, locale: Locale): android.content.res.Resources {
+        return getLocalizedContext(context, locale).resources
     }
 }

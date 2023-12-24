@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.camera.ar
 
 import android.graphics.RectF
+import com.kylecorry.andromeda.camera.ar.CameraAnglePixelMapper
+import com.kylecorry.andromeda.camera.ar.LinearCameraAnglePixelMapper
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.SolMath.toRadians
@@ -12,17 +14,9 @@ import kotlin.math.sin
 
 /**
  * A camera angle pixel mapper that uses a perspective projection to map angles to pixels.
- * @param nearDistance The distance to the near clipping plane
- * @param farDistance The distance to the far clipping plane
+ * This mapper does not use near and far clipping planes.
  */
-class PerspectiveCameraAnglePixelMapper(
-    private val nearDistance: Float,
-    private val farDistance: Float
-) : CameraAnglePixelMapper {
-
-    private val rangeReciprocal = 1 / (nearDistance - farDistance)
-    private val zMultiplier = (farDistance + nearDistance) * rangeReciprocal
-    private val zOffset = 2 * farDistance * nearDistance * rangeReciprocal
+class SimplePerspectiveCameraAnglePixelMapper : CameraAnglePixelMapper {
 
     private val linear = LinearCameraAnglePixelMapper()
 
@@ -43,7 +37,7 @@ class PerspectiveCameraAnglePixelMapper(
         fieldOfView: Size,
         distance: Float?
     ): PixelCoordinate {
-        val world = toCartesian(angleX, angleY, distance ?: farDistance)
+        val world = toCartesian(angleX, angleY, distance ?: 1f)
 
         // Point is behind the camera, so calculate the linear projection
         if (world.z < 0) {
@@ -51,24 +45,16 @@ class PerspectiveCameraAnglePixelMapper(
         }
 
         // Perspective matrix multiplication - written out to avoid unnecessary allocations and calculations
-        val f = 1 / SolMath.tanDegrees(fieldOfView.height / 2)
+        val fy = imageRect.height() / 2f / SolMath.tanDegrees(fieldOfView.height / 2)
+        val fx = imageRect.width() / 2f / SolMath.tanDegrees(fieldOfView.width / 2)
 
-        val aspect = fieldOfView.width / fieldOfView.height
-        val x = f / aspect * world.x
-        val y = f * world.y
-        var z = zMultiplier * world.z + zOffset
-        if (z == 0f) {
-            // Prevent NaN
-            z = 1f
-        }
+        val x = fx * world.x
+        val y = fy * world.y
 
-        val screenX = x / z
-        val screenY = y / z
+        val screenX = x / world.z + imageRect.centerX()
+        val screenY = -y / world.z + imageRect.centerY()
 
-        val pixelX = (1 - screenX) / 2f * imageRect.width() + imageRect.left
-        val pixelY = (screenY + 1) / 2f * imageRect.height() + imageRect.top
-
-        return PixelCoordinate(pixelX, pixelY)
+        return PixelCoordinate(screenX, screenY)
     }
 
     private fun toCartesian(

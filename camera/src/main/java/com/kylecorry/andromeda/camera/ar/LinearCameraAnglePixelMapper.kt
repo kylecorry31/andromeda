@@ -5,6 +5,9 @@ import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.math.geometry.Size
 
+/**
+ * A camera angle pixel mapper that uses a linear projection to map angles to pixels.
+ */
 class LinearCameraAnglePixelMapper : CameraAnglePixelMapper {
     override fun getAngle(
         x: Float,

@@ -12,6 +12,7 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Log
 import android.util.Size
+import android.util.SizeF
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.Camera2CameraInfo
@@ -316,23 +317,17 @@ class Camera(
 
         try {
             val activePixelSize = getActiveArraySize(false) ?: return null
-            val fullPixelSize =
-                getCharacteristic(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
-                    ?: return null
-            val maxFocus =
-                getCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                    ?: return null
-            val size =
-                getCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: return null
-            val sensorOrientation =
-                getCharacteristic(CameraCharacteristics.SENSOR_ORIENTATION) ?: return null
+            val fullPixelSize = getFullArraySize() ?: return null
+            val focalLength = getFocalLength() ?: return null
+            val size = getSensorSize() ?: return null
+            val sensorOrientation = sensorRotation.toInt()
 
             val w = size.width * activePixelSize.width() / fullPixelSize.width.toFloat()
             val h = size.height * activePixelSize.height() / fullPixelSize.height.toFloat()
             // TODO: The approach outlined in this stackoverflow post also handles cropping
             // https://stackoverflow.com/questions/39965408/what-is-the-android-camera2-api-equivalent-of-camera-parameters-gethorizontalvie
-            val horizontalFOV = 2 * atan(w / (2 * maxFocus[0]))
-            val verticalFOV = 2 * atan(h / (2 * maxFocus[0]))
+            val horizontalFOV = 2 * atan(w / (2 * focalLength))
+            val verticalFOV = 2 * atan(h / (2 * focalLength))
 
             val isFlipped = sensorOrientation == 90 || sensorOrientation == 270
 
@@ -593,6 +588,10 @@ class Camera(
         }
     }
 
+    override fun getFullArraySize(): Size? {
+        return getCharacteristic(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+    }
+
     override fun getDistortionCorrection(): FloatArray? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getCharacteristic(CameraCharacteristics.LENS_DISTORTION)
@@ -602,6 +601,14 @@ class Camera(
         } else {
             null
         }
+    }
+
+    override fun getSensorSize(): SizeF? {
+        return getCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+    }
+
+    override fun getFocalLength(): Float? {
+        return getCharacteristic(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)?.firstOrNull()
     }
 
     @OptIn(ExperimentalCamera2Interop::class)

@@ -11,6 +11,12 @@ import com.kylecorry.sol.math.geometry.Size
 import kotlin.math.cos
 import kotlin.math.sin
 
+/**
+ * A camera angle pixel mapper that uses the intrinsic calibration of the camera to map angles to pixels.
+ * @param camera The camera to use
+ * @param fallback The fallback mapper to use if the camera does not have intrinsic calibration
+ * @param applyDistortionCorrection Whether to apply distortion correction. Defaults to false.
+ */
 class CalibratedCameraAnglePixelMapper(
     private val camera: ICamera,
     private val fallback: CameraAnglePixelMapper = LinearCameraAnglePixelMapper(),
@@ -18,6 +24,7 @@ class CalibratedCameraAnglePixelMapper(
 ) : CameraAnglePixelMapper {
 
     private var calibration: FloatArray? = null
+    private var customCalibration: FloatArray? = null
     private var preActiveArray: Rect? = null
     private var activeArray: Rect? = null
     private var distortion: FloatArray? = null
@@ -54,6 +61,34 @@ class CalibratedCameraAnglePixelMapper(
             }
         }
         return calibration
+    }
+
+    private fun getCustomCalibration(): FloatArray? {
+        if (customCalibration == null) {
+            val activeArraySize =
+                camera.getActiveArraySize(true) ?: camera.getActiveArraySize(false) ?: return null
+            val fullPixelSize = camera.getFullArraySize() ?: return null
+            val focalLength = camera.getFocalLength() ?: return null
+            val size = camera.getSensorSize() ?: return null
+
+            val w = size.width * activeArraySize.width() / fullPixelSize.width.toFloat()
+            val h = size.height * activeArraySize.height() / fullPixelSize.height.toFloat()
+
+            val fx = focalLength * activeArraySize.width() / w
+            val fy = focalLength * activeArraySize.height() / h
+
+            val cx = activeArraySize.width() / 2f
+            val cy = activeArraySize.height() / 2f
+
+            val rotation = camera.sensorRotation.toInt()
+
+            this.customCalibration = if (rotation == 90 || rotation == 270) {
+                floatArrayOf(fy, fx, cy, cx, 0f)
+            } else {
+                floatArrayOf(fx, fy, cx, cy, 0f)
+            }
+        }
+        return customCalibration
     }
 
     private fun getPreActiveArraySize(): Rect? {
@@ -115,8 +150,8 @@ class CalibratedCameraAnglePixelMapper(
             return linear.getPixel(angleX, angleY, imageRect, fieldOfView, distance)
         }
 
-        val calibration = getCalibration()
-        val preActiveArray = getPreActiveArraySize()
+        val calibration = getCalibration() ?: getCustomCalibration()
+        val preActiveArray = getPreActiveArraySize() ?: getActiveArraySize()
         val activeArray = getActiveArraySize()
         val distortion = getDistortion()
 
@@ -130,11 +165,11 @@ class CalibratedCameraAnglePixelMapper(
         val cy = calibration[3]
 
         // This represents the x and y in the active array
-        // Not adding the optical center until after distortion correction
         val preX = fx * (world.x / world.z)
         val preY = fy * (world.y / world.z)
 
-        // TODO: Don't assume the optical center is the center of the active array - use the distance to the edge furthest from the optical center
+        // TODO: Why does this need to be normalized? It is an order of magnitude off if not normalized.
+        // TODO: Should this be divided by the focal length instead?
         val normalizedX = preX / (preActiveArray.width() / 2f)
         val normalizedY = preY / (preActiveArray.height() / 2f)
 
@@ -147,15 +182,13 @@ class CalibratedCameraAnglePixelMapper(
         }
 
         val correctedX = if (applyDistortionCorrection && distortion != null) {
-            val xc = normalizedX * radialDistortion + distortion[3] * (2 * normalizedX * normalizedY) + distortion[4] * (rSquared + 2 * normalizedX * normalizedX)
-            xc * preActiveArray.width() / 2f
+            preX * radialDistortion + distortion[3] * (2 * preX * preY) + distortion[4] * (rSquared + 2 * preX * preX)
         } else {
             preX
         } + cx
 
         val correctedY = if (applyDistortionCorrection && distortion != null) {
-            val yc = normalizedY * radialDistortion + distortion[3] * (rSquared + 2 * normalizedX * normalizedY) + distortion[4] * (2 * normalizedY * normalizedY)
-            yc * preActiveArray.height() / 2f
+            preY * radialDistortion + distortion[3] * (rSquared + 2 * preX * preY) + distortion[4] * (2 * preY * preY)
         } else {
             preY
         } + cy
