@@ -1,8 +1,14 @@
 package com.kylecorry.andromeda.core.bitmap
 
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.Options
+import android.graphics.BitmapRegionDecoder
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ImageFormat.YUV_420_888
+import android.graphics.Matrix
+import android.graphics.Rect
 import android.media.Image
 import android.util.Size
 import androidx.annotation.ColorInt
@@ -431,4 +437,11 @@ object BitmapUtils {
         return x in 0 until width && y in 0 until height
     }
 
+    fun Bitmap.use(block: Bitmap.() -> Unit) {
+        try {
+            block()
+        } finally {
+            recycle()
+        }
+    }
 }
