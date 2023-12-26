@@ -144,9 +144,10 @@ class Camera(
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder().apply {
-                setTargetAspectRatio(targetAspectRatio)
                 if (targetResolution != null) {
                     setTargetResolution(targetResolution)
+                } else {
+                    setTargetAspectRatio(targetAspectRatio)
                 }
                 setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 setOutputImageFormat(if (useYUV) OUTPUT_IMAGE_FORMAT_YUV_420_888 else OUTPUT_IMAGE_FORMAT_RGBA_8888)
@@ -167,14 +168,14 @@ class Camera(
                     builder.setJpegQuality(it)
                 }
 
-                builder.setTargetAspectRatio(targetAspectRatio)
+                if (targetResolution != null){
+                    builder.setTargetResolution(targetResolution)
+                } else {
+                    builder.setTargetAspectRatio(targetAspectRatio)
+                }
 
                 captureSettings.rotation?.let {
                     builder.setTargetRotation(it)
-                }
-
-                targetResolution?.let {
-                    builder.setTargetResolution(it)
                 }
 
                 imageCapture = builder.build()
