@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AndromedaBadge">
+        <attr name="icon" format="reference" />
+        <attr name="foregroundTint" format="color" />
+        <attr name="backgroundTint" format="color" />
+    </declare-styleable>
+    <declare-styleable name="AndromedaToolbar">
+        <attr name="leftButtonIcon" format="reference" />
+        <attr name="rightButtonIcon" format="reference" />
+        <attr name="iconForegroundColor" format="color" />
+        <attr name="iconBackgroundColor" format="color" />
+        <attr name="title" format="string" />
+        <attr name="subtitle" format="string" />
+        <attr name="showSubtitle" format="boolean" />
+        <attr name="flattenButtons" format="boolean" />
+    </declare-styleable>
+</resources>

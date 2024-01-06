@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <public name="backgroundTint" type="color" />
+    <public name="foregroundTint" type="color" />
+    <public name="icon" type="drawable" />
+    <public name="flattenButtons" type="bool" />
+    <public name="leftButtonIcon" type="drawable" />
+    <public name="rightButtonIcon" type="drawable" />
+    <public name="title" type="string" />
+    <public name="subtitle" type="string" />
+    <public name="showSubtitle" type="bool" />
+    <public name="iconForegroundColor" type="color" />
+    <public name="iconBackgroundColor" type="color" />
+</resources>

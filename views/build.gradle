@@ -58,8 +58,13 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
+    implementation project(':canvas')
+    implementation project(':list')
+    implementation project(':pickers')
     implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation "com.google.android.flexbox:flexbox:3.0.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "com.google.android.material:material:${materialVersion}"
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
