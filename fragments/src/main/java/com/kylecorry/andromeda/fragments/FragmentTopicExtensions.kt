@@ -23,7 +23,7 @@ fun Fragment.observe(topic: ITopic, listener: () -> Unit) {
     }
 }
 
-fun <T> Fragment.observe(
+fun <T: Any> Fragment.observe(
     topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
     listener: (T) -> Unit
 ) {
