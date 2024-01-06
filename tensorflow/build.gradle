@@ -7,6 +7,7 @@ version = "$versionName"
 
 android {
     compileSdkVersion = compileVersion
+    namespace = "com.kylecorry.andromeda.tensorflow"
 
     defaultConfig {
         minSdkVersion 21
@@ -26,7 +27,6 @@ android {
         }
     }
     compileOptions {
-        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }

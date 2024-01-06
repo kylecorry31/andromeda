@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.core.topics.generic
 import com.kylecorry.andromeda.core.topics.ITopic
 import java.util.*
 
-internal class AdapterTopic<T>(
+internal class AdapterTopic<T: Any>(
     private val baseTopic: ITopic,
     private val valueSupplier: () -> T,
     defaultValue: Optional<T> = Optional.empty()

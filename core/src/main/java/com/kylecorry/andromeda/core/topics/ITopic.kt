@@ -45,6 +45,6 @@ fun <T : ITopic> T.asLiveData(): LiveData<T> {
     return liveData
 }
 
-fun <T> ITopic.map(fn: () -> T): com.kylecorry.andromeda.core.topics.generic.ITopic<T> {
+fun <T: Any> ITopic.map(fn: () -> T): com.kylecorry.andromeda.core.topics.generic.ITopic<T> {
     return AdapterTopic(this, fn)
 }

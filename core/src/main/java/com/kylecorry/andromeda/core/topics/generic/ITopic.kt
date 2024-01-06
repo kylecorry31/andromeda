@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 
 typealias Subscriber<T> = (T) -> Boolean
 
-interface ITopic<T>: IFlowable<T> {
+interface ITopic<T: Any>: IFlowable<T> {
     val value: Optional<T>
 
     fun subscribe(subscriber: Subscriber<T>)
@@ -51,20 +51,20 @@ fun <K, T : ITopic<K>> T.asLiveData(): LiveData<K> {
     return liveData
 }
 
-fun <T> ITopic<T>.tap(fn: (T) -> Unit): ITopic<T> {
+fun <T: Any> ITopic<T>.tap(fn: (T) -> Unit): ITopic<T> {
     return TopicOperator(this, value) { result, _, value ->
         fn(value)
         result.publish(value)
     }
 }
 
-fun <T, V> ITopic<T>.map(fn: (T) -> V): ITopic<V> {
+fun <T: Any, V: Any> ITopic<T>.map(fn: (T) -> V): ITopic<V> {
     return TopicOperator(this, value.map(fn)) { result, _, value ->
         result.publish(fn(value))
     }
 }
 
-fun <T> ITopic<T>.collect(minHistory: Int = 0, maxHistory: Int = Int.MAX_VALUE): ITopic<List<T>> {
+fun <T: Any> ITopic<T>.collect(minHistory: Int = 0, maxHistory: Int = Int.MAX_VALUE): ITopic<List<T>> {
     val data = mutableListOf<T>()
     value.ifPresent {
         data.add(it)
@@ -92,7 +92,7 @@ fun <T> ITopic<T>.collect(minHistory: Int = 0, maxHistory: Int = Int.MAX_VALUE):
     }
 }
 
-fun <T, V> ITopic<T>.suspendMap(
+fun <T: Any, V: Any> ITopic<T>.suspendMap(
     scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
     fn: suspend (T) -> V
 ): ITopic<V> {
@@ -103,7 +103,7 @@ fun <T, V> ITopic<T>.suspendMap(
     }
 }
 
-fun <T> ITopic<T>.distinct(): ITopic<T> {
+fun <T: Any> ITopic<T>.distinct(): ITopic<T> {
     return TopicOperator(this, value) { result, _, value ->
         val current = result.value
         if (current.isEmpty || current.get() != value) {
@@ -112,7 +112,7 @@ fun <T> ITopic<T>.distinct(): ITopic<T> {
     }
 }
 
-fun <T> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
+fun <T: Any> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
     return TopicOperator(this, value) { result, _, value ->
         if (predicate(value)) {
             result.publish(value)
@@ -120,7 +120,7 @@ fun <T> ITopic<T>.filter(predicate: (T) -> Boolean): ITopic<T> {
     }
 }
 
-fun <T> ITopic<T>.replay(): ITopic<T> {
+fun <T: Any> ITopic<T>.replay(): ITopic<T> {
     return TopicOperator(
         this,
         value,

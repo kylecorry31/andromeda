@@ -8,6 +8,7 @@ version = "$versionName"
 
 android {
     compileSdkVersion = compileVersion
+    namespace = "com.kylecorry.andromeda.core"
 
     defaultConfig {
         minSdkVersion 21

@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.core.topics.generic
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
-abstract class BaseTopic<T> : ITopic<T> {
+abstract class BaseTopic<T: Any> : ITopic<T> {
 
     protected abstract val topic: ITopic<T>
     override val value: Optional<T>

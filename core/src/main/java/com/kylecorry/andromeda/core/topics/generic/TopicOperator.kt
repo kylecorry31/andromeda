@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.core.topics.generic
 
 import java.util.*
 
-class TopicOperator<V, T>(
+class TopicOperator<V: Any, T: Any>(
     private val baseTopic: ITopic<V>,
     initialValue: Optional<T> = Optional.empty(),
     private val onSubscriberAdded: (count: Int, subscriber: Subscriber<T>, result: Topic<T>) -> Unit = { _, _, _ -> },

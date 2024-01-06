@@ -6,7 +6,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.*
 import kotlin.coroutines.resume
 
-class Topic<T>(
+class Topic<T: Any>(
     private val onSubscriberAdded: (count: Int, subscriber: Subscriber<T>) -> Unit = { _, _ -> },
     private val onSubscriberRemoved: (count: Int, subscriber: Subscriber<T>) -> Unit = { _, _ -> },
     defaultValue: Optional<T> = Optional.empty()
@@ -79,7 +79,7 @@ class Topic<T>(
         /**
          * Creates a topic that will start when one subscriber is added and stop when none are left
          */
-        fun <T> lazy(
+        fun <T: Any> lazy(
             start: () -> Unit,
             stop: () -> Unit,
             defaultValue: Optional<T> = Optional.empty()
