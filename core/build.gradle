@@ -67,8 +67,6 @@ dependencies {
     implementation 'com.github.kylecorry31:renderscript-intrinsics-replacement-toolkit:0.8'
     api "com.github.kylecorry31:sol:${solVersion}"
     api "com.github.kylecorry31:luna:${lunaVersion}"
-    implementation 'com.github.kylecorry31:Geo-Coordinate-Conversion-Java:master'
-    implementation 'com.github.kylecorry31:osgb:v1.0.4'
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.junit.platform:junit-platform-runner:1.10.1'
