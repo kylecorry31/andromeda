@@ -145,6 +145,11 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
         strokePaint.isAntiAlias = false
     }
 
+    override fun shader(shader: Shader?) {
+        fillPaint.shader = shader
+        strokePaint.shader = shader
+    }
+
     // TEXT HELPERS
     override fun textAlign(align: TextAlign) {
         val alignment = when (align) {

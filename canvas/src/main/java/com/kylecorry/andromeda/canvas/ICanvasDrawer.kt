@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.PathEffect
+import android.graphics.Shader
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 
@@ -30,6 +31,7 @@ interface ICanvasDrawer {
     fun noErase()
     fun smooth()
     fun noSmooth()
+    fun shader(shader: Shader?)
 
     // TEXT HELPERS
     fun textAlign(align: TextAlign)

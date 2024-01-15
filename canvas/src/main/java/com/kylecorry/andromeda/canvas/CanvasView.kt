@@ -134,6 +134,10 @@ abstract class CanvasView : View, ICanvasDrawer {
         drawer.noSmooth()
     }
 
+    override fun shader(shader: Shader?) {
+        drawer.shader(shader)
+    }
+
     // TEXT HELPERS
     override fun textAlign(align: TextAlign) {
         drawer.textAlign(align)
