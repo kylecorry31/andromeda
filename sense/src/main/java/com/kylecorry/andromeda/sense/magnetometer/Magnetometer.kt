@@ -21,7 +21,7 @@ class Magnetometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DEL
         get() = Vector3(rawMagneticField[0], rawMagneticField[1], rawMagneticField[2])
 
     override fun handleSensorEvent(event: SensorEvent) {
-        event.values.copyInto(rawMagneticField, endIndex = 2)
+        event.values.copyInto(rawMagneticField, endIndex = 3)
         gotReading = true
     }
 

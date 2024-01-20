@@ -21,7 +21,7 @@ class LinearAccelerometer(context: Context, sensorDelay: Int = SensorManager.SEN
     override val rawAcceleration = FloatArray(3)
 
     override fun handleSensorEvent(event: SensorEvent) {
-        event.values.copyInto(rawAcceleration, endIndex = 2)
+        event.values.copyInto(rawAcceleration, endIndex = 3)
         gotReading = true
     }
 
