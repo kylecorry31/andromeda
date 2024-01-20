@@ -10,6 +10,5 @@ class MockMagnetometer(
 ) : MockSensor(interval), IMagnetometer {
     override val magneticField: Vector3
         get() = Vector3.from(rawMagneticField)
-    override val rawMagneticField: FloatArray
-        get() = mockMagField
+    override val rawMagneticField = mockMagField
 }

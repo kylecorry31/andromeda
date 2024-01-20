@@ -11,6 +11,6 @@ class MockAccelerometer(
 ) : MockSensor(interval), IAccelerometer {
     override val acceleration: Vector3
         get() = Vector3.from(rawAcceleration)
-    override val rawAcceleration: FloatArray
-        get() = mockAcceleration
+
+    override val rawAcceleration = mockAcceleration
 }

@@ -26,29 +26,15 @@ class LowPassMagnetometer(
         LowPassFilter(filterSize)
     )
 
-    private val lock = Object()
-
-    private var _magField = floatArrayOf(0f, 0f, 0f)
-
     override val magneticField: Vector3
-        get() {
-            return synchronized(lock) {
-                Vector3(_magField[0], _magField[1], _magField[2])
-            }
-        }
-    override val rawMagneticField: FloatArray
-        get() {
-            return synchronized(lock) {
-                _magField.clone()
-            }
-        }
+        get() = Vector3(rawMagneticField[0], rawMagneticField[1], rawMagneticField[2])
+
+    override val rawMagneticField = FloatArray(3)
 
     override fun handleSensorEvent(event: SensorEvent) {
-        synchronized(lock) {
-            _magField[0] = filters[0].filter(event.values[0])
-            _magField[1] = filters[1].filter(event.values[1])
-            _magField[2] = filters[2].filter(event.values[2])
-        }
+        rawMagneticField[0] = filters[0].filter(event.values[0])
+        rawMagneticField[1] = filters[1].filter(event.values[1])
+        rawMagneticField[2] = filters[2].filter(event.values[2])
         gotReading = true
     }
 

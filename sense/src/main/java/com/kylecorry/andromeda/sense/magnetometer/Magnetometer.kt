@@ -15,30 +15,13 @@ class Magnetometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DEL
         get() = gotReading
     private var gotReading = false
 
-    override val rawMagneticField: FloatArray
-        get() {
-            return synchronized(lock) {
-                _magField.clone()
-            }
-        }
-
-    private val lock = Object()
-
-    private var _magField = floatArrayOf(0f, 0f, 0f)
+    override val rawMagneticField = FloatArray(3)
 
     override val magneticField: Vector3
-        get() {
-            return synchronized(lock) {
-                Vector3(_magField[0], _magField[1], _magField[2])
-            }
-        }
+        get() = Vector3(rawMagneticField[0], rawMagneticField[1], rawMagneticField[2])
 
     override fun handleSensorEvent(event: SensorEvent) {
-        synchronized(lock) {
-            _magField[0] = event.values[0]
-            _magField[1] = event.values[1]
-            _magField[2] = event.values[2]
-        }
+        event.values.copyInto(rawMagneticField, endIndex = 2)
         gotReading = true
     }
 
