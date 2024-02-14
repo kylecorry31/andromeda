@@ -32,7 +32,6 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
@@ -123,7 +122,6 @@ class Camera(
         }
 
         cameraProvider?.unbindAll()
-
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture?.addListener({
             try {
