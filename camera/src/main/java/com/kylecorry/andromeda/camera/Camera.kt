@@ -94,6 +94,7 @@ class Camera(
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var imageCapture: ImageCapture? = null
+    private var cameraSelector: CameraSelector? = null
 
     private var _hasValidReading = false
 
@@ -183,14 +184,15 @@ class Camera(
                 imageCapture = null
             }
 
-            val cameraSelector =
-                if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            if(cameraSelector == null){
+                cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            }
 
             preview?.setSurfaceProvider(previewView?.surfaceProvider)
 
             camera = cameraProvider?.bindToLifecycle(
                 lifecycleOwner,
-                cameraSelector,
+                cameraSelector ?: CameraSelector.DEFAULT_BACK_CAMERA,
                 *listOfNotNull(
                     if (previewView != null) preview else null,
                     if (analyze) imageAnalysis else null,
@@ -201,6 +203,16 @@ class Camera(
             notifyListeners()
         }, ContextCompat.getMainExecutor(context))
 
+    }
+
+    override fun flipCamera() {
+        cameraSelector?.let {
+            cameraSelector = if (cameraSelector === CameraSelector.DEFAULT_FRONT_CAMERA)
+                CameraSelector.DEFAULT_BACK_CAMERA
+            else
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            startImpl()
+        }
     }
 
     override fun stopImpl() {
