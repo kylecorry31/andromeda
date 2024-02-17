@@ -216,15 +216,17 @@ class Camera(
     }
 
     override fun flipCamera() {
-        cameraSelector?.let {
-            cameraSelector = if (cameraSelector === CameraSelector.DEFAULT_FRONT_CAMERA)
-                CameraSelector.DEFAULT_BACK_CAMERA
-            else
-                CameraSelector.DEFAULT_FRONT_CAMERA
+        cameraProvider?.let {
+            cameraSelector?.let {
+                cameraSelector = if (cameraSelector === CameraSelector.DEFAULT_FRONT_CAMERA)
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                else
+                    CameraSelector.DEFAULT_FRONT_CAMERA
 
-            lifecycleOwner.lifecycleScope.launch {
-                stopImpl()
-                startImpl()
+                lifecycleOwner.lifecycleScope.launch {
+                    stopImpl()
+                    startImpl()
+                }
             }
         }
     }
