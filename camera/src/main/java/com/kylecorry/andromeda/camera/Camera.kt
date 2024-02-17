@@ -35,6 +35,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -44,6 +45,7 @@ import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath.toDegrees
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.OutputStream
 import java.time.Duration
@@ -121,7 +123,6 @@ class Camera(
             return
         }
 
-        cameraProvider?.unbindAll()
         cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture?.addListener({
             try {
@@ -220,7 +221,11 @@ class Camera(
                 CameraSelector.DEFAULT_BACK_CAMERA
             else
                 CameraSelector.DEFAULT_FRONT_CAMERA
-            startImpl()
+
+            lifecycleOwner.lifecycleScope.launch {
+                stopImpl()
+                startImpl()
+            }
         }
     }
 
