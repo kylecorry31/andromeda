@@ -19,15 +19,23 @@ import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.core.*
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888
 import androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.google.common.util.concurrent.ListenableFuture
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -37,6 +45,7 @@ import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath.toDegrees
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.OutputStream
 import java.time.Duration
@@ -45,6 +54,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.atan
+
 
 class Camera(
     private val context: Context,
@@ -94,6 +104,7 @@ class Camera(
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var imageCapture: ImageCapture? = null
+    private var cameraSelector: CameraSelector? = null
 
     private var _hasValidReading = false
 
@@ -183,14 +194,15 @@ class Camera(
                 imageCapture = null
             }
 
-            val cameraSelector =
-                if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            if(cameraSelector == null){
+                cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            }
 
             preview?.setSurfaceProvider(previewView?.surfaceProvider)
 
             camera = cameraProvider?.bindToLifecycle(
                 lifecycleOwner,
-                cameraSelector,
+                cameraSelector ?: CameraSelector.DEFAULT_BACK_CAMERA,
                 *listOfNotNull(
                     if (previewView != null) preview else null,
                     if (analyze) imageAnalysis else null,
@@ -201,6 +213,22 @@ class Camera(
             notifyListeners()
         }, ContextCompat.getMainExecutor(context))
 
+    }
+
+    override fun flipCamera() {
+        cameraProvider?.let {
+            cameraSelector?.let {
+                cameraSelector = if (cameraSelector === CameraSelector.DEFAULT_FRONT_CAMERA)
+                    CameraSelector.DEFAULT_BACK_CAMERA
+                else
+                    CameraSelector.DEFAULT_FRONT_CAMERA
+
+                lifecycleOwner.lifecycleScope.launch {
+                    stopImpl()
+                    startImpl()
+                }
+            }
+        }
     }
 
     override fun stopImpl() {

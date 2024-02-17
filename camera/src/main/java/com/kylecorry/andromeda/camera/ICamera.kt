@@ -24,6 +24,8 @@ interface ICamera : ISensor {
     fun setExposure(index: Int)
     fun setTorch(isOn: Boolean)
 
+    fun flipCamera()
+
     /**
      * Get the field of view of the camera in degrees (horizontal, vertical) if available.
      * The FOV direction is based on when the phone is in portrait mode.
