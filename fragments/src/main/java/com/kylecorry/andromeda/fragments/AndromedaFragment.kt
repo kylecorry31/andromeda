@@ -7,10 +7,10 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.core.time.Throttle
-import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
@@ -33,11 +33,8 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
 
-    private val updateTimer = CoroutineTimer {
-        onUpdateWrapper()
-    }
+    private var updateTimerObserver: LifecycleEventObserver? = null
 
-    private var updateInterval: Long? = null
     private var throttle: Throttle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,26 +59,19 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         permissionLauncher?.unregister()
     }
 
-    override fun onResume() {
-        super.onResume()
-        val updateInterval = this.updateInterval
-        if (updateInterval != null) {
-            scheduleUpdates(updateInterval)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        updateTimer.stop()
-    }
-
     protected fun scheduleUpdates(interval: Duration) {
         scheduleUpdates(interval.toMillis())
     }
 
     protected fun scheduleUpdates(interval: Long) {
-        updateInterval = interval
-        updateTimer.interval(interval)
+        synchronized(this){
+            if (updateTimerObserver != null){
+                lifecycle.removeObserver(updateTimerObserver!!)
+            }
+            updateTimerObserver = interval(interval){
+                onUpdateWrapper()
+            }
+        }
     }
 
     protected fun throttleUpdates(maxUpdateInterval: Duration) {
@@ -97,8 +87,11 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     }
 
     protected fun cancelUpdates() {
-        updateInterval = null
-        updateTimer.stop()
+        synchronized(this){
+            if (updateTimerObserver != null){
+                lifecycle.removeObserver(updateTimerObserver!!)
+            }
+        }
     }
 
     private fun onUpdateWrapper() {
