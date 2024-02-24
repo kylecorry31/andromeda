@@ -22,6 +22,9 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
     private val measurementRect = Rect()
     private val measurementRectF = RectF()
 
+    @ColorInt
+    private var tintColor: Int? = null
+
     init {
         smooth()
         strokeCap(StrokeCap.Round)
@@ -51,15 +54,21 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
         } else {
             PaintStyle.Fill
         }
-        fillPaint.color = color
+        if (color != fillPaint.color) {
+            fillPaint.color = color
+        }
     }
 
     override fun tint(@ColorInt color: Int) {
-        fillPaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
-        strokePaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
+        if (tintColor != color) {
+            tintColor = color
+            fillPaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
+            strokePaint.colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_IN)
+        }
     }
 
     override fun noTint() {
+        tintColor = null
         fillPaint.colorFilter = null
         strokePaint.colorFilter = null
     }
@@ -70,7 +79,9 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
         } else {
             PaintStyle.Stroke
         }
-        strokePaint.color = color
+        if (color != strokePaint.color) {
+            strokePaint.color = color
+        }
     }
 
     override fun pathEffect(effect: PathEffect) {
@@ -120,8 +131,13 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
     }
 
     override fun opacity(value: Int) {
-        fillPaint.alpha = value
-        strokePaint.alpha = value
+        if (value != fillPaint.alpha) {
+            fillPaint.alpha = value
+        }
+
+        if (value != strokePaint.alpha) {
+            strokePaint.alpha = value
+        }
     }
 
     override fun erase() {
@@ -174,18 +190,21 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
                     Typeface.NORMAL
                 )
             )
+
             TextStyle.Italic -> fillPaint.setTypeface(
                 Typeface.create(
                     Typeface.DEFAULT,
                     Typeface.ITALIC
                 )
             )
+
             TextStyle.Bold -> fillPaint.setTypeface(
                 Typeface.create(
                     Typeface.DEFAULT,
                     Typeface.BOLD
                 )
             )
+
             TextStyle.BoldItalic -> fillPaint.setTypeface(
                 Typeface.create(
                     Typeface.DEFAULT,
