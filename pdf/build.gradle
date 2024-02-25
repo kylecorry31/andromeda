@@ -63,10 +63,10 @@ dependencies {
     implementation project(':core')
     implementation project(':wkt')
     implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    testImplementation 'org.junit.platform:junit-platform-runner:1.10.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.10.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
