@@ -7,7 +7,7 @@ import com.kylecorry.andromeda.core.sensors.ISpeedometer
 import com.kylecorry.sol.units.Bearing
 import com.kylecorry.sol.units.Coordinate
 
-interface IGPS: ISensor, IAltimeter, IClock, ISpeedometer {
+interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
     /**
      * The location
      */
@@ -52,6 +52,11 @@ interface IGPS: ISensor, IAltimeter, IClock, ISpeedometer {
      * The speed accuracy in meters per second at the 68% confidence level
      */
     val speedAccuracy: Float?
+
+    /**
+     * The time of the last fix in system elapsed time (nanoseconds)
+     */
+    val fixTimeElapsedNanos: Long?
 }
 
 fun IGPS.hasFix(): Boolean {

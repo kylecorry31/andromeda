@@ -64,6 +64,9 @@ class NetworkGPS(
     override val speedAccuracy: Float?
         get() = _speedAccuracy
 
+    override var fixTimeElapsedNanos: Long? = null
+        private set
+
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
 
@@ -119,6 +122,7 @@ class NetworkGPS(
 
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
+        fixTimeElapsedNanos = location.elapsedRealtimeNanos
         _altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
         val accuracy = if (location.hasAccuracy()) location.accuracy else null
         _quality = when {

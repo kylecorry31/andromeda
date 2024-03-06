@@ -65,6 +65,8 @@ class GPS(
         get() = _bearingAccuracy
     override val speedAccuracy: Float?
         get() = _speedAccuracy
+    override var fixTimeElapsedNanos: Long? = null
+        private set
 
     private val locationManager by lazy { context.getSystemService<LocationManager>() }
     private val locationListener = SimpleLocationListener { updateLastLocation(it, true) }
@@ -202,6 +204,7 @@ class GPS(
 
         _location = Coordinate(location.latitude, location.longitude)
         _time = Instant.ofEpochMilli(location.time)
+        fixTimeElapsedNanos = location.elapsedRealtimeNanos
 
         _satellites = if (location.extras?.containsKey("satellites") == true) {
             location.extras?.getInt("satellites")
