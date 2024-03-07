@@ -7,6 +7,7 @@ import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import java.io.File
 
 object QR {
     fun encode(
@@ -31,13 +32,18 @@ object QR {
         return bitmap
     }
 
-    fun decode(image: Bitmap): String? {
+    fun decode(image: Bitmap, highAccuracy: Boolean = false): String? {
         val pixels = IntArray(image.width * image.height)
         image.getPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
         val binaryBitmap =
             BinaryBitmap(HybridBinarizer(RGBLuminanceSource(image.width, image.height, pixels)))
         return try {
-            val result = QRCodeReader().decode(binaryBitmap)
+            val hints = if (highAccuracy) {
+                mapOf(DecodeHintType.TRY_HARDER to true)
+            } else {
+                null
+            }
+            val result = QRCodeReader().decode(binaryBitmap, hints)
             result.text
         } catch (e: Exception) {
             null
