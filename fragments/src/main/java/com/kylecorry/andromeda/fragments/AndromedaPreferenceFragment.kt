@@ -21,6 +21,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.SpecialPermission
+import com.kylecorry.luna.cache.Hooks
 
 abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
 
@@ -30,6 +31,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
+    private val hooks = Hooks()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -180,6 +182,14 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
                 DrawableCompat.clearColorFilter(icon)
             }
         }
+    }
+
+    protected fun effect(key: String, vararg values: Any?, action: () -> Unit) {
+        hooks.effect(key, *values, action = action)
+    }
+
+    protected fun <T> memo(key: String, vararg values: Any?, value: () -> T): T {
+        return hooks.memo(key, *values, value = value)
     }
 
 }

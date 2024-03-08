@@ -14,6 +14,7 @@ import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
+import com.kylecorry.luna.cache.Hooks
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -36,6 +37,8 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     private var updateTimerObserver: LifecycleEventObserver? = null
 
     private var throttle: Throttle? = null
+
+    private val hooks = Hooks()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,11 +67,11 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     }
 
     protected fun scheduleUpdates(interval: Long) {
-        synchronized(this){
-            if (updateTimerObserver != null){
+        synchronized(this) {
+            if (updateTimerObserver != null) {
                 lifecycle.removeObserver(updateTimerObserver!!)
             }
-            updateTimerObserver = interval(interval){
+            updateTimerObserver = interval(interval) {
                 onUpdateWrapper()
             }
         }
@@ -87,8 +90,8 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
     }
 
     protected fun cancelUpdates() {
-        synchronized(this){
-            if (updateTimerObserver != null){
+        synchronized(this) {
+            if (updateTimerObserver != null) {
                 lifecycle.removeObserver(updateTimerObserver!!)
             }
         }
@@ -140,7 +143,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         resultLauncher?.launch(intent)
     }
 
-    fun createFile(filename: String, type: String, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        type: String,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, type, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -151,7 +159,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         }
     }
 
-    fun createFile(filename: String, types: List<String>, message: String = filename, action: (uri: Uri?) -> Unit) {
+    fun createFile(
+        filename: String,
+        types: List<String>,
+        message: String = filename,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.createFile(filename, types, message)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -162,7 +175,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         }
     }
 
-    fun pickFile(type: String, message: String, useSAF: Boolean = true, action: (uri: Uri?) -> Unit) {
+    fun pickFile(
+        type: String,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.pickFile(type, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -173,7 +191,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
         }
     }
 
-    fun pickFile(types: List<String>, message: String, useSAF: Boolean = true, action: (uri: Uri?) -> Unit) {
+    fun pickFile(
+        types: List<String>,
+        message: String,
+        useSAF: Boolean = true,
+        action: (uri: Uri?) -> Unit
+    ) {
         val intent = Intents.pickFile(types, message, useSAF)
         getResult(intent) { successful, data ->
             if (successful) {
@@ -182,6 +205,14 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
                 action(null)
             }
         }
+    }
+
+    protected fun effect(key: String, vararg values: Any?, action: () -> Unit) {
+        hooks.effect(key, *values, action = action)
+    }
+
+    protected fun <T> memo(key: String, vararg values: Any?, value: () -> T): T {
+        return hooks.memo(key, *values, value = value)
     }
 
     companion object {

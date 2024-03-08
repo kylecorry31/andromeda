@@ -13,6 +13,7 @@ import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
+import com.kylecorry.luna.cache.Hooks
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -27,6 +28,8 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
 
     private var volumeAction: ((button: VolumeButton, isPressed: Boolean) -> Boolean) =
         { _, _ -> false }
+
+    private val hooks = Hooks()
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
@@ -187,6 +190,14 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
             return volumeAction(VolumeButton.Up, false)
         }
         return super.onKeyUp(keyCode, event)
+    }
+
+    protected fun effect(key: String, vararg values: Any?, action: () -> Unit) {
+        hooks.effect(key, *values, action = action)
+    }
+
+    protected fun <T> memo(key: String, vararg values: Any?, value: () -> T): T {
+        return hooks.memo(key, *values, value = value)
     }
 
 }
