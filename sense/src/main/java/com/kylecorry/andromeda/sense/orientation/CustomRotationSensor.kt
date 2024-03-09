@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.sense.orientation
 import android.util.Log
 import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.luna.coroutines.CoroutineQueueRunner
@@ -13,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import kotlin.math.min
 
 class CustomRotationSensor(
     private val magnetometer: IMagnetometer,
@@ -165,4 +167,10 @@ class CustomRotationSensor(
 
     override val hasValidReading: Boolean
         get() = geomagneticOrientationSensor.hasValidReading
+
+    override val quality: Quality
+        get() = Quality.entries[min(
+            geomagneticOrientationSensor.quality.ordinal,
+            gyro.quality.ordinal
+        )]
 }

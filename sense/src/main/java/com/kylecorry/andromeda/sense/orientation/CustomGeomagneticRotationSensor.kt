@@ -2,12 +2,14 @@ package com.kylecorry.andromeda.sense.orientation
 
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
+import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.units.Bearing
+import kotlin.math.min
 import kotlin.math.sqrt
 
 class CustomGeomagneticRotationSensor(
@@ -74,4 +76,10 @@ class CustomGeomagneticRotationSensor(
 
     override val hasValidReading: Boolean
         get() = magnetometer.hasValidReading && accelerometer.hasValidReading
+
+    override val quality: Quality
+        get() = Quality.entries[min(
+            magnetometer.quality.ordinal,
+            accelerometer.quality.ordinal
+        )]
 }
