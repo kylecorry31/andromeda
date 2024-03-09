@@ -90,9 +90,9 @@ class Gyroscope(
         val cosThetaOverTwo = cos(thetaOverTwo)
 
         synchronized(lock) {
-            _angularRate[0] = axisX.toDegrees() * dt
-            _angularRate[1] = axisY.toDegrees() * dt
-            _angularRate[2] = axisZ.toDegrees() * dt
+            _angularRate[0] = axisX.toDegrees()
+            _angularRate[1] = axisY.toDegrees()
+            _angularRate[2] = axisZ.toDegrees()
             deltaRotationVector[0] = sinThetaOverTwo * axisX
             deltaRotationVector[1] = sinThetaOverTwo * axisY
             deltaRotationVector[2] = sinThetaOverTwo * axisZ
