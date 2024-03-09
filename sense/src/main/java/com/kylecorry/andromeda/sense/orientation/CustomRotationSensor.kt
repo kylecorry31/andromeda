@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.orientation
 
 import android.util.Log
+import android.util.Range
 import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
@@ -10,6 +11,7 @@ import com.kylecorry.luna.coroutines.CoroutineQueueRunner
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.Vector3Utils
+import com.kylecorry.sol.science.geology.Geology
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,8 +25,11 @@ class CustomRotationSensor(
     private val gyroWeight: Float = 0.998f,
     private val outOfSyncDotThreshold: Float = 0.85f,
     private val outOfSyncMillisThreshold: Long = 1000,
-    private val badMagnetometerMagnitudeThreshold: Float = 65f, // TODO: Estimate this threshold on initialization
-    private val badAccelerometerMagnitudeThreshold: Float = 20f,
+    private val validMagnetometerMagnitudes: Range<Float> = Range(10f, 100f),
+    private val validAccelerometerMagnitudes: Range<Float> = Range(
+        0.1f * Geology.GRAVITY,
+        2f * Geology.GRAVITY
+    ),
     private val verbose: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
@@ -91,7 +96,9 @@ class CustomRotationSensor(
                             Log.d("CustomRotationSensor", "Out of sync - recent")
                         }
                         1f
-                    } else if (magneticMagnitude > badMagnetometerMagnitudeThreshold || accelerationMagnitude > badAccelerometerMagnitudeThreshold) {
+                    } else if (!validMagnetometerMagnitudes.contains(magneticMagnitude) ||
+                        !validAccelerometerMagnitudes.contains(accelerationMagnitude)
+                    ) {
                         // The geomagnetic sensor is likely out of sync, use the gyro
                         if (verbose) {
                             Log.d(
