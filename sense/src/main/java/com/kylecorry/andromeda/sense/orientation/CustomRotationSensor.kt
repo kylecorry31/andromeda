@@ -61,6 +61,7 @@ class CustomRotationSensor(
     private val temp = FloatArray(4)
     private val magQuaternion = Quaternion.zero.toFloatArray()
     private val gyroQuaternion = Quaternion.zero.toFloatArray()
+    private val previousQuaternion = Quaternion.zero.toFloatArray()
 
     private var outOfSyncTime = 0L
 
@@ -69,6 +70,8 @@ class CustomRotationSensor(
             if (!geomagneticOrientationSensor.hasValidReading) {
                 return
             }
+
+            _quaternion.copyInto(previousQuaternion)
 
             updateMagQuaternion()
             updateGyroQuaternion()
@@ -123,12 +126,24 @@ class CustomRotationSensor(
                     0f
                 }
 
-            QuaternionMath.slerp(magQuaternion, gyroQuaternion, alpha, _quaternion)
+            QuaternionMath.lerp(magQuaternion, gyroQuaternion, alpha, _quaternion)
+
+            // Prevent NaN from ruining everything
+            if (isInvalid(_quaternion)) {
+                if (verbose) {
+                    Log.d("CustomRotationSensor", "NaN detected, resetting to previous quaternion")
+                }
+                previousQuaternion.copyInto(_quaternion)
+            }
         }
 
         onMain {
             notifyListeners()
         }
+    }
+
+    private fun isInvalid(quaternion: FloatArray): Boolean {
+        return quaternion.any { it.isNaN() || it.isInfinite() }
     }
 
     private fun updateGyroQuaternion() {
