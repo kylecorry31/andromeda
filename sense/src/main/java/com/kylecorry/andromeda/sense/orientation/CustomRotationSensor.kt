@@ -44,6 +44,8 @@ class CustomRotationSensor(
 
     override fun startImpl() {
         isInitialized = false
+        geomagneticCount = 0
+        gyroCount = 0
         geomagneticOrientationSensor.start(this::onSensorUpdate)
         gyro.start(this::onGyroUpdate)
     }
@@ -55,6 +57,10 @@ class CustomRotationSensor(
     }
 
     private var isInitialized = false
+    private var geomagneticCount = 0
+    private var gyroCount = 0
+
+    private val minCount = 5
 
     private var lastGyro = Quaternion.zero.toFloatArray()
 
@@ -67,7 +73,7 @@ class CustomRotationSensor(
 
     private suspend fun update() {
         synchronized(lock) {
-            if (!geomagneticOrientationSensor.hasValidReading) {
+            if (!hasValidReading) {
                 return
             }
 
@@ -149,7 +155,7 @@ class CustomRotationSensor(
     private fun updateGyroQuaternion() {
         // Get the change from the gyro
         QuaternionMath.subtractRotation(gyro.rawOrientation, lastGyro, temp)
-        lastGyro = gyro.rawOrientation.clone()
+        gyro.rawOrientation.copyInto(lastGyro)
 
         // Rotate the current orientation by the change in gyro
         QuaternionMath.multiply(_quaternion, temp, gyroQuaternion)
@@ -162,10 +168,21 @@ class CustomRotationSensor(
     }
 
     private fun onSensorUpdate(): Boolean {
+        if (geomagneticCount < minCount) {
+            geomagneticCount++
+        }
         return true
     }
 
     private fun onGyroUpdate(): Boolean {
+        if (gyroCount < minCount) {
+            gyroCount++
+
+            if (gyroCount == minCount) {
+                gyro.rawOrientation.copyInto(lastGyro)
+            }
+
+        }
         scope.launch {
             runner.enqueue {
                 update()
@@ -180,7 +197,11 @@ class CustomRotationSensor(
     override val rawOrientation: FloatArray
         get() {
             return synchronized(lock) {
-                _quaternion
+                if (geomagneticCount < minCount || gyroCount < minCount) {
+                    geomagneticOrientationSensor.rawOrientation
+                } else {
+                    _quaternion
+                }
             }
         }
 
@@ -188,7 +209,7 @@ class CustomRotationSensor(
         get() = null
 
     override val hasValidReading: Boolean
-        get() = geomagneticOrientationSensor.hasValidReading
+        get() = geomagneticOrientationSensor.hasValidReading && gyro.hasValidReading && geomagneticCount >= minCount && gyroCount >= minCount
 
     override val quality: Quality
         get() = Quality.entries[min(
