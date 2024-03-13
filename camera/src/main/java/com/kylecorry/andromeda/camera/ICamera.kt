@@ -138,10 +138,14 @@ interface ICamera : ISensor {
     /**
      * Get the intrinsic calibration of the camera.
      * It will be an array of [fx, fy, cx, cy, skew] in active array pixels.
+     * @param estimateIfUnavailable if true and the manufacturer calibration is not available, the calibration will be estimated. Defaults to true.
+     * @param onlyUseEstimated if true, only the estimated calibration will be used. Defaults to false.
      * @return the intrinsic calibration or null if not available
-
      */
-    fun getIntrinsicCalibration(estimateIfUnavailable: Boolean = true): FloatArray?
+    fun getIntrinsicCalibration(
+        estimateIfUnavailable: Boolean = true,
+        onlyUseEstimated: Boolean = false
+    ): FloatArray?
 
     /**
      * Get the active array size of the camera in pixels.

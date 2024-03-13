@@ -179,7 +179,7 @@ class Camera(
                     builder.setJpegQuality(it)
                 }
 
-                if (targetResolution != null){
+                if (targetResolution != null) {
                     builder.setTargetResolution(targetResolution)
                 } else {
                     builder.setTargetAspectRatio(targetAspectRatio)
@@ -194,8 +194,9 @@ class Camera(
                 imageCapture = null
             }
 
-            if(cameraSelector == null){
-                cameraSelector = if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+            if (cameraSelector == null) {
+                cameraSelector =
+                    if (isBackCamera) CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
             }
 
             preview?.setSurfaceProvider(previewView?.surfaceProvider)
@@ -601,14 +602,19 @@ class Camera(
         return Pair(xFov, yFov)
     }
 
-    override fun getIntrinsicCalibration(estimateIfUnavailable: Boolean): FloatArray? {
-        val calibration = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    override fun getIntrinsicCalibration(
+        estimateIfUnavailable: Boolean,
+        onlyUseEstimated: Boolean
+    ): FloatArray? {
+        val calibration = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !onlyUseEstimated) {
             getCharacteristic(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION)
         } else {
             null
         }
 
-        if (calibration != null || !estimateIfUnavailable) {
+        val shouldEstimate = onlyUseEstimated || (estimateIfUnavailable && calibration == null)
+
+        if (!shouldEstimate) {
             return calibration
         }
 
