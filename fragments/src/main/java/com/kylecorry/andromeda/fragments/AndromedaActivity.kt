@@ -29,11 +29,18 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
     private var volumeAction: ((button: VolumeButton, isPressed: Boolean) -> Boolean) =
         { _, _ -> false }
 
-    private val hooks = Hooks()
+    protected val hooks = Hooks()
+    protected val lifecycleHookTrigger = LifecycleHookTrigger()
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
+        lifecycleHookTrigger.bind(this)
         specialPermissionLauncher = SpecialPermissionLauncher(this, this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleHookTrigger.unbind(this)
     }
 
     override fun requestPermissions(permissions: List<String>, action: () -> Unit) {

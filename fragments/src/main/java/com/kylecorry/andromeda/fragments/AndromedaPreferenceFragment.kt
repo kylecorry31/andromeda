@@ -31,10 +31,12 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
-    private val hooks = Hooks()
+    protected val hooks = Hooks()
+    protected val lifecycleHookTrigger = LifecycleHookTrigger()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleHookTrigger.bind(this)
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
@@ -47,6 +49,11 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
             permissionAction?.invoke()
         }
         specialPermissionLauncher = SpecialPermissionLauncher(requireContext(), this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleHookTrigger.unbind(this)
     }
 
     override fun requestPermission(

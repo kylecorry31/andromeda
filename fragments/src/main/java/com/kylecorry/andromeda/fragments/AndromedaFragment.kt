@@ -38,10 +38,13 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     private var throttle: Throttle? = null
 
-    private val hooks = Hooks()
+    protected val hooks = Hooks()
+
+    protected val lifecycleHookTrigger = LifecycleHookTrigger()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleHookTrigger.bind(this)
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
@@ -58,6 +61,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     override fun onDestroy() {
         super.onDestroy()
+        lifecycleHookTrigger.unbind(this)
         resultLauncher?.unregister()
         permissionLauncher?.unregister()
     }
