@@ -30,6 +30,7 @@ class CustomRotationSensor(
         0.1f * Geology.GRAVITY,
         2f * Geology.GRAVITY
     ),
+    private val onlyUseMagnetometerQuality: Boolean = false,
     private val verbose: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
@@ -40,7 +41,7 @@ class CustomRotationSensor(
     private val runner = CoroutineQueueRunner()
 
     private val geomagneticOrientationSensor =
-        CustomGeomagneticRotationSensor(magnetometer, accelerometer)
+        CustomGeomagneticRotationSensor(magnetometer, accelerometer, onlyUseMagnetometerQuality)
 
     override fun startImpl() {
         isInitialized = false
@@ -212,8 +213,12 @@ class CustomRotationSensor(
         get() = geomagneticOrientationSensor.hasValidReading && gyro.hasValidReading && geomagneticCount >= minCount && gyroCount >= minCount
 
     override val quality: Quality
-        get() = Quality.entries[min(
-            geomagneticOrientationSensor.quality.ordinal,
-            gyro.quality.ordinal
-        )]
+        get() = if (onlyUseMagnetometerQuality) {
+            geomagneticOrientationSensor.quality
+        } else {
+            Quality.entries[min(
+                geomagneticOrientationSensor.quality.ordinal,
+                gyro.quality.ordinal
+            )]
+        }
 }

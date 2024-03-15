@@ -15,6 +15,7 @@ import kotlin.math.sqrt
 class CustomGeomagneticRotationSensor(
     private val magnetometer: IMagnetometer,
     private val accelerometer: IAccelerometer,
+    private val onlyUseMagnetometerQuality: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
     private val rotationMatrix = FloatArray(16)
@@ -78,8 +79,12 @@ class CustomGeomagneticRotationSensor(
         get() = magnetometer.hasValidReading && accelerometer.hasValidReading
 
     override val quality: Quality
-        get() = Quality.entries[min(
-            magnetometer.quality.ordinal,
-            accelerometer.quality.ordinal
-        )]
+        get() = if (onlyUseMagnetometerQuality) {
+            magnetometer.quality
+        } else {
+            Quality.entries[min(
+                magnetometer.quality.ordinal,
+                accelerometer.quality.ordinal
+            )]
+        }
 }
