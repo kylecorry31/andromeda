@@ -21,7 +21,8 @@ import kotlin.math.sin
 class CalibratedCameraAnglePixelMapper(
     private val camera: ICamera,
     private val fallback: CameraAnglePixelMapper = LinearCameraAnglePixelMapper(),
-    private val applyDistortionCorrection: Boolean = false
+    private val applyDistortionCorrection: Boolean = false,
+    private val useManufacturerCalibration: Boolean = false
 ) : CameraAnglePixelMapper {
 
     private var calibration: FloatArray? = null
@@ -46,7 +47,9 @@ class CalibratedCameraAnglePixelMapper(
 
     private fun getCalibration(): FloatArray? {
         if (calibration == null) {
-            val calibration = camera.getIntrinsicCalibration(true) ?: return null
+            val calibration =
+                camera.getIntrinsicCalibration(true, onlyUseEstimated = !useManufacturerCalibration)
+                    ?: return null
             val rotation = camera.sensorRotation.toInt()
             this.calibration = if (rotation == 90 || rotation == 270) {
                 floatArrayOf(
