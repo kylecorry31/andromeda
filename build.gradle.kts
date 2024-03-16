@@ -3,7 +3,7 @@ buildscript {
         set("groupId", "com.kylecorry.andromeda")
         set("versionName", "7.0.0-beta02")
         set("solVersion", "9.4.0")
-        set("lunaVersion", "0.3.1")
+        set("lunaVersion", "0.3.2")
         set("coreKtxVersion", "1.12.0")
         set("appCompatVersion", "1.6.1")
         set("materialVersion", "1.10.0")
