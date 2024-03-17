@@ -22,6 +22,7 @@ import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.cache.Hooks
+import com.kylecorry.luna.cache.State
 
 abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
 
@@ -37,6 +38,7 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleHookTrigger.bind(this)
+        scheduleStateUpdates(hooks)
         resultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) {
@@ -197,6 +199,10 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
 
     protected fun <T> memo(key: String, vararg values: Any?, value: () -> T): T {
         return hooks.memo(key, *values, value = value)
+    }
+
+    protected fun <T> state(initialValue: T): State<T> {
+        return hooks.state(initialValue)
     }
 
 }

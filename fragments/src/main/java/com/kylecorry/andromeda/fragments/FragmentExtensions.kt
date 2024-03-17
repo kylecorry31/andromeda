@@ -12,6 +12,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.*
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
+import com.kylecorry.luna.cache.Hooks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -131,4 +132,15 @@ suspend inline fun LifecycleOwner.waitUntilState(
             throw e
         }
     }
+}
+
+fun LifecycleOwner.scheduleStateUpdates(hooks: Hooks) {
+    val observer = LifecycleEventObserver { _, event ->
+        if (event == Lifecycle.Event.ON_RESUME) {
+            hooks.startStateUpdates()
+        } else if (event == Lifecycle.Event.ON_PAUSE) {
+            hooks.stopStateUpdates()
+        }
+    }
+    lifecycle.addObserver(observer)
 }

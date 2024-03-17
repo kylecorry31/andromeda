@@ -3,7 +3,9 @@ package com.kylecorry.andromeda.fragments
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.cache.Hooks
 import java.time.Duration
 
 fun Fragment.interval(
