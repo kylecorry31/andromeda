@@ -39,7 +39,9 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     private var throttle: Throttle? = null
 
-    protected val hooks = Hooks()
+    protected val hooks = Hooks(stateThrottleMs = INTERVAL_60_FPS){
+        onUpdateWrapper()
+    }
 
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
 

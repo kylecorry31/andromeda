@@ -14,7 +14,6 @@ import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.cache.Hooks
-import com.kylecorry.luna.cache.State
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
@@ -207,10 +206,6 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
 
     protected fun <T> memo(key: String, vararg values: Any?, value: () -> T): T {
         return hooks.memo(key, *values, value = value)
-    }
-
-    protected fun <T> state(initialValue: T): State<T> {
-        return hooks.state(initialValue)
     }
 
 }
