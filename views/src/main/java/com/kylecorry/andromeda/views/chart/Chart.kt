@@ -405,6 +405,10 @@ class Chart : CanvasView, IChart {
         return true
     }
 
+    fun setShouldRerenderEveryCycle(shouldRerender: Boolean) {
+        runEveryCycle = shouldRerender
+    }
+
     companion object {
         fun <T> getDataFromReadings(
             readings: List<Reading<T>>,
