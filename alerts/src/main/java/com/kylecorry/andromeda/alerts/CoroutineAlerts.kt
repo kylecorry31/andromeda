@@ -16,8 +16,9 @@ object CoroutineAlerts {
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
         cancelable: Boolean = true,
         cancelOnOutsideTouch: Boolean = true,
-        allowLinks: Boolean = false
-    ) = suspendCoroutine<Boolean> { cont ->
+        allowLinks: Boolean = false,
+        scrollable: Boolean = false
+    ) = suspendCoroutine { cont ->
         Alerts.dialog(
             context,
             title,
@@ -27,7 +28,8 @@ object CoroutineAlerts {
             cancelText,
             allowLinks,
             cancelable,
-            cancelOnOutsideTouch
+            cancelOnOutsideTouch,
+            scrollable
         ) {
             cont.resume(it)
         }

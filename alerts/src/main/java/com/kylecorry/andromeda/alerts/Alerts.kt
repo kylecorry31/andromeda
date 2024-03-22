@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.andromeda.core.ui.Views
 
 object Alerts {
     fun dialog(
@@ -24,38 +25,20 @@ object Alerts {
         allowLinks: Boolean = false,
         cancelable: Boolean = true,
         cancelOnOutsideTouch: Boolean = true,
+        scrollable: Boolean = false,
         onClose: ((cancelled: Boolean) -> Unit)? = null
     ): AlertDialog {
-        val builder = AlertDialog.Builder(context)
-        builder.apply {
-            setTitle(title)
-            setCancelable(cancelable)
-            if (content != null) {
-                setMessage(content)
-            }
-            if (contentView != null) {
-                setView(contentView)
-            }
-            if (okText != null) {
-                setPositiveButton(
-                    okText
-                ) { dialog, _ ->
-                    onClose?.invoke(false)
-                    dialog.dismiss()
-                }
-            }
-            if (cancelText != null) {
-                setNegativeButton(
-                    cancelText
-                ) { dialog, _ ->
-                    onClose?.invoke(true)
-                    dialog.dismiss()
-                }
-            }
-            setOnCancelListener {
-                onClose?.invoke(true)
-            }
-        }
+        val builder = dialogBuilder(
+            context,
+            title,
+            content,
+            contentView,
+            okText,
+            cancelText,
+            cancelable,
+            scrollable,
+            onClose
+        )
 
         val dialog = builder.create()
         dialog.setCanceledOnTouchOutside(cancelOnOutsideTouch)
@@ -121,17 +104,35 @@ object Alerts {
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
         cancelable: Boolean = true,
+        scrollable: Boolean = false,
         onClose: ((cancelled: Boolean) -> Unit)? = null
     ): AlertDialog.Builder {
         val builder = AlertDialog.Builder(context)
         builder.apply {
             setTitle(title)
             setCancelable(cancelable)
-            if (content != null) {
+            if (content != null && (!scrollable || contentView == null)) {
                 setMessage(content)
             }
             if (contentView != null) {
-                setView(contentView)
+                val view = if (scrollable) {
+                    val layout = Views.linear(
+                        listOfNotNull(content?.let {
+                            Views.text(
+                                context,
+                                content,
+                                id = android.R.id.message
+                            )
+                        }, contentView),
+                        padding = Resources.dp(context, 28f).toInt()
+                    )
+
+                    Views.scroll(layout)
+                } else {
+                    contentView
+                }
+
+                setView(view)
             }
             if (okText != null) {
                 setPositiveButton(
