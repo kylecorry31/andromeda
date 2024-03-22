@@ -18,6 +18,7 @@ fun Fragment.dialog(
     allowLinks: Boolean = false,
     cancelable: Boolean = true,
     cancelOnOutsideTouch: Boolean = true,
+    scrollable: Boolean = false,
     onClose: ((cancelled: Boolean) -> Unit)? = null
 ): AlertDialog {
     return Alerts.dialog(
@@ -30,6 +31,7 @@ fun Fragment.dialog(
         allowLinks,
         cancelable,
         cancelOnOutsideTouch,
+        scrollable,
         onClose
     )
 }
@@ -43,6 +45,7 @@ fun Activity.dialog(
     allowLinks: Boolean = false,
     cancelable: Boolean = true,
     cancelOnOutsideTouch: Boolean = true,
+    scrollable: Boolean = false,
     onClose: ((cancelled: Boolean) -> Unit)? = null
 ): AlertDialog {
     return Alerts.dialog(
@@ -55,6 +58,7 @@ fun Activity.dialog(
         allowLinks,
         cancelable,
         cancelOnOutsideTouch,
+        scrollable,
         onClose
     )
 }
