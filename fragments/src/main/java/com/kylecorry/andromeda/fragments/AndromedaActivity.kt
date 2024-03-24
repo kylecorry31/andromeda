@@ -13,7 +13,7 @@ import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
-import com.kylecorry.luna.cache.Hooks
+import com.kylecorry.luna.hooks.Hooks
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 

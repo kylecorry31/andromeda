@@ -12,7 +12,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.*
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import com.kylecorry.luna.cache.Hooks
+import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel

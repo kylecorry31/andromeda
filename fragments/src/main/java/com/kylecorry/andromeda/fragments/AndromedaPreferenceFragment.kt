@@ -21,7 +21,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.SpecialPermission
-import com.kylecorry.luna.cache.Hooks
+import com.kylecorry.luna.hooks.Hooks
 
 abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
 

@@ -14,8 +14,8 @@ import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
-import com.kylecorry.luna.cache.Hooks
-import com.kylecorry.luna.cache.State
+import com.kylecorry.luna.hooks.Hooks
+import com.kylecorry.luna.hooks.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
