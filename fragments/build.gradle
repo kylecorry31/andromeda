@@ -60,13 +60,13 @@ dependencies {
     implementation project(':core')
     implementation project(':permissions')
     implementation project(':alerts')
-    implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    implementation "androidx.appcompat:appcompat:${appCompatVersion}"
-    implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation "com.google.android.material:material:${materialVersion}"
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutinesVersion}"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.preference.ktx
+    implementation libs.material
+    coreLibraryDesugaring libs.desugar
+    implementation libs.kotlinx.coroutines.android
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }

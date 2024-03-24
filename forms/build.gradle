@@ -59,11 +59,11 @@ afterEvaluate {
 dependencies {
     implementation project(':core')
     implementation project(':pickers')
-    implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    implementation "androidx.appcompat:appcompat:${appCompatVersion}"
-    implementation "com.google.android.material:material:${materialVersion}"
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
 }

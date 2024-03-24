@@ -2,13 +2,6 @@ buildscript {
     extra.apply {
         set("groupId", "com.kylecorry.andromeda")
         set("versionName", "7.0.0-beta02")
-        set("solVersion", "9.4.0")
-        set("lunaVersion", "bf2f3d68cc")
-        set("coreKtxVersion", "1.12.0")
-        set("appCompatVersion", "1.6.1")
-        set("materialVersion", "1.10.0")
-        set("coroutinesVersion", "1.8.0")
-        set("desugarVersion", "2.0.4")
         set("targetVersion", 34)
         set("compileVersion", 34)
     }

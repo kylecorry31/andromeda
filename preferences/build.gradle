@@ -56,12 +56,12 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
-    implementation "androidx.core:core-ktx:${coreKtxVersion}"
-    implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.datastore.preferences
+    coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    testImplementation libs.mockito.kotlin
 }

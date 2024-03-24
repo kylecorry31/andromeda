@@ -61,9 +61,9 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
-    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${desugarVersion}"
-    testImplementation 'org.junit.platform:junit-platform-runner:1.10.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit.platform.runner
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.junit.jupiter.params
+    testRuntimeOnly libs.junit.jupiter.engine
 }
