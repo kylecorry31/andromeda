@@ -4,16 +4,15 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
-import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
-import com.kylecorry.sol.units.Bearing
 import kotlin.math.min
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 class CustomGeomagneticRotationSensor(
-    private val magnetometer: IMagnetometer,
+    private val magnetometer: IMagnetometer?,
     private val accelerometer: IAccelerometer,
     private val onlyUseMagnetometerQuality: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
@@ -21,6 +20,7 @@ class CustomGeomagneticRotationSensor(
     private val rotationMatrix = FloatArray(16)
     private val _quaternion = Quaternion.zero.toFloatArray()
     private val temp = FloatArray(4)
+    private val mockMagneticField = FloatArray(3)
 
     private val lock = Object()
 
@@ -28,12 +28,12 @@ class CustomGeomagneticRotationSensor(
         get() = null
 
     override fun startImpl() {
-        magnetometer.start(this::onSensorUpdate)
+        magnetometer?.start(this::onSensorUpdate)
         accelerometer.start(this::onSensorUpdate)
     }
 
     override fun stopImpl() {
-        magnetometer.stop(this::onSensorUpdate)
+        magnetometer?.stop(this::onSensorUpdate)
         accelerometer.stop(this::onSensorUpdate)
     }
 
@@ -43,7 +43,7 @@ class CustomGeomagneticRotationSensor(
                 rotationMatrix,
                 null,
                 accelerometer.rawAcceleration,
-                magnetometer.rawMagneticField
+                getMagneticField()
             )
 
             val trace = rotationMatrix[0] + rotationMatrix[5] + rotationMatrix[10]
@@ -64,6 +64,17 @@ class CustomGeomagneticRotationSensor(
         return true
     }
 
+    private fun getMagneticField(): FloatArray {
+        return if (magnetometer == null) {
+            val gravity = accelerometer.rawAcceleration
+            mockMagneticField[0] = gravity[0] * sign(gravity[2]) * sign(gravity[1])
+            mockMagneticField[1] = gravity[1] * sign(gravity[2]) * sign(gravity[1])
+            mockMagneticField
+        } else {
+            magnetometer.rawMagneticField
+        }
+    }
+
 
     override val orientation: Quaternion
         get() = Quaternion.from(rawOrientation)
@@ -76,14 +87,14 @@ class CustomGeomagneticRotationSensor(
         }
 
     override val hasValidReading: Boolean
-        get() = magnetometer.hasValidReading && accelerometer.hasValidReading
+        get() = (magnetometer == null || magnetometer.hasValidReading) && accelerometer.hasValidReading
 
     override val quality: Quality
         get() = if (onlyUseMagnetometerQuality) {
-            magnetometer.quality
+            magnetometer?.quality ?: Quality.Unknown
         } else {
             Quality.entries[min(
-                magnetometer.quality.ordinal,
+                magnetometer?.quality?.ordinal ?: Quality.Unknown.ordinal,
                 accelerometer.quality.ordinal
             )]
         }
