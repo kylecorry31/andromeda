@@ -45,8 +45,14 @@ android {
 
 tasks.register('androidSourcesJar', Jar) {
     archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
-    from android.sourceSets.main.kotlin.srcDirs
+    if (project.plugins.findPlugin("com.android.library")) {
+        // For Android libraries
+        from android.sourceSets.main.java.srcDirs
+        from android.sourceSets.main.kotlin.srcDirs
+    } else {
+        from sourceSets.main.java.srcDirs
+        from sourceSets.main.kotlin.srcDirs
+    }
 }
 
 artifacts {
@@ -61,6 +67,7 @@ afterEvaluate {
                 groupId = group
                 artifactId = 'alerts'
                 version = version
+                artifact androidSourcesJar
             }
         }
     }
