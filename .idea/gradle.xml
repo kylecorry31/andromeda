@@ -13,11 +13,11 @@
             <option value="$PROJECT_DIR$/alerts" />
             <option value="$PROJECT_DIR$/background" />
             <option value="$PROJECT_DIR$/battery" />
-            <option value="$PROJECT_DIR$/bluetooth" />
             <option value="$PROJECT_DIR$/camera" />
             <option value="$PROJECT_DIR$/canvas" />
             <option value="$PROJECT_DIR$/clipboard" />
             <option value="$PROJECT_DIR$/compression" />
+            <option value="$PROJECT_DIR$/connection" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/csv" />
             <option value="$PROJECT_DIR$/exceptions" />

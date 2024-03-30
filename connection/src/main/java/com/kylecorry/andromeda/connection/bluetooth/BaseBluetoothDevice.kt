@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.bluetooth
+package com.kylecorry.andromeda.connection.bluetooth
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice

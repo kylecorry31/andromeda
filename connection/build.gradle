@@ -47,7 +47,7 @@ afterEvaluate {
             release(MavenPublication) {
                 from components.release
                 groupId = group
-                artifactId = 'bluetooth'
+                artifactId = 'connection'
                 version = version
             }
         }
