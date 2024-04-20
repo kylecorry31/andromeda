@@ -1,7 +1,7 @@
 buildscript {
     extra.apply {
         set("groupId", "com.kylecorry.andromeda")
-        set("versionName", "7.0.0")
+        set("versionName", "8.0.0")
         set("targetVersion", 34)
         set("compileVersion", 34)
     }
