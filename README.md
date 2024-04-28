@@ -1,6 +1,8 @@
 # Andromeda
  A collection of Android libraries for simplifying development using Android APIs.
 
+This is intended for my use only at this point, so there isn't any documentation on it.
+
 ## Usage
 Andromeda uses Jitpack for distribution, the following gradle dependency can be added:
 
