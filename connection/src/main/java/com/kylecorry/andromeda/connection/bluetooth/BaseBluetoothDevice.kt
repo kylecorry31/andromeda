@@ -36,7 +36,9 @@ abstract class BaseBluetoothDevice(private val context: Context, override val ad
         adapter?.cancelDiscovery()
         socket = getSocket(device!!)
         try {
-            socket?.connect()
+            if (socket?.isConnected != true) {
+                socket?.connect()
+            }
             input = socket?.inputStream
             output = socket?.outputStream
         } catch (e: Exception) {

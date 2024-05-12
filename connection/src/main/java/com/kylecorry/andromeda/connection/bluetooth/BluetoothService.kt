@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothManager
 import android.content.Context
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.luna.coroutines.onIO
+import org.jetbrains.annotations.ApiStatus.Experimental
 import java.util.*
 
 class BluetoothService(private val context: Context) {
@@ -14,21 +16,21 @@ class BluetoothService(private val context: Context) {
 
     val isEnabled: Boolean
         @SuppressLint("MissingPermission")
-        get(){
+        get() {
             return if (Permissions.canUseBluetooth(context) && adapter != null) adapter!!.isEnabled else false
         }
 
 
     val bondedDevices: List<BluetoothDevice>
         @SuppressLint("MissingPermission")
-        get(){
+        get() {
             return if (Permissions.canUseBluetooth(context) && adapter != null) adapter!!.bondedDevices.toList() else listOf()
         }
 
     fun getDevice(address: String): BluetoothDevice? {
         return try {
             adapter?.getRemoteDevice(address)
-        } catch (e: Exception){
+        } catch (e: Exception) {
             null
         }
     }
@@ -43,6 +45,20 @@ class BluetoothService(private val context: Context) {
 
     fun getGattDevice(address: String): BluetoothGattDevice {
         return BluetoothGattDevice(context, address)
+    }
+
+    @Experimental
+    @SuppressLint("MissingPermission")
+    suspend fun listen(name: String, uuid: UUID, secure: Boolean = true): IBluetoothDevice? = onIO {
+        val serverSocket = if (secure) {
+            adapter?.listenUsingRfcommWithServiceRecord(name, uuid)
+        } else {
+            adapter?.listenUsingInsecureRfcommWithServiceRecord(name, uuid)
+        }
+        serverSocket?.use {
+            val socket = it.accept() ?: return@onIO null
+            SocketBluetoothDevice(context, socket.remoteDevice.address, socket)
+        }
     }
 
     companion object {
