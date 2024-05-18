@@ -51,22 +51,6 @@ class BluetoothService(private val context: Context) {
         return BluetoothGattDevice(context, address)
     }
 
-    // TODO: Make this cancellable - or a separate class with start/stop methods
-    @SuppressLint("MissingPermission")
-    @Experimental
-    suspend fun listen(name: String, uuid: UUID, secure: Boolean = true): IBluetoothDevice? = onIO {
-        Permissions.requireBluetoothConnect(context, requireLegacyPermission = true)
-        val serverSocket = if (secure) {
-            adapter?.listenUsingRfcommWithServiceRecord(name, uuid)
-        } else {
-            adapter?.listenUsingInsecureRfcommWithServiceRecord(name, uuid)
-        }
-        serverSocket?.use {
-            val socket = it.accept() ?: return@onIO null
-            SocketBluetoothDevice(context, socket.remoteDevice.address, socket)
-        }
-    }
-
     companion object {
         val DEFAULT_SERIAL_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     }

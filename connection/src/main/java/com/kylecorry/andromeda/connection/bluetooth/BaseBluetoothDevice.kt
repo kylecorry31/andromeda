@@ -51,6 +51,7 @@ abstract class BaseBluetoothDevice(protected val context: Context, override val 
             output = socket?.outputStream
         } catch (e: Exception) {
             disconnect()
+            e.printStackTrace()
         }
     }
 
