@@ -1,6 +1,5 @@
 package com.kylecorry.andromeda.connection.bluetooth
 
-import android.annotation.SuppressLint
 import android.os.Handler
 import android.os.Looper
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
@@ -34,7 +33,6 @@ class BluetoothSensor(
     private var _messages = listOf<BluetoothMessage>()
     private val handler = Handler(Looper.getMainLooper())
 
-    @SuppressLint("MissingPermission")
     private fun connect() {
         thread {
             try {

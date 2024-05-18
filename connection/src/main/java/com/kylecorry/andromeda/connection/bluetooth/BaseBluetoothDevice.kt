@@ -10,10 +10,11 @@ import com.kylecorry.andromeda.core.io.readUntil
 import com.kylecorry.andromeda.core.io.write
 import com.kylecorry.andromeda.core.io.writeAll
 import com.kylecorry.andromeda.core.tryOrNothing
+import com.kylecorry.andromeda.permissions.Permissions
 import java.io.InputStream
 import java.io.OutputStream
 
-abstract class BaseBluetoothDevice(private val context: Context, override val address: String) :
+abstract class BaseBluetoothDevice(protected val context: Context, override val address: String) :
     IBluetoothDevice {
 
     private val adapter by lazy { context.getSystemService<BluetoothManager>()?.adapter }
@@ -25,11 +26,18 @@ abstract class BaseBluetoothDevice(private val context: Context, override val ad
 
     override val name: String
         @SuppressLint("MissingPermission")
-        get() = device?.name ?: ""
+        get() {
+            Permissions.requireBluetoothConnect(context, requireLegacyPermission = true)
+            return device?.name ?: ""
+        }
 
     // TODO: Let the consumer know it requires a permission
     @SuppressLint("MissingPermission")
     override fun connect() {
+        Permissions.requireLegacyBluetooth(context)
+        Permissions.requireBluetoothScan(context, requireLegacyPermission = true)
+        Permissions.requireBluetoothConnect(context, requireLegacyPermission = true)
+
         if (isConnected() || adapter?.isEnabled != true || device == null) {
             return
         }
