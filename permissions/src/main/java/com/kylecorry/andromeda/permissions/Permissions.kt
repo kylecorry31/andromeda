@@ -297,4 +297,39 @@ object Permissions {
 
         return true
     }
+
+    // Requirements
+    fun requirePermission(context: Context, permission: String) {
+        if (!hasPermission(context, permission)) {
+            throw NoPermissionException(permission)
+        }
+    }
+
+    // Bluetooth
+    fun requireLegacyBluetooth(context: Context) =
+        requirePermission(context, Manifest.permission.BLUETOOTH)
+
+    fun requireLegacyBluetoothAdmin(context: Context) =
+        requirePermission(context, Manifest.permission.BLUETOOTH_ADMIN)
+
+    fun requireBluetoothConnect(context: Context, requireLegacyPermission: Boolean = true) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (requireLegacyPermission) {
+                requireLegacyBluetooth(context)
+            }
+            return
+        }
+        requirePermission(context, Manifest.permission.BLUETOOTH_CONNECT)
+    }
+
+    fun requireBluetoothScan(context: Context, requireLegacyPermission: Boolean = true) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (requireLegacyPermission) {
+                requireLegacyBluetoothAdmin(context)
+            }
+            return
+        }
+        requirePermission(context, Manifest.permission.BLUETOOTH_SCAN)
+    }
+
 }
