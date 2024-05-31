@@ -17,7 +17,11 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.Executors
 
-class CellSignalSensor(private val context: Context, private val updateCellCache: Boolean) :
+class CellSignalSensor(
+    private val context: Context,
+    private val updateCellCache: Boolean,
+    private val removeUnregisteredSignals: Boolean = true
+) :
     AbstractSensor(), ICellSignalSensor {
 
     private val telephony by lazy { context.getSystemService<TelephonyManager>() }
@@ -76,65 +80,78 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
     private fun updateCellInfo(cells: List<CellInfo>, notify: Boolean = true) {
         synchronized(this) {
             hasReading = true
-            val newSignals = cells.filter { it.isRegistered }.mapNotNull {
-                when {
-                    it is CellInfoWcdma -> {
-                        RawCellSignal(
-                            it.cellIdentity.cid.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Wcdma
-                        )
+            val newSignals =
+                cells.filter { !removeUnregisteredSignals || it.isRegistered }.mapNotNull {
+                    when {
+                        it is CellInfoWcdma -> {
+                            RawCellSignal(
+                                it.cellIdentity.cid.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Wcdma,
+                                it.isRegistered
+                            )
+                        }
+
+                        it is CellInfoGsm -> {
+                            RawCellSignal(
+                                it.cellIdentity.cid.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Gsm,
+                                it.isRegistered
+                            )
+                        }
+
+                        it is CellInfoLte -> {
+                            RawCellSignal(
+                                it.cellIdentity.ci.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Lte,
+                                it.isRegistered
+                            )
+                        }
+
+                        it is CellInfoCdma -> {
+                            RawCellSignal(
+                                it.cellIdentity.basestationId.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Cdma,
+                                it.isRegistered
+                            )
+                        }
+
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && it is CellInfoTdscdma -> {
+                            RawCellSignal(
+                                it.cellIdentity.cid.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Tdscdma,
+                                it.isRegistered
+                            )
+                        }
+
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && it is CellInfoNr -> {
+                            RawCellSignal(
+                                it.cellIdentity.operatorAlphaLong.toString(),
+                                Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
+                                it.cellSignalStrength.dbm,
+                                it.cellSignalStrength.level,
+                                CellNetwork.Nr,
+                                it.isRegistered
+                            )
+                        }
+
+                        else -> null
                     }
-                    it is CellInfoGsm -> {
-                        RawCellSignal(
-                            it.cellIdentity.cid.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Gsm
-                        )
-                    }
-                    it is CellInfoLte -> {
-                        RawCellSignal(
-                            it.cellIdentity.ci.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Lte
-                        )
-                    }
-                    it is CellInfoCdma -> {
-                        RawCellSignal(
-                            it.cellIdentity.basestationId.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Cdma
-                        )
-                    }
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && it is CellInfoTdscdma -> {
-                        RawCellSignal(
-                            it.cellIdentity.cid.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Tdscdma
-                        )
-                    }
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && it is CellInfoNr -> {
-                        RawCellSignal(
-                            it.cellIdentity.operatorAlphaLong.toString(),
-                            Instant.ofEpochMilli(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) it.timestampMillis else (it.timeStamp / 1000000)),
-                            it.cellSignalStrength.dbm,
-                            it.cellSignalStrength.level,
-                            CellNetwork.Nr
-                        )
-                    }
-                    else -> null
                 }
-            }
 
             val latestSignals = newSignals.map {
                 val old = oldSignals.find { signal -> it.id == signal.id }
@@ -148,7 +165,7 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
             oldSignals = latestSignals
 
             _signals = latestSignals.map {
-                CellSignal(it.id, it.percent, it.dbm, it.quality, it.network)
+                CellSignal(it.id, it.percent, it.dbm, it.quality, it.network, it.isRegistered)
             }
 
             if (notify) {
@@ -186,7 +203,8 @@ class CellSignalSensor(private val context: Context, private val updateCellCache
         val time: Instant,
         val dbm: Int,
         val level: Int,
-        val network: CellNetwork
+        val network: CellNetwork,
+        val isRegistered: Boolean
     ) {
         val percent: Float
             get() {
