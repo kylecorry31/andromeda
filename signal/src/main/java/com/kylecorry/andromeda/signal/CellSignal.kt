@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.signal
 
 import com.kylecorry.andromeda.core.sensors.Quality
+import java.time.Instant
 
 data class CellSignal(
     val id: String,
@@ -8,7 +9,8 @@ data class CellSignal(
     val dbm: Int,
     val quality: Quality,
     val network: CellNetwork,
-    val isRegistered: Boolean
+    val isRegistered: Boolean,
+    val time: Instant
 )
 
 data class CellNetworkQuality(
