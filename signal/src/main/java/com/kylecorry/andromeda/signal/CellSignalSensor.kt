@@ -11,6 +11,7 @@ import androidx.core.content.getSystemService
 import androidx.core.math.MathUtils
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
+import com.kylecorry.andromeda.core.time.AndroidTime
 import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
@@ -206,9 +207,7 @@ class CellSignalSensor(
     private fun getTimestamp(cellInfo: CellInfo): Instant {
         val timeSinceBoot =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) cellInfo.timestampMillis else (cellInfo.timeStamp / 1000000)
-        val currentTimeSinceBoot = SystemClock.elapsedRealtime()
-        val currentTime = System.currentTimeMillis()
-        return Instant.ofEpochMilli(currentTime - (currentTimeSinceBoot - timeSinceBoot))
+        return AndroidTime.millisSinceBootToInstant(timeSinceBoot)
 
     }
 
