@@ -16,3 +16,4 @@ local.properties
 .idea/androidTestResultsUserPreferences.xml
 .idea/appInsightsSettings.xml
 .idea/deploymentTargetDropDown.xml
+.kotlin/
