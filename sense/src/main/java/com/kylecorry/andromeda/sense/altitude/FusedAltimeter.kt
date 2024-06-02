@@ -9,6 +9,7 @@ import com.kylecorry.andromeda.core.time.CoroutineTimer
 import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.sense.barometer.IBarometer
 import com.kylecorry.andromeda.sense.location.IGPS
+import com.kylecorry.andromeda.sense.location.ISatelliteGPS
 import com.kylecorry.andromeda.sense.location.filters.GPSPassThroughAltitudeFilter
 import com.kylecorry.andromeda.sense.location.filters.IGPSAltitudeFilter
 import com.kylecorry.andromeda.sense.location.hasFix
@@ -211,7 +212,11 @@ class FusedAltimeter(
     }
 
     private fun hasGPSFix(): Boolean {
-        return gps.hasFix()
+        return if (gps is ISatelliteGPS) {
+            gps.hasFix()
+        } else {
+            gps.hasValidReading
+        }
     }
 
     private fun hasFilteredGPSFix(): Boolean {
