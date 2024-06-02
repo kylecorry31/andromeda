@@ -27,8 +27,6 @@ class NetworkGPS(
     override val hasValidReading: Boolean
         get() = hadRecentValidReading()
 
-    override val satellites: Int? = null
-
     override val quality: Quality
         get() = _quality
 

@@ -14,7 +14,12 @@ import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.sol.units.*
+import com.kylecorry.sol.units.Bearing
+import com.kylecorry.sol.units.Coordinate
+import com.kylecorry.sol.units.Distance
+import com.kylecorry.sol.units.DistanceUnits
+import com.kylecorry.sol.units.Speed
+import com.kylecorry.sol.units.TimeUnits
 import java.time.Duration
 import java.time.Instant
 
@@ -26,13 +31,16 @@ class GPS(
     private val frequency: Duration = Duration.ofSeconds(20),
     private val minDistance: Distance = Distance.meters(0f)
 ) : AbstractSensor(),
-    IGPS {
+    ISatelliteGPS {
 
     override val hasValidReading: Boolean
         get() = location != Coordinate.zero
 
     override val satellites: Int?
         get() = _gnssSatellites ?: _satellites
+
+    override var satelliteDetails: List<Satellite>? = null
+        private set
 
     override val quality: Quality
         get() = _quality
@@ -89,9 +97,9 @@ class GPS(
             _gnssSatellites = 0
         }
 
-        val satellitesUsedInFix = (0 until status.satelliteCount).count { s ->
-            status.usedInFix(s)
-        }
+        satelliteDetails = Satellite.fromStatus(status)
+
+        val satellitesUsedInFix = satelliteDetails?.count { it.usedInFix }
 
         _gnssSatellites = satellitesUsedInFix
 
@@ -134,6 +142,7 @@ class GPS(
         )
 
         _gnssSatellites = null
+        satelliteDetails = null
 
         locationManager?.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,

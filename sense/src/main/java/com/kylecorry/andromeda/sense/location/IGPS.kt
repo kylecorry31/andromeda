@@ -24,11 +24,6 @@ interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
     val horizontalAccuracy: Float?
 
     /**
-     * The number of satellites used to calculate the location
-     */
-    val satellites: Int?
-
-    /**
      * The altitude above MSL in meters
      */
     val mslAltitude: Float?
@@ -59,7 +54,7 @@ interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
     val fixTimeElapsedNanos: Long?
 }
 
-fun IGPS.hasFix(): Boolean {
+fun ISatelliteGPS.hasFix(): Boolean {
     if (!hasValidReading) {
         return false
     }
