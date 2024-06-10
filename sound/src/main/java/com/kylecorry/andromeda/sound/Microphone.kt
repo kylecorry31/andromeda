@@ -5,10 +5,12 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.media.MicrophoneInfo
 import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import android.os.Build
+import android.util.Range
 import androidx.annotation.RequiresApi
 import com.kylecorry.andromeda.permissions.Permissions
 
@@ -72,6 +74,35 @@ class Microphone(
             }
         }
 
+    }
+
+    fun getDecibelRange(): Range<Float>? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return null
+        }
+        // TODO: Handle multiple microphones
+        val activeDevice = recorder?.activeMicrophones?.firstOrNull() ?: return null
+        val min = activeDevice.minSpl
+        val max = activeDevice.maxSpl
+
+        if (min == MicrophoneInfo.SPL_UNKNOWN || max == MicrophoneInfo.SPL_UNKNOWN){
+            return null
+        }
+
+        return Range(min, max)
+    }
+
+    fun getSensitivity(): Float? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            return null
+        }
+        // TODO: Handle multiple microphones
+        val activeDevice = recorder?.activeMicrophones?.firstOrNull() ?: return null
+        val sensitivity = activeDevice.sensitivity
+        if (sensitivity == MicrophoneInfo.SENSITIVITY_UNKNOWN){
+            return null
+        }
+        return sensitivity
     }
 
     fun stop() {
