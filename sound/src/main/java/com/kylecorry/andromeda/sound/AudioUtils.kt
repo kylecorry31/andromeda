@@ -43,7 +43,7 @@ object AudioUtils {
      * @return the dB value
      */
     @Experimental
-    fun amplitudeToDb(
+    fun amplitudeToDecibels(
         amplitude: Float,
         decibelRange: Range<Float>,
         sensitivity: Float = 0f,
