@@ -10,11 +10,11 @@ class SoundGenerator {
 
     fun getSound(
         sampleRate: Int = 64000,
-        durationSeconds: Int = 1,
+        durationSeconds: Float = 1f,
         sampleGenerator: (i: Int) -> Double
     ): AudioTrack {
         // Adapted from https://stackoverflow.com/questions/2413426/playing-an-arbitrary-tone-with-android
-        val size = durationSeconds * sampleRate
+        val size = (durationSeconds * sampleRate).toInt()
         val sound = ByteArray(2 * size)
 
         for (i in 0 until size) {
@@ -63,5 +63,4 @@ class SoundGenerator {
         track.setLoopPoints(0, size, Int.MAX_VALUE)
         return track
     }
-
 }
