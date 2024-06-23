@@ -8,8 +8,7 @@ import com.kylecorry.luna.coroutines.IFlowable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
-import kotlin.coroutines.CoroutineContext
+import java.util.Optional
 
 typealias Subscriber<T> = (T) -> Boolean
 
@@ -69,7 +68,7 @@ fun <T: Any> ITopic<T>.collect(minHistory: Int = 0, maxHistory: Int = Int.MAX_VA
     value.ifPresent {
         data.add(it)
         while (data.size > 0 && data.size > maxHistory) {
-            data.removeFirst()
+            data.removeAt(0)
         }
     }
 
@@ -81,7 +80,7 @@ fun <T: Any> ITopic<T>.collect(minHistory: Int = 0, maxHistory: Int = Int.MAX_VA
     return TopicOperator(this, initial) { result, _, value ->
         data.add(value)
         while (data.size > 0 && data.size > maxHistory) {
-            data.removeFirst()
+            data.removeAt(0)
         }
 
         if (data.size < minHistory) {
