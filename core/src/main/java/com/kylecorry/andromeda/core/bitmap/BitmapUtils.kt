@@ -208,7 +208,11 @@ object BitmapUtils {
         )
 
         // Create an empty mutable bitmap
-        val blank = Bitmap.createBitmap(newWidth.toInt(), newHeight.toInt(), config)
+        val blank = Bitmap.createBitmap(
+            newWidth.toInt(),
+            newHeight.toInt(),
+            config ?: Bitmap.Config.ARGB_8888
+        )
         // Create a canvas to draw on
         val canvas = Canvas(blank)
 

@@ -15,7 +15,7 @@ object Package {
     }
 
     fun getVersionName(context: Context): String {
-        return getPackageInfo(context, getPackageName(context)).versionName
+        return getPackageInfo(context, getPackageName(context)).versionName ?: ""
     }
 
     fun getVersionCode(context: Context): Long {

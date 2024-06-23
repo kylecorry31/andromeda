@@ -89,12 +89,15 @@ object Permissions {
 
     fun getRequestedPermissions(context: Context): List<String> {
         val info = Package.getPackageInfo(context, flags = PackageManager.GET_PERMISSIONS)
-        return info.requestedPermissions.asList()
+        return info.requestedPermissions?.asList() ?: emptyList()
     }
 
     fun getGrantedPermissions(context: Context): List<String> {
         val info = Package.getPackageInfo(context, flags = PackageManager.GET_PERMISSIONS)
-        return info.requestedPermissions.filterIndexed { i, _ -> (info.requestedPermissionsFlags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) == PackageInfo.REQUESTED_PERMISSION_GRANTED }
+        return info.requestedPermissions?.filterIndexed { i, _ ->
+            val flags = info.requestedPermissionsFlags ?: return@filterIndexed false
+            (flags[i] and PackageInfo.REQUESTED_PERMISSION_GRANTED) == PackageInfo.REQUESTED_PERMISSION_GRANTED
+        } ?: emptyList()
     }
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {

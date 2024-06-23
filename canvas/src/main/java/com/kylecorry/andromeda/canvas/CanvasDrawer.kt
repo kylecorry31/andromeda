@@ -240,6 +240,8 @@ class CanvasDrawer(private val context: Context, override var canvas: Canvas) : 
     }
 
     override fun pathDimensions(path: Path): Pair<Float, Float> {
+        // TODO: Deprecated, but the recommended alternative is not yet available in the SDK...
+        @Suppress("DEPRECATION")
         path.computeBounds(measurementRectF, true)
         return measurementRectF.width() to measurementRectF.height()
     }
