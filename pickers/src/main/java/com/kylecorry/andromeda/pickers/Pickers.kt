@@ -86,6 +86,12 @@ object Pickers {
         }
     }
 
+    fun menu(anchorView: View, items: List<com.kylecorry.andromeda.pickers.MenuItem>) {
+        menu(anchorView, items.map { it.name }) {
+            items.getOrNull(it)?.action?.invoke() ?: true
+        }
+    }
+
     fun menu(anchorView: View, @MenuRes menu: Int, onSelection: (itemId: Int) -> Boolean) {
         val popup = PopupMenu(anchorView.context, anchorView)
         val inflater = popup.menuInflater
@@ -98,8 +104,8 @@ object Pickers {
 
     fun menu(anchorView: View, items: List<String?>, onSelection: (selectedIdx: Int) -> Boolean) {
         val popup = PopupMenu(anchorView.context, anchorView)
-        for (i in items.indices){
-            if (items[i] == null){
+        for (i in items.indices) {
+            if (items[i] == null) {
                 continue
             }
             popup.menu.add(Menu.NONE, i, Menu.NONE, items[i])
