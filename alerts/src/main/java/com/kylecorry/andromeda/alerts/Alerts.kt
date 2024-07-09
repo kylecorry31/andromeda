@@ -4,7 +4,11 @@ import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.view.Gravity
 import android.view.View
-import android.widget.*
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
@@ -222,10 +226,10 @@ object Alerts {
         }
     }
 
-    inline fun withLoading(context: Context, title: String, action: () -> Unit) {
+    inline fun <T> withLoading(context: Context, title: String, action: () -> T): T {
         val loadingAlert = loading(context, title)
         try {
-            action()
+            return action()
         } finally {
             loadingAlert.dismiss()
         }
