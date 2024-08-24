@@ -18,7 +18,6 @@ junitVersion = "4.13.2"
 kotlinAndroidVersion = "2.0.0"
 kotlinCsvJvmVersion = "1.9.2"
 lifecycleLivedataCoreKtxVersion = "2.8.4"
-markwonLinkifyVersion = "4.6.2"
 lunaVersion = "0.3.5"
 materialVersion = "1.10.0"
 markwonVersion = "4.6.2"
@@ -50,6 +49,8 @@ desugar = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desuga
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexboxVersion" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupportVersion" }
 markwon = { module = "io.noties.markwon:core", version.ref = "markwonVersion" }
+markwon-linkify = { module = "io.noties.markwon:linkify", version.ref = "markwonVersion" }
+markwon-image = { module = "io.noties.markwon:image", version.ref = "markwonVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApiVersion" }
@@ -58,7 +59,6 @@ junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", vers
 junit-platform-runner = { module = "org.junit.platform:junit-platform-runner", version.ref = "junitPlatformRunnerVersion" }
 kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvmVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
-markwon-linkify = { module = "io.noties.markwon:linkify", version.ref = "markwonLinkifyVersion" }
 luna = { module = "com.github.kylecorry31:luna", version.ref = "lunaVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlinVersion" }
