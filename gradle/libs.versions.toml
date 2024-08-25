@@ -51,6 +51,7 @@ tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", v
 markwon = { module = "io.noties.markwon:core", version.ref = "markwonVersion" }
 markwon-linkify = { module = "io.noties.markwon:linkify", version.ref = "markwonVersion" }
 markwon-image = { module = "io.noties.markwon:image", version.ref = "markwonVersion" }
+markwon-simple = { module = "io.noties.markwon:simple-ext", version.ref = "markwonVersion" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gsonVersion" }
 junit = { module = "junit:junit", version.ref = "junitVersion" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApiVersion" }

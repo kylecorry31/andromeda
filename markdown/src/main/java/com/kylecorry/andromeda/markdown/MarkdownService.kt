@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Rect
 import android.text.Spanned
 import android.widget.TextView
-import androidx.core.text.util.LinkifyCompat
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
@@ -16,11 +15,13 @@ import io.noties.markwon.image.ImageSizeResolverDef
 import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.file.FileSchemeHandler
 import io.noties.markwon.linkify.LinkifyPlugin
+import io.noties.markwon.simple.ext.SimpleExtPlugin
 import org.commonmark.node.ListItem
 
 class MarkdownService(
     private val context: Context,
-    private val autoLink: Boolean = true
+    private val autoLink: Boolean = true,
+    private val extensions: List<MarkdownExtension> = emptyList()
 ) {
     private val markwon by lazy {
         val builder = Markwon.builder(context)
@@ -41,6 +42,14 @@ class MarkdownService(
 
         builder.usePlugin(ImagesPlugin.create {
             it.addSchemeHandler(FileSchemeHandler.createWithAssets(context))
+        })
+
+        builder.usePlugin(SimpleExtPlugin.create {
+            extensions.forEach { ext ->
+                it.addExtension(ext.length, ext.openingCharacter, ext.closingCharacter) { _, _ ->
+                    ext.spanProducer()
+                }
+            }
         })
 
         if (autoLink) {

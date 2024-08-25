@@ -60,6 +60,7 @@ dependencies {
     implementation libs.markwon
     implementation libs.markwon.linkify
     implementation libs.markwon.image
+    implementation libs.markwon.simple
     coreLibraryDesugaring libs.desugar
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
