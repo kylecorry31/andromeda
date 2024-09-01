@@ -15,9 +15,6 @@ class PdfConvertTest {
         val context = InstrumentationRegistry.getInstrumentation().context
         PdfConvert.toPdf(context, text, outputStream)
 
-        val pdfStringUtf8 = outputStream.toString("UTF-8")
-        println(pdfStringUtf8)
-
         // Write to file
         val file = File(context.filesDir, "test.pdf")
         file.writeBytes(outputStream.toByteArray())

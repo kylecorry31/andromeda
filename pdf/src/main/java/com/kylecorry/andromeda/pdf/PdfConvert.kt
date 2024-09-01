@@ -2,21 +2,11 @@ package com.kylecorry.andromeda.pdf
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
-import android.os.Build
-import android.print.pdf.PrintedPdfDocument
-import android.text.Layout
-import android.text.StaticLayout
-import android.text.TextPaint
+import android.graphics.pdf.PdfDocument.PageInfo
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
-import androidx.core.text.toSpanned
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -38,133 +28,114 @@ object PdfConvert {
         return parser.parse(input, ignoreStreams)
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    fun toPdf(context: Context, text: CharSequence, out: OutputStream) {
+    fun toPdf(
+        context: Context,
+        text: CharSequence,
+        out: OutputStream,
+        textSize: Float = 6f,
+        margins: Int = 50
+    ) {
+        val textView = TextView(context)
+        textView.text = text
+        textView.setTextColor(Color.BLACK)
+        textView.textSize = textSize
+        toPdf(textView, out, margins)
+    }
 
+    fun toPdf(textView: TextView, out: OutputStream, margins: Int = 50) {
         val document = PdfDocument()
-        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-        var page = document.startPage(pageInfo)
+        val pageInfo = PageInfo.Builder(595, 842, 1).create()
+        val text = textView.text
+        textView.layoutParams = ViewGroup.LayoutParams(
+            pageInfo.pageWidth - margins * 2,
+            pageInfo.pageHeight - margins * 2
+        )
 
-        page = printLongText(document, pageInfo, text, page, 1, 0)
+        val widthSpec =
+            View.MeasureSpec.makeMeasureSpec(
+                pageInfo.pageWidth - margins * 2,
+                View.MeasureSpec.EXACTLY
+            )
+        val heightSpec =
+            View.MeasureSpec.makeMeasureSpec(
+                pageInfo.pageHeight - margins * 2,
+                View.MeasureSpec.EXACTLY
+            )
+        textView.measure(widthSpec, heightSpec)
 
-        document.finishPage(page)
+        textView.layout(0, 0, textView.measuredWidth, textView.measuredHeight)
+
+        var startPos = 0
+        var endPos = text.length
+
+        do {
+            endPos = getLastVisibleCharPos(textView, pageInfo, text, startPos, endPos, margins)
+            textView.text = text.subSequence(startPos, endPos)
+            textView.onPreDraw()
+
+            // Step 3: Draw the text to the page
+            val page = document.startPage(pageInfo)
+            val canvas = page.canvas
+            canvas.translate(margins.toFloat(), margins.toFloat())
+            textView.draw(canvas)
+            document.finishPage(page)
+
+            // Step 4: Update the start and end positions
+            startPos = endPos
+            endPos = text.length
+        } while (startPos < text.length)
 
         document.writeTo(out)
     }
 
-    // https://stackoverflow.com/questions/78221287/writing-long-text-to-pdf-using-the-pdfdocument-class
-    // TODO: Not filling the vertical space of the page
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun printLongText(
-        mDocument: PdfDocument,
-        pageInfo: PdfDocument.PageInfo,
-        spanText: CharSequence,
-        page: PdfDocument.Page,
-        pageNr: Int,
-        yPos: Int
-    ): PdfDocument.Page {
-        var lPage: PdfDocument.Page = page
-        var lLineCount = 100
-        val textPaint = TextPaint()
 
-        val mPageWidth = pageInfo.pageWidth
-        val mPageHeight = pageInfo.pageHeight
-        val cTopBottomMargin = 50
-        val cLeftRightMargin = 50
+    private fun getLastVisibleCharPos(
+        textView: TextView,
+        pageInfo: PageInfo,
+        text: CharSequence,
+        startPos: Int,
+        endPos: Int,
+        margins: Int
+    ): Int {
 
-        if (pageNr > 1) {
-            // close previous and start new page
-            mDocument.finishPage(lPage)            // close this page
-            lPage = mDocument.startPage(pageInfo) // start new page
-        }
-        val canvas = lPage.canvas                 // init canvas
+        textView.text = text.subSequence(startPos, endPos)
+        textView.onPreDraw()
+        var line = textView.layout.getLineForVertical(pageInfo.pageHeight - margins * 2)
 
-        textPaint.typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-        textPaint.textSize = 12f
-        textPaint.color = Color.BLACK
-        textPaint.isUnderlineText = false
-
-        // first build a static layout of the complete available text to determine which part fits the page
-        var staticLayout = StaticLayout.Builder
-            .obtain(spanText, 0, spanText.length, textPaint, mPageWidth - (2 * cLeftRightMargin))
-            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-            .setLineSpacing(0f, 1.0f)
-            .setIncludePad(false)
-            .build()
-
-        // create a Rect for the available space
-        val r = Rect(
-            cLeftRightMargin,
-            cTopBottomMargin,
-            (mPageWidth - (2 * cLeftRightMargin)),
-            mPageHeight - cTopBottomMargin
-        )
-
-        // TODO: This isn't working for the last page
-        var lLastPos = try {
-            staticLayout.getLineBounds(lLineCount, Rect(r))
-            // we really do not care about the result of the above getLineBounds
-            // we only care if it does or doesn't raise an exception
-            // in case of an exception all the text is on this page and we are done.
-            // in case of no exception there is more text after the lineCount
-            staticLayout.getLineEnd(lLineCount)
-        } catch (e: Exception) {
-            spanText.length
+        while (line > 0 && textView.layout.getLineBottom(line) > pageInfo.pageHeight - margins * 2) {
+            line--
         }
 
-        if (lLastPos != spanText.length && lLastPos != 0) {
-            // Decrease the line count until an exception occurs
-            while (lLineCount > 0) {
-                try {
-                    staticLayout = StaticLayout.Builder
-                        .obtain(spanText, 0, lLastPos, textPaint, mPageWidth - (2 * cLeftRightMargin))
-                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                        .setLineSpacing(0f, 1.0f)
-                        .setIncludePad(false)
-                        .build()
+        val lastVisibleCharPos = startPos + textView.layout.getLineEnd(line)
 
-                    val height = staticLayout.height
+//        // If the text fits on the page, return the end position
+//        if (endPos - startPos < 1000) {
+//            textView.text = text.subSequence(startPos, endPos)
+//            textView.onPreDraw()
+//            if (textView.layout.height <= pageInfo.pageHeight - margins * 2) {
+//                return endPos
+//            }
+//        }
+//
+//        var start = startPos
+//        var end = endPos
+//        var lastVisibleCharPos = end
+//
+//        // Get the last index where the textView.layout.height <= pageInfo.pageHeight
+//        while (start < end) {
+//            val mid = (start + end) / 2
+//            textView.text = text.subSequence(start, mid)
+//            textView.onPreDraw()
+//            if (textView.layout.height <= pageInfo.pageHeight - margins * 2) {
+//                lastVisibleCharPos = mid
+//                start = mid + 1
+//            } else {
+//                end = mid
+//            }
+//        }
 
-                    if (height > r.height()) {
-                        lLineCount--
-                    } else {
-                        break
-                    }
-                    lLastPos = staticLayout.getLineEnd(lLineCount)
-                } catch (e: Exception) {
-                    break
-                }
-            }
-        }
 
-        // sometimes GetLineEnd returns 0. if so all the remaining text fits
-        if (lLastPos == 0) lLastPos = spanText.length
-
-        // re-build the layout to contain only the part we want to print on this page
-        staticLayout = StaticLayout.Builder
-            .obtain(spanText, 0, lLastPos, textPaint, mPageWidth - (2 * cLeftRightMargin))
-            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-            .setLineSpacing(0f, 1.0f)
-            .setIncludePad(false)
-            .build()
-
-        canvas.save()
-        canvas.translate(cLeftRightMargin.toFloat(), cTopBottomMargin.toFloat())
-        staticLayout.draw(canvas)
-        canvas.restore()
-
-        // check if we are done and if not do a recursive call to handle the remainder of the text
-        if (lLastPos < spanText.length) {
-            lPage = printLongText(
-                mDocument,
-                pageInfo,
-                spanText.subSequence(lLastPos, spanText.length),
-                lPage,
-                pageNr + 1,
-                cTopBottomMargin
-            )
-        }
-
-        return lPage
+        return lastVisibleCharPos
     }
+
 }
