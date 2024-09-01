@@ -63,6 +63,10 @@ class MarkdownService(
         markwon.setMarkdown(view, markdown)
     }
 
+    fun setParsedMarkdown(view: TextView, markdown: Spanned) {
+        markwon.setParsedMarkdown(view, markdown)
+    }
+
     fun toMarkdown(markdown: String): Spanned {
         return markwon.toMarkdown(markdown)
     }
