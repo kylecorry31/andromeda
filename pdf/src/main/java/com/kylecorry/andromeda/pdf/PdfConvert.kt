@@ -97,7 +97,6 @@ object PdfConvert {
         endPos: Int,
         margins: Int
     ): Int {
-
         textView.text = text.subSequence(startPos, endPos)
         textView.onPreDraw()
         var line = textView.layout.getLineForVertical(pageInfo.pageHeight - margins * 2)
@@ -106,36 +105,7 @@ object PdfConvert {
             line--
         }
 
-        val lastVisibleCharPos = startPos + textView.layout.getLineEnd(line)
-
-//        // If the text fits on the page, return the end position
-//        if (endPos - startPos < 1000) {
-//            textView.text = text.subSequence(startPos, endPos)
-//            textView.onPreDraw()
-//            if (textView.layout.height <= pageInfo.pageHeight - margins * 2) {
-//                return endPos
-//            }
-//        }
-//
-//        var start = startPos
-//        var end = endPos
-//        var lastVisibleCharPos = end
-//
-//        // Get the last index where the textView.layout.height <= pageInfo.pageHeight
-//        while (start < end) {
-//            val mid = (start + end) / 2
-//            textView.text = text.subSequence(start, mid)
-//            textView.onPreDraw()
-//            if (textView.layout.height <= pageInfo.pageHeight - margins * 2) {
-//                lastVisibleCharPos = mid
-//                start = mid + 1
-//            } else {
-//                end = mid
-//            }
-//        }
-
-
-        return lastVisibleCharPos
+        return startPos + textView.layout.getLineEnd(line)
     }
 
 }
