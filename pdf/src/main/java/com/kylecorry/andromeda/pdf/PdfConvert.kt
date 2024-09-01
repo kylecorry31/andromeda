@@ -11,6 +11,8 @@ import android.print.pdf.PrintedPdfDocument
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
+import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -37,13 +39,13 @@ object PdfConvert {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun toPdf(text: CharSequence, out: OutputStream) {
+    fun toPdf(context: Context, text: CharSequence, out: OutputStream) {
 
         val document = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         var page = document.startPage(pageInfo)
 
-        page = printLongText(document, pageInfo, text, page, 1, 50)
+        page = printLongText(document, pageInfo, text, page, 1, 0)
 
         document.finishPage(page)
 
@@ -62,7 +64,7 @@ object PdfConvert {
         yPos: Int
     ): PdfDocument.Page {
         var lPage: PdfDocument.Page = page
-        var lLineCount = 34
+        var lLineCount = 100
         val textPaint = TextPaint()
 
         val mPageWidth = pageInfo.pageWidth
@@ -74,7 +76,6 @@ object PdfConvert {
             // close previous and start new page
             mDocument.finishPage(lPage)            // close this page
             lPage = mDocument.startPage(pageInfo) // start new page
-            lLineCount = 38                       // correct line count (no header so more space)
         }
         val canvas = lPage.canvas                 // init canvas
 
@@ -94,13 +95,14 @@ object PdfConvert {
         // create a Rect for the available space
         val r = Rect(
             cLeftRightMargin,
-            yPos,
+            cTopBottomMargin,
             (mPageWidth - (2 * cLeftRightMargin)),
-            mPageHeight - cTopBottomMargin - yPos
+            mPageHeight - cTopBottomMargin
         )
 
+        // TODO: This isn't working for the last page
         var lLastPos = try {
-            staticLayout.getLineBounds(lLineCount, r)
+            staticLayout.getLineBounds(lLineCount, Rect(r))
             // we really do not care about the result of the above getLineBounds
             // we only care if it does or doesn't raise an exception
             // in case of an exception all the text is on this page and we are done.
@@ -108,6 +110,31 @@ object PdfConvert {
             staticLayout.getLineEnd(lLineCount)
         } catch (e: Exception) {
             spanText.length
+        }
+
+        if (lLastPos != spanText.length && lLastPos != 0) {
+            // Decrease the line count until an exception occurs
+            while (lLineCount > 0) {
+                try {
+                    staticLayout = StaticLayout.Builder
+                        .obtain(spanText, 0, lLastPos, textPaint, mPageWidth - (2 * cLeftRightMargin))
+                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                        .setLineSpacing(0f, 1.0f)
+                        .setIncludePad(false)
+                        .build()
+
+                    val height = staticLayout.height
+
+                    if (height > r.height()) {
+                        lLineCount--
+                    } else {
+                        break
+                    }
+                    lLastPos = staticLayout.getLineEnd(lLineCount)
+                } catch (e: Exception) {
+                    break
+                }
+            }
         }
 
         // sometimes GetLineEnd returns 0. if so all the remaining text fits
@@ -122,7 +149,7 @@ object PdfConvert {
             .build()
 
         canvas.save()
-        canvas.translate(cLeftRightMargin.toFloat(), yPos.toFloat())
+        canvas.translate(cLeftRightMargin.toFloat(), cTopBottomMargin.toFloat())
         staticLayout.draw(canvas)
         canvas.restore()
 

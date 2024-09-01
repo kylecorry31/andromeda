@@ -10,13 +10,10 @@ class PdfConvertTest {
 
     @Test
     fun toPDF() {
-        val text = Html.fromHtml(
-            "<h1>Hello, World!</h1><p>This is a test</p>".repeat(1000),
-            Html.FROM_HTML_MODE_COMPACT
-        )
+        val text = Html.fromHtml((0..1000).joinToString("\n") { "<h1>Test sejpfoisje piofjspeoifhj soeihfjspi ejfpsuehijf psoiejf ;slejfposiejf posiejfop;s</h1><p>$it</p>" })
         val outputStream = ByteArrayOutputStream()
         val context = InstrumentationRegistry.getInstrumentation().context
-        PdfConvert.toPdf(text, outputStream)
+        PdfConvert.toPdf(context, text, outputStream)
 
         val pdfStringUtf8 = outputStream.toString("UTF-8")
         println(pdfStringUtf8)
