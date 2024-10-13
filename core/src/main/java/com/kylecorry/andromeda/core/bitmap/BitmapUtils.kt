@@ -43,8 +43,11 @@ object BitmapUtils {
         }
     }
 
-    fun sampleSizeToScale(sampleSize: Int): Float {
-        return 1f / sampleSize
+    fun getSizeWithSampleSize(sampleSize: Int, originalSize: Size): Size {
+        return Size(
+            originalSize.width / sampleSize,
+            originalSize.height / sampleSize
+        )
     }
 
     /**
