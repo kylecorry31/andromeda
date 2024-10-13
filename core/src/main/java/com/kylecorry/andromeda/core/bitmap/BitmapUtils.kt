@@ -43,6 +43,10 @@ object BitmapUtils {
         }
     }
 
+    fun sampleSizeToScale(sampleSize: Int): Float {
+        return 1f / sampleSize
+    }
+
     /**
      * Decodes a region of a bitmap. If the region is odd, Android may not respect the size.
      * @param stream The stream to decode
