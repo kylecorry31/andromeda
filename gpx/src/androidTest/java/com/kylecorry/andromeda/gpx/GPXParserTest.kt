@@ -17,9 +17,15 @@ class GPXParserTest {
                     3.4f,
                     description = "A test comment",
                     time = Instant.parse("2016-06-17T23:41:03Z"),
-                    group ="Test Group"
+                    group = "Test Group"
                 ),
                 GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
+                GPXWaypoint(
+                    Coordinate(32.0, 101.0), "Beacon 3", 1000.1f, description = "ele=1000.1\n" +
+                            "gnis:feature_id=871441\n" +
+                            "name=Beacon 3\n" +
+                            "natural=peak", time = null, group = null
+                ),
             ),
             data.waypoints
         )
@@ -64,7 +70,7 @@ class GPXParserTest {
                             null,
                             -3.14f,
                             null,
-                            time =  Instant.parse("2016-06-17T23:41:03Z")
+                            time = Instant.parse("2016-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(32.0, 10.0),
@@ -82,7 +88,7 @@ class GPXParserTest {
                             null,
                             1f,
                             null,
-                            time =  Instant.parse("2017-06-17T23:41:03Z")
+                            time = Instant.parse("2017-06-17T23:41:03Z")
                         ),
                         GPXWaypoint(
                             Coordinate(31.0, 11.0),
@@ -176,7 +182,10 @@ class GPXParserTest {
             ),
             GPXWaypoint(Coordinate(31.0, 100.0), "Beacon 2", null, null, null, null),
         )
-        assertEquals(xml, GPXParser.toGPX(GPXData(waypoints, emptyList(), emptyList()), "Trail Sense"))
+        assertEquals(
+            xml,
+            GPXParser.toGPX(GPXData(waypoints, emptyList(), emptyList()), "Trail Sense")
+        )
     }
 
     @Test
@@ -309,6 +318,13 @@ class GPXParserTest {
     </wpt>
     <wpt lat="31" lon="100">
         <name>Beacon 2</name>
+    </wpt>
+    <wpt lat="32" lon="101">
+        <name>Beacon 3</name>
+        <desc>ele=1000.1
+gnis:feature_id=871441
+name=Beacon 3
+natural=peak</desc>
     </wpt>
 </gpx>"""
 

@@ -7,9 +7,9 @@ import com.kylecorry.andromeda.core.toFloatCompat
 import com.kylecorry.andromeda.core.toLongCompat
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.ui.Colors
-import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.andromeda.xml.XMLConvert
 import com.kylecorry.andromeda.xml.XMLNode
+import com.kylecorry.sol.units.Coordinate
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -105,9 +105,11 @@ object GPXParser {
         val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
         val extensions = node.children.firstOrNull { it.tag.lowercase() == "extensions" }
         val colorHex = extensions?.children?.firstOrNull { it.tag.lowercase() == "color" }?.text
-        val colorInt = tryOrDefault(null){ colorHex?.let { Color.parseColor(it) } }
-        val lineStyle = extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:linestyle" }?.text
-        val group = extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
+        val colorInt = tryOrDefault(null) { colorHex?.let { Color.parseColor(it) } }
+        val lineStyle =
+            extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:linestyle" }?.text
+        val group =
+            extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
 
         return GPXTrack(name, type, id, description, comment, colorInt, lineStyle, group, segments)
     }
@@ -153,13 +155,22 @@ object GPXParser {
         val comment = node.children.firstOrNull { it.tag.lowercase() == "cmt" }?.text
         val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
         val time = node.children.firstOrNull { it.tag.lowercase() == "time" }?.text
-        val ele = node.children.firstOrNull { it.tag.lowercase() == "ele" }?.text?.toFloatCompat()
+        var ele = node.children.firstOrNull { it.tag.lowercase() == "ele" }?.text?.toFloatCompat()
         val symbol = node.children.firstOrNull { it.tag.lowercase() == "sym" }?.text
         val extensions = node.children.firstOrNull { it.tag.lowercase() == "extensions" }
         val group =
             extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
         val colorHex = extensions?.children?.firstOrNull { it.tag.lowercase() == "color" }?.text
         val colorInt = tryOrDefault(null) { colorHex?.let { Color.parseColor(it) } }
+
+        if (ele == null && desc != null) {
+            // Try to parse the elevation from the description
+            val elevationRegex = Regex("ele=([0-9.]+)")
+            val elevationMatch = elevationRegex.find(desc)
+            if (elevationMatch != null) {
+                ele = elevationMatch.groupValues[1].toFloatCompat()
+            }
+        }
 
         if (lat == null || lon == null) {
             return null
@@ -175,7 +186,18 @@ object GPXParser {
             null
         }
 
-        return GPXWaypoint(Coordinate(lat, lon), name, ele, type, desc, comment, instant, group, symbol, colorInt)
+        return GPXWaypoint(
+            Coordinate(lat, lon),
+            name,
+            ele,
+            type,
+            desc,
+            comment,
+            instant,
+            group,
+            symbol,
+            colorInt
+        )
     }
 
     private fun toXML(waypoint: GPXWaypoint, tag: String): XMLNode {
