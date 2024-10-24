@@ -200,4 +200,12 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         return hooks.memo(key, *values, value = value)
     }
 
+    protected fun resetHooks(
+        exceptEffects: List<String> = emptyList(),
+        exceptMemos: List<String> = emptyList()
+    ) {
+        hooks.resetEffects(except = exceptEffects)
+        hooks.resetMemos(except = exceptMemos)
+    }
+
 }

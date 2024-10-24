@@ -39,11 +39,13 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     private var throttle: Throttle? = null
 
-    protected val hooks = Hooks(stateThrottleMs = INTERVAL_60_FPS){
+    protected val hooks = Hooks(stateThrottleMs = INTERVAL_60_FPS) {
         onUpdateWrapper()
     }
 
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
+
+    private var currentHookCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +109,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     private fun onUpdateWrapper() {
         // TODO: If throttled, schedule an update when it expires
+        currentHookCount = 0
         if (canUpdate()) {
             onUpdate()
         }
@@ -225,6 +228,25 @@ open class AndromedaFragment : Fragment(), IPermissionRequester {
 
     protected fun <T> state(initialValue: T): State<T> {
         return hooks.state(initialValue)
+    }
+
+    protected fun effect2(vararg values: Any?, action: () -> Unit) {
+        effect("effect-$currentHookCount", *values, action = action)
+        currentHookCount++
+    }
+
+    protected fun <T> memo2(vararg values: Any?, value: () -> T): T {
+        val value = memo("memo-$currentHookCount", *values, value = value)
+        currentHookCount++
+        return value
+    }
+
+    protected fun resetHooks(
+        exceptEffects: List<String> = emptyList(),
+        exceptMemos: List<String> = emptyList()
+    ) {
+        hooks.resetEffects(except = exceptEffects)
+        hooks.resetMemos(except = exceptMemos)
     }
 
     companion object {
