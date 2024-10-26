@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.pickers.material
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.InsetDrawable
@@ -11,7 +12,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.graphics.drawable.toBitmap
 import com.google.android.material.datepicker.DayViewDecorator
+import com.kylecorry.andromeda.core.bitmap.BitmapUtils.rotate
 import com.kylecorry.andromeda.core.system.Resources
 import java.time.LocalDate
 
@@ -49,10 +52,30 @@ open class AndromedaDayViewDecorator {
         @DrawableRes drawableId: Int,
         size: Int,
         @ColorInt color: Int? = null,
-        ): Drawable? {
-        val drawable = Resources.drawable(context, drawableId) ?: return null
+        rotation: Float = 0f
+    ): Drawable? {
+        var drawable = Resources.drawable(context, drawableId) ?: return null
         if (color != null) {
             drawable.setTint(color)
+        }
+
+        // If there's a rotation, render to a bitmap and rotate
+        if (rotation != 0f) {
+            // TODO: Use the rotate drawable
+//            drawable = RotateDrawable().apply {
+//                this.drawable = drawable
+//                fromDegrees = 0f
+//                toDegrees = rotation
+//                pivotX = 0.5f
+//                pivotY = 0.5f
+//            }
+            val bitmap = drawable.toBitmap(size, size)
+            // Rotate
+            val rotated = bitmap.rotate(rotation)
+            bitmap.recycle()
+
+            // Convert back to drawable
+            drawable = BitmapDrawable(context.resources, rotated)
         }
 
         val insetDrawable = InsetDrawable(drawable, 0, 0, 0, 0)
