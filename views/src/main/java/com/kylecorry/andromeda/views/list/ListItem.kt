@@ -63,6 +63,7 @@ data class ResourceListIcon(
     val size: Float = 24f,
     val foregroundSize: Float = size,
     val clipToBackground: Boolean = false,
+    val rotation: Float = 0f,
     val scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_CENTER,
     val onClick: (() -> Unit)? = null
 ) : ListIcon {
@@ -95,6 +96,8 @@ data class ResourceListIcon(
         } else {
             image.clipToOutline = false
         }
+
+        image.rotation = rotation
 
         val padding = Resources.dp(image.context, (size - foregroundSize)) / 2f
         image.setPadding(padding.roundToInt())

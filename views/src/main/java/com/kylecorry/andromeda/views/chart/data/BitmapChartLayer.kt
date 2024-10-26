@@ -4,20 +4,27 @@ import android.graphics.Bitmap
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.canvas.ICanvasDrawer
 import com.kylecorry.andromeda.canvas.ImageMode
-import com.kylecorry.sol.math.Vector2
 import com.kylecorry.andromeda.views.chart.IChart
+import com.kylecorry.sol.math.Vector2
 
 class BitmapChartLayer(
     initialData: List<Vector2>,
     initialBitmap: Bitmap,
     private val size: Float = 12f,
     @ColorInt initialTint: Int? = null,
+    initialRotation: Float = 0f,
     onPointClick: (point: Vector2) -> Boolean = { false }
 ) : BaseChartLayer(initialData, true, size, onPointClick) {
 
 
     @ColorInt
     var tint: Int? = initialTint
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var rotation: Float = initialRotation
         set(value) {
             field = value
             invalidate()
@@ -43,7 +50,11 @@ class BitmapChartLayer(
         val dpSize = drawer.dp(size)
         for (point in data) {
             val mapped = chart.toPixel(point)
-            drawer.image(bitmap, mapped.x, mapped.y, dpSize, dpSize)
+            drawer.push()
+            drawer.translate(mapped.x, mapped.y)
+            drawer.rotate(rotation, 0f, 0f)
+            drawer.image(bitmap, 0f, 0f, dpSize, dpSize)
+            drawer.pop()
         }
         super.draw(drawer, chart)
     }
