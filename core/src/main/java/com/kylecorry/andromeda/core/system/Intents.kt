@@ -143,6 +143,40 @@ object Intents {
         return Intent.createChooser(requestFileIntent, message)
     }
 
+    fun pickDirectory(
+        message: String,
+        requirePersistentAccess: Boolean = false,
+        requireReadAccess: Boolean = true,
+        requireWriteAccess: Boolean = false
+    ): Intent {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        if (requirePersistentAccess) {
+            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+
+        if (requireReadAccess) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        if (requireWriteAccess) {
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
+
+        return Intent.createChooser(intent, message)
+    }
+
+    fun acceptPersistentUri(
+        context: Context,
+        uri: Uri,
+        takeRead: Boolean = true,
+        takeWrite: Boolean = true
+    ) {
+        context.contentResolver.takePersistableUriPermission(
+            uri,
+            (if (takeRead) Intent.FLAG_GRANT_READ_URI_PERMISSION else 0) or (if (takeWrite) Intent.FLAG_GRANT_WRITE_URI_PERMISSION else 0)
+        )
+    }
+
     fun openChooser(context: Context, intent: Intent, title: String) {
         context.startActivity(Intent.createChooser(intent, title))
     }

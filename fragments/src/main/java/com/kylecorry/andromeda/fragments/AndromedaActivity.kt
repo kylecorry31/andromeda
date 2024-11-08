@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.fragments
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.KeyEvent
@@ -9,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import com.kylecorry.andromeda.core.system.Intents
+import com.kylecorry.andromeda.core.system.IntentResultRetriever
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
@@ -17,7 +16,7 @@ import com.kylecorry.luna.hooks.Hooks
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 
-open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
+open class AndromedaActivity : AppCompatActivity(), IPermissionRequester, IntentResultRetriever {
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
@@ -68,75 +67,11 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester {
         specialPermissionLauncher.requestPermission(permission, rationale, action)
     }
 
-    fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
+    override fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
         val requestCode = Random.nextInt().absoluteValue
         resultRequestCode = requestCode
         resultAction = action
         startActivityForResult(intent, requestCode)
-    }
-
-    fun createFile(
-        filename: String,
-        type: String,
-        message: String = filename,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.createFile(filename, type, message)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun createFile(
-        filename: String,
-        types: List<String>,
-        message: String = filename,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.createFile(filename, types, message)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun pickFile(
-        type: String,
-        message: String,
-        useSAF: Boolean = true,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.pickFile(type, message, useSAF)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun pickFile(
-        types: List<String>,
-        message: String,
-        useSAF: Boolean = true,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.pickFile(types, message, useSAF)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
     }
 
     fun onVolumeButtonChange(action: ((button: VolumeButton, isPressed: Boolean) -> Boolean)?) {

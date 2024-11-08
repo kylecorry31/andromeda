@@ -18,12 +18,14 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
 import androidx.preference.SeekBarPreference
 import androidx.preference.SwitchPreferenceCompat
+import com.kylecorry.andromeda.core.system.IntentResultRetriever
 import com.kylecorry.andromeda.core.system.Intents
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.hooks.Hooks
 
-abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester {
+abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermissionRequester,
+    IntentResultRetriever {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
@@ -70,73 +72,9 @@ abstract class AndromedaPreferenceFragment : PreferenceFragmentCompat(), IPermis
         permissionLauncher.launch(permissions.toTypedArray())
     }
 
-    fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
+    override fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
         resultAction = action
         resultLauncher.launch(intent)
-    }
-
-    fun createFile(
-        filename: String,
-        type: String,
-        message: String = filename,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.createFile(filename, type, message)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun createFile(
-        filename: String,
-        types: List<String>,
-        message: String = filename,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.createFile(filename, types, message)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun pickFile(
-        type: String,
-        message: String,
-        useSAF: Boolean = true,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.pickFile(type, message, useSAF)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
-    }
-
-    fun pickFile(
-        types: List<String>,
-        message: String,
-        useSAF: Boolean = true,
-        action: (uri: Uri?) -> Unit
-    ) {
-        val intent = Intents.pickFile(types, message, useSAF)
-        getResult(intent) { successful, data ->
-            if (successful) {
-                action(data?.data)
-            } else {
-                action(null)
-            }
-        }
     }
 
     protected fun switch(@StringRes id: Int): SwitchPreferenceCompat? {
