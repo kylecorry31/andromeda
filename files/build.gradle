@@ -58,6 +58,7 @@ dependencies {
     implementation project(':core')
     implementation libs.androidx.core.ktx
     implementation libs.kotlinx.coroutines.android
+    implementation libs.androidx.documentfile
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
