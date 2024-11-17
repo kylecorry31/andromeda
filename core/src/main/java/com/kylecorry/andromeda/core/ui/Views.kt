@@ -1,11 +1,14 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.view.drawToBitmap
 import androidx.core.view.setPadding
 
 object Views {
@@ -51,11 +54,41 @@ object Views {
     ): View {
         return TextView(context).apply {
             layoutParams = ViewGroup.LayoutParams(width, height)
-            if (id != null){
+            if (id != null) {
                 this.id = id
             }
             this.text = text
         }
     }
 
+    fun renderViewAsBitmap(view: View): Bitmap {
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(view.height, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        return view.drawToBitmap()
+    }
+
+    fun renderViewAsBitmap(view: View, width: Int, height: Int): Bitmap {
+        view.layoutParams = ViewGroup.LayoutParams(
+            width,
+            height
+        )
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        return view.drawToBitmap()
+    }
+
+    fun renderViewToCanvas(view: View, canvas: Canvas) {
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(canvas.width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(canvas.height, View.MeasureSpec.EXACTLY)
+        )
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+        view.draw(canvas)
+    }
 }

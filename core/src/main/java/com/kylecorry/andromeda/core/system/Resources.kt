@@ -4,7 +4,6 @@ import android.R
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
-import android.os.LocaleList
 import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.MenuItem
@@ -14,6 +13,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
+import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.ConfigurationCompat
@@ -113,5 +113,9 @@ object Resources {
 
     fun getLocalizedResources(context: Context, locale: Locale): android.content.res.Resources {
         return getLocalizedContext(context, locale).resources
+    }
+
+    fun reloadTheme(context: Context, @StyleRes themeResId: Int) {
+        context.theme.applyStyle(themeResId, true)
     }
 }

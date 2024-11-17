@@ -1,43 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="17">
-      <module name="Andromeda.alerts" target="21" />
-      <module name="Andromeda.background" target="21" />
-      <module name="Andromeda.battery" target="21" />
-      <module name="Andromeda.camera" target="21" />
-      <module name="Andromeda.canvas" target="21" />
-      <module name="Andromeda.clipboard" target="21" />
-      <module name="Andromeda.compression" target="21" />
-      <module name="Andromeda.connection" target="21" />
-      <module name="Andromeda.core" target="21" />
-      <module name="Andromeda.csv" target="21" />
-      <module name="Andromeda.exceptions" target="21" />
-      <module name="Andromeda.files" target="21" />
-      <module name="Andromeda.forms" target="21" />
-      <module name="Andromeda.fragments" target="21" />
-      <module name="Andromeda.gpx" target="21" />
-      <module name="Andromeda.haptics" target="21" />
-      <module name="Andromeda.json" target="21" />
-      <module name="Andromeda.list" target="21" />
-      <module name="Andromeda.markdown" target="21" />
-      <module name="Andromeda.notify" target="21" />
-      <module name="Andromeda.pdf" target="21" />
-      <module name="Andromeda.permissions" target="21" />
-      <module name="Andromeda.pickers" target="21" />
-      <module name="Andromeda.preferences" target="21" />
-      <module name="Andromeda.print" target="21" />
-      <module name="Andromeda.qr" target="21" />
-      <module name="Andromeda.sense" target="21" />
-      <module name="Andromeda.signal" target="21" />
-      <module name="Andromeda.sms" target="21" />
-      <module name="Andromeda.sound" target="21" />
-      <module name="Andromeda.speech" target="21" />
-      <module name="Andromeda.tensorflow" target="21" />
-      <module name="Andromeda.torch" target="21" />
-      <module name="Andromeda.views" target="21" />
-      <module name="Andromeda.wkt" target="21" />
-      <module name="Andromeda.xml" target="21" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="21" />
   </component>
 </project>
