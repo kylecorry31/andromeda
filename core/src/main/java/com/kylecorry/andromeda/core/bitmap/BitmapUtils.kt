@@ -25,6 +25,7 @@ import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
 import java.io.InputStream
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 object BitmapUtils {
@@ -61,7 +62,8 @@ object BitmapUtils {
         stream: InputStream,
         region: Rect,
         options: Options? = null,
-        autoClose: Boolean = false
+        autoClose: Boolean = false,
+        enforceBounds: Boolean = false
     ): Bitmap? {
         try {
             val decoder = if (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.R) {
@@ -70,7 +72,42 @@ object BitmapUtils {
                 @Suppress("DEPRECATION")
                 BitmapRegionDecoder.newInstance(stream, false)
             } ?: return null
-            return decoder.decodeRegion(region, options)
+
+            if (!enforceBounds || (region.left % 2 == 0 && region.top % 2 == 0)) {
+                return decoder.decodeRegion(region, options)
+            }
+
+            // Need to start on an even pixel or Android will not respect the bounds
+            val offsetX = if (region.left % 2 == 0) {
+                0
+            } else {
+                1
+            }
+
+            val offsetY = if (region.top % 2 == 0) {
+                0
+            } else {
+                1
+            }
+
+            val newRect = Rect(
+                max(0, region.left - offsetX),
+                max(0, region.top - offsetY),
+                region.right,
+                region.bottom
+            )
+
+            val decodedBitmap = decoder.decodeRegion(newRect, options)
+            val bitmap = Bitmap.createBitmap(
+                region.width(),
+                region.height(),
+                decodedBitmap.config ?: Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            canvas.drawBitmap(decodedBitmap, -offsetX.toFloat(), -offsetY.toFloat(), null)
+            decodedBitmap.recycle()
+
+            return bitmap
         } finally {
             if (autoClose) {
                 stream.close()
