@@ -1,14 +1,19 @@
 package com.kylecorry.andromeda.csv
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
-import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import java.io.ByteArrayOutputStream
 
 object CSVConvert {
     fun toCSV(data: List<List<Any?>>): String {
-        val bytes = ByteArrayOutputStream()
-        csvWriter().writeAll(data, bytes)
-        return String(bytes.toByteArray())
+        return data.joinToString("\r\n") { row ->
+            row.joinToString(",") { cell ->
+                val escaped = cell.toString().replace("\"", "\"\"")
+                if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+                    "\"$escaped\""
+                } else {
+                    escaped
+                }
+            }
+        } + "\r\n"
     }
 
     fun parse(csv: String): List<List<String>> {
