@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.core.bitmap
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.util.Size
 import com.kylecorry.andromeda.core.bitmap.BitmapUtils.interpolateBilinear
@@ -13,10 +14,12 @@ import kotlin.math.roundToInt
  * Read a pixel from an image without loading the entire image into memory
  * @param imageSize The size of the image
  * @param interpolate Whether to interpolate between pixels
+ * @param config The bitmap config to use
  */
 class ImagePixelReader(
     private val imageSize: Size,
-    private val interpolate: Boolean = true
+    private val interpolate: Boolean = true,
+    private val config: Bitmap.Config = Bitmap.Config.ARGB_8888
 ) {
 
     @Suppress("BlockingMethodInNonBlockingContext")
@@ -29,7 +32,12 @@ class ImagePixelReader(
         var bitmap: Bitmap? = null
         try {
             val rect = getRegion(x.roundToInt(), y.roundToInt())
-            bitmap = BitmapUtils.decodeRegion(image, rect, autoClose = false) ?: return@onIO null
+            bitmap = BitmapUtils.decodeRegion(
+                image,
+                rect,
+                BitmapFactory.Options().also { it.inPreferredConfig = config },
+                autoClose = false
+            ) ?: return@onIO null
 
             if (bitmap.width <= 0 || bitmap.height <= 0) {
                 return@onIO null
