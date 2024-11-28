@@ -102,7 +102,7 @@ object Pickers {
         popup.show()
     }
 
-    fun menu(anchorView: View, items: List<String?>, onSelection: (selectedIdx: Int) -> Boolean) {
+    fun menu(anchorView: View, items: List<CharSequence?>, onSelection: (selectedIdx: Int) -> Boolean) {
         val popup = PopupMenu(anchorView.context, anchorView)
         for (i in items.indices) {
             if (items[i] == null) {
@@ -192,7 +192,7 @@ object Pickers {
     fun item(
         context: Context,
         title: CharSequence,
-        items: List<String>,
+        items: List<CharSequence>,
         defaultSelectedIndex: Int = -1,
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),
@@ -228,7 +228,7 @@ object Pickers {
     fun items(
         context: Context,
         title: CharSequence,
-        items: List<String>,
+        items: List<CharSequence>,
         defaultSelectedIndices: List<Int> = listOf(),
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel),

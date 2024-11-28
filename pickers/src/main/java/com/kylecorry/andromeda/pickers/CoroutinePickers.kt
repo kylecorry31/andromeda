@@ -76,7 +76,7 @@ object CoroutinePickers {
         }
     }
 
-    suspend fun menu(anchorView: View, items: List<String?>) = suspendCoroutine<Int> { cont ->
+    suspend fun menu(anchorView: View, items: List<CharSequence?>) = suspendCoroutine<Int> { cont ->
         Pickers.menu(anchorView, items) {
             cont.resume(it)
             true
@@ -112,7 +112,7 @@ object CoroutinePickers {
     suspend fun item(
         context: Context,
         title: CharSequence,
-        items: List<String>,
+        items: List<CharSequence>,
         defaultSelectedIndex: Int = -1,
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel)
@@ -125,7 +125,7 @@ object CoroutinePickers {
     suspend fun items(
         context: Context,
         title: CharSequence,
-        items: List<String>,
+        items: List<CharSequence>,
         defaultSelectedIndices: List<Int> = listOf(),
         okText: CharSequence? = context.getString(android.R.string.ok),
         cancelText: CharSequence? = context.getString(android.R.string.cancel)

@@ -56,7 +56,7 @@ object Alerts {
 
     fun loading(
         context: Context,
-        title: String
+        title: CharSequence
     ): AlertDialog {
         val view = FrameLayout(context)
         val params = FrameLayout.LayoutParams(
@@ -164,7 +164,7 @@ object Alerts {
 
     fun image(
         context: Context,
-        title: String,
+        title: CharSequence,
         @DrawableRes image: Int
     ): AlertDialog {
         val view = LinearLayout(context)
@@ -191,9 +191,9 @@ object Alerts {
     fun snackbar(
         fragment: Fragment,
         anchorView: View,
-        text: String,
+        text: CharSequence,
         duration: Int = Snackbar.LENGTH_SHORT,
-        action: String? = null,
+        action: CharSequence? = null,
         onAction: () -> Unit = {}
     ): Snackbar {
         return Snackbar.make(fragment.requireView(), text, duration).also {
@@ -210,9 +210,9 @@ object Alerts {
     fun snackbar(
         fragment: Fragment,
         @IdRes anchorView: Int,
-        text: String,
+        text: CharSequence,
         duration: Int = Snackbar.LENGTH_SHORT,
-        action: String? = null,
+        action: CharSequence? = null,
         onAction: () -> Unit = {}
     ): Snackbar {
         return Snackbar.make(fragment.requireView(), text, duration).also {
@@ -226,7 +226,7 @@ object Alerts {
         }
     }
 
-    inline fun <T> withLoading(context: Context, title: String, action: () -> T): T {
+    inline fun <T> withLoading(context: Context, title: CharSequence, action: () -> T): T {
         val loadingAlert = loading(context, title)
         try {
             return action()
