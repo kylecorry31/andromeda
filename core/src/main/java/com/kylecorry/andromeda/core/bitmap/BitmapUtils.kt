@@ -25,7 +25,6 @@ import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
 import java.io.InputStream
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 object BitmapUtils {
@@ -78,34 +77,29 @@ object BitmapUtils {
             }
 
             // Need to start on an even pixel or Android will not respect the bounds
-            val offsetX = if (region.left % 2 == 0) {
-                0
-            } else {
-                1
-            }
-
-            val offsetY = if (region.top % 2 == 0) {
-                0
-            } else {
-                1
-            }
+            val offsetX = region.left % 2
+            val offsetY = region.top % 2
 
             val newRect = Rect(
-                max(0, region.left - offsetX),
-                max(0, region.top - offsetY),
+                region.left - offsetX,
+                region.top - offsetY,
                 region.right,
                 region.bottom
             )
 
             val decodedBitmap = decoder.decodeRegion(newRect, options)
+
             val bitmap = Bitmap.createBitmap(
+                decodedBitmap,
+                offsetX,
+                offsetY,
                 region.width(),
-                region.height(),
-                decodedBitmap.config ?: Bitmap.Config.ARGB_8888
+                region.height()
             )
-            val canvas = Canvas(bitmap)
-            canvas.drawBitmap(decodedBitmap, -offsetX.toFloat(), -offsetY.toFloat(), null)
-            decodedBitmap.recycle()
+
+            if (bitmap != decodedBitmap) {
+                decodedBitmap.recycle()
+            }
 
             return bitmap
         } finally {
