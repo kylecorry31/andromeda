@@ -17,6 +17,7 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.get
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import com.google.android.renderscript.BlendingMode
 import com.google.android.renderscript.LookupTable
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
@@ -190,6 +191,31 @@ object BitmapUtils {
 
     fun Bitmap.blur(radius: Int): Bitmap {
         return Toolkit.blur(this, radius)
+    }
+
+    fun blend(source: Bitmap, destination: Bitmap, mode: BlendMode) {
+        val blendingMode = when (mode) {
+            BlendMode.CLEAR -> BlendingMode.CLEAR
+            BlendMode.SRC -> BlendingMode.SRC
+            BlendMode.DST -> BlendingMode.DST
+            BlendMode.SRC_OVER -> BlendingMode.SRC_OVER
+            BlendMode.DST_OVER -> BlendingMode.DST_OVER
+            BlendMode.SRC_IN -> BlendingMode.SRC_IN
+            BlendMode.DST_IN -> BlendingMode.DST_IN
+            BlendMode.SRC_OUT -> BlendingMode.SRC_OUT
+            BlendMode.DST_OUT -> BlendingMode.DST_OUT
+            BlendMode.SRC_ATOP -> BlendingMode.SRC_ATOP
+            BlendMode.DST_ATOP -> BlendingMode.DST_ATOP
+            BlendMode.XOR -> BlendingMode.XOR
+            BlendMode.MULTIPLY -> BlendingMode.MULTIPLY
+            BlendMode.ADD -> BlendingMode.ADD
+            BlendMode.SUBTRACT -> BlendingMode.SUBTRACT
+        }
+        Toolkit.blend(blendingMode, source, destination)
+    }
+
+    fun Bitmap.threshold(threshold: Byte, binary: Boolean = true): Bitmap {
+        return Toolkit.threshold(this, threshold, binary)
     }
 
     fun Bitmap.rotate(degrees: Float): Bitmap {
@@ -485,5 +511,90 @@ object BitmapUtils {
         } finally {
             recycle()
         }
+    }
+
+    enum class BlendMode {
+        /**
+         * dest = 0
+         *
+         * The destination is cleared, i.e. each pixel is set to (0, 0, 0, 0)
+         */
+        CLEAR,
+
+        /**
+         * dest = src
+         *
+         * Sets each pixel of the destination to the corresponding one in the source.
+         */
+        SRC,
+
+        /**
+         * dest = dest
+         *
+         * Leaves the destination untouched. This is a no-op.
+         */
+        DST,
+
+        /**
+         * dest = src + dest * (1.0 - src.a)
+         */
+        SRC_OVER,
+
+        /**
+         * dest = dest + src * (1.0 - dest.a)
+         */
+        DST_OVER,
+
+        /**
+         * dest = src * dest.a
+         */
+        SRC_IN,
+
+        /**
+         * dest = dest * src.a
+         */
+        DST_IN,
+
+        /**
+         * dest = src * (1.0 - dest.a)
+         */
+        SRC_OUT,
+
+        /**
+         * dest = dest * (1.0 - src.a)
+         */
+        DST_OUT,
+
+        /**
+         * dest.rgb = src.rgb * dest.a + (1.0 - src.a) * dest.rgb, dest.a = dest.a
+         */
+        SRC_ATOP,
+
+        /**
+         * dest = dest.rgb * src.a + (1.0 - dest.a) * src.rgb, dest.a = src.a
+         */
+        DST_ATOP,
+
+        /**
+         * dest = {src.r ^ dest.r, src.g ^ dest.g, src.b ^ dest.b, src.a ^ dest.a}
+         *
+         * Note: this is NOT the Porter/Duff XOR mode; this is a bitwise xor.
+         */
+        XOR,
+
+        /**
+         * dest = src * dest
+         */
+        MULTIPLY,
+
+        /**
+         * dest = min(src + dest, 1.0)
+         */
+        ADD,
+
+        /**
+         * dest = max(dest - src, 0.0)
+         */
+        SUBTRACT
     }
 }
