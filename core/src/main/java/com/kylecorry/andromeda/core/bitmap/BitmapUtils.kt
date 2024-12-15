@@ -23,6 +23,7 @@ import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.units.PixelCoordinate
+import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.algebra.createMatrix
 import java.io.InputStream
@@ -214,8 +215,8 @@ object BitmapUtils {
         Toolkit.blend(blendingMode, source, destination)
     }
 
-    fun Bitmap.threshold(threshold: Byte, binary: Boolean = true): Bitmap {
-        return Toolkit.threshold(this, threshold, binary)
+    fun Bitmap.threshold(threshold: Int, binary: Boolean = true): Bitmap {
+        return Toolkit.threshold(this, threshold.toByte(), binary)
     }
 
     fun Bitmap.rotate(degrees: Float): Bitmap {
@@ -329,6 +330,20 @@ object BitmapUtils {
         quantize(table.blue, blueBins)
         quantize(table.alpha, alphaBins)
         return Toolkit.lut(this, table)
+    }
+
+    fun Bitmap.average(channel: Channel? = null): Float {
+        return Toolkit.average(this, (channel?.index ?: -1).toByte()).toFloat()
+    }
+
+    fun Bitmap.standardDeviation(channel: Channel? = null): Float {
+        return Toolkit.standardDeviation(this, (channel?.index ?: -1).toByte()).toFloat()
+    }
+
+    fun Bitmap.minMax(channel: Channel? = null): Range<Int> {
+        return Toolkit.minMax(this, (channel?.index ?: -1).toByte()).let {
+            Range(it[0].toInt(), it[1].toInt())
+        }
     }
 
     private fun quantize(arr: ByteArray, bins: Int) {
@@ -596,5 +611,12 @@ object BitmapUtils {
          * dest = max(dest - src, 0.0)
          */
         SUBTRACT
+    }
+
+    enum class Channel(val index: Int) {
+        Red(0),
+        Green(1),
+        Blue(2),
+        Alpha(3)
     }
 }
