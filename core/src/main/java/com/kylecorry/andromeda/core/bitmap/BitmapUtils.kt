@@ -19,6 +19,7 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import com.google.android.renderscript.BlendingMode
 import com.google.android.renderscript.LookupTable
+import com.google.android.renderscript.Range2d
 import com.google.android.renderscript.Toolkit
 import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.math.MathUtils
@@ -332,17 +333,33 @@ object BitmapUtils {
         return Toolkit.lut(this, table)
     }
 
-    fun Bitmap.average(channel: Channel? = null): Float {
-        return Toolkit.average(this, (channel?.index ?: -1).toByte()).toFloat()
+    fun Bitmap.average(channel: Channel? = null, rect: Rect? = null): Float {
+        return Toolkit.average(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).toFloat()
     }
 
-    fun Bitmap.standardDeviation(channel: Channel? = null): Float {
-        return Toolkit.standardDeviation(this, (channel?.index ?: -1).toByte()).toFloat()
+    fun Bitmap.standardDeviation(
+        channel: Channel? = null,
+        average: Float? = null,
+        rect: Rect? = null
+    ): Float {
+        return Toolkit.standardDeviation(
+            this,
+            (channel?.index ?: -1).toByte(),
+            average?.toDouble(),
+            rect?.toRange2d()
+        )
+            .toFloat()
     }
 
-    fun Bitmap.minMax(channel: Channel? = null): Range<Int> {
-        return Toolkit.minMax(this, (channel?.index ?: -1).toByte()).let {
+    fun Bitmap.minMax(channel: Channel? = null, rect: Rect? = null): Range<Int> {
+        return Toolkit.minMax(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).let {
             Range(it[0].toInt(), it[1].toInt())
+        }
+    }
+
+    fun Bitmap.moment(channel: Channel? = null, rect: Rect? = null): PixelCoordinate {
+        return Toolkit.moment(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).let {
+            PixelCoordinate(it[0], it[1])
         }
     }
 
@@ -526,6 +543,10 @@ object BitmapUtils {
         } finally {
             recycle()
         }
+    }
+
+    private fun Rect.toRange2d(): Range2d {
+        return Range2d(left, right, top, bottom)
     }
 
     enum class BlendMode {
