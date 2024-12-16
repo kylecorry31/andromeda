@@ -216,8 +216,19 @@ object BitmapUtils {
         Toolkit.blend(blendingMode, source, destination)
     }
 
-    fun Bitmap.threshold(threshold: Int, binary: Boolean = true): Bitmap {
-        return Toolkit.threshold(this, threshold.toByte(), binary)
+    fun Bitmap.threshold(
+        threshold: Float,
+        binary: Boolean = true,
+        channel: Channel? = null,
+        inPlace: Boolean = false
+    ): Bitmap {
+        return Toolkit.threshold(
+            this,
+            threshold,
+            binary,
+            (channel?.index ?: -1).toByte(),
+            inPlace = inPlace
+        )
     }
 
     fun Bitmap.rotate(degrees: Float): Bitmap {
@@ -351,9 +362,9 @@ object BitmapUtils {
             .toFloat()
     }
 
-    fun Bitmap.minMax(channel: Channel? = null, rect: Rect? = null): Range<Int> {
+    fun Bitmap.minMax(channel: Channel? = null, rect: Rect? = null): Range<Float> {
         return Toolkit.minMax(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).let {
-            Range(it[0].toInt(), it[1].toInt())
+            Range(it[0], it[1])
         }
     }
 
