@@ -64,7 +64,7 @@ dependencies {
     implementation libs.androidx.core.ktx
     implementation libs.kotlinx.coroutines.android
     implementation libs.androidx.lifecycle.livedata.core.ktx
-    implementation libs.renderscript.intrinsics.replacement.toolkit
+    implementation project(':renderscript-intrinsics-replacement-toolkit')
     api libs.sol
     api libs.luna
     coreLibraryDesugaring libs.desugar

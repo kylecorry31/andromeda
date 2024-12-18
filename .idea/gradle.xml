@@ -37,6 +37,7 @@
             <option value="$PROJECT_DIR$/preferences" />
             <option value="$PROJECT_DIR$/print" />
             <option value="$PROJECT_DIR$/qr" />
+            <option value="$PROJECT_DIR$/renderscript-intrinsics-replacement-toolkit/renderscript-toolkit" />
             <option value="$PROJECT_DIR$/sense" />
             <option value="$PROJECT_DIR$/signal" />
             <option value="$PROJECT_DIR$/sms" />

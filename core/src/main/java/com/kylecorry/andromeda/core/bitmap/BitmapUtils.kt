@@ -431,73 +431,27 @@ object BitmapUtils {
      */
     fun Bitmap.glcm(
         steps: List<Pair<Int, Int>>,
-        channel: ColorChannel,
+        channel: ColorChannel? = null,
         excludeTransparent: Boolean = false,
         symmetric: Boolean = false,
         normed: Boolean = true,
         levels: Int = 256,
         region: Rect? = null
     ): com.kylecorry.sol.math.algebra.Matrix {
-        // TODO: Make this faster with RenderScript
-        val glcm = createMatrix(levels, levels, 0f)
+        val glcm = Toolkit.glcm(
+            this,
+            levels,
+            (channel?.ordinal ?: 4).toByte(),
+            symmetric,
+            normed,
+            excludeTransparent,
+            steps.flatMap { listOf(it.first, it.second) }.toIntArray(),
+            region?.toRange2d()
+        )
 
-        var total = 0
-
-        val startX = (region?.left ?: 0).coerceIn(0, width)
-        val endX = (region?.right ?: width).coerceIn(0, width)
-
-        val startY = (region?.top ?: 0).coerceIn(0, height)
-        val endY = (region?.bottom ?: height).coerceIn(0, height)
-
-        for (x in startX until endX) {
-            for (y in startY until endY) {
-                for (step in steps) {
-                    val neighborX = x + step.first
-                    val neighborY = y + step.second
-
-                    if (neighborX >= endX || neighborX < startX) {
-                        continue
-                    }
-
-                    if (neighborY >= endY || neighborY < startY) {
-                        continue
-                    }
-
-                    val currentPx = getPixel(x, y)
-
-                    if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
-                        continue
-                    }
-
-                    val neighborPx = getPixel(neighborX, neighborY)
-
-                    if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
-                        continue
-                    }
-
-                    val current = quantize(currentPx.getChannel(channel), levels)
-                    val neighbor = quantize(neighborPx.getChannel(channel), levels)
-
-                    glcm[current][neighbor]++
-                    total++
-                    if (symmetric) {
-                        glcm[neighbor][current]++
-                        total++
-                    }
-                }
-            }
+        return createMatrix(levels, levels) { r, c ->
+            glcm[r * levels + c]
         }
-
-        if (normed && total > 0) {
-            for (row in glcm.indices) {
-                for (col in glcm[0].indices) {
-                    glcm[row][col] /= total.toFloat()
-                }
-            }
-        }
-
-
-        return glcm
     }
 
     fun Int.getChannel(channel: ColorChannel): Int {

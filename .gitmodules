@@ -1,0 +1,3 @@
+[submodule "renderscript-intrinsics-replacement-toolkit"]
+	path = renderscript-intrinsics-replacement-toolkit
+	url = https://github.com/kylecorry31/renderscript-intrinsics-replacement-toolkit

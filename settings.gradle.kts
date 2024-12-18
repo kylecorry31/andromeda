@@ -58,3 +58,6 @@ include(":print")
 include(":tensorflow")
 include(":views")
 include(":widgets")
+include(":renderscript-intrinsics-replacement-toolkit")
+
+project(":renderscript-intrinsics-replacement-toolkit").projectDir = file("renderscript-intrinsics-replacement-toolkit/renderscript-toolkit")
