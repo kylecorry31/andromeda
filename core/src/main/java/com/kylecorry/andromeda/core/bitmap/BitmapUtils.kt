@@ -374,6 +374,21 @@ object BitmapUtils {
         }
     }
 
+    fun Bitmap.blobs(
+        threshold: Float,
+        channel: Channel? = null,
+        maxBlobs: Int = 100,
+        rect: Rect? = null
+    ): List<Rect> {
+        return Toolkit.findBlobs(
+            this,
+            (channel?.index ?: -1).toByte(),
+            threshold,
+            maxBlobs,
+            rect?.toRange2d()
+        )
+    }
+
     private fun quantize(arr: ByteArray, bins: Int) {
         if (bins >= 256 || bins <= 0) {
             return
