@@ -17,11 +17,6 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.get
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import com.google.android.renderscript.BlendingMode
-import com.google.android.renderscript.LookupTable
-import com.google.android.renderscript.Range2d
-import com.google.android.renderscript.Toolkit
-import com.google.android.renderscript.YuvFormat
 import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
@@ -219,7 +214,7 @@ object BitmapUtils {
     fun Bitmap.threshold(
         threshold: Float,
         binary: Boolean = true,
-        channel: Channel? = null,
+        channel: ColorChannel? = null,
         inPlace: Boolean = false
     ): Bitmap {
         return Toolkit.threshold(
@@ -344,12 +339,12 @@ object BitmapUtils {
         return Toolkit.lut(this, table)
     }
 
-    fun Bitmap.average(channel: Channel? = null, rect: Rect? = null): Float {
+    fun Bitmap.average(channel: ColorChannel? = null, rect: Rect? = null): Float {
         return Toolkit.average(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).toFloat()
     }
 
     fun Bitmap.standardDeviation(
-        channel: Channel? = null,
+        channel: ColorChannel? = null,
         average: Float? = null,
         rect: Rect? = null
     ): Float {
@@ -362,13 +357,13 @@ object BitmapUtils {
             .toFloat()
     }
 
-    fun Bitmap.minMax(channel: Channel? = null, rect: Rect? = null): Range<Float> {
+    fun Bitmap.minMax(channel: ColorChannel? = null, rect: Rect? = null): Range<Float> {
         return Toolkit.minMax(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).let {
             Range(it[0], it[1])
         }
     }
 
-    fun Bitmap.moment(channel: Channel? = null, rect: Rect? = null): PixelCoordinate {
+    fun Bitmap.moment(channel: ColorChannel? = null, rect: Rect? = null): PixelCoordinate {
         return Toolkit.moment(this, (channel?.index ?: -1).toByte(), rect?.toRange2d()).let {
             PixelCoordinate(it[0], it[1])
         }
@@ -376,7 +371,7 @@ object BitmapUtils {
 
     fun Bitmap.blobs(
         threshold: Float,
-        channel: Channel? = null,
+        channel: ColorChannel? = null,
         maxBlobs: Int = 100,
         rect: Rect? = null
     ): List<Rect> {
@@ -431,73 +426,27 @@ object BitmapUtils {
      */
     fun Bitmap.glcm(
         steps: List<Pair<Int, Int>>,
-        channel: ColorChannel,
+        channel: ColorChannel? = null,
         excludeTransparent: Boolean = false,
         symmetric: Boolean = false,
         normed: Boolean = true,
         levels: Int = 256,
         region: Rect? = null
     ): com.kylecorry.sol.math.algebra.Matrix {
-        // TODO: Make this faster with RenderScript
-        val glcm = createMatrix(levels, levels, 0f)
+        val glcm = Toolkit.glcm(
+            this,
+            levels,
+            (channel?.index ?: 4).toByte(),
+            symmetric,
+            normed,
+            excludeTransparent,
+            steps.flatMap { listOf(it.first, it.second) }.toIntArray(),
+            region?.toRange2d()
+        )
 
-        var total = 0
-
-        val startX = (region?.left ?: 0).coerceIn(0, width)
-        val endX = (region?.right ?: width).coerceIn(0, width)
-
-        val startY = (region?.top ?: 0).coerceIn(0, height)
-        val endY = (region?.bottom ?: height).coerceIn(0, height)
-
-        for (x in startX until endX) {
-            for (y in startY until endY) {
-                for (step in steps) {
-                    val neighborX = x + step.first
-                    val neighborY = y + step.second
-
-                    if (neighborX >= endX || neighborX < startX) {
-                        continue
-                    }
-
-                    if (neighborY >= endY || neighborY < startY) {
-                        continue
-                    }
-
-                    val currentPx = getPixel(x, y)
-
-                    if (excludeTransparent && currentPx.getChannel(ColorChannel.Alpha) != 255) {
-                        continue
-                    }
-
-                    val neighborPx = getPixel(neighborX, neighborY)
-
-                    if (excludeTransparent && neighborPx.getChannel(ColorChannel.Alpha) != 255) {
-                        continue
-                    }
-
-                    val current = quantize(currentPx.getChannel(channel), levels)
-                    val neighbor = quantize(neighborPx.getChannel(channel), levels)
-
-                    glcm[current][neighbor]++
-                    total++
-                    if (symmetric) {
-                        glcm[neighbor][current]++
-                        total++
-                    }
-                }
-            }
+        return createMatrix(levels, levels) { r, c ->
+            glcm[r * levels + c]
         }
-
-        if (normed && total > 0) {
-            for (row in glcm.indices) {
-                for (col in glcm[0].indices) {
-                    glcm[row][col] /= total.toFloat()
-                }
-            }
-        }
-
-
-        return glcm
     }
 
     fun Int.getChannel(channel: ColorChannel): Int {
@@ -658,12 +607,5 @@ object BitmapUtils {
          * dest = max(dest - src, 0.0)
          */
         SUBTRACT
-    }
-
-    enum class Channel(val index: Int) {
-        Red(0),
-        Green(1),
-        Blue(2),
-        Alpha(3)
     }
 }

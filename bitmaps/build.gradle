@@ -15,6 +15,11 @@ android {
         targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+            }
+        }
     }
 
     packagingOptions {
@@ -45,6 +50,11 @@ android {
             withSourcesJar()
         }
     }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+        }
+    }
 }
 
 afterEvaluate {
@@ -63,7 +73,6 @@ afterEvaluate {
 dependencies {
     implementation project(':core')
     implementation libs.androidx.core.ktx
-    implementation libs.renderscript.intrinsics.replacement.toolkit
     api libs.sol
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit
