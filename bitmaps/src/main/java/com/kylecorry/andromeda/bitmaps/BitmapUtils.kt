@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.core.bitmap
+package com.kylecorry.andromeda.bitmaps
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

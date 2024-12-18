@@ -1,11 +1,11 @@
-package com.kylecorry.andromeda.core.bitmap
+package com.kylecorry.andromeda.bitmaps
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.util.Size
-import com.kylecorry.andromeda.core.bitmap.BitmapUtils.interpolateBilinear
-import com.kylecorry.andromeda.core.bitmap.BitmapUtils.nearestPixel
+import com.kylecorry.andromeda.bitmaps.BitmapUtils.interpolateBilinear
+import com.kylecorry.andromeda.bitmaps.BitmapUtils.nearestPixel
 import com.kylecorry.andromeda.core.coroutines.onIO
 import java.io.InputStream
 import kotlin.math.roundToInt

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.kylecorry.andromeda.core.bitmap
+package com.kylecorry.andromeda.bitmaps
 
 import android.graphics.ImageFormat
 import android.media.Image

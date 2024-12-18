@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.core.bitmap
+package com.kylecorry.andromeda.bitmaps
 
 enum class ColorChannel {
     Red,

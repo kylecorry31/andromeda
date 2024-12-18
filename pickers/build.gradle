@@ -58,6 +58,7 @@ afterEvaluate {
 
 dependencies {
     implementation project(':core')
+    implementation project(':bitmaps')
     implementation project(':alerts')
     coreLibraryDesugaring libs.desugar
     implementation libs.androidx.core.ktx
