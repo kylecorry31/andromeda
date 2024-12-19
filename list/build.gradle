@@ -1,9 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 apply plugin: 'kotlin-android'
 
-group = "$groupId"
-version = "$versionName"
+
 
 android {
     compileSdkVersion = compileVersion
@@ -35,24 +33,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
-    }
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-        }
-    }
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = group
-                artifactId = 'list'
-                version = version
-            }
-        }
     }
 }
 
