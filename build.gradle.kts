@@ -1,7 +1,7 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.SonatypeHost
 
-val versionName = "12.0.0"
+val versionName = "12.1.0"
 val groupId = "com.kylecorry.andromeda"
 
 buildscript {

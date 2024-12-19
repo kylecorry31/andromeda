@@ -45,6 +45,7 @@ dependencies {
     implementation libs.flexbox
     implementation libs.androidx.constraintlayout
     implementation libs.material
+    implementation libs.androidx.exifinterface
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit

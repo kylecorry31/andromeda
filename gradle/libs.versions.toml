@@ -1,6 +1,7 @@
 [versions]
 androidLibraryVersion = "8.7.3"
 androidXDocumentFileVersion = "1.0.1"
+androidXExifinterfaceVersion = "1.3.7"
 appCompatVersion = "1.7.0"
 cameraCamera2Version = "1.4.1"
 constraintlayoutVersion = "2.2.0"
@@ -46,6 +47,7 @@ androidx-preference-ktx = { module = "androidx.preference:preference-ktx", versi
 androidx-print = { module = "androidx.print:print", version.ref = "printVersion" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerviewVersion" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtxVersion" }
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidXExifinterfaceVersion" }
 desugar = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarVersion" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexboxVersion" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tensorflowLiteSupportVersion" }
