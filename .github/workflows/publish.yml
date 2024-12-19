@@ -1,11 +1,33 @@
+name: Publish to Maven Central
+
 on:
   release:
     types: [published]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Jitpack build
-        uses: kylecorry31/jitpack-build@1.0.0
+      - uses: actions/checkout@v4
         with:
-          version: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishAllPublicationsToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_SECRET_KEY_PASSWORD }}
+          
