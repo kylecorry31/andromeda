@@ -178,8 +178,12 @@ object BitmapUtils {
         return Toolkit.convolve(this, kernel)
     }
 
-    fun Bitmap.gray(): Bitmap {
-        return Toolkit.colorMatrix(this, Toolkit.greyScaleColorMatrix)
+    fun Bitmap.gray(average: Boolean = false, inPlace: Boolean = false): Bitmap {
+        return Toolkit.colorMatrix(
+            this,
+            if (average) Toolkit.averageColorMatrix else Toolkit.greyScaleColorMatrix,
+            inPlace = inPlace
+        )
     }
 
     fun Bitmap.histogram(): IntArray {
@@ -382,6 +386,16 @@ object BitmapUtils {
             maxBlobs,
             rect?.toRange2d()
         )
+    }
+
+    fun Bitmap.add(
+        bitmap: Bitmap,
+        selfWeight: Float = 1f,
+        otherWeight: Float = 1f,
+        absolute: Boolean = false,
+        inPlace: Boolean = false
+    ): Bitmap {
+        return Toolkit.weightedAdd(this, bitmap, selfWeight, otherWeight, absolute, inPlace)
     }
 
     private fun quantize(arr: ByteArray, bins: Int) {

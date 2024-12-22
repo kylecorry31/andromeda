@@ -464,6 +464,21 @@ namespace renderscript {
                        float threshold, bool binary, uint8_t channel,
                        const Restriction *restriction);
 
+        /**
+         * Add two images together with a weight.
+         * @param input1 The buffer of the first image.
+         * @param input2 The buffer of the second image.
+         * @param output The buffer that receives the sum.
+         * @param sizeX The width of both buffers, as a number of 4 byte cells.
+         * @param sizeY The height of both buffers, as a number of 4 byte cells.
+         * @param weight1 The weight of the first image.
+         * @param weight2 The weight of the second image.
+         * @param absolute Whether to take the absolute value of the sum.
+         * @param restriction When not null, restricts the operation to a 2D range of pixels.
+         */
+        void weightedAdd(const uint8_t *input1, const uint8_t *input2, uint8_t *output,
+                         size_t sizeX, size_t sizeY, float weight1, float weight2, bool absolute,
+                         const Restriction *restriction);
 
         /**
          * Find the minimum or maximum value in an image.

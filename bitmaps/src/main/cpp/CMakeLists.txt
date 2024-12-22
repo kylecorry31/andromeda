@@ -94,6 +94,7 @@ add_library(# Sets the name of the library.
         Moment.cpp
         BlobFinder.cpp
         GrayLevelCovarianceMatrix.cpp
+        WeightedAdd.cpp
         ${ASM_SOURCES})
 
 # Searches for a specified prebuilt library and stores the path as a

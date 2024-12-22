@@ -521,6 +521,39 @@ Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeThresholdBitmap(
                        channel, restrict.get());
 }
 
+extern "C" JNIEXPORT void JNICALL Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeWeightedAdd(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle, jbyteArray input_array1,
+        jbyteArray input_array2,
+        jbyteArray output_array, jint size_x, jint size_y, jfloat weight1, jfloat weight2,
+        jboolean absolute, jobject restriction) {
+    RenderScriptToolkit *toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    RestrictionParameter restrict{env, restriction};
+
+    ByteArrayGuard input1{env, input_array1};
+    ByteArrayGuard input2{env, input_array2};
+    ByteArrayGuard output{env, output_array};
+
+    toolkit->weightedAdd(input1.get(), input2.get(), output.get(), size_x, size_y, weight1, weight2,
+                         absolute,
+                         restrict.get());
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeWeightedAddBitmap(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle, jobject input_bitmap1,
+        jobject input_bitmap2, jobject output_bitmap, jfloat weight1, jfloat weight2,
+        jboolean absolute, jobject restriction) {
+    RenderScriptToolkit *toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    RestrictionParameter restrict{env, restriction};
+    BitmapGuard input1{env, input_bitmap1};
+    BitmapGuard input2{env, input_bitmap2};
+    BitmapGuard output{env, output_bitmap};
+
+    toolkit->weightedAdd(input1.get(), input2.get(), output.get(), input1.width(), input1.height(),
+                         weight1, weight2,
+                         absolute, restrict.get());
+}
+
 extern "C" JNIEXPORT void JNICALL Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeMinMax(
         JNIEnv *env, jobject /*thiz*/, jlong native_handle, jbyteArray input_array,
         jfloatArray output_array, jint size_x,

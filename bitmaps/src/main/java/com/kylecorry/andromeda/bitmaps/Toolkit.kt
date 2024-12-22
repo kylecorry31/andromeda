@@ -267,6 +267,14 @@ internal object Toolkit {
             0f, 0f, 0f, 1f
         )
 
+    val averageColorMatrix: FloatArray
+        get() = floatArrayOf(
+            0.333f, 0.333f, 0.333f, 0f,
+            0.333f, 0.333f, 0.333f, 0f,
+            0.333f, 0.333f, 0.333f, 0f,
+            0f, 0f, 0f, 1f
+        )
+
     /**
      * Matrix to convert RGB to YUV.
      *
@@ -400,6 +408,7 @@ internal object Toolkit {
         inputBitmap: Bitmap,
         matrix: FloatArray,
         addVector: FloatArray = floatArrayOf(0f, 0f, 0f, 0f),
+        inPlace: Boolean = false,
         restriction: Range2d? = null
     ): Bitmap {
         validateBitmap("colorMatrix", inputBitmap)
@@ -411,7 +420,7 @@ internal object Toolkit {
         }
         validateRestriction("colorMatrix", inputBitmap.width, inputBitmap.height, restriction)
 
-        val outputBitmap = createCompatibleBitmap(inputBitmap)
+        val outputBitmap = createCompatibleBitmap(inputBitmap, inPlace)
         nativeColorMatrixBitmap(
             nativeHandle,
             inputBitmap,
@@ -1144,6 +1153,81 @@ internal object Toolkit {
     }
 
     @JvmOverloads
+    fun weightedAdd(
+        inputArray1: ByteArray,
+        inputArray2: ByteArray,
+        sizeX: Int,
+        sizeY: Int,
+        weight1: Float,
+        weight2: Float,
+        absolute: Boolean,
+        restriction: Range2d? = null
+    ): ByteArray {
+        require(inputArray1.size >= sizeX * sizeY * 4) {
+            "$externalName threshold. inputArray is too small for the given dimensions. " +
+                    "$sizeX*$sizeY*4 < ${inputArray1.size}."
+        }
+        require(inputArray2.size >= sizeX * sizeY * 4) {
+            "$externalName threshold. inputArray is too small for the given dimensions. " +
+                    "$sizeX*$sizeY*4 < ${inputArray2.size}."
+        }
+        require(inputArray1.size == inputArray2.size) {
+            "$externalName threshold. inputArray1 and inputArray2 should have the same size. " +
+                    "${inputArray1.size} != ${inputArray2.size}."
+        }
+        validateRestriction("threshold", sizeX, sizeY, restriction)
+
+        val outputArray = ByteArray(inputArray1.size)
+        nativeWeightedAdd(
+            nativeHandle,
+            inputArray1,
+            inputArray2,
+            outputArray,
+            sizeX,
+            sizeY,
+            weight1,
+            weight2,
+            absolute,
+            restriction
+        )
+        return outputArray
+    }
+
+    @JvmOverloads
+    fun weightedAdd(
+        inputBitmap1: Bitmap,
+        inputBitmap2: Bitmap,
+        weight1: Float,
+        weight2: Float,
+        absolute: Boolean,
+        inPlace: Boolean = false,
+        restriction: Range2d? = null
+    ): Bitmap {
+        validateBitmap("weightedAdd", inputBitmap1)
+        validateRestriction("weightedAdd", inputBitmap1, restriction)
+        validateBitmap("weightedAdd", inputBitmap2)
+        validateRestriction("weightedAdd", inputBitmap2, restriction)
+        require(inputBitmap1.width == inputBitmap2.width && inputBitmap1.height == inputBitmap2.height) {
+            "$externalName weightedAdd. inputBitmap1 and inputBitmap2 should have the same size. " +
+                    "${inputBitmap1.width}*${inputBitmap1.height} != " +
+                    "${inputBitmap2.width}*${inputBitmap2.height}."
+        }
+
+        val outputBitmap = createCompatibleBitmap(inputBitmap1, inPlace)
+        nativeWeightedAddBitmap(
+            nativeHandle,
+            inputBitmap1,
+            inputBitmap2,
+            outputBitmap,
+            weight1,
+            weight2,
+            absolute,
+            restriction
+        )
+        return outputBitmap
+    }
+
+    @JvmOverloads
     fun minMax(
         inputArray: ByteArray,
         sizeX: Int,
@@ -1717,6 +1801,30 @@ internal object Toolkit {
         threshold: Float,
         binary: Boolean,
         channel: Byte,
+        restriction: Range2d?
+    )
+
+    private external fun nativeWeightedAdd(
+        nativeHandle: Long,
+        inputArray1: ByteArray,
+        inputArray2: ByteArray,
+        outputArray: ByteArray,
+        sizeX: Int,
+        sizeY: Int,
+        weight1: Float,
+        weight2: Float,
+        absolute: Boolean,
+        restriction: Range2d?
+    )
+
+    private external fun nativeWeightedAddBitmap(
+        nativeHandle: Long,
+        inputBitmap1: Bitmap,
+        inputBitmap2: Bitmap,
+        outputBitmap: Bitmap,
+        weight1: Float,
+        weight2: Float,
+        absolute: Boolean,
         restriction: Range2d?
     )
 
