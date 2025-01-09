@@ -7,10 +7,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayout
+import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.andromeda.core.ui.Colors
 import com.kylecorry.andromeda.list.ListView
 import com.kylecorry.andromeda.pickers.Pickers
 import com.kylecorry.andromeda.views.R
+import com.kylecorry.andromeda.views.badge.Badge
 import com.kylecorry.andromeda.views.databinding.AndromedaViewListItemBinding
 
 class AndromedaListView(context: Context, attrs: AttributeSet?) : RecyclerView(context, attrs) {
@@ -36,21 +38,34 @@ class AndromedaListView(context: Context, attrs: AttributeSet?) : RecyclerView(c
             binding.description.isVisible = listItem.subtitle != null
 
             if (listItem.tags.isNotEmpty()) {
-                // TODO: Allow multiple
-                val tag = listItem.tags.first()
-                binding.tag.isVisible = true
-                val foregroundColor =
-                    Colors.mostContrastingColor(Color.WHITE, Color.BLACK, tag.color)
-                binding.tag.statusImage.isVisible = tag.icon != null
-                tag.icon?.let {
-                    it.apply(binding.tag.statusImage)
-                    Colors.setImageColor(binding.tag.statusImage, foregroundColor)
+                binding.tags.isVisible = true
+                val margin = Resources.dp(context, 8f).toInt()
+                val tagViews = listItem.tags.map {
+                    Badge(view.context, null).apply {
+                        val foregroundColor =
+                            Colors.mostContrastingColor(Color.WHITE, Color.BLACK, it.color)
+                        statusImage.isVisible = it.icon != null
+                        it.icon?.let {
+                            it.apply(statusImage)
+                            Colors.setImageColor(statusImage, foregroundColor)
+                        }
+                        setStatusText(it.text)
+                        statusText.setTextColor(foregroundColor)
+                        setBackgroundTint(it.color)
+                        layoutParams = FlexboxLayout.LayoutParams(
+                            FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                            FlexboxLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            setMargins(0, 0, margin, margin)
+                        }
+                    }
                 }
-                binding.tag.setStatusText(tag.text)
-                binding.tag.statusText.setTextColor(foregroundColor)
-                binding.tag.setBackgroundTint(tag.color)
+                binding.tags.removeAllViews()
+                tagViews.forEach {
+                    binding.tags.addView(it)
+                }
             } else {
-                binding.tag.isVisible = false
+                binding.tags.isVisible = false
             }
 
             binding.trailingText.isVisible = listItem.trailingText != null
