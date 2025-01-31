@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
@@ -23,7 +24,8 @@ import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRetriever {
+open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRetriever,
+    ReactiveComponent {
 
     protected var hasUpdates: Boolean = true
 
@@ -184,10 +186,25 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         hooks.resetMemos(except = exceptMemos)
     }
 
+    override fun useContext(): Context {
+        return requireContext()
+    }
+
+    override fun useEffect(vararg values: Any?, action: () -> Unit) {
+        effect2(*values, action = action)
+    }
+
+    override fun <T> useMemo(vararg values: Any?, value: () -> T): T {
+        return memo2(*values, value = value)
+    }
+
+    override fun <T> useState(initialValue: T): State<T> {
+        return state(initialValue)
+    }
+
     companion object {
         const val INTERVAL_60_FPS = 17L
         const val INTERVAL_30_FPS = 33L
         const val INTERVAL_1_FPS = 1000L
     }
-
 }
