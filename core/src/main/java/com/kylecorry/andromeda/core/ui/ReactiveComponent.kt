@@ -1,9 +1,6 @@
-package com.kylecorry.andromeda.fragments
+package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
-import android.view.View
-import android.widget.TextView
-import com.kylecorry.luna.annotations.ExperimentalUsage
 import com.kylecorry.luna.hooks.State
 
 interface ReactiveComponent {
@@ -11,16 +8,6 @@ interface ReactiveComponent {
     fun useEffect(vararg values: Any?, action: () -> Unit)
     fun <T> useMemo(vararg values: Any?, value: () -> T): T
     fun <T> useState(initialValue: T): State<T>
-}
-
-@ExperimentalUsage("This is not ready for use, the signature will change")
-fun ReactiveComponent.Text(text: String): View {
-    val context = useContext()
-    val view = useMemo(context) { TextView(context) }
-    useEffect(view, text) {
-        view.text = text
-    }
-    return view
 }
 
 fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): () -> T {
