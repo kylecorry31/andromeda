@@ -8,6 +8,12 @@ import com.kylecorry.andromeda.core.ui.ReactiveComponent
 object AndroidViewHooks {
 
     fun ReactiveComponent.useStyle(view: View, style: AndromedaStyle) {
+        useEffect(view) {
+            if (view.layoutParams == null) {
+                view.layoutParams = ViewGroup.MarginLayoutParams(style.width, style.height)
+            }
+        }
+
         useEffect(
             view,
             style.paddingStart,

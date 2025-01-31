@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.views.reactivity
 
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -22,7 +21,6 @@ object AndromedaViews {
         val layout = useAndroidView {
             LinearLayout(it).also {
                 it.orientation = orientation
-                it.layoutParams = ViewGroup.LayoutParams(style.width, style.height)
             }
         }
 
@@ -82,7 +80,10 @@ object AndromedaViews {
         return view
     }
 
-    fun ReactiveComponent.Text(text: CharSequence? = null, style: AndromedaStyle = AndromedaStyle()): View {
+    fun ReactiveComponent.Text(
+        text: CharSequence? = null,
+        style: AndromedaStyle = AndromedaStyle()
+    ): View {
         val view = useAndroidView { TextView(it) }
 
         useEffect(view, text) {
