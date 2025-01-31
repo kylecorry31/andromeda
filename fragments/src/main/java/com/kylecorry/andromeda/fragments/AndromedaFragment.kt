@@ -200,7 +200,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     }
 
     override fun <T> useState(initialValue: T): State<T> {
-        return state(initialValue)
+        return useMemo { state(initialValue) }
     }
 
     companion object {
