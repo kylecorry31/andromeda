@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.IntentResultRetriever
 import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
+import com.kylecorry.andromeda.core.ui.useCallback
 import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
@@ -44,6 +45,8 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     protected val hooks = Hooks(stateThrottleMs = INTERVAL_60_FPS) {
         onUpdateWrapper()
     }
+
+    private val states = mutableMapOf<String, State<*>>()
 
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
 
@@ -199,8 +202,28 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         return memo2(*values, value = value)
     }
 
-    override fun <T> useState(initialValue: T): State<T> {
-        return useMemo { state(initialValue) }
+    private fun <T> getSavedState(key: String, initialValue: T): State<T> {
+        return if (states.containsKey(key)) {
+            @Suppress("UNCHECKED_CAST")
+            states[key] as State<T>
+        } else {
+            val newState = state(initialValue)
+            states[key] = newState
+            newState
+        }
+    }
+
+    override fun <T> useState(initialValue: T): Pair<T, (T) -> Unit> {
+        val key = "state-$currentHookCount"
+        currentHookCount++
+        var savedState by getSavedState(key, initialValue)
+
+
+        val callback = useCallback { value: T ->
+            savedState = value
+        }
+
+        return Pair(savedState, callback)
     }
 
     companion object {

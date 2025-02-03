@@ -1,13 +1,12 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
-import com.kylecorry.luna.hooks.State
 
 interface ReactiveComponent {
     fun useContext(): Context
     fun useEffect(vararg values: Any?, action: () -> Unit)
     fun <T> useMemo(vararg values: Any?, value: () -> T): T
-    fun <T> useState(initialValue: T): State<T>
+    fun <T> useState(initialValue: T): Pair<T, (T) -> Unit>
 }
 
 fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): () -> T {
