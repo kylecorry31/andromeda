@@ -1,10 +1,12 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
+import com.kylecorry.andromeda.core.system.Resources
 
 interface ReactiveComponent {
-    fun useContext(): Context
+    fun useAndroidContext(): Context
     fun useEffect(vararg values: Any?, action: () -> Unit)
+    fun useEffectWithCleanup(vararg values: Any?, action: () -> () -> Unit)
     fun <T> useMemo(vararg values: Any?, value: () -> T): T
     fun <T> useState(initialValue: T): Pair<T, (T) -> Unit>
 }
@@ -43,4 +45,32 @@ fun <T, R, S, U, V, W> ReactiveComponent.useCallback(
     callback: (R, S, U, V, W) -> T
 ): (R, S, U, V, W) -> T {
     return useMemo(*values) { callback }
+}
+
+fun ReactiveComponent.useString(resId: Int): String {
+    val context = useAndroidContext()
+    return useMemo(context, resId) {
+        context.getString(resId)
+    }
+}
+
+fun ReactiveComponent.useString(resId: Int, vararg formatArgs: Any): String {
+    val context = useAndroidContext()
+    return useMemo(context, resId, formatArgs) {
+        context.getString(resId, *formatArgs)
+    }
+}
+
+fun ReactiveComponent.useSizeDp(dp: Float): Float {
+    val context = useAndroidContext()
+    return useMemo(context, dp) {
+        Resources.dp(context, dp)
+    }
+}
+
+fun ReactiveComponent.useSizeSp(sp: Float): Float {
+    val context = useAndroidContext()
+    return useMemo(context, sp) {
+        Resources.sp(context, sp)
+    }
 }

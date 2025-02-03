@@ -47,6 +47,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     }
 
     private val states = mutableMapOf<String, State<*>>()
+    private val effectCleanups = mutableMapOf<String, () -> Unit>()
 
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
 
@@ -171,35 +172,50 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         return hooks.state(initialValue)
     }
 
-    protected fun effect2(vararg values: Any?, action: () -> Unit) {
-        effect("effect-$currentHookCount", *values, action = action)
-        currentHookCount++
-    }
-
-    protected fun <T> memo2(vararg values: Any?, value: () -> T): T {
-        val value = memo("memo-$currentHookCount", *values, value = value)
-        currentHookCount++
-        return value
-    }
-
-    protected fun resetHooks(
-        exceptEffects: List<String> = emptyList(),
-        exceptMemos: List<String> = emptyList()
-    ) {
-        hooks.resetEffects(except = exceptEffects)
-        hooks.resetMemos(except = exceptMemos)
-    }
-
-    override fun useContext(): Context {
+    override fun useAndroidContext(): Context {
         return requireContext()
     }
 
     override fun useEffect(vararg values: Any?, action: () -> Unit) {
-        effect2(*values, action = action)
+        effect("effect-$currentHookCount", *values, action = action)
+        currentHookCount++
+    }
+
+    override fun useEffectWithCleanup(vararg values: Any?, action: () -> () -> Unit) {
+        val key = "effect-$currentHookCount"
+        effect(key, *values) {
+            // Invoke the cleanup of the previous effect
+            effectCleanups[key]?.invoke()
+            val cleanup = action()
+            // Save the cleanup for the next effect
+            effectCleanups[key] = cleanup
+        }
+        currentHookCount++
     }
 
     override fun <T> useMemo(vararg values: Any?, value: () -> T): T {
-        return memo2(*values, value = value)
+        val newValue = memo("memo-$currentHookCount", *values, value = value)
+        currentHookCount++
+        return newValue
+    }
+
+    protected fun resetHooks(
+        exceptEffects: List<String> = emptyList(),
+        exceptMemos: List<String> = emptyList(),
+        cleanupEffects: Boolean = true
+    ) {
+        if (cleanupEffects) {
+            cleanupEffects()
+        }
+        hooks.resetEffects(except = exceptEffects)
+        hooks.resetMemos(except = exceptMemos)
+    }
+
+    protected fun cleanupEffects() {
+        effectCleanups.values.forEach {
+            it.invoke()
+        }
+        effectCleanups.clear()
     }
 
     private fun <T> getSavedState(key: String, initialValue: T): State<T> {

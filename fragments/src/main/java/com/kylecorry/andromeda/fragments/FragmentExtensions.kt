@@ -9,12 +9,19 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
-import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
+import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
@@ -60,7 +67,7 @@ fun Application.useDynamicColors() {
 inline fun LifecycleOwner.repeatInBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     crossinline block: suspend CoroutineScope.() -> Unit
-){
+) {
     val minimumState = when (state) {
         BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
         BackgroundMinimumState.Started -> Lifecycle.State.STARTED
@@ -69,7 +76,7 @@ inline fun LifecycleOwner.repeatInBackground(
     }
 
     lifecycleScope.launch {
-        repeatOnLifecycle(minimumState){
+        repeatOnLifecycle(minimumState) {
             block()
         }
     }
@@ -79,7 +86,7 @@ fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     block: suspend CoroutineScope.() -> Unit
-) {
+): Job {
     val minimumState = when (state) {
         BackgroundMinimumState.Resumed -> Lifecycle.State.RESUMED
         BackgroundMinimumState.Started -> Lifecycle.State.STARTED
@@ -87,7 +94,7 @@ fun LifecycleOwner.inBackground(
         BackgroundMinimumState.Any -> null
     }
 
-    lifecycleScope.launch {
+    return lifecycleScope.launch {
 
         // If there is no minimum state, just run the block
         if (minimumState == null) {
@@ -143,4 +150,21 @@ fun LifecycleOwner.scheduleStateUpdates(hooks: Hooks) {
         }
     }
     lifecycle.addObserver(observer)
+}
+
+fun <T> T.useBackgroundEffect(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    cancelWhenRerun: Boolean = false,
+    block: suspend CoroutineScope.() -> Unit
+) where T : LifecycleOwner, T : ReactiveComponent {
+    useEffectWithCleanup(*values) {
+        val job = inBackground(state, cancelWhenBelowState, block)
+        return@useEffectWithCleanup {
+            if (cancelWhenRerun) {
+                job.cancel()
+            }
+        }
+    }
 }

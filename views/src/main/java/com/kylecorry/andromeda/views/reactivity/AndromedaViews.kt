@@ -1,96 +1,197 @@
 package com.kylecorry.andromeda.views.reactivity
 
 import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useAndroidView
-import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useLayout
-import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useStyle
+import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useAndroidViewGroup
 import com.kylecorry.luna.annotations.ExperimentalUsage
 
 object AndromedaViews {
 
+    fun ReactiveComponent.Box(
+        vararg children: View,
+        attributes: ViewAttributes = ViewAttributes()
+    ): View {
+        return FrameLayout(*children, attributes = attributes)
+    }
+
+    fun ReactiveComponent.FrameLayout(
+        vararg children: View,
+        attributes: ViewAttributes = ViewAttributes()
+    ): View {
+        return useAndroidViewGroup(*children, attributes = attributes) {
+            android.widget.FrameLayout(it)
+        }
+    }
+
+    open class LinearLayoutAttributes : ViewAttributes() {
+        var orientation: Int = LinearLayout.HORIZONTAL
+    }
+
     fun ReactiveComponent.LinearLayout(
         vararg children: View,
-        orientation: Int = LinearLayout.VERTICAL,
-        style: AndromedaStyle = AndromedaStyle()
+        attributes: LinearLayoutAttributes = LinearLayoutAttributes()
     ): View {
-        val layout = useAndroidView {
-            LinearLayout(it).also {
-                it.orientation = orientation
-            }
+        val layout = useAndroidViewGroup(*children, attributes = attributes) {
+            LinearLayout(it)
         }
 
-        useStyle(layout, style)
-        useLayout(layout, children)
+        useEffect(layout, attributes.orientation) {
+            layout.orientation = attributes.orientation
+        }
 
         return layout
     }
 
     fun ReactiveComponent.Column(
         vararg children: View,
-        style: AndromedaStyle = AndromedaStyle()
+        attributes: ViewAttributes = ViewAttributes()
     ): View {
-        return LinearLayout(*children, orientation = LinearLayout.VERTICAL, style = style)
+        return LinearLayout(
+            *children,
+            attributes = attributes {
+                orientation = LinearLayout.VERTICAL
+                from(attributes)
+            }
+        )
     }
 
     fun ReactiveComponent.Row(
         vararg children: View,
-        style: AndromedaStyle = AndromedaStyle()
+        attributes: ViewAttributes = ViewAttributes()
     ): View {
         return LinearLayout(
             *children,
-            orientation = LinearLayout.HORIZONTAL,
-            style = style
+            attributes = attributes {
+                orientation = LinearLayout.HORIZONTAL
+                from(attributes)
+            }
         )
+    }
+
+    open class EditTextAttributes : TextAttributes() {
+        var hint: String? = null
+        var onTextChanged: ((String) -> Unit)? = null
     }
 
     @ExperimentalUsage("value does not work properly when bound to the same state as the onValueChanged callback")
     fun ReactiveComponent.EditText(
-        hint: String? = null,
-        value: String? = null,
-        style: AndromedaStyle = AndromedaStyle(),
-        onValueChanged: (String) -> Unit = {}
+        attributes: EditTextAttributes = EditTextAttributes()
     ): View {
-        val view = useAndroidView {
-            EditText(it)
+        val view = useAndroidView(attributes) {
+            android.widget.EditText(it)
         }
 
-        useEffect(view, hint) {
-            view.hint = hint
+        useEffect(view, attributes.hint) {
+            view.hint = attributes.hint
         }
 
-        useEffect(view, value) {
-            view.setText(value)
+        useEffect(view, attributes.text) {
+            view.setText(attributes.text)
             // Set the cursor to the end
             view.setSelection(view.text.length)
         }
 
-        useEffect(view, onValueChanged) {
-            view.addTextChangedListener {
-                onValueChanged(it.toString())
+        useEffect(view, attributes.onTextChanged) {
+            if (attributes.onTextChanged == null) {
+                view.addTextChangedListener(null)
+            } else {
+                view.addTextChangedListener {
+                    attributes.onTextChanged?.invoke(it.toString())
+                }
             }
         }
 
-        useStyle(view, style)
-
         return view
+    }
+
+    open class TextAttributes : ViewAttributes() {
+        var text: CharSequence? = null
     }
 
     fun ReactiveComponent.Text(
-        text: CharSequence? = null,
-        style: AndromedaStyle = AndromedaStyle()
+        attributes: TextAttributes = TextAttributes()
     ): View {
-        val view = useAndroidView { TextView(it) }
+        val view = useAndroidView(attributes) { TextView(it) }
 
-        useEffect(view, text) {
-            view.text = text
+        useEffect(view, attributes.text) {
+            view.text = attributes.text
         }
-
-        useStyle(view, style)
         return view
     }
+
+    open class ButtonAttributes : TextAttributes()
+
+    fun ReactiveComponent.Button(
+        attributes: ButtonAttributes = ButtonAttributes()
+    ): View {
+        val view = useAndroidView(attributes) { android.widget.Button(it) }
+
+        useEffect(view, attributes.text) {
+            view.text = attributes.text
+        }
+
+        return view
+    }
+
+    open class ImageAttributes : ViewAttributes() {
+        var imageResource: Int? = null
+        var bitmap: android.graphics.Bitmap? = null
+        var drawable: android.graphics.drawable.Drawable? = null
+        var uri: android.net.Uri? = null
+    }
+
+    fun ReactiveComponent.Image(
+        attributes: ImageAttributes = ImageAttributes()
+    ): View {
+        val view = useAndroidView(attributes) { android.widget.ImageView(it) }
+
+        useEffect(
+            view,
+            attributes.imageResource,
+            attributes.bitmap,
+            attributes.drawable,
+            attributes.uri
+        ) {
+            when {
+                attributes.imageResource != null -> view.setImageResource(attributes.imageResource!!)
+                attributes.bitmap != null -> view.setImageBitmap(attributes.bitmap)
+                attributes.drawable != null -> view.setImageDrawable(attributes.drawable)
+                attributes.uri != null -> view.setImageURI(attributes.uri)
+                else -> view.setImageDrawable(null)
+            }
+        }
+
+        return view
+    }
+
+    open class ImageButtonAttributes : ImageAttributes()
+
+    fun ReactiveComponent.ImageButton(
+        attributes: ImageButtonAttributes = ImageButtonAttributes()
+    ): View {
+        val view = useAndroidView(attributes) { android.widget.ImageButton(it) }
+
+        useEffect(
+            view,
+            attributes.imageResource,
+            attributes.bitmap,
+            attributes.drawable,
+            attributes.uri
+        ) {
+            when {
+                attributes.imageResource != null -> view.setImageResource(attributes.imageResource!!)
+                attributes.bitmap != null -> view.setImageBitmap(attributes.bitmap)
+                attributes.drawable != null -> view.setImageDrawable(attributes.drawable)
+                attributes.uri != null -> view.setImageURI(attributes.uri)
+                else -> view.setImageDrawable(null)
+            }
+        }
+
+        return view
+    }
+
 }

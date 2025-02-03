@@ -7,60 +7,104 @@ import com.kylecorry.andromeda.core.ui.ReactiveComponent
 
 object AndroidViewHooks {
 
-    fun ReactiveComponent.useStyle(view: View, style: AndromedaStyle) {
+    fun ReactiveComponent.useViewAttributes(view: View, attributes: ViewAttributes) {
         useEffect(view) {
             if (view.layoutParams == null) {
-                view.layoutParams = ViewGroup.MarginLayoutParams(style.width, style.height)
+                view.layoutParams = ViewGroup.MarginLayoutParams(attributes.width, attributes.height)
             }
+        }
+
+        useEffect(view, attributes.visibility) {
+            view.visibility = attributes.visibility
         }
 
         useEffect(
             view,
-            style.paddingStart,
-            style.paddingTop,
-            style.paddingEnd,
-            style.paddingBottom
+            attributes.paddingStart,
+            attributes.paddingTop,
+            attributes.paddingEnd,
+            attributes.paddingBottom
         ) {
             view.setPadding(
-                style.paddingStart,
-                style.paddingTop,
-                style.paddingEnd,
-                style.paddingBottom
+                attributes.paddingStart,
+                attributes.paddingTop,
+                attributes.paddingEnd,
+                attributes.paddingBottom
             )
         }
 
-        useEffect(view, style.marginStart, style.marginTop, style.marginEnd, style.marginBottom) {
+        useEffect(view, attributes.marginStart, attributes.marginTop, attributes.marginEnd, attributes.marginBottom) {
             val params = view.layoutParams as? ViewGroup.MarginLayoutParams
             params?.setMargins(
-                style.marginStart,
-                style.marginTop,
-                style.marginEnd,
-                style.marginBottom
+                attributes.marginStart,
+                attributes.marginTop,
+                attributes.marginEnd,
+                attributes.marginBottom
             )
         }
 
-        useEffect(view, style.width) {
-            view.layoutParams.width = style.width
+        useEffect(view, attributes.width) {
+            view.layoutParams.width = attributes.width
         }
 
-        useEffect(view, style.height) {
-            view.layoutParams.height = style.height
+        useEffect(view, attributes.height) {
+            view.layoutParams.height = attributes.height
+        }
+
+        useEffect(view, attributes.onClick) {
+            if (attributes.onClick == null) {
+                view.setOnClickListener(null)
+            } else {
+                view.setOnClickListener {
+                    attributes.onClick?.invoke()
+                }
+            }
+        }
+
+        useEffect(view, attributes.onLongClick) {
+            if (attributes.onLongClick == null) {
+                view.setOnLongClickListener(null)
+            } else {
+                view.setOnLongClickListener {
+                    attributes.onLongClick?.invoke() ?: false
+                }
+            }
         }
     }
 
-    fun ReactiveComponent.useLayout(view: ViewGroup, children: Array<out View>) {
+    fun <T : View> ReactiveComponent.useAndroidView(
+        attributes: ViewAttributes = ViewAttributes(),
+        create: (context: Context) -> T
+    ): T {
+        val context = useAndroidContext()
+        val view = useMemo(context) {
+            create(context)
+        }
+
+        useViewAttributes(view, attributes)
+
+        return view
+    }
+
+    fun <T : ViewGroup> ReactiveComponent.useAndroidViewGroup(
+        vararg children: View,
+        attributes: ViewAttributes = ViewAttributes(),
+        create: (context: Context) -> T
+    ): T {
+        val context = useAndroidContext()
+        val view = useMemo(context) {
+            create(context)
+        }
+
+        useViewAttributes(view, attributes)
+
         useEffect(view, children.joinToString { it.id.toString() }) {
             view.removeAllViews()
             children.forEach {
                 view.addView(it)
             }
         }
-    }
 
-    fun <T : View> ReactiveComponent.useAndroidView(create: (context: Context) -> T): T {
-        val context = useContext()
-        return useMemo(context) {
-            create(context)
-        }
+        return view
     }
 }
