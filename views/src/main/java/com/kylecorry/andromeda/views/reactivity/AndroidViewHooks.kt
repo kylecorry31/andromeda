@@ -10,8 +10,10 @@ object AndroidViewHooks {
     fun ReactiveComponent.useViewAttributes(view: View, attributes: ViewAttributes) {
         useEffect(view) {
             if (view.layoutParams == null) {
-                view.layoutParams = ViewGroup.MarginLayoutParams(attributes.width, attributes.height)
+                view.layoutParams =
+                    ViewGroup.MarginLayoutParams(attributes.width, attributes.height)
             }
+            view.id = View.generateViewId()
         }
 
         useEffect(view, attributes.visibility) {
@@ -33,7 +35,13 @@ object AndroidViewHooks {
             )
         }
 
-        useEffect(view, attributes.marginStart, attributes.marginTop, attributes.marginEnd, attributes.marginBottom) {
+        useEffect(
+            view,
+            attributes.marginStart,
+            attributes.marginTop,
+            attributes.marginEnd,
+            attributes.marginBottom
+        ) {
             val params = view.layoutParams as? ViewGroup.MarginLayoutParams
             params?.setMargins(
                 attributes.marginStart,
@@ -87,8 +95,7 @@ object AndroidViewHooks {
     }
 
     fun <T : ViewGroup> ReactiveComponent.useAndroidViewGroup(
-        vararg children: View,
-        attributes: ViewAttributes = ViewAttributes(),
+        attributes: ViewGroupAttributes = ViewGroupAttributes(),
         create: (context: Context) -> T
     ): T {
         val context = useAndroidContext()
@@ -98,9 +105,9 @@ object AndroidViewHooks {
 
         useViewAttributes(view, attributes)
 
-        useEffect(view, children.joinToString { it.id.toString() }) {
+        useEffect(view, attributes.children.joinToString { it.id.toString() }) {
             view.removeAllViews()
-            children.forEach {
+            attributes.children.forEach {
                 view.addView(it)
             }
         }

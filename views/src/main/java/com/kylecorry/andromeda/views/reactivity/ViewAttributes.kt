@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.views.reactivity
 
+import android.view.View
 import android.view.ViewGroup
 
 open class ViewAttributes {
@@ -32,14 +33,8 @@ open class ViewAttributes {
         onClick = props.onClick
         onLongClick = props.onLongClick
     }
-
 }
 
-inline fun <reified T : ViewAttributes> attributes(block: T.() -> Unit): T {
-    val constructor = T::class.java.getConstructor()
-    return constructor.newInstance().apply(block)
-}
-
-inline fun <reified T : ViewAttributes> attrs(block: T.() -> Unit): T {
-    return attributes(block)
+open class ViewGroupAttributes : ViewAttributes() {
+    var children: List<View> = listOf()
 }

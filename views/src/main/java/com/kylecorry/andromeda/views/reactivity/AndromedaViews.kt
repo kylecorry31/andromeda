@@ -12,30 +12,31 @@ import com.kylecorry.luna.annotations.ExperimentalUsage
 object AndromedaViews {
 
     fun ReactiveComponent.Box(
-        vararg children: View,
-        attributes: ViewAttributes = ViewAttributes()
+        config: ViewGroupAttributes.() -> Unit
     ): View {
-        return FrameLayout(*children, attributes = attributes)
+        return FrameLayout {
+            config()
+        }
     }
 
     fun ReactiveComponent.FrameLayout(
-        vararg children: View,
-        attributes: ViewAttributes = ViewAttributes()
+        config: ViewGroupAttributes.() -> Unit
     ): View {
-        return useAndroidViewGroup(*children, attributes = attributes) {
+        val attributes = ViewGroupAttributes().apply(config)
+        return useAndroidViewGroup(attributes) {
             android.widget.FrameLayout(it)
         }
     }
 
-    open class LinearLayoutAttributes : ViewAttributes() {
+    open class LinearLayoutAttributes : ViewGroupAttributes() {
         var orientation: Int = LinearLayout.HORIZONTAL
     }
 
     fun ReactiveComponent.LinearLayout(
-        vararg children: View,
-        attributes: LinearLayoutAttributes = LinearLayoutAttributes()
+        config: LinearLayoutAttributes.() -> Unit
     ): View {
-        val layout = useAndroidViewGroup(*children, attributes = attributes) {
+        val attributes = LinearLayoutAttributes().apply(config)
+        val layout = useAndroidViewGroup(attributes) {
             LinearLayout(it)
         }
 
@@ -47,29 +48,21 @@ object AndromedaViews {
     }
 
     fun ReactiveComponent.Column(
-        vararg children: View,
-        attributes: ViewAttributes = ViewAttributes()
+        config: ViewGroupAttributes.() -> Unit
     ): View {
-        return LinearLayout(
-            *children,
-            attributes = attributes {
-                orientation = LinearLayout.VERTICAL
-                from(attributes)
-            }
-        )
+        return LinearLayout {
+            config()
+            orientation = LinearLayout.VERTICAL
+        }
     }
 
     fun ReactiveComponent.Row(
-        vararg children: View,
-        attributes: ViewAttributes = ViewAttributes()
+        config: ViewGroupAttributes.() -> Unit
     ): View {
-        return LinearLayout(
-            *children,
-            attributes = attributes {
-                orientation = LinearLayout.HORIZONTAL
-                from(attributes)
-            }
-        )
+        return LinearLayout {
+            config()
+            orientation = LinearLayout.HORIZONTAL
+        }
     }
 
     open class EditTextAttributes : TextAttributes() {
@@ -79,8 +72,9 @@ object AndromedaViews {
 
     @ExperimentalUsage("value does not work properly when bound to the same state as the onValueChanged callback")
     fun ReactiveComponent.EditText(
-        attributes: EditTextAttributes = EditTextAttributes()
+        config: EditTextAttributes.() -> Unit
     ): View {
+        val attributes = EditTextAttributes().apply(config)
         val view = useAndroidView(attributes) {
             android.widget.EditText(it)
         }
@@ -113,8 +107,9 @@ object AndromedaViews {
     }
 
     fun ReactiveComponent.Text(
-        attributes: TextAttributes = TextAttributes()
+        config: TextAttributes.() -> Unit
     ): View {
+        val attributes = TextAttributes().apply(config)
         val view = useAndroidView(attributes) { TextView(it) }
 
         useEffect(view, attributes.text) {
@@ -126,8 +121,9 @@ object AndromedaViews {
     open class ButtonAttributes : TextAttributes()
 
     fun ReactiveComponent.Button(
-        attributes: ButtonAttributes = ButtonAttributes()
+        config: ButtonAttributes.() -> Unit
     ): View {
+        val attributes = ButtonAttributes().apply(config)
         val view = useAndroidView(attributes) { android.widget.Button(it) }
 
         useEffect(view, attributes.text) {
@@ -145,8 +141,9 @@ object AndromedaViews {
     }
 
     fun ReactiveComponent.Image(
-        attributes: ImageAttributes = ImageAttributes()
+        config: ImageAttributes.() -> Unit
     ): View {
+        val attributes = ImageAttributes().apply(config)
         val view = useAndroidView(attributes) { android.widget.ImageView(it) }
 
         useEffect(
@@ -171,8 +168,9 @@ object AndromedaViews {
     open class ImageButtonAttributes : ImageAttributes()
 
     fun ReactiveComponent.ImageButton(
-        attributes: ImageButtonAttributes = ImageButtonAttributes()
+        config: ImageButtonAttributes.() -> Unit
     ): View {
+        val attributes = ImageButtonAttributes().apply(config)
         val view = useAndroidView(attributes) { android.widget.ImageButton(it) }
 
         useEffect(
@@ -193,5 +191,4 @@ object AndromedaViews {
 
         return view
     }
-
 }
