@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.views.reactivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -36,49 +37,8 @@ object VDOM {
         }
 
         // Update basic view attributes
-        if (newDom.layoutParams.width != node.attributes.width || newDom.layoutParams.height != node.attributes.height) {
-            newDom.updateLayoutParams<ViewGroup.LayoutParams> {
-                width = node.attributes.width
-                height = node.attributes.height
-            }
-        }
+        updateAttributes(newDom, node.attributes)
 
-        if (newDom.visibility != node.attributes.visibility) {
-            newDom.visibility = node.attributes.visibility
-        }
-
-        if (newDom.paddingStart != node.attributes.paddingStart || newDom.paddingEnd != node.attributes.paddingEnd || newDom.paddingTop != node.attributes.paddingTop || newDom.paddingBottom != node.attributes.paddingBottom) {
-            newDom.setPadding(
-                node.attributes.paddingStart,
-                node.attributes.paddingTop,
-                node.attributes.paddingEnd,
-                node.attributes.paddingBottom
-            )
-        }
-
-        if (newDom.marginStart != node.attributes.marginStart || newDom.marginEnd != node.attributes.marginEnd || newDom.marginTop != node.attributes.marginTop || newDom.marginBottom != node.attributes.marginBottom) {
-            (newDom.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(
-                node.attributes.marginStart,
-                node.attributes.marginTop,
-                node.attributes.marginEnd,
-                node.attributes.marginBottom
-            )
-        }
-
-        if (newDom.width != node.attributes.width) {
-            newDom.layoutParams.width = node.attributes.width
-        }
-
-        if (newDom.height != node.attributes.height) {
-            newDom.layoutParams.height = node.attributes.height
-        }
-
-        if (newDom.tag != node.attributes.tag) {
-            newDom.tag = node.attributes.tag
-        }
-
-        newDom.setOnClickListener(node.attributes.onClick)
-        newDom.setOnLongClickListener(node.attributes.onLongClick)
 
         node.javaClass.getMethod("getUpdate").also {
             @Suppress("UNCHECKED_CAST") val update =
@@ -109,6 +69,87 @@ object VDOM {
         return newDom
     }
 
+    private fun updateAttributes(
+        dom: View,
+        attributes: ViewAttributes
+    ) {
+        if (dom.layoutParams.width != attributes.width || dom.layoutParams.height != attributes.height) {
+            dom.updateLayoutParams<ViewGroup.LayoutParams> {
+                width = attributes.width
+                height = attributes.height
+            }
+        }
+
+        if (dom.visibility != attributes.visibility) {
+            dom.visibility = attributes.visibility
+        }
+
+        if (dom.paddingStart != attributes.paddingStart || dom.paddingEnd != attributes.paddingEnd || dom.paddingTop != attributes.paddingTop || dom.paddingBottom != attributes.paddingBottom) {
+            dom.setPadding(
+                attributes.paddingStart,
+                attributes.paddingTop,
+                attributes.paddingEnd,
+                attributes.paddingBottom
+            )
+        }
+
+        if (dom.marginStart != attributes.marginStart || dom.marginEnd != attributes.marginEnd || dom.marginTop != attributes.marginTop || dom.marginBottom != attributes.marginBottom) {
+            (dom.layoutParams as? ViewGroup.MarginLayoutParams)?.setMargins(
+                attributes.marginStart,
+                attributes.marginTop,
+                attributes.marginEnd,
+                attributes.marginBottom
+            )
+        }
+
+        if (dom.width != attributes.width) {
+            dom.layoutParams.width = attributes.width
+        }
+
+        if (dom.height != attributes.height) {
+            dom.layoutParams.height = attributes.height
+        }
+
+        if (dom.tag != attributes.tag) {
+            dom.tag = attributes.tag
+        }
+
+        // Update layout specific parameters
+        val params = dom.layoutParams
+        when (params) {
+            is FrameLayout.LayoutParams -> {
+                if (params.gravity != attributes.layoutGravity) {
+                    params.gravity = attributes.layoutGravity
+                }
+            }
+
+            is LinearLayout.LayoutParams -> {
+                if (params.gravity != attributes.layoutGravity) {
+                    params.gravity = attributes.layoutGravity
+                }
+            }
+
+            is RelativeLayout.LayoutParams -> {
+                // Do nothing
+            }
+
+            is ConstraintLayout.LayoutParams -> {
+                // Do nothing
+            }
+
+            is GridLayout.LayoutParams -> {
+                params.setGravity(attributes.gravity)
+            }
+
+            else -> {
+                // Do nothing
+            }
+        }
+
+        dom.setOnClickListener(attributes.onClick)
+        dom.setOnLongClickListener(attributes.onLongClick)
+    }
+
     private fun createDom(
         root: ViewGroup,
         node: VDOMNode<*, *>
@@ -135,6 +176,13 @@ object VDOM {
                 is ConstraintLayout -> ConstraintLayout.LayoutParams(
                     node.attributes.width,
                     node.attributes.height
+                )
+
+                is GridLayout -> GridLayout.LayoutParams(
+                    ViewGroup.LayoutParams(
+                        node.attributes.width,
+                        node.attributes.height
+                    )
                 )
 
                 else -> ViewGroup.LayoutParams(node.attributes.width, node.attributes.height)

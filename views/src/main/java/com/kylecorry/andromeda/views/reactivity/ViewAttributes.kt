@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.views.reactivity
 
+import android.view.Gravity
 import android.view.View.OnClickListener
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
@@ -13,11 +14,11 @@ open class ViewAttributes {
     var marginTop: Int = 0
     var marginEnd: Int = 0
     var marginBottom: Int = 0
-    var width: Int = ViewGroup.LayoutParams.MATCH_PARENT
+    var width: Int = ViewGroup.LayoutParams.WRAP_CONTENT
     var height: Int = ViewGroup.LayoutParams.WRAP_CONTENT
     var visibility: Int = ViewGroup.VISIBLE
     var tag: String = ""
     var onClick: OnClickListener? = null
     var onLongClick: OnLongClickListener? = null
-    // TODO: Gravity
+    var layoutGravity: Int = Gravity.NO_GRAVITY
 }
