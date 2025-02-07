@@ -11,6 +11,7 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
+import androidx.core.view.updateLayoutParams
 
 
 object VDOM {
@@ -23,40 +24,12 @@ object VDOM {
         // Update current DOM node
         var newDom = dom
         if (newDom == null) {
-            newDom = node.create(root.context)
-
-            val layoutParams =
-                when (root) {
-                    is FrameLayout -> FrameLayout.LayoutParams(
-                        node.attributes.width,
-                        node.attributes.height
-                    )
-
-                    is LinearLayout -> LinearLayout.LayoutParams(
-                        node.attributes.width,
-                        node.attributes.height
-                    )
-
-                    is RelativeLayout -> RelativeLayout.LayoutParams(
-                        node.attributes.width,
-                        node.attributes.height
-                    )
-
-                    is ConstraintLayout -> ConstraintLayout.LayoutParams(
-                        node.attributes.width,
-                        node.attributes.height
-                    )
-
-                    else -> ViewGroup.LayoutParams(node.attributes.width, node.attributes.height)
-                }
-
-            newDom.layoutParams = layoutParams
-            newDom.id = View.generateViewId()
+            newDom = createDom(root, node)
             root.addView(newDom)
         }
 
         if (newDom.javaClass != node.domClass) {
-            newDom = node.create(root.context)
+            newDom = createDom(root, node)
             val index = root.indexOfChild(dom)
             root.removeView(dom)
             root.addView(newDom, index)
@@ -64,10 +37,10 @@ object VDOM {
 
         // Update basic view attributes
         if (newDom.layoutParams.width != node.attributes.width || newDom.layoutParams.height != node.attributes.height) {
-            newDom.layoutParams = ViewGroup.LayoutParams(
-                node.attributes.width,
-                node.attributes.height
-            )
+            newDom.updateLayoutParams<ViewGroup.LayoutParams> {
+                width = node.attributes.width
+                height = node.attributes.height
+            }
         }
 
         if (newDom.visibility != node.attributes.visibility) {
@@ -120,17 +93,55 @@ object VDOM {
         // Update children
         // TODO: Match children by key if present
         // TODO: Better diffing algorithm
-        node.children.forEachIndexed { index, child ->
+        val nonNullChildren = node.children.filterNotNull()
+
+        nonNullChildren.forEachIndexed { index, child ->
             render(newDom as ViewGroup, child, newDom.children.elementAtOrNull(index))
         }
 
         // Delete extra children
         if (newDom is ViewGroup) {
-            for (i in node.children.size until newDom.childCount) {
+            for (i in nonNullChildren.size until newDom.childCount) {
                 newDom.removeViewAt(i)
             }
         }
 
+        return newDom
+    }
+
+    private fun createDom(
+        root: ViewGroup,
+        node: VDOMNode<*, *>
+    ): View {
+        val newDom = node.create(root.context)
+
+        val layoutParams =
+            when (root) {
+                is FrameLayout -> FrameLayout.LayoutParams(
+                    node.attributes.width,
+                    node.attributes.height
+                )
+
+                is LinearLayout -> LinearLayout.LayoutParams(
+                    node.attributes.width,
+                    node.attributes.height
+                )
+
+                is RelativeLayout -> RelativeLayout.LayoutParams(
+                    node.attributes.width,
+                    node.attributes.height
+                )
+
+                is ConstraintLayout -> ConstraintLayout.LayoutParams(
+                    node.attributes.width,
+                    node.attributes.height
+                )
+
+                else -> ViewGroup.LayoutParams(node.attributes.width, node.attributes.height)
+            }
+
+        newDom.layoutParams = layoutParams
+        newDom.id = View.generateViewId()
         return newDom
     }
 }

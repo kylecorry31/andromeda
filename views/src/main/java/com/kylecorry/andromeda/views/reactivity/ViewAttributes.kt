@@ -19,4 +19,5 @@ open class ViewAttributes {
     var tag: String = ""
     var onClick: OnClickListener? = null
     var onLongClick: OnLongClickListener? = null
+    // TODO: Gravity
 }

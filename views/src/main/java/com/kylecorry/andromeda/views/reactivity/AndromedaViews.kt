@@ -13,27 +13,27 @@ import com.kylecorry.andromeda.views.list.ListItem
 object AndromedaViews {
 
     fun Box(
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<FrameLayout, ViewAttributes> {
         return Box({}, *children)
     }
 
     fun Box(
         config: ViewAttributes.() -> Unit,
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<FrameLayout, ViewAttributes> {
         return FrameLayout(config, *children)
     }
 
     fun FrameLayout(
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<FrameLayout, ViewAttributes> {
         return FrameLayout({}, *children)
     }
 
     fun FrameLayout(
         config: ViewAttributes.() -> Unit,
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<FrameLayout, ViewAttributes> {
         return VDOMNode(
             FrameLayout::class.java,
@@ -49,14 +49,14 @@ object AndromedaViews {
     }
 
     fun LinearLayout(
-        vararg children: VDOMNode<*, *>,
+        vararg children: VDOMNode<*, *>?,
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         return LinearLayout({}, *children)
     }
 
     fun LinearLayout(
         config: LinearLayoutAttributes.() -> Unit,
-        vararg children: VDOMNode<*, *>,
+        vararg children: VDOMNode<*, *>?,
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         val attributes = LinearLayoutAttributes().apply(config)
         return VDOMNode(
@@ -73,14 +73,14 @@ object AndromedaViews {
     }
 
     fun Column(
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         return Column({}, *children)
     }
 
     fun Column(
         config: ViewAttributes.() -> Unit,
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         return LinearLayout({
             config()
@@ -89,14 +89,14 @@ object AndromedaViews {
     }
 
     fun Row(
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         return Row({}, *children)
     }
 
     fun Row(
         config: ViewAttributes.() -> Unit,
-        vararg children: VDOMNode<*, *>
+        vararg children: VDOMNode<*, *>?
     ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
         return LinearLayout({
             config()
@@ -218,6 +218,7 @@ object AndromedaViews {
         return VDOMNode(
             AndromedaListView::class.java,
             attributes,
+            managesOwnChildren = true,
             create = { context ->
                 AndromedaListView(context, null)
             },
