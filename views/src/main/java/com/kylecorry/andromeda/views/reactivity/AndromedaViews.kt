@@ -232,7 +232,7 @@ object AndromedaViews {
 
     fun Component(
         rerenderWhenParentRerenders: Boolean = true,
-        onUpdate: ReactiveComponent.(attributes: ViewAttributes) -> VDOMNode<*, *>
+        onUpdate: ReactiveComponentView<ViewAttributes>.(attributes: ViewAttributes) -> VDOMNode<*, *>
     ): VDOMNode<ReactiveComponentView<ViewAttributes>, ViewAttributes> {
         @Suppress("UNCHECKED_CAST")
         return VDOMNode(
@@ -255,7 +255,7 @@ object AndromedaViews {
     inline fun <reified T : ViewAttributes> Component(
         config: T.() -> Unit,
         rerenderWhenParentRerenders: Boolean = true,
-        noinline onUpdate: ReactiveComponent.(attributes: T) -> VDOMNode<*, *>
+        noinline onUpdate: ReactiveComponentView<T>.(attributes: T) -> VDOMNode<*, *>
     ): VDOMNode<ReactiveComponentView<T>, T> {
         @Suppress("UNCHECKED_CAST")
         return VDOMNode(

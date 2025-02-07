@@ -19,7 +19,7 @@ junitPlatformRunnerVersion = "1.11.3"
 junitVersion = "4.13.2"
 kotlinAndroidVersion = "2.0.0"
 kotlinCsvJvmVersion = "1.10.0"
-lifecycleLivedataCoreKtxVersion = "2.8.7"
+androidXLifecycle = "2.8.7"
 lunaVersion = "0.3.6"
 materialVersion = "1.10.0"
 markwonVersion = "4.6.2"
@@ -42,7 +42,7 @@ androidx-documentfile = { module = "androidx.documentfile:documentfile", version
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferencesVersion" }
 androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
 androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
-androidx-lifecycle-livedata-core-ktx = { module = "androidx.lifecycle:lifecycle-livedata-core-ktx", version.ref = "lifecycleLivedataCoreKtxVersion" }
+androidx-lifecycle-livedata-core-ktx = { module = "androidx.lifecycle:lifecycle-livedata-core-ktx", version.ref = "androidXLifecycle" }
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtxVersion" }
 androidx-print = { module = "androidx.print:print", version.ref = "printVersion" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerviewVersion" }

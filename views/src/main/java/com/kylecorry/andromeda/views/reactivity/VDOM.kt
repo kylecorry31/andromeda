@@ -138,7 +138,7 @@ object VDOM {
             }
 
             is GridLayout.LayoutParams -> {
-                params.setGravity(attributes.gravity)
+                params.setGravity(attributes.layoutGravity)
             }
 
             else -> {

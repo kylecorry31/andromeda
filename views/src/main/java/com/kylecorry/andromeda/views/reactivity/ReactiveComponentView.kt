@@ -3,6 +3,9 @@ package com.kylecorry.andromeda.views.reactivity
 import android.content.Context
 import android.widget.FrameLayout
 import androidx.core.view.children
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.andromeda.core.ui.useCallback
 import com.kylecorry.luna.hooks.Hooks
@@ -11,8 +14,8 @@ import com.kylecorry.luna.hooks.State
 class ReactiveComponentView<T : ViewAttributes>(
     context: Context,
     private val rerenderFromExternal: Boolean = true,
-    private val onUpdateCallback: ReactiveComponent.(attributes: T) -> VDOMNode<*, *>
-) : FrameLayout(context), ReactiveComponent {
+    private val onUpdateCallback: ReactiveComponentView<T>.(attributes: T) -> VDOMNode<*, *>
+) : FrameLayout(context), ReactiveComponent, LifecycleOwner {
 
     private var currentHookCount = 0
     private var lastAttributes: T? = null
@@ -95,4 +98,7 @@ class ReactiveComponentView<T : ViewAttributes>(
             VDOM.render(this, onUpdateCallback(attributes), children.firstOrNull())
         }
     }
+
+    override val lifecycle: Lifecycle
+        get() = findViewTreeLifecycleOwner()!!.lifecycle
 }
