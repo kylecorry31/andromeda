@@ -168,3 +168,93 @@ fun <T> T.useBackgroundEffect(
         }
     }
 }
+
+fun <C> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.() -> Unit
+): () -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) { { inBackground(state, cancelWhenBelowState, callback) } }
+}
+
+fun <C, R> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.(R) -> Unit
+): (R) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) {
+        { p1 ->
+            inBackground(state, cancelWhenBelowState) {
+                callback(p1)
+            }
+        }
+    }
+}
+
+fun <C, R, S> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.(R, S) -> Unit
+): (R, S) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) {
+        { p1, p2 ->
+            inBackground(state, cancelWhenBelowState) {
+                callback(p1, p2)
+            }
+        }
+    }
+}
+
+fun <C, R, S, U> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.(R, S, U) -> Unit
+): (R, S, U) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) {
+        { p1, p2, p3 ->
+            inBackground(state, cancelWhenBelowState) {
+                callback(p1, p2, p3)
+            }
+        }
+    }
+}
+
+fun <C, R, S, U, V> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.(R, S, U, V) -> Unit
+): (R, S, U, V) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) {
+        { p1, p2, p3, p4 ->
+            inBackground(
+                state,
+                cancelWhenBelowState,
+            ) {
+                callback(p1, p2, p3, p4)
+            }
+        }
+    }
+}
+
+fun <C, R, S, U, V, W> C.useBackgroundCallback(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    callback: suspend CoroutineScope.(R, S, U, V, W) -> Unit
+): (R, S, U, V, W) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+    return useMemo(*values) {
+        { p1, p2, p3, p4, p5 ->
+            inBackground(
+                state,
+                cancelWhenBelowState,
+            ) {
+                callback(p1, p2, p3, p4, p5)
+            }
+        }
+    }
+}
