@@ -15,32 +15,32 @@ fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): (
     return useMemo(*values) { callback }
 }
 
-fun <T, R> ReactiveComponent.useCallback(vararg values: Any?, callback: (R) -> T): (R) -> T {
+fun <R, T> ReactiveComponent.useCallback(vararg values: Any?, callback: (R) -> T): (R) -> T {
     return useMemo(*values) { callback }
 }
 
-fun <T, R, S> ReactiveComponent.useCallback(
+fun <R, S, T> ReactiveComponent.useCallback(
     vararg values: Any?,
     callback: (R, S) -> T
 ): (R, S) -> T {
     return useMemo(*values) { callback }
 }
 
-fun <T, R, S, U> ReactiveComponent.useCallback(
+fun <R, S, U, T> ReactiveComponent.useCallback(
     vararg values: Any?,
     callback: (R, S, U) -> T
 ): (R, S, U) -> T {
     return useMemo(*values) { callback }
 }
 
-fun <T, R, S, U, V> ReactiveComponent.useCallback(
+fun <R, S, U, V, T> ReactiveComponent.useCallback(
     vararg values: Any?,
     callback: (R, S, U, V) -> T
 ): (R, S, U, V) -> T {
     return useMemo(*values) { callback }
 }
 
-fun <T, R, S, U, V, W> ReactiveComponent.useCallback(
+fun <R, S, U, V, W, T> ReactiveComponent.useCallback(
     vararg values: Any?,
     callback: (R, S, U, V, W) -> T
 ): (R, S, U, V, W) -> T {
