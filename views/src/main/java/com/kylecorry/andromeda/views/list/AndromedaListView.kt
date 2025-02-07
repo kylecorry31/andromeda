@@ -17,6 +17,9 @@ import com.kylecorry.andromeda.views.databinding.AndromedaViewListItemBinding
 
 class AndromedaListView(context: Context, attrs: AttributeSet?) : RecyclerView(context, attrs) {
 
+    var items: List<ListItem>? = null
+        private set
+
     private val list =
         ListView(this, R.layout.andromeda_view_list_item) { view: View, listItem: ListItem ->
             val binding = AndromedaViewListItemBinding.bind(view)
@@ -138,6 +141,7 @@ class AndromedaListView(context: Context, attrs: AttributeSet?) : RecyclerView(c
 
     fun setItems(items: List<ListItem>) {
         // TODO: Be smart about how the list gets updated
+        this.items = items
         list.setData(items)
         emptyView?.isVisible = items.isEmpty()
     }

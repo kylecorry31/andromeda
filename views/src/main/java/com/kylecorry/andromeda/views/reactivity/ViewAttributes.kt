@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.views.reactivity
 
-import android.view.View
+import android.view.View.OnClickListener
+import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 
 open class ViewAttributes {
@@ -15,26 +16,7 @@ open class ViewAttributes {
     var width: Int = ViewGroup.LayoutParams.MATCH_PARENT
     var height: Int = ViewGroup.LayoutParams.WRAP_CONTENT
     var visibility: Int = ViewGroup.VISIBLE
-    var onClick: (() -> Unit)? = null
-    var onLongClick: (() -> Boolean)? = null
-
-    fun from(props: ViewAttributes) {
-        paddingStart = props.paddingStart
-        paddingTop = props.paddingTop
-        paddingEnd = props.paddingEnd
-        paddingBottom = props.paddingBottom
-        marginStart = props.marginStart
-        marginTop = props.marginTop
-        marginEnd = props.marginEnd
-        marginBottom = props.marginBottom
-        width = props.width
-        height = props.height
-        visibility = props.visibility
-        onClick = props.onClick
-        onLongClick = props.onLongClick
-    }
-}
-
-open class ViewGroupAttributes : ViewAttributes() {
-    var children: List<View> = listOf()
+    var tag: String = ""
+    var onClick: OnClickListener? = null
+    var onLongClick: OnLongClickListener? = null
 }

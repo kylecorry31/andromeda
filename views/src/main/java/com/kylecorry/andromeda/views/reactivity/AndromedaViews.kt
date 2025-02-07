@@ -1,194 +1,276 @@
 package com.kylecorry.andromeda.views.reactivity
 
-import android.view.View
+import android.graphics.drawable.Icon
+import android.text.TextWatcher
+import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
-import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useAndroidView
-import com.kylecorry.andromeda.views.reactivity.AndroidViewHooks.useAndroidViewGroup
-import com.kylecorry.luna.annotations.ExperimentalUsage
+import com.kylecorry.andromeda.views.list.AndromedaListView
+import com.kylecorry.andromeda.views.list.ListItem
 
 object AndromedaViews {
 
-    fun ReactiveComponent.Box(
-        config: ViewGroupAttributes.() -> Unit
-    ): View {
-        return FrameLayout {
-            config()
-        }
+    fun Box(
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<FrameLayout, ViewAttributes> {
+        return Box({}, *children)
     }
 
-    fun ReactiveComponent.FrameLayout(
-        config: ViewGroupAttributes.() -> Unit
-    ): View {
-        val attributes = ViewGroupAttributes().apply(config)
-        return useAndroidViewGroup(attributes) {
-            android.widget.FrameLayout(it)
-        }
+    fun Box(
+        config: ViewAttributes.() -> Unit,
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<FrameLayout, ViewAttributes> {
+        return FrameLayout(config, *children)
     }
 
-    open class LinearLayoutAttributes : ViewGroupAttributes() {
+    fun FrameLayout(
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<FrameLayout, ViewAttributes> {
+        return FrameLayout({}, *children)
+    }
+
+    fun FrameLayout(
+        config: ViewAttributes.() -> Unit,
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<FrameLayout, ViewAttributes> {
+        return VDOMNode(
+            FrameLayout::class.java,
+            ViewAttributes().apply(config),
+            children = children.toList(),
+            create = { context -> FrameLayout(context) },
+            update = { _, _ -> }
+        )
+    }
+
+    open class LinearLayoutAttributes : ViewAttributes() {
         var orientation: Int = LinearLayout.HORIZONTAL
     }
 
-    fun ReactiveComponent.LinearLayout(
-        config: LinearLayoutAttributes.() -> Unit
-    ): View {
-        val attributes = LinearLayoutAttributes().apply(config)
-        val layout = useAndroidViewGroup(attributes) {
-            LinearLayout(it)
-        }
-
-        useEffect(layout, attributes.orientation) {
-            layout.orientation = attributes.orientation
-        }
-
-        return layout
+    fun LinearLayout(
+        vararg children: VDOMNode<*, *>,
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        return LinearLayout({}, *children)
     }
 
-    fun ReactiveComponent.Column(
-        config: ViewGroupAttributes.() -> Unit
-    ): View {
-        return LinearLayout {
+    fun LinearLayout(
+        config: LinearLayoutAttributes.() -> Unit,
+        vararg children: VDOMNode<*, *>,
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        val attributes = LinearLayoutAttributes().apply(config)
+        return VDOMNode(
+            LinearLayout::class.java,
+            attributes,
+            children = children.toList(),
+            create = ::LinearLayout,
+            update = { view, attrs ->
+                if (view.orientation != attrs.orientation) {
+                    view.orientation = attrs.orientation
+                }
+            }
+        )
+    }
+
+    fun Column(
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        return Column({}, *children)
+    }
+
+    fun Column(
+        config: ViewAttributes.() -> Unit,
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        return LinearLayout({
             config()
             orientation = LinearLayout.VERTICAL
-        }
+        }, *children)
     }
 
-    fun ReactiveComponent.Row(
-        config: ViewGroupAttributes.() -> Unit
-    ): View {
-        return LinearLayout {
+    fun Row(
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        return Row({}, *children)
+    }
+
+    fun Row(
+        config: ViewAttributes.() -> Unit,
+        vararg children: VDOMNode<*, *>
+    ): VDOMNode<LinearLayout, LinearLayoutAttributes> {
+        return LinearLayout({
             config()
             orientation = LinearLayout.HORIZONTAL
-        }
+        }, *children)
     }
 
     open class EditTextAttributes : TextAttributes() {
+        /**
+         * Determines whether to update the text based on the text input. This option will be removed once edit texts have smoothing updating with this framework.
+         */
+        var updateText: Boolean = false
         var hint: String? = null
-        var onTextChanged: ((String) -> Unit)? = null
+        var onTextChanged: TextWatcher? = null
     }
 
-    @ExperimentalUsage("value does not work properly when bound to the same state as the onValueChanged callback")
-    fun ReactiveComponent.EditText(
+    fun EditText(
         config: EditTextAttributes.() -> Unit
-    ): View {
+    ): VDOMNode<ReactiveEditText, EditTextAttributes> {
         val attributes = EditTextAttributes().apply(config)
-        val view = useAndroidView(attributes) {
-            android.widget.EditText(it)
-        }
-
-        useEffect(view, attributes.hint) {
-            view.hint = attributes.hint
-        }
-
-        useEffect(view, attributes.text) {
-            view.setText(attributes.text)
-            // Set the cursor to the end
-            view.setSelection(view.text.length)
-        }
-
-        useEffect(view, attributes.onTextChanged) {
-            if (attributes.onTextChanged == null) {
-                view.addTextChangedListener(null)
-            } else {
-                view.addTextChangedListener {
-                    attributes.onTextChanged?.invoke(it.toString())
+        return VDOMNode(
+            ReactiveEditText::class.java,
+            attributes,
+            create = ::ReactiveEditText,
+            update = { view, attrs ->
+                if (view.hint != attrs.hint) {
+                    view.hint = attrs.hint
                 }
-            }
-        }
 
-        return view
+                if ((attrs.updateText || view.text == null) && view.text != attrs.text) {
+                    view.setText(attrs.text)
+                }
+
+                view.setTextChangedListener(attrs.onTextChanged)
+            }
+        )
     }
 
     open class TextAttributes : ViewAttributes() {
         var text: CharSequence? = null
     }
 
-    fun ReactiveComponent.Text(
-        config: TextAttributes.() -> Unit
-    ): View {
+    fun Text(
+        config: TextAttributes.() -> Unit = {}
+    ): VDOMNode<TextView, TextAttributes> {
         val attributes = TextAttributes().apply(config)
-        val view = useAndroidView(attributes) { TextView(it) }
-
-        useEffect(view, attributes.text) {
-            view.text = attributes.text
-        }
-        return view
+        return VDOMNode(
+            TextView::class.java,
+            attributes,
+            create = ::TextView,
+            update = { view, attrs ->
+                if (view.text != attrs.text) {
+                    view.text = attrs.text
+                }
+            }
+        )
     }
 
     open class ButtonAttributes : TextAttributes()
 
-    fun ReactiveComponent.Button(
+    fun Button(
         config: ButtonAttributes.() -> Unit
-    ): View {
+    ): VDOMNode<Button, ButtonAttributes> {
         val attributes = ButtonAttributes().apply(config)
-        val view = useAndroidView(attributes) { android.widget.Button(it) }
-
-        useEffect(view, attributes.text) {
-            view.text = attributes.text
-        }
-
-        return view
+        return VDOMNode(
+            Button::class.java,
+            attributes,
+            create = ::Button,
+            update = { view, attrs ->
+                if (view.text != attrs.text) {
+                    view.text = attrs.text
+                }
+            }
+        )
     }
 
     open class ImageAttributes : ViewAttributes() {
-        var imageResource: Int? = null
-        var bitmap: android.graphics.Bitmap? = null
-        var drawable: android.graphics.drawable.Drawable? = null
-        var uri: android.net.Uri? = null
+        var icon: Icon? = null
     }
 
-    fun ReactiveComponent.Image(
+    fun Image(
         config: ImageAttributes.() -> Unit
-    ): View {
+    ): VDOMNode<ReactiveImageView, ImageAttributes> {
         val attributes = ImageAttributes().apply(config)
-        val view = useAndroidView(attributes) { android.widget.ImageView(it) }
-
-        useEffect(
-            view,
-            attributes.imageResource,
-            attributes.bitmap,
-            attributes.drawable,
-            attributes.uri
-        ) {
-            when {
-                attributes.imageResource != null -> view.setImageResource(attributes.imageResource!!)
-                attributes.bitmap != null -> view.setImageBitmap(attributes.bitmap)
-                attributes.drawable != null -> view.setImageDrawable(attributes.drawable)
-                attributes.uri != null -> view.setImageURI(attributes.uri)
-                else -> view.setImageDrawable(null)
+        return VDOMNode(
+            ReactiveImageView::class.java,
+            attributes,
+            create = ::ReactiveImageView,
+            update = { view, attrs ->
+                view.setIcon(attrs.icon)
             }
-        }
-
-        return view
+        )
     }
 
     open class ImageButtonAttributes : ImageAttributes()
 
-    fun ReactiveComponent.ImageButton(
+    fun ImageButton(
         config: ImageButtonAttributes.() -> Unit
-    ): View {
+    ): VDOMNode<ReactiveImageButtonView, ImageAttributes> {
         val attributes = ImageButtonAttributes().apply(config)
-        val view = useAndroidView(attributes) { android.widget.ImageButton(it) }
-
-        useEffect(
-            view,
-            attributes.imageResource,
-            attributes.bitmap,
-            attributes.drawable,
-            attributes.uri
-        ) {
-            when {
-                attributes.imageResource != null -> view.setImageResource(attributes.imageResource!!)
-                attributes.bitmap != null -> view.setImageBitmap(attributes.bitmap)
-                attributes.drawable != null -> view.setImageDrawable(attributes.drawable)
-                attributes.uri != null -> view.setImageURI(attributes.uri)
-                else -> view.setImageDrawable(null)
+        return VDOMNode(
+            ReactiveImageButtonView::class.java,
+            attributes,
+            create = ::ReactiveImageButtonView,
+            update = { view, attrs ->
+                view.setIcon(attrs.icon)
             }
-        }
+        )
+    }
 
-        return view
+    open class AndromedaListAttributes : ViewAttributes() {
+        var items: List<ListItem> = emptyList()
+    }
+
+    fun AndromedaList(
+        config: AndromedaListAttributes.() -> Unit,
+    ): VDOMNode<AndromedaListView, AndromedaListAttributes> {
+        val attributes = AndromedaListAttributes().apply(config)
+        return VDOMNode(
+            AndromedaListView::class.java,
+            attributes,
+            create = { context ->
+                AndromedaListView(context, null)
+            },
+            update = { view, attrs ->
+                if (view.items != attrs.items) {
+                    view.setItems(attrs.items)
+                }
+            }
+        )
+    }
+
+    fun Component(
+        rerenderWhenParentRerenders: Boolean = true,
+        onUpdate: ReactiveComponent.(attributes: ViewAttributes) -> VDOMNode<*, *>
+    ): VDOMNode<ReactiveComponentView<ViewAttributes>, ViewAttributes> {
+        @Suppress("UNCHECKED_CAST")
+        return VDOMNode(
+            ReactiveComponentView::class.java as Class<ReactiveComponentView<ViewAttributes>>,
+            ViewAttributes(),
+            managesOwnChildren = true,
+            create = { context ->
+                ReactiveComponentView(
+                    context,
+                    rerenderWhenParentRerenders,
+                    onUpdate
+                )
+            },
+            update = { view, attributes ->
+                view.onUpdate(attributes)
+            }
+        )
+    }
+
+    inline fun <reified T : ViewAttributes> Component(
+        config: T.() -> Unit,
+        rerenderWhenParentRerenders: Boolean = true,
+        noinline onUpdate: ReactiveComponent.(attributes: T) -> VDOMNode<*, *>
+    ): VDOMNode<ReactiveComponentView<T>, T> {
+        @Suppress("UNCHECKED_CAST")
+        return VDOMNode(
+            ReactiveComponentView::class.java as Class<ReactiveComponentView<T>>,
+            T::class.java.getConstructor().newInstance().apply(config),
+            managesOwnChildren = true,
+            create = { context ->
+                ReactiveComponentView(
+                    context,
+                    rerenderWhenParentRerenders,
+                    onUpdate
+                )
+            },
+            update = { view, attributes ->
+                view.onUpdate(attributes)
+            }
+        )
     }
 }
