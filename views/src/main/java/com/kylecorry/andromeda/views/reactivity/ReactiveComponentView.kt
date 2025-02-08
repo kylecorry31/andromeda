@@ -26,6 +26,18 @@ class ReactiveComponentView<T : ViewAttributes>(
     private val states = mutableMapOf<String, State<*>>()
     private val effectCleanups = mutableMapOf<String, () -> Unit>()
 
+    // When it is added to the view tree, start the hooks
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        hooks.startStateUpdates()
+    }
+
+    // When it is removed from the view tree, stop the hooks
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        hooks.stopStateUpdates()
+    }
+
     override fun useAndroidContext(): Context {
         return context
     }

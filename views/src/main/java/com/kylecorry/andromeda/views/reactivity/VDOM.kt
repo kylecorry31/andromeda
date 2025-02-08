@@ -12,7 +12,6 @@ import androidx.core.view.marginBottom
 import androidx.core.view.marginEnd
 import androidx.core.view.marginStart
 import androidx.core.view.marginTop
-import androidx.core.view.updateLayoutParams
 
 
 object VDOM {
@@ -73,13 +72,6 @@ object VDOM {
         dom: View,
         attributes: ViewAttributes
     ) {
-        if (dom.layoutParams.width != attributes.width || dom.layoutParams.height != attributes.height) {
-            dom.updateLayoutParams<ViewGroup.LayoutParams> {
-                width = attributes.width
-                height = attributes.height
-            }
-        }
-
         if (dom.visibility != attributes.visibility) {
             dom.visibility = attributes.visibility
         }
