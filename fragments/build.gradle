@@ -40,6 +40,7 @@ dependencies {
     implementation project(':core')
     implementation project(':permissions')
     implementation project(':alerts')
+    implementation project(':views')
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
     implementation libs.androidx.preference.ktx
