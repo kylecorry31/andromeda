@@ -14,7 +14,7 @@ open class ViewAttributes {
     var marginTop: Int = 0
     var marginEnd: Int = 0
     var marginBottom: Int = 0
-    var width: Int = ViewGroup.LayoutParams.WRAP_CONTENT
+    var width: Int = ViewGroup.LayoutParams.MATCH_PARENT
     var height: Int = ViewGroup.LayoutParams.WRAP_CONTENT
     var visibility: Int = ViewGroup.VISIBLE
     var tag: String = ""
