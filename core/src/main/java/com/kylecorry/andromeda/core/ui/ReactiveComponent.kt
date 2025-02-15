@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
+import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
 
 interface ReactiveComponent {
@@ -72,5 +73,11 @@ fun ReactiveComponent.useSizeSp(sp: Float): Float {
     val context = useAndroidContext()
     return useMemo(context, sp) {
         Resources.sp(context, sp)
+    }
+}
+
+inline fun <reified T : Any> ReactiveComponent.useService(): T {
+    return useMemo {
+        AppServiceRegistry.get<T>()
     }
 }

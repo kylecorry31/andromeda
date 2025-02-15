@@ -17,6 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
+import com.kylecorry.andromeda.core.topics.ITopic
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
@@ -257,4 +258,45 @@ fun <C, R, S, U, V, W> C.useBackgroundCallback(
             }
         }
     }
+}
+
+fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, default: V, mapper: (T) -> V): V {
+    val (state, setState) = useState(default)
+
+    // Note: This does not change when the mapper changes
+    useEffect(topic) {
+        observe(topic) {
+            setState(mapper(topic))
+        }
+    }
+
+    return state
+}
+
+fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, mapper: (T) -> V?): V? {
+    return useTopic(topic, null, mapper)
+}
+
+fun <T : Any, V> AndromedaFragment.useTopic(
+    topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
+    default: V,
+    mapper: (T) -> V
+): V {
+    val (state, setState) = useState(default)
+
+    // Note: This does not change when the mapper changes
+    useEffect(topic) {
+        observe(topic) {
+            setState(mapper(it))
+        }
+    }
+
+    return state
+}
+
+fun <T : Any, V> AndromedaFragment.useTopic(
+    topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
+    mapper: (T) -> V?
+): V? {
+    return useTopic(topic, null, mapper)
 }

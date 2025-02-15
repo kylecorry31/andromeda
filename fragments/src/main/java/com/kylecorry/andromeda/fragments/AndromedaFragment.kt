@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
@@ -31,7 +32,6 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     ReactiveComponent {
 
     protected var hasUpdates: Boolean = true
-    protected var resetHooksOnResult: Boolean = false
 
     private var resultLauncher: ActivityResultLauncher<Intent>? = null
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
@@ -52,6 +52,15 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     private val effectCleanups = mutableMapOf<String, () -> Unit>()
 
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
+
+    protected val resetOnResume
+        get() = lifecycleHookTrigger.onResume()
+
+    protected val resetOnStart
+        get() = lifecycleHookTrigger.onStart()
+
+    protected val resetOnCreate
+        get() = lifecycleHookTrigger.onCreate()
 
     private var currentHookCount = 0
 
@@ -78,13 +87,6 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         lifecycleHookTrigger.unbind(this)
         resultLauncher?.unregister()
         permissionLauncher?.unregister()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (resetHooksOnResult) {
-            resetHooks()
-        }
     }
 
     protected fun scheduleUpdates(interval: Duration) {
@@ -255,8 +257,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         return Pair(savedState, callback)
     }
 
+    fun useRootView(): View {
+        return requireView()
+    }
+
     fun <T> useView(@IdRes id: Int): T {
-        return useMemo {
+        return useMemo(useRootView(), id) {
             requireView().findViewById(id)!!
         }
     }
