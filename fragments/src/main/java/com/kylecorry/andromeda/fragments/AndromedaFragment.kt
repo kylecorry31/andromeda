@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +31,7 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     ReactiveComponent {
 
     protected var hasUpdates: Boolean = true
+    protected var resetHooksOnResult: Boolean = false
 
     private var resultLauncher: ActivityResultLauncher<Intent>? = null
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
@@ -76,6 +78,13 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         lifecycleHookTrigger.unbind(this)
         resultLauncher?.unregister()
         permissionLauncher?.unregister()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (resetHooksOnResult) {
+            resetHooks()
+        }
     }
 
     protected fun scheduleUpdates(interval: Duration) {
@@ -202,8 +211,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     protected fun resetHooks(
         exceptEffects: List<String> = emptyList(),
         exceptMemos: List<String> = emptyList(),
-        cleanupEffects: Boolean = true
+        cleanupEffects: Boolean = true,
+        resetState: Boolean = false
     ) {
+        if (resetState) {
+            states.clear()
+        }
         if (cleanupEffects) {
             cleanupEffects()
         }
@@ -240,6 +253,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         }
 
         return Pair(savedState, callback)
+    }
+
+    fun <T> useView(@IdRes id: Int): T {
+        return useMemo {
+            requireView().findViewById(id)!!
+        }
     }
 
     companion object {
