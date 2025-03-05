@@ -5,10 +5,17 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
-import android.telephony.*
+import android.telephony.CellInfo
+import android.telephony.CellInfoCdma
+import android.telephony.CellInfoGsm
+import android.telephony.CellInfoLte
+import android.telephony.CellInfoNr
+import android.telephony.CellInfoTdscdma
+import android.telephony.CellInfoWcdma
+import android.telephony.TelephonyManager
 import androidx.core.content.getSystemService
 import androidx.core.math.MathUtils
+import com.kylecorry.andromeda.core.coroutines.SafeExecutor
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.time.AndroidTime
@@ -17,7 +24,6 @@ import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration
 import java.time.Instant
-import java.util.concurrent.Executors
 
 class CellSignalSensor(
     private val context: Context,
@@ -59,7 +65,13 @@ class CellSignalSensor(
                 return@tryOrNothing
             }
             telephony?.requestCellInfoUpdate(
-                Executors.newSingleThreadExecutor(),
+                SafeExecutor.newSingleThreadExecutor {
+                    tryOrNothing {
+                        Handler(Looper.getMainLooper()).post {
+                            updateCellInfo(emptyList())
+                        }
+                    }
+                },
                 @SuppressLint("NewApi")
                 object : TelephonyManager.CellInfoCallback() {
                     override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
