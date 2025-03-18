@@ -27,7 +27,7 @@ mockitoKotlinVersion = "5.1.0"
 preferenceKtxVersion = "1.2.1"
 printVersion = "1.0.0"
 recyclerviewVersion = "1.4.0"
-solVersion = "10.2.0"
+solVersion = "10.3.0"
 workRuntimeKtxVersion = "2.10.0"
 zxingVersion = "3.5.2"
 
