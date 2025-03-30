@@ -1,13 +1,13 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.SonatypeHost
 
-val versionName = "13.3.0"
+val versionName = "14.0.0"
 val groupId = "com.kylecorry.andromeda"
 
 buildscript {
     extra.apply {
-        set("targetVersion", 35)
-        set("compileVersion", 35)
+        set("targetVersion", 36)
+        set("compileVersion", 36)
     }
 }
 
