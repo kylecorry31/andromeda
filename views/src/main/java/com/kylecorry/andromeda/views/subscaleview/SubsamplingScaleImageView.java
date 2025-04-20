@@ -2901,10 +2901,11 @@ public class SubsamplingScaleImageView extends View {
      * can still be changed from code.
      *
      * @param panEnabled true to enable panning, false to disable.
+     * @param resetCenter true to reset the center, false to keep the current translation.
      */
-    public final void setPanEnabled(boolean panEnabled) {
+    public final void setPanEnabled(boolean panEnabled, boolean resetCenter) {
         this.panEnabled = panEnabled;
-        if (!panEnabled && vTranslate != null) {
+        if (resetCenter && !panEnabled && vTranslate != null) {
             vTranslate.x = (getWidth() / 2) - (scale * (sWidth() / 2));
             vTranslate.y = (getHeight() / 2) - (scale * (sHeight() / 2));
             if (isReady()) {
@@ -2912,6 +2913,16 @@ public class SubsamplingScaleImageView extends View {
                 invalidate();
             }
         }
+    }
+
+    /**
+     * Enable or disable pan gesture detection. Disabling pan causes the image to be centered. Pan
+     * can still be changed from code.
+     *
+     * @param panEnabled true to enable panning, false to disable.
+     */
+    public final void setPanEnabled(boolean panEnabled) {
+        setPanEnabled(panEnabled, true);
     }
 
     /**
