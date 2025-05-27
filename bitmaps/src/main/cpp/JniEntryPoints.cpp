@@ -705,3 +705,35 @@ extern "C" JNIEXPORT void JNICALL Java_com_kylecorry_andromeda_bitmaps_Toolkit_n
                   symmetric,
                   normalize, excludeTransparent, stepArray.get(), stepCount, restrict.get());
 }
+
+extern "C" JNIEXPORT void JNICALL Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeColorReplace(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle, jbyteArray input_array,
+        jbyteArray output_array, jint size_x, jint size_y, jbyte targetR, jbyte targetG,
+        jbyte targetB, jbyte targetA, jbyte replacementR, jbyte replacementG, jbyte replacementB,
+        jbyte replacementA, jfloat tolerance, jboolean interpolate, jobject restriction) {
+    RenderScriptToolkit *toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    RestrictionParameter restrict{env, restriction};
+
+    ByteArrayGuard input{env, input_array};
+    ByteArrayGuard output{env, output_array};
+
+    toolkit->colorReplace(input.get(), output.get(), size_x, size_y, targetR, targetG, targetB,
+                          targetA, replacementR, replacementG, replacementB, replacementA,
+                          tolerance, interpolate, restrict.get());
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeColorReplaceBitmap(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle, jobject input_bitmap,
+        jobject output_bitmap, jbyte targetR, jbyte targetG, jbyte targetB, jbyte targetA,
+        jbyte replacementR, jbyte replacementG, jbyte replacementB, jbyte replacementA,
+        jfloat tolerance, jboolean interpolate, jobject restriction) {
+    RenderScriptToolkit *toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    RestrictionParameter restrict{env, restriction};
+    BitmapGuard input{env, input_bitmap};
+    BitmapGuard output{env, output_bitmap};
+
+    toolkit->colorReplace(input.get(), output.get(), input.width(), input.height(), targetR,
+                          targetG, targetB, targetA, replacementR, replacementG, replacementB,
+                          replacementA, tolerance, interpolate, restrict.get());
+}

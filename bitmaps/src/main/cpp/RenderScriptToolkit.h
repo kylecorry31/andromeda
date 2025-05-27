@@ -630,6 +630,37 @@ namespace renderscript {
                     const Restriction *_Nullable restriction = nullptr);
 
         /**
+         * Replace one color with another in an image.
+         *
+         * Replaces pixels that match a target RGBA color with a replacement RGBA color.
+         * A tolerance parameter allows for approximate color matching using Euclidean distance
+         * in RGBA color space.
+         *
+         * The input and output buffers must have the same dimensions. Both buffers should be
+         * large enough for sizeX * sizeY * 4 bytes. The buffers have a row-major layout.
+         *
+         * @param input The buffer of the image to be processed.
+         * @param output The buffer that receives the processed image.
+         * @param sizeX The width of both buffers, as a number of 4 byte cells.
+         * @param sizeY The height of both buffers, as a number of 4 byte cells.
+         * @param targetR The red component of the target color (0-255).
+         * @param targetG The green component of the target color (0-255).
+         * @param targetB The blue component of the target color (0-255).
+         * @param targetA The alpha component of the target color (0-255).
+         * @param replacementR The red component of the replacement color (0-255).
+         * @param replacementG The green component of the replacement color (0-255).
+         * @param replacementB The blue component of the replacement color (0-255).
+         * @param replacementA The alpha component of the replacement color (0-255).
+         * @param tolerance The maximum distance for color matching (0.0 for exact match).
+         * @param interpolate If true, the replacement color will be interpolated based on the distance
+         * @param restriction When not null, restricts the operation to a 2D range of pixels.
+         */
+        void colorReplace(const uint8_t *input, uint8_t *output, size_t sizeX, size_t sizeY,
+                          uint8_t targetR, uint8_t targetG, uint8_t targetB, uint8_t targetA,
+                          uint8_t replacementR, uint8_t replacementG, uint8_t replacementB, uint8_t replacementA,
+                          float tolerance, bool interpolate, const Restriction *restriction = nullptr);
+
+        /**
          * The YUV formats supported by yuvToRgb.
          */
         enum class YuvFormat {

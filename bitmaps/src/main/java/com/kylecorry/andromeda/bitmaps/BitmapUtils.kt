@@ -463,6 +463,25 @@ object BitmapUtils {
         }
     }
 
+    fun Bitmap.replaceColor(
+        oldColor: Int,
+        newColor: Int,
+        tolerance: Float = 0f,
+        interpolate: Boolean = false,
+        inPlace: Boolean = false,
+        rect: Rect? = null
+    ): Bitmap {
+        return Toolkit.replaceColor(
+            this,
+            oldColor,
+            newColor,
+            tolerance,
+            interpolate,
+            rect?.toRange2d(),
+            inPlace
+        )
+    }
+
     fun Int.getChannel(channel: ColorChannel): Int {
         return when (channel) {
             ColorChannel.Red -> Color.red(this)

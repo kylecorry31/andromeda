@@ -1153,6 +1153,78 @@ internal object Toolkit {
     }
 
     @JvmOverloads
+    fun replaceColor(
+        inputArray: ByteArray,
+        sizeX: Int,
+        sizeY: Int,
+        targetColor: Int,
+        replacementColor: Int,
+        tolerance: Float = 0f,
+        interpolate: Boolean = false,
+        restriction: Range2d? = null
+    ): ByteArray {
+        require(inputArray.size >= sizeX * sizeY * 4) {
+            "$externalName replaceColor. inputArray is too small for the given dimensions. " +
+                    "$sizeX*$sizeY*4 < ${inputArray.size}."
+        }
+        validateRestriction("replaceColor", sizeX, sizeY, restriction)
+
+        val outputArray = ByteArray(inputArray.size)
+        nativeColorReplace(
+            nativeHandle,
+            inputArray,
+            outputArray,
+            sizeX,
+            sizeY,
+            ((targetColor shr 16) and 0xFF).toByte(),
+            ((targetColor shr 8) and 0xFF).toByte(),
+            (targetColor and 0xFF).toByte(),
+            ((targetColor shr 24) and 0xFF).toByte(),
+            ((replacementColor shr 16) and 0xFF).toByte(),
+            ((replacementColor shr 8) and 0xFF).toByte(),
+            (replacementColor and 0xFF).toByte(),
+            ((replacementColor shr 24) and 0xFF).toByte(),
+            tolerance,
+            interpolate,
+            restriction
+        )
+        return outputArray
+    }
+
+    @JvmOverloads
+    fun replaceColor(
+        inputBitmap: Bitmap,
+        targetColor: Int,
+        replacementColor: Int,
+        tolerance: Float = 0f,
+        interpolate: Boolean = false,
+        restriction: Range2d? = null,
+        inPlace: Boolean = false
+    ): Bitmap {
+        validateBitmap("replaceColor", inputBitmap)
+        validateRestriction("replaceColor", inputBitmap, restriction)
+
+        val outputBitmap = createCompatibleBitmap(inputBitmap, inPlace)
+        nativeColorReplaceBitmap(
+            nativeHandle,
+            inputBitmap,
+            outputBitmap,
+            ((targetColor shr 16) and 0xFF).toByte(),
+            ((targetColor shr 8) and 0xFF).toByte(),
+            (targetColor and 0xFF).toByte(),
+            ((targetColor shr 24) and 0xFF).toByte(),
+            ((replacementColor shr 16) and 0xFF).toByte(),
+            ((replacementColor shr 8) and 0xFF).toByte(),
+            (replacementColor and 0xFF).toByte(),
+            ((replacementColor shr 24) and 0xFF).toByte(),
+            tolerance,
+            interpolate,
+            restriction
+        )
+        return outputBitmap
+    }
+
+    @JvmOverloads
     fun weightedAdd(
         inputArray1: ByteArray,
         inputArray2: ByteArray,
@@ -1947,6 +2019,42 @@ internal object Toolkit {
         excludeTransparent: Boolean,
         steps: IntArray,
         stepCount: Byte,
+        restriction: Range2d?
+    )
+
+    private external fun nativeColorReplace(
+        nativeHandle: Long,
+        inputArray: ByteArray,
+        outputArray: ByteArray,
+        sizeX: Int,
+        sizeY: Int,
+        targetR: Byte,
+        targetG: Byte,
+        targetB: Byte,
+        targetA: Byte,
+        replacementR: Byte,
+        replacementG: Byte,
+        replacementB: Byte,
+        replacementA: Byte,
+        tolerance: Float,
+        interpolate: Boolean,
+        restriction: Range2d?
+    )
+
+    private external fun nativeColorReplaceBitmap(
+        nativeHandle: Long,
+        inputBitmap: Bitmap,
+        outputBitmap: Bitmap,
+        targetR: Byte,
+        targetG: Byte,
+        targetB: Byte,
+        targetA: Byte,
+        replacementR: Byte,
+        replacementG: Byte,
+        replacementB: Byte,
+        replacementA: Byte,
+        tolerance: Float,
+        interpolate: Boolean,
         restriction: Range2d?
     )
 }

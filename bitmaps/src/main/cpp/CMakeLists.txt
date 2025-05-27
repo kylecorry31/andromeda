@@ -73,28 +73,29 @@ add_library(# Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
+        Average.cpp
         Blend.cpp
+        BlobFinder.cpp
         Blur.cpp
         ColorMatrix.cpp
+        ColorReplace.cpp
         Convolve3x3.cpp
         Convolve5x5.cpp
+        GrayLevelCovarianceMatrix.cpp
         Histogram.cpp
         JniEntryPoints.cpp
         Lut.cpp
         Lut3d.cpp
+        MinMax.cpp
+        Moment.cpp
         RenderScriptToolkit.cpp
         Resize.cpp
-        TaskProcessor.cpp
-        Utils.cpp
-        YuvToRgb.cpp
-        Threshold.cpp
-        MinMax.cpp
-        Average.cpp
         StandardDeviation.cpp
-        Moment.cpp
-        BlobFinder.cpp
-        GrayLevelCovarianceMatrix.cpp
+        TaskProcessor.cpp
+        Threshold.cpp
+        Utils.cpp
         WeightedAdd.cpp
+        YuvToRgb.cpp
         ${ASM_SOURCES})
 
 # Searches for a specified prebuilt library and stores the path as a
