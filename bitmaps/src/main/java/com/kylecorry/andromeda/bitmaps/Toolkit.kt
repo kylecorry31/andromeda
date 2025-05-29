@@ -18,6 +18,10 @@ package com.kylecorry.andromeda.bitmaps
 
 import android.graphics.Bitmap
 import android.graphics.Rect
+import androidx.core.graphics.alpha
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 
 // This string is used for error messages.
 private const val externalName = "RenderScript Toolkit"
@@ -1176,14 +1180,14 @@ internal object Toolkit {
             outputArray,
             sizeX,
             sizeY,
-            ((targetColor shr 16) and 0xFF).toByte(),
-            ((targetColor shr 8) and 0xFF).toByte(),
-            (targetColor and 0xFF).toByte(),
-            ((targetColor shr 24) and 0xFF).toByte(),
-            ((replacementColor shr 16) and 0xFF).toByte(),
-            ((replacementColor shr 8) and 0xFF).toByte(),
-            (replacementColor and 0xFF).toByte(),
-            ((replacementColor shr 24) and 0xFF).toByte(),
+            targetColor.red.toByte(),
+            targetColor.green.toByte(),
+            targetColor.blue.toByte(),
+            targetColor.alpha.toByte(),
+            replacementColor.red.toByte(),
+            replacementColor.green.toByte(),
+            replacementColor.blue.toByte(),
+            replacementColor.alpha.toByte(),
             tolerance,
             interpolate,
             restriction
@@ -1209,14 +1213,14 @@ internal object Toolkit {
             nativeHandle,
             inputBitmap,
             outputBitmap,
-            ((targetColor shr 16) and 0xFF).toByte(),
-            ((targetColor shr 8) and 0xFF).toByte(),
-            (targetColor and 0xFF).toByte(),
-            ((targetColor shr 24) and 0xFF).toByte(),
-            ((replacementColor shr 16) and 0xFF).toByte(),
-            ((replacementColor shr 8) and 0xFF).toByte(),
-            (replacementColor and 0xFF).toByte(),
-            ((replacementColor shr 24) and 0xFF).toByte(),
+            targetColor.red.toByte(),
+            targetColor.green.toByte(),
+            targetColor.blue.toByte(),
+            targetColor.alpha.toByte(),
+            replacementColor.red.toByte(),
+            replacementColor.green.toByte(),
+            replacementColor.blue.toByte(),
+            replacementColor.alpha.toByte(),
             tolerance,
             interpolate,
             restriction

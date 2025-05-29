@@ -260,6 +260,8 @@ fun <C, R, S, U, V, W> C.useBackgroundCallback(
     }
 }
 
+// TODO: Move all useTopic extensions to any reactive component that is a lifecycle owner
+
 fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, default: V, mapper: (T) -> V): V {
     val (state, setState) = useState(default)
 

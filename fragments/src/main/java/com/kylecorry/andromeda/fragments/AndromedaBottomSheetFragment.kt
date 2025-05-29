@@ -8,11 +8,8 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kylecorry.andromeda.core.system.IntentResultRetriever
-import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.andromeda.core.ui.useCallback
 import com.kylecorry.andromeda.permissions.PermissionRationale
@@ -20,18 +17,10 @@ import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.hooks.Hooks
 import com.kylecorry.luna.hooks.State
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import java.time.Duration
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
-open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRetriever,
+open class AndromedaBottomSheetFragment : BottomSheetDialogFragment(), IPermissionRequester,
+    IntentResultRetriever,
     ReactiveComponent {
-
-    protected var hasUpdates: Boolean = true
 
     private var resultLauncher: ActivityResultLauncher<Intent>? = null
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
@@ -39,10 +28,6 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
 
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
-
-    private var updateTimerObserver: LifecycleEventObserver? = null
-
-    private var throttle: Throttle? = null
 
     protected val hooks = Hooks(stateThrottleMs = INTERVAL_60_FPS) {
         onUpdateWrapper()
@@ -89,41 +74,6 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         permissionLauncher?.unregister()
     }
 
-    protected fun scheduleUpdates(interval: Duration) {
-        scheduleUpdates(interval.toMillis())
-    }
-
-    protected fun scheduleUpdates(interval: Long) {
-        synchronized(this) {
-            if (updateTimerObserver != null) {
-                lifecycle.removeObserver(updateTimerObserver!!)
-            }
-            updateTimerObserver = interval(interval) {
-                onUpdateWrapper()
-            }
-        }
-    }
-
-    protected fun throttleUpdates(maxUpdateInterval: Duration) {
-        throttleUpdates(maxUpdateInterval.toMillis())
-    }
-
-    protected fun throttleUpdates(maxUpdateInterval: Long) {
-        throttle = Throttle(maxUpdateInterval)
-    }
-
-    protected fun unthrottleUpdates() {
-        throttle = null
-    }
-
-    protected fun cancelUpdates() {
-        synchronized(this) {
-            if (updateTimerObserver != null) {
-                lifecycle.removeObserver(updateTimerObserver!!)
-            }
-        }
-    }
-
     private fun onUpdateWrapper() {
         // TODO: If throttled, schedule an update when it expires
         currentHookCount = 0
@@ -133,19 +83,11 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
     }
 
     open fun canUpdate(): Boolean {
-        return context != null && hasUpdates && throttle?.isThrottled() != true
+        return context != null
     }
 
     open fun onUpdate() {
         // Do nothing by default
-    }
-
-    protected fun runInBackground(
-        context: CoroutineContext = EmptyCoroutineContext,
-        start: CoroutineStart = CoroutineStart.DEFAULT,
-        block: suspend CoroutineScope.() -> Unit
-    ): Job {
-        return lifecycleScope.launch(context, start, block)
     }
 
     override fun requestPermissions(permissions: List<String>, action: () -> Unit) {

@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.content.Context
+import android.view.View
+import androidx.annotation.IdRes
 import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
 
@@ -10,6 +12,8 @@ interface ReactiveComponent {
     fun useEffectWithCleanup(vararg values: Any?, action: () -> () -> Unit)
     fun <T> useMemo(vararg values: Any?, value: () -> T): T
     fun <T> useState(initialValue: T): Pair<T, (T) -> Unit>
+    fun <T> useView(@IdRes id: Int): T
+    fun useRootView(): View
 }
 
 fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): () -> T {

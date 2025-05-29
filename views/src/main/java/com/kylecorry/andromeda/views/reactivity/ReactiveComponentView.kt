@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.views.reactivity
 
 import android.content.Context
+import android.view.View
 import android.widget.FrameLayout
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
@@ -76,6 +77,16 @@ class ReactiveComponentView<T : ViewAttributes>(
         }
 
         return Pair(savedState, callback)
+    }
+
+    override fun useRootView(): View {
+        return this
+    }
+
+    override fun <T> useView(id: Int): T {
+        return useMemo(useRootView(), id) {
+            findViewById(id)!!
+        }
     }
 
     override fun useEffect(vararg values: Any?, action: () -> Unit) {
