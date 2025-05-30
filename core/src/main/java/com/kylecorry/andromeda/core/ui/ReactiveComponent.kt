@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.core.ui
 import android.content.Context
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.lifecycle.LifecycleOwner
 import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
 
@@ -14,6 +15,7 @@ interface ReactiveComponent {
     fun <T> useState(initialValue: T): Pair<T, (T) -> Unit>
     fun <T> useView(@IdRes id: Int): T
     fun useRootView(): View
+    fun useLifecycleOwner(viewOwner: Boolean = true): LifecycleOwner
 }
 
 fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): () -> T {

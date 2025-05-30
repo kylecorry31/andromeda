@@ -8,6 +8,7 @@ import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.kylecorry.andromeda.core.system.IntentResultRetriever
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
@@ -201,6 +202,14 @@ open class AndromedaBottomSheetFragment : BottomSheetDialogFragment(), IPermissi
 
     override fun useRootView(): View {
         return requireView()
+    }
+
+    override fun useLifecycleOwner(viewOwner: Boolean): LifecycleOwner {
+        return if (viewOwner) {
+            viewLifecycleOwner
+        } else {
+            this
+        }
     }
 
     override fun <T> useView(@IdRes id: Int): T {

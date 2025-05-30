@@ -83,6 +83,10 @@ class ReactiveComponentView<T : ViewAttributes>(
         return this
     }
 
+    override fun useLifecycleOwner(viewOwner: Boolean): LifecycleOwner {
+        return this
+    }
+
     override fun <T> useView(id: Int): T {
         return useMemo(useRootView(), id) {
             findViewById(id)!!

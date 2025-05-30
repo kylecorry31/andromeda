@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.system.IntentResultRetriever
 import com.kylecorry.andromeda.core.time.Throttle
@@ -259,6 +260,14 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
 
     override fun useRootView(): View {
         return requireView()
+    }
+
+    override fun useLifecycleOwner(viewOwner: Boolean): LifecycleOwner {
+        return if (viewOwner) {
+            viewLifecycleOwner
+        } else {
+            this
+        }
     }
 
     override fun <T> useView(@IdRes id: Int): T {

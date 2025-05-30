@@ -18,6 +18,8 @@ import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
 import com.kylecorry.andromeda.core.topics.ITopic
+import com.kylecorry.andromeda.core.topics.asLiveData
+import com.kylecorry.andromeda.core.topics.generic.asLiveData
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
@@ -153,15 +155,16 @@ fun LifecycleOwner.scheduleStateUpdates(hooks: Hooks) {
     lifecycle.addObserver(observer)
 }
 
-fun <T> T.useBackgroundEffect(
+fun ReactiveComponent.useBackgroundEffect(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     cancelWhenRerun: Boolean = false,
     block: suspend CoroutineScope.() -> Unit
-) where T : LifecycleOwner, T : ReactiveComponent {
+) {
+    val owner = useLifecycleOwner(false)
     useEffectWithCleanup(*values) {
-        val job = inBackground(state, cancelWhenBelowState, block)
+        val job = owner.inBackground(state, cancelWhenBelowState, block)
         return@useEffectWithCleanup {
             if (cancelWhenRerun) {
                 job.cancel()
@@ -170,69 +173,76 @@ fun <T> T.useBackgroundEffect(
     }
 }
 
-fun <C> C.useBackgroundCallback(
+fun ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.() -> Unit
-): () -> Job where C : LifecycleOwner, C : ReactiveComponent {
-    return useMemo(*values) { { inBackground(state, cancelWhenBelowState, callback) } }
+): () -> Job {
+    val owner = useLifecycleOwner(false)
+    return useMemo(*values) { { owner.inBackground(state, cancelWhenBelowState, callback) } }
 }
 
-fun <C, R> C.useBackgroundCallback(
+fun <R> ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.(R) -> Unit
-): (R) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+): (R) -> Job {
+    val owner = useLifecycleOwner(false)
     return useMemo(*values) {
         { p1 ->
-            inBackground(state, cancelWhenBelowState) {
+            owner.inBackground(state, cancelWhenBelowState) {
                 callback(p1)
             }
         }
     }
 }
 
-fun <C, R, S> C.useBackgroundCallback(
+fun <R, S> ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.(R, S) -> Unit
-): (R, S) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+): (R, S) -> Job {
+    val owner = useLifecycleOwner(false)
     return useMemo(*values) {
         { p1, p2 ->
-            inBackground(state, cancelWhenBelowState) {
+            owner.inBackground(state, cancelWhenBelowState) {
                 callback(p1, p2)
             }
         }
     }
 }
 
-fun <C, R, S, U> C.useBackgroundCallback(
+fun <R, S, U> ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.(R, S, U) -> Unit
-): (R, S, U) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+): (R, S, U) -> Job {
+    val owner = useLifecycleOwner(false)
+
     return useMemo(*values) {
         { p1, p2, p3 ->
-            inBackground(state, cancelWhenBelowState) {
+            owner.inBackground(state, cancelWhenBelowState) {
                 callback(p1, p2, p3)
             }
         }
     }
 }
 
-fun <C, R, S, U, V> C.useBackgroundCallback(
+fun <R, S, U, V> ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.(R, S, U, V) -> Unit
-): (R, S, U, V) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+): (R, S, U, V) -> Job {
+    val owner = useLifecycleOwner(false)
+
     return useMemo(*values) {
         { p1, p2, p3, p4 ->
-            inBackground(
+            owner.inBackground(
                 state,
                 cancelWhenBelowState,
             ) {
@@ -242,15 +252,17 @@ fun <C, R, S, U, V> C.useBackgroundCallback(
     }
 }
 
-fun <C, R, S, U, V, W> C.useBackgroundCallback(
+fun <R, S, U, V, W> ReactiveComponent.useBackgroundCallback(
     vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     callback: suspend CoroutineScope.(R, S, U, V, W) -> Unit
-): (R, S, U, V, W) -> Job where C : LifecycleOwner, C : ReactiveComponent {
+): (R, S, U, V, W) -> Job {
+    val owner = useLifecycleOwner(false)
+
     return useMemo(*values) {
         { p1, p2, p3, p4, p5 ->
-            inBackground(
+            owner.inBackground(
                 state,
                 cancelWhenBelowState,
             ) {
@@ -260,14 +272,13 @@ fun <C, R, S, U, V, W> C.useBackgroundCallback(
     }
 }
 
-// TODO: Move all useTopic extensions to any reactive component that is a lifecycle owner
-
-fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, default: V, mapper: (T) -> V): V {
+fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, default: V, mapper: (T) -> V): V {
     val (state, setState) = useState(default)
+    val owner = useLifecycleOwner()
 
     // Note: This does not change when the mapper changes
-    useEffect(topic, viewLifecycleOwner) {
-        observe(topic) {
+    useEffect(topic, owner) {
+        topic.asLiveData().observe(owner) {
             setState(mapper(topic))
         }
     }
@@ -275,20 +286,21 @@ fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, default: V, mapper: (T)
     return state
 }
 
-fun <T : ITopic, V> AndromedaFragment.useTopic(topic: T, mapper: (T) -> V?): V? {
+fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, mapper: (T) -> V?): V? {
     return useTopic(topic, null, mapper)
 }
 
-fun <T : Any, V> AndromedaFragment.useTopic(
+fun <T : Any, V> ReactiveComponent.useTopic(
     topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
     default: V,
     mapper: (T) -> V
 ): V {
     val (state, setState) = useState(default)
+    val owner = useLifecycleOwner()
 
     // Note: This does not change when the mapper changes
-    useEffect(topic, viewLifecycleOwner) {
-        observe(topic) {
+    useEffect(topic, owner) {
+        topic.asLiveData().observe(owner) {
             setState(mapper(it))
         }
     }
@@ -296,7 +308,7 @@ fun <T : Any, V> AndromedaFragment.useTopic(
     return state
 }
 
-fun <T : Any, V> AndromedaFragment.useTopic(
+fun <T : Any, V> ReactiveComponent.useTopic(
     topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
     mapper: (T) -> V?
 ): V? {
