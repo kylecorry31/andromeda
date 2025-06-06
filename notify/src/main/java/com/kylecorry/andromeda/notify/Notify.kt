@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
@@ -16,6 +17,15 @@ import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.andromeda.core.tryOrLog
 
 object Notify {
+
+    fun getSoundUri(context: Context, channelId: String): Uri? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return null
+        }
+
+        val channel = getNotificationManager(context)?.getNotificationChannel(channelId)
+        return channel?.sound
+    }
 
     fun isActive(context: Context, notificationId: Int): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -144,7 +154,8 @@ object Notify {
         showBigIcon: Boolean = false,
         group: String? = null,
         intent: PendingIntent? = null,
-        actions: List<NotificationCompat.Action> = listOf()
+        actions: List<NotificationCompat.Action> = listOf(),
+        mute: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -173,6 +184,10 @@ object Notify {
 
         for (action in actions) {
             builder.addAction(action)
+        }
+
+        if (mute) {
+            builder.setSilent(true)
         }
 
         val notification = builder.build()
@@ -366,7 +381,7 @@ object Notify {
     private fun getNotificationManager(context: Context): NotificationManager? {
         return context.getSystemService()
     }
-    
+
     val CHANNEL_IMPORTANCE_HIGH =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4
     val CHANNEL_IMPORTANCE_DEFAULT =
