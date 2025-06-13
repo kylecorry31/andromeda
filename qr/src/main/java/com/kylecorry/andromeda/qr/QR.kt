@@ -8,6 +8,7 @@ import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.io.File
+import androidx.core.graphics.createBitmap
 
 object QR {
     fun encode(
@@ -27,7 +28,7 @@ object QR {
                 pixels[offset + x] = if (qr.get(x, y)) Color.BLACK else Color.WHITE
             }
         }
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
         return bitmap
     }

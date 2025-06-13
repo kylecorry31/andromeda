@@ -19,6 +19,7 @@ import com.kylecorry.andromeda.core.toDoubleCompat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import androidx.core.view.size
 
 object Pickers {
 
@@ -271,7 +272,7 @@ object Pickers {
         val p = PopupMenu(context, null)
         p.menuInflater.inflate(id, p.menu)
         val menu = p.menu
-        for (i in 0 until menu.size()) {
+        for (i in 0 until menu.size) {
             items.add(menu[i])
         }
         return items

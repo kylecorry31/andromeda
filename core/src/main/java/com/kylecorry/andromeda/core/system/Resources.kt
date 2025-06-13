@@ -1,6 +1,5 @@
 package com.kylecorry.andromeda.core.system
 
-import android.R
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
@@ -19,6 +18,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.core.view.get
 import java.util.Locale
+import androidx.core.view.size
 
 object Resources {
     fun dp(context: Context, size: Float): Float {
@@ -46,22 +46,22 @@ object Resources {
 
     @ColorInt
     fun androidTextColorPrimary(context: Context): Int {
-        return getAndroidColorAttr(context, R.attr.textColorPrimary)
+        return getAndroidColorAttr(context, android.R.attr.textColorPrimary)
     }
 
     @ColorInt
     fun androidBackgroundColorPrimary(context: Context): Int {
-        return getAndroidColorAttr(context, R.attr.colorBackground)
+        return getAndroidColorAttr(context, android.R.attr.colorBackground)
     }
 
     @ColorInt
     fun androidBackgroundColorSecondary(context: Context): Int {
-        return getAndroidColorAttr(context, R.attr.colorBackgroundFloating)
+        return getAndroidColorAttr(context, android.R.attr.colorBackgroundFloating)
     }
 
     @ColorInt
     fun androidTextColorSecondary(context: Context): Int {
-        return getAndroidColorAttr(context, R.attr.textColorSecondary)
+        return getAndroidColorAttr(context, android.R.attr.textColorSecondary)
     }
 
     @ColorInt
@@ -78,7 +78,7 @@ object Resources {
         val p = PopupMenu(context, null)
         p.menuInflater.inflate(id, p.menu)
         val menu = p.menu
-        for (i in 0 until menu.size()) {
+        for (i in 0 until menu.size) {
             items.add(menu[i])
         }
         return items

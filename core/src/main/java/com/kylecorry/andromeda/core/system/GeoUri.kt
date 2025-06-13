@@ -8,6 +8,7 @@ import com.kylecorry.sol.units.Coordinate
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
+import androidx.core.net.toUri
 
 @Parcelize
 @TypeParceler<Coordinate, CoordinateParceler>()
@@ -18,7 +19,7 @@ data class GeoUri(
 ) : Parcelable {
 
     @IgnoredOnParcel
-    val uri: Uri = Uri.parse(toString())
+    val uri: Uri = toString().toUri()
 
     override fun toString(): String {
         val base = "geo:${coordinate.latitude.roundPlaces(6)},${coordinate.longitude.roundPlaces(6)}"

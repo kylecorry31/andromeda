@@ -11,6 +11,7 @@ import android.net.Uri
 import android.util.Size
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.core.system.Screen
+import androidx.core.graphics.createBitmap
 
 class PDFRenderer2(
     private val context: Context,
@@ -51,11 +52,7 @@ class PDFRenderer2(
                     val pdfPage = renderer.openPage(page)
 
                     val bitmap =
-                        Bitmap.createBitmap(
-                            outputSize.width,
-                            outputSize.height,
-                            Bitmap.Config.ARGB_8888
-                        )
+                        createBitmap(outputSize.width, outputSize.height)
                     if (backgroundColor != Color.TRANSPARENT) {
                         val canvas = Canvas(bitmap)
                         canvas.drawColor(backgroundColor)

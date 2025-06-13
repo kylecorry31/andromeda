@@ -10,6 +10,7 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.kylecorry.sol.units.Coordinate
+import androidx.core.net.toUri
 
 object Intents {
 
@@ -55,7 +56,7 @@ object Intents {
 
     fun email(to: String, subject: String, body: String = ""): Intent {
         return Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:")
+            data = "mailto:".toUri()
             putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
             putExtra(Intent.EXTRA_SUBJECT, subject)
             putExtra(Intent.EXTRA_TEXT, body)
@@ -64,7 +65,7 @@ object Intents {
 
     fun url(url: String): Intent {
         return Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(url)
+            data = url.toUri()
         }
     }
 

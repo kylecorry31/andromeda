@@ -22,7 +22,6 @@ class ImagePixelReader(
     private val config: Bitmap.Config = Bitmap.Config.ARGB_8888
 ) {
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun getPixel(
         image: InputStream,
         x: Float,

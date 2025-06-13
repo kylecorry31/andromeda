@@ -7,6 +7,7 @@ import android.graphics.PathEffect
 import android.graphics.Shader
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.core.graphics.createBitmap
 
 interface ICanvasDrawer {
     var canvas: Canvas
@@ -129,11 +130,7 @@ interface ICanvasDrawer {
     fun clipInverse(path: Path)
     fun mask(
         mask: Bitmap,
-        tempBitmap: Bitmap = Bitmap.createBitmap(
-            mask.width,
-            mask.height,
-            Bitmap.Config.ARGB_8888
-        ),
+        tempBitmap: Bitmap = createBitmap(mask.width, mask.height),
         block: () -> Unit
     ): Bitmap
 

@@ -14,9 +14,11 @@ import android.util.Size
 import androidx.annotation.ColorInt
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
+import androidx.core.graphics.createBitmap
 import androidx.core.graphics.get
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.graphics.scale
 import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
@@ -157,10 +159,7 @@ object BitmapUtils {
             val pixelStride = planes[0].pixelStride
             val rowStride = planes[0].rowStride
             val rowPadding = rowStride - pixelStride * width
-            val bitmap = Bitmap.createBitmap(
-                width + rowPadding / pixelStride,
-                height, Bitmap.Config.ARGB_8888
-            )
+            val bitmap = createBitmap(width + rowPadding / pixelStride, height)
             bitmap.copyPixelsFromBuffer(buffer)
             bitmap
         }
@@ -242,7 +241,7 @@ object BitmapUtils {
     fun Bitmap.resizeToFit(maxWidth: Int, maxHeight: Int): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
             val scaledSize = MathUtils.scaleToBounds(Size(width, height), Size(maxWidth, maxHeight))
-            Bitmap.createScaledBitmap(this, scaledSize.width, scaledSize.height, true)
+            this.scale(scaledSize.width, scaledSize.height)
         } else {
             this
         }
@@ -284,11 +283,8 @@ object BitmapUtils {
         )
 
         // Create an empty mutable bitmap
-        val blank = Bitmap.createBitmap(
-            newWidth.toInt(),
-            newHeight.toInt(),
-            config ?: Bitmap.Config.ARGB_8888
-        )
+        val blank =
+            createBitmap(newWidth.toInt(), newHeight.toInt(), config ?: Bitmap.Config.ARGB_8888)
         // Create a canvas to draw on
         val canvas = Canvas(blank)
 
@@ -316,7 +312,7 @@ object BitmapUtils {
         @ColorInt backgroundColor: Int? = null
     ): Bitmap {
         // Create an empty mutable bitmap
-        val blank = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+        val blank = createBitmap(width.toInt(), height.toInt())
         // Create a canvas to draw on
         val canvas = Canvas(blank)
 

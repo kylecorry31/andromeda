@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.files
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -14,7 +15,6 @@ import java.lang.Exception
 
 class ExternalFileSystem(private val context: Context) {
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun read(uri: Uri): String? {
         return withContext(Dispatchers.IO) {
             val inputStream = stream(uri)
@@ -29,14 +29,13 @@ class ExternalFileSystem(private val context: Context) {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @SuppressLint("Recycle")
     suspend fun stream(uri: Uri): InputStream? {
         return withContext(Dispatchers.IO) {
             context.contentResolver.openInputStream(uri)
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun write(uri: Uri, text: String): Boolean {
         return withContext(Dispatchers.IO) {
             val stream = outputStream(uri) ?: return@withContext false
@@ -52,7 +51,7 @@ class ExternalFileSystem(private val context: Context) {
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
+    @SuppressLint("Recycle")
     suspend fun outputStream(uri: Uri): OutputStream? {
         return withContext(Dispatchers.IO) {
             try {

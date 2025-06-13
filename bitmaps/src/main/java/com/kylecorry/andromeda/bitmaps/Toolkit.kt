@@ -22,6 +22,7 @@ import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.graphics.createBitmap
 
 // This string is used for error messages.
 private const val externalName = "RenderScript Toolkit"
@@ -1043,7 +1044,7 @@ internal object Toolkit {
         validateBitmap("resize", inputBitmap)
         validateRestriction("resize", outputSizeX, outputSizeY, restriction)
 
-        val outputBitmap = Bitmap.createBitmap(outputSizeX, outputSizeY, Bitmap.Config.ARGB_8888)
+        val outputBitmap = createBitmap(outputSizeX, outputSizeY)
         nativeResizeBitmap(nativeHandle, inputBitmap, outputBitmap, restriction)
         return outputBitmap
     }
@@ -1095,7 +1096,7 @@ internal object Toolkit {
                     "$sizeX and $sizeY were provided."
         }
 
-        val outputBitmap = Bitmap.createBitmap(sizeX, sizeY, Bitmap.Config.ARGB_8888)
+        val outputBitmap = createBitmap(sizeX, sizeY)
         nativeYuvToRgbBitmap(nativeHandle, inputArray, sizeX, sizeY, outputBitmap, format.value)
         return outputBitmap
     }
@@ -2253,8 +2254,7 @@ internal fun validateBitmap(
 internal fun createCompatibleBitmap(inputBitmap: Bitmap, inPlace: Boolean = false) = if (inPlace) {
     inputBitmap
 } else {
-    Bitmap.createBitmap(
-        inputBitmap.width,
+    createBitmap(inputBitmap.width,
         inputBitmap.height,
         inputBitmap.config ?: Bitmap.Config.ARGB_8888
     )

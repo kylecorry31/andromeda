@@ -14,6 +14,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant
+import androidx.core.graphics.toColorInt
+import androidx.core.text.htmlEncode
 
 object GPXParser {
 
@@ -105,7 +107,7 @@ object GPXParser {
         val type = node.children.firstOrNull { it.tag.lowercase() == "type" }?.text
         val extensions = node.children.firstOrNull { it.tag.lowercase() == "extensions" }
         val colorHex = extensions?.children?.firstOrNull { it.tag.lowercase() == "color" }?.text
-        val colorInt = tryOrDefault(null) { colorHex?.let { Color.parseColor(it) } }
+        val colorInt = tryOrDefault(null) { colorHex?.toColorInt() }
         val lineStyle =
             extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:linestyle" }?.text
         val group =
@@ -161,7 +163,7 @@ object GPXParser {
         val group =
             extensions?.children?.firstOrNull { it.tag.lowercase() == "trailsense:group" }?.text
         val colorHex = extensions?.children?.firstOrNull { it.tag.lowercase() == "color" }?.text
-        val colorInt = tryOrDefault(null) { colorHex?.let { Color.parseColor(it) } }
+        val colorInt = tryOrDefault(null) { colorHex?.toColorInt() }
 
         if (ele == null && desc != null) {
             // Try to parse the elevation from the description
@@ -209,25 +211,25 @@ object GPXParser {
             children.add(XMLNode.text("time", waypoint.time.toString()))
         }
         if (waypoint.name != null) {
-            children.add(XMLNode.text("name", TextUtils.htmlEncode(waypoint.name)))
+            children.add(XMLNode.text("name", waypoint.name.htmlEncode()))
         }
         if (waypoint.type != null) {
-            children.add(XMLNode.text("type", TextUtils.htmlEncode(waypoint.type)))
+            children.add(XMLNode.text("type", waypoint.type.htmlEncode()))
         }
         if (waypoint.description != null) {
-            children.add(XMLNode.text("desc", TextUtils.htmlEncode(waypoint.description)))
+            children.add(XMLNode.text("desc", waypoint.description.htmlEncode()))
         }
         if (waypoint.comment != null) {
-            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(waypoint.comment)))
+            children.add(XMLNode.text("cmt", waypoint.comment.htmlEncode()))
         }
         if (waypoint.symbol != null) {
-            children.add(XMLNode.text("sym", TextUtils.htmlEncode(waypoint.symbol)))
+            children.add(XMLNode.text("sym", waypoint.symbol.htmlEncode()))
         }
 
         val extensions = mutableListOf<XMLNode>()
 
         if (waypoint.group != null) {
-            extensions.add(XMLNode.text("trailsense:group", TextUtils.htmlEncode(waypoint.group)))
+            extensions.add(XMLNode.text("trailsense:group", waypoint.group.htmlEncode()))
         }
 
         if (waypoint.color != null) {
@@ -249,15 +251,15 @@ object GPXParser {
     private fun toXML(track: GPXTrack): XMLNode {
         val children = mutableListOf<XMLNode>()
         if (track.name != null) {
-            children.add(XMLNode.text("name", TextUtils.htmlEncode(track.name)))
+            children.add(XMLNode.text("name", track.name.htmlEncode()))
         }
 
         if (track.description != null) {
-            children.add(XMLNode.text("desc", TextUtils.htmlEncode(track.description)))
+            children.add(XMLNode.text("desc", track.description.htmlEncode()))
         }
 
         if (track.comment != null) {
-            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(track.comment)))
+            children.add(XMLNode.text("cmt", track.comment.htmlEncode()))
         }
 
         if (track.id != null) {
@@ -265,13 +267,13 @@ object GPXParser {
         }
 
         if (track.type != null) {
-            children.add(XMLNode.text("type", TextUtils.htmlEncode(track.type)))
+            children.add(XMLNode.text("type", track.type.htmlEncode()))
         }
 
         val extensions = mutableListOf<XMLNode>()
 
         if (track.group != null) {
-            extensions.add(XMLNode.text("trailsense:group", TextUtils.htmlEncode(track.group)))
+            extensions.add(XMLNode.text("trailsense:group", track.group.htmlEncode()))
         }
 
         if (track.color != null) {
@@ -305,15 +307,15 @@ object GPXParser {
     private fun toXML(route: GPXRoute): XMLNode {
         val children = mutableListOf<XMLNode>()
         if (route.name != null) {
-            children.add(XMLNode.text("name", TextUtils.htmlEncode(route.name)))
+            children.add(XMLNode.text("name", route.name.htmlEncode()))
         }
 
         if (route.comment != null) {
-            children.add(XMLNode.text("cmt", TextUtils.htmlEncode(route.comment)))
+            children.add(XMLNode.text("cmt", route.comment.htmlEncode()))
         }
 
         if (route.description != null) {
-            children.add(XMLNode.text("desc", TextUtils.htmlEncode(route.description)))
+            children.add(XMLNode.text("desc", route.description.htmlEncode()))
         }
 
         if (route.number != null) {
@@ -321,11 +323,11 @@ object GPXParser {
         }
 
         if (route.type != null) {
-            children.add(XMLNode.text("type", TextUtils.htmlEncode(route.type)))
+            children.add(XMLNode.text("type", route.type.htmlEncode()))
         }
 
         if (route.source != null) {
-            children.add(XMLNode.text("src", TextUtils.htmlEncode(route.source)))
+            children.add(XMLNode.text("src", route.source.htmlEncode()))
         }
 
         for (point in route.points) {

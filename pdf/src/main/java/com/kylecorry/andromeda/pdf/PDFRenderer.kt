@@ -8,6 +8,7 @@ import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.core.system.Screen
+import androidx.core.graphics.createBitmap
 
 class PDFRenderer {
     fun toBitmap(
@@ -45,7 +46,7 @@ class PDFRenderer {
                     }
 
                     val bitmap =
-                        Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+                        createBitmap(width.toInt(), height.toInt())
                     if (backgroundColor != Color.TRANSPARENT) {
                         val canvas = Canvas(bitmap)
                         canvas.drawColor(backgroundColor)

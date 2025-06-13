@@ -1,10 +1,11 @@
 package com.kylecorry.andromeda.canvas
 
 import android.graphics.*
+import androidx.core.graphics.createBitmap
 
 inline fun Canvas.getMaskedBitmap(
     mask: Bitmap,
-    tempBitmap: Bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888),
+    tempBitmap: Bitmap = createBitmap(width, height),
     block: (canvas: Canvas) -> Unit
 ): Bitmap {
     val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG)
