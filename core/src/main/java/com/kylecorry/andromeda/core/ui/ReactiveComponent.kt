@@ -1,6 +1,8 @@
 package com.kylecorry.andromeda.core.ui
 
+import android.app.Activity
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.lifecycle.LifecycleOwner
@@ -16,6 +18,8 @@ interface ReactiveComponent {
     fun <T> useView(@IdRes id: Int): T
     fun useRootView(): View
     fun useLifecycleOwner(viewOwner: Boolean = true): LifecycleOwner
+    fun useArguments(): Bundle
+    fun useActivity(): Activity
 }
 
 fun <T> ReactiveComponent.useCallback(vararg values: Any?, callback: () -> T): () -> T {

@@ -212,6 +212,14 @@ open class AndromedaBottomSheetFragment : BottomSheetDialogFragment(), IPermissi
         }
     }
 
+    override fun useArguments(): Bundle {
+        return requireArguments()
+    }
+
+    override fun useActivity(): Activity {
+        return requireActivity()
+    }
+
     override fun <T> useView(@IdRes id: Int): T {
         return useMemo(useRootView(), id) {
             requireView().findViewById(id)!!

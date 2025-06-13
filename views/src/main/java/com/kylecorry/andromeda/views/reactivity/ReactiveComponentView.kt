@@ -1,8 +1,11 @@
 package com.kylecorry.andromeda.views.reactivity
 
+import android.app.Activity
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
+import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -85,6 +88,14 @@ class ReactiveComponentView<T : ViewAttributes>(
 
     override fun useLifecycleOwner(viewOwner: Boolean): LifecycleOwner {
         return this
+    }
+
+    override fun useArguments(): Bundle {
+        return useMemo { bundleOf() }
+    }
+
+    override fun useActivity(): Activity {
+        return context as? Activity ?: throw IllegalStateException("Context is not an Activity")
     }
 
     override fun <T> useView(id: Int): T {

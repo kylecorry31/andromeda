@@ -2,6 +2,7 @@ package com.kylecorry.andromeda.fragments
 
 import android.app.Activity
 import android.app.Application
+import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.annotation.IdRes
@@ -21,12 +22,17 @@ import com.kylecorry.andromeda.core.topics.ITopic
 import com.kylecorry.andromeda.core.topics.asLiveData
 import com.kylecorry.andromeda.core.topics.generic.asLiveData
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
+import com.kylecorry.luna.coroutines.CoroutineQueueRunner
 import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 fun Fragment.switchToFragment(
     fragment: Fragment,
@@ -88,6 +94,7 @@ inline fun LifecycleOwner.repeatInBackground(
 fun LifecycleOwner.inBackground(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
+    repeat: Boolean = false,
     block: suspend CoroutineScope.() -> Unit
 ): Job {
     val minimumState = when (state) {
@@ -119,8 +126,10 @@ fun LifecycleOwner.inBackground(
                     try {
                         block()
                     } finally {
-                        isComplete = true
-                        this.cancel()
+                        if (!repeat) {
+                            isComplete = true
+                            this.cancel()
+                        }
                     }
                 }
             }
@@ -160,11 +169,12 @@ fun ReactiveComponent.useBackgroundEffect(
     state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     cancelWhenBelowState: Boolean = true,
     cancelWhenRerun: Boolean = false,
+    repeat: Boolean = false,
     block: suspend CoroutineScope.() -> Unit
 ) {
     val owner = useLifecycleOwner(false)
     useEffectWithCleanup(*values) {
-        val job = owner.inBackground(state, cancelWhenBelowState, block)
+        val job = owner.inBackground(state, cancelWhenBelowState, repeat, block)
         return@useEffectWithCleanup {
             if (cancelWhenRerun) {
                 job.cancel()
@@ -180,7 +190,7 @@ fun ReactiveComponent.useBackgroundCallback(
     callback: suspend CoroutineScope.() -> Unit
 ): () -> Job {
     val owner = useLifecycleOwner(false)
-    return useMemo(*values) { { owner.inBackground(state, cancelWhenBelowState, callback) } }
+    return useMemo(*values) { { owner.inBackground(state, cancelWhenBelowState, false, callback) } }
 }
 
 fun <R> ReactiveComponent.useBackgroundCallback(
@@ -272,6 +282,30 @@ fun <R, S, U, V, W> ReactiveComponent.useBackgroundCallback(
     }
 }
 
+fun <T> ReactiveComponent.useFlow(
+    flow: Flow<T>,
+    state: BackgroundMinimumState = BackgroundMinimumState.Created,
+    collectOn: CoroutineContext = Dispatchers.Default,
+    observeOn: CoroutineContext = Dispatchers.Main,
+): T? {
+    val (value, setValue) = useState<T?>(null)
+    useBackgroundEffect(
+        state = state,
+        repeat = true,
+        cancelWhenRerun = true,
+        cancelWhenBelowState = true
+    ) {
+        withContext(collectOn) {
+            flow.collect {
+                withContext(observeOn) {
+                    setValue(it)
+                }
+            }
+        }
+    }
+    return value
+}
+
 fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, default: V, mapper: (T) -> V): V {
     val (state, setState) = useState(default)
     val owner = useLifecycleOwner()
@@ -313,4 +347,46 @@ fun <T : Any, V> ReactiveComponent.useTopic(
     mapper: (T) -> V?
 ): V? {
     return useTopic(topic, null, mapper)
+}
+
+fun <T> ReactiveComponent.useBackgroundMemo(
+    vararg values: Any?,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    cancelWhenBelowState: Boolean = true,
+    cancelWhenRerun: Boolean = false,
+    block: suspend CoroutineScope.() -> T
+): T? {
+    val (currentState, setCurrentState) = useState<T?>(null)
+
+    useBackgroundEffect(values, state, cancelWhenBelowState, cancelWhenRerun) {
+        setCurrentState(block())
+    }
+
+    return currentState
+}
+
+fun ReactiveComponent.useClickCallback(view: View, vararg values: Any?, callback: () -> Unit) {
+    useEffect(view, *values) {
+        view.setOnClickListener {
+            callback()
+        }
+    }
+}
+
+fun <T> ReactiveComponent.useArgument(key: String): T? {
+    val arguments = useArguments()
+    return useMemo(arguments, key) {
+        @Suppress("DEPRECATION", "UNCHECKED_CAST")
+        arguments.get(key) as? T?
+    }
+}
+
+fun ReactiveComponent.useCoroutineQueue(
+    queueSize: Int = 1,
+    ignoreExceptions: Boolean = false
+): CoroutineQueueRunner {
+    // This will not create a new runner if the arguments change
+    return useMemo {
+        CoroutineQueueRunner(queueSize, ignoreExceptions = ignoreExceptions)
+    }
 }
