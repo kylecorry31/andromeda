@@ -37,8 +37,25 @@ object Notify {
         }
     }
 
-    fun send(context: Context, notificationId: Int, notification: Notification) {
-        getNotificationManager(context)?.notify(notificationId, notification)
+    fun send(
+        context: Context,
+        notificationId: Int,
+        notification: Notification,
+        overrideSystemGrouping: Boolean = false,
+        groupSummaryNotificationId: Int = notificationId
+    ) {
+        val manager = getNotificationManager(context)
+        if (overrideSystemGrouping && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            val summary = NotificationCompat
+                .Builder(context, notification)
+                .setGroupSummary(true)
+                .setSound(null)
+                .setVibrate(null)
+                .build()
+            manager?.notify(groupSummaryNotificationId, summary)
+        }
+
+        manager?.notify(notificationId, notification)
     }
 
     /**
