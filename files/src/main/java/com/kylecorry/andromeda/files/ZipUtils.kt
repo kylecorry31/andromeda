@@ -1,7 +1,11 @@
 package com.kylecorry.andromeda.files
 
 import com.kylecorry.andromeda.core.tryOrNothing
-import java.io.*
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -11,19 +15,19 @@ object ZipUtils {
     /**
      * Zip files to a stream - does not support zipping directories yet
      */
-    fun zip(toFile: File, vararg files: File) {
-        zip(FileOutputStream(toFile), files = files)
+    fun zip(toFile: File, vararg files: File, excludedFiles: List<File> = emptyList()) {
+        zip(FileOutputStream(toFile), files = files, excludedFiles)
     }
 
     /**
      * Zip files to a stream
      */
-    fun zip(toStream: OutputStream, vararg files: File) {
+    fun zip(toStream: OutputStream, vararg files: File, excludedFiles: List<File> = emptyList()) {
         val saver = FileSaver(false)
         val zip = ZipOutputStream(toStream)
         zip.use {
             files.forEach { file ->
-                addFileToZip(zip, file, saver)
+                addFileToZip(zip, file, saver, excludedFiles = excludedFiles.map { it.path })
             }
         }
     }
@@ -32,11 +36,16 @@ object ZipUtils {
         zip: ZipOutputStream,
         file: File,
         saver: FileSaver,
-        rootPath: String = ""
+        rootPath: String = "",
+        excludedFiles: List<String> = emptyList()
     ) {
+        if (excludedFiles.contains(file.path)) {
+            return
+        }
+
         if (file.isDirectory) {
             file.listFiles()?.forEach {
-                addFileToZip(zip, it, saver, rootPath + file.name + "/")
+                addFileToZip(zip, it, saver, rootPath + file.name + "/", excludedFiles)
             }
         } else {
             val entry = ZipEntry(rootPath + file.name)
