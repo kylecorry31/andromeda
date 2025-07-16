@@ -284,15 +284,18 @@ fun <R, S, U, V, W> ReactiveComponent.useBackgroundCallback(
 
 fun <T> ReactiveComponent.useFlow(
     flow: Flow<T>,
+    vararg values: Any?,
     state: BackgroundMinimumState = BackgroundMinimumState.Created,
     collectOn: CoroutineContext = Dispatchers.Default,
     observeOn: CoroutineContext = Dispatchers.Main,
+    cancelWhenRerun: Boolean = false
 ): T? {
     val (value, setValue) = useState<T?>(null)
     useBackgroundEffect(
+        *values,
         state = state,
         repeat = true,
-        cancelWhenRerun = true,
+        cancelWhenRerun = cancelWhenRerun,
         cancelWhenBelowState = true
     ) {
         withContext(collectOn) {
