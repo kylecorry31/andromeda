@@ -13,6 +13,7 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.andromeda.core.ui.useCallback
 import com.kylecorry.luna.hooks.Hooks
+import com.kylecorry.luna.hooks.Ref
 import com.kylecorry.luna.hooks.State
 
 class ReactiveComponentView<T : ViewAttributes>(
@@ -80,6 +81,12 @@ class ReactiveComponentView<T : ViewAttributes>(
         }
 
         return Pair(savedState, callback)
+    }
+
+    override fun <T> useRef(initialValue: T): Ref<T> {
+        val key = "ref-$currentHookCount"
+        currentHookCount++
+        return hooks.ref(key, initialValue)
     }
 
     override fun useRootView(): View {

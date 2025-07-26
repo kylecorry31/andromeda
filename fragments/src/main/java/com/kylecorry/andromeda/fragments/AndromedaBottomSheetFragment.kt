@@ -17,6 +17,7 @@ import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.hooks.Hooks
+import com.kylecorry.luna.hooks.Ref
 import com.kylecorry.luna.hooks.State
 
 open class AndromedaBottomSheetFragment : BottomSheetDialogFragment(), IPermissionRequester,
@@ -198,6 +199,12 @@ open class AndromedaBottomSheetFragment : BottomSheetDialogFragment(), IPermissi
         }
 
         return Pair(savedState, callback)
+    }
+
+    override fun <T> useRef(initialValue: T): Ref<T> {
+        val key = "ref-$currentHookCount"
+        currentHookCount++
+        return hooks.ref(key, initialValue)
     }
 
     override fun useRootView(): View {

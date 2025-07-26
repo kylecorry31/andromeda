@@ -8,6 +8,7 @@ import androidx.annotation.IdRes
 import androidx.lifecycle.LifecycleOwner
 import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.luna.hooks.Ref
 
 interface ReactiveComponent {
     fun useAndroidContext(): Context
@@ -16,6 +17,7 @@ interface ReactiveComponent {
     fun <T> useMemo(vararg values: Any?, value: () -> T): T
     fun <T> useState(initialValue: T): Pair<T, (T) -> Unit>
     fun <T> useView(@IdRes id: Int): T
+    fun <T> useRef(initialValue: T): Ref<T>
     fun useRootView(): View
     fun useLifecycleOwner(viewOwner: Boolean = true): LifecycleOwner
     fun useArguments(): Bundle

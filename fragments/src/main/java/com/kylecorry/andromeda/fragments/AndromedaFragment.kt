@@ -20,6 +20,7 @@ import com.kylecorry.andromeda.permissions.PermissionRationale
 import com.kylecorry.andromeda.permissions.Permissions
 import com.kylecorry.andromeda.permissions.SpecialPermission
 import com.kylecorry.luna.hooks.Hooks
+import com.kylecorry.luna.hooks.Ref
 import com.kylecorry.luna.hooks.State
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -256,6 +257,12 @@ open class AndromedaFragment : Fragment(), IPermissionRequester, IntentResultRet
         }
 
         return Pair(savedState, callback)
+    }
+
+    override fun <T> useRef(initialValue: T): Ref<T> {
+        val key = "ref-$currentHookCount"
+        currentHookCount++
+        return hooks.ref(key, initialValue)
     }
 
     override fun useRootView(): View {
