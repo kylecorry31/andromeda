@@ -42,6 +42,7 @@ android {
 dependencies {
     implementation project(':core')
     implementation project(':wkt')
+    implementation project(':compression')
     implementation libs.androidx.core.ktx
     testImplementation libs.junit.platform.runner
     testImplementation libs.junit.jupiter.api

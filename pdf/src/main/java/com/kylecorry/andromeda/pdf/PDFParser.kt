@@ -1,9 +1,9 @@
 package com.kylecorry.andromeda.pdf
 
-import com.kylecorry.andromeda.core.io.forEachChar
-import com.kylecorry.andromeda.core.io.readLinesUntil
+import com.kylecorry.andromeda.compression.Zlib
+import com.kylecorry.andromeda.core.io.forEachByte
+import com.kylecorry.andromeda.core.io.readBytesUntil
 import com.kylecorry.andromeda.core.text.areBracketsBalanced
-import java.io.BufferedReader
 import java.io.InputStream
 
 internal class PDFParser {
@@ -13,10 +13,10 @@ internal class PDFParser {
     )
 
     fun parse(pdf: InputStream, ignoreStreams: Boolean = false): List<PDFObject> {
-        val reader = pdf.bufferedReader()
         val objects = mutableListOf<PDFObject>()
         val builder = StringBuilder()
-        reader.forEachChar { char ->
+        pdf.forEachByte { byte ->
+            val char = byte.toChar()
             builder.append(char)
 
             // Reset the builder if a new line is encountered
@@ -26,7 +26,7 @@ internal class PDFParser {
 
             // Object start
             if (builder.endsWith("obj")) {
-                objects.add(parseObject(builder.toString(), reader, !ignoreStreams))
+                objects.add(parseObject(builder.toString(), pdf, !ignoreStreams))
                 builder.clear()
             }
         }
@@ -35,7 +35,7 @@ internal class PDFParser {
 
     private fun parseObject(
         startToken: String,
-        stream: BufferedReader,
+        stream: InputStream,
         shouldParseStreams: Boolean
     ): PDFObject {
         val properties = mutableListOf<String>()
@@ -43,7 +43,11 @@ internal class PDFParser {
         val id = startToken.replace("obj", "").trim()
         val builder = StringBuilder()
 
-        stream.forEachChar { char ->
+        var isObjectStream = false
+        var isStreamEncoded = false
+
+        stream.forEachByte { byte ->
+            val char = byte.toChar()
             builder.append(char)
 
             // Parameters start
@@ -52,10 +56,41 @@ internal class PDFParser {
                 properties.addAll(parseParameters(stream))
             }
 
+            if (properties.contains("/Type /ObjStm")) {
+                isObjectStream = true
+            }
+
+            if (properties.contains("/Filter /FlateDecode")) {
+                isStreamEncoded = true
+            }
+
             // Stream start
             if (builder.endsWith("stream")) {
                 builder.clear()
-                streams.add(parseStream(stream, shouldParseStreams))
+                val s = parseStream(stream, shouldParseStreams || isObjectStream)
+                if (isObjectStream) {
+                    if (isStreamEncoded) {
+                        try {
+                            val decoded = Zlib.decompress(s)
+                            val finalDecoded = if (properties.any { it.startsWith("/First") }){
+                                val first = properties.first { it.startsWith("/First") }
+                                val offset =  first.split(" ")[1].toIntOrNull() ?: 0
+                                decoded.copyOfRange(offset, decoded.size)
+                            } else {
+                                decoded
+                            }
+
+                            println(finalDecoded.decodeToString())
+                            // TODO: Split by <<...>> and create a new object for each of them. There's probably something in properties that can be used to get the object ID
+                            println("Decompressed stream: ${decoded.size} bytes")
+                        } catch (e: Exception) {
+                            // Handle decompression errors (e.g., corrupted data, incorrect format)
+                            e.printStackTrace()
+                        } finally {
+                        }
+                    }
+                }
+                streams.add(s)
             }
 
             // Object end
@@ -67,16 +102,22 @@ internal class PDFParser {
         return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
     }
 
-    private fun parseStream(reader: BufferedReader, shouldParse: Boolean): ByteArray {
-        return reader.readLinesUntil("endstream", shouldParse, trimLines = true).toByteArray()
+    private fun parseStream(reader: InputStream, shouldParse: Boolean): ByteArray {
+        return reader.readBytesUntil(
+            "endstream".toByteArray(),
+            shouldParse,
+            trimLines = true,
+            trimStartAndEndOnly = true
+        )
     }
 
-    private fun parseParameters(stream: BufferedReader): List<String> {
+    private fun parseParameters(stream: InputStream): List<String> {
         val parameters = mutableMapOf<String, String>()
         val builder = StringBuilder()
         var key: String? = null
         var isReadingKey = false
-        stream.forEachChar { char ->
+        stream.forEachByte { byte ->
+            val char = byte.toChar()
             builder.append(char)
 
             // Nested parameters
