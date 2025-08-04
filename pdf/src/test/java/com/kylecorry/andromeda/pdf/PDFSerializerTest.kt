@@ -103,7 +103,7 @@ startxref
                 PDFObject(
                     "4 0",
                     listOf("/Type /Measure", "/Subtype /GEO", "/Reference 3 0 R"),
-                    listOf("Test streamHere".toByteArray())
+                    listOf("Test stream\nHere".toByteArray())
                 ),
             )
 
