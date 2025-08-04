@@ -4,6 +4,7 @@ import com.kylecorry.andromeda.compression.Zlib
 import com.kylecorry.andromeda.core.io.forEachByte
 import com.kylecorry.andromeda.core.io.readBytesUntil
 import com.kylecorry.andromeda.core.text.areBracketsBalanced
+import com.kylecorry.andromeda.core.toIntCompat
 import java.io.InputStream
 
 internal class PDFParser {
@@ -26,7 +27,7 @@ internal class PDFParser {
 
             // Object start
             if (builder.endsWith("obj")) {
-                objects.add(parseObject(builder.toString(), pdf, !ignoreStreams))
+                objects.addAll(parseObject(builder.toString(), pdf, !ignoreStreams))
                 builder.clear()
             }
         }
@@ -37,14 +38,15 @@ internal class PDFParser {
         startToken: String,
         stream: InputStream,
         shouldParseStreams: Boolean
-    ): PDFObject {
+    ): List<PDFObject> {
         val properties = mutableListOf<String>()
         val streams = mutableListOf<ByteArray>()
+        val subObjects = mutableListOf<PDFObject>()
         val id = startToken.replace("obj", "").trim()
         val builder = StringBuilder()
 
         var isObjectStream = false
-        var isStreamEncoded = false
+        var isStreamCompressed = false
 
         stream.forEachByte { byte ->
             val char = byte.toChar()
@@ -61,7 +63,7 @@ internal class PDFParser {
             }
 
             if (properties.contains("/Filter /FlateDecode")) {
-                isStreamEncoded = true
+                isStreamCompressed = true
             }
 
             // Stream start
@@ -69,37 +71,69 @@ internal class PDFParser {
                 builder.clear()
                 val s = parseStream(stream, shouldParseStreams || isObjectStream)
                 if (isObjectStream) {
-                    if (isStreamEncoded) {
-                        try {
-                            val decoded = Zlib.decompress(s)
-                            val finalDecoded = if (properties.any { it.startsWith("/First") }){
-                                val first = properties.first { it.startsWith("/First") }
-                                val offset =  first.split(" ")[1].toIntOrNull() ?: 0
-                                decoded.copyOfRange(offset, decoded.size)
-                            } else {
-                                decoded
+                    try {
+                        val decoded = if (isStreamCompressed) {
+                            Zlib.decompress(s)
+                        } else {
+                            s
+                        }
+
+                        val first = properties.firstOrNull { it.startsWith("/First") }?.let {
+                            getDictionaryValue(it)?.toIntCompat()
+                        } ?: 0
+
+                        val objectIndices = decoded
+                            .copyOfRange(0, first)
+                            .decodeToString()
+                            .split(' ')
+                            .mapNotNull { it.toIntCompat() }
+                            .chunked(2)
+                            .map { it[0] to it[1] } + listOf(-1 to decoded.size)
+
+                        val objects = objectIndices.zipWithNext()
+                            .map {
+                                val start = it.first.second
+                                val end = it.second.second
+                                PDFObject(
+                                    "${it.first.first} 0",
+                                    properties = parseParameters(
+                                        decoded.copyOfRange(start, end).inputStream()
+                                    ),
+                                    streams = emptyList()
+                                )
                             }
 
-                            println(finalDecoded.decodeToString())
-                            // TODO: Split by <<...>> and create a new object for each of them. There's probably something in properties that can be used to get the object ID
-                            println("Decompressed stream: ${decoded.size} bytes")
-                        } catch (e: Exception) {
-                            // Handle decompression errors (e.g., corrupted data, incorrect format)
-                            e.printStackTrace()
-                        } finally {
-                        }
+                        subObjects.addAll(objects)
+                    } catch (e: Exception) {
+                        // Handle decompression errors (e.g., corrupted data, incorrect format)
+                        e.printStackTrace()
+                    } finally {
                     }
                 }
-                streams.add(s)
+                if (shouldParseStreams) {
+                    streams.add(s)
+                }
             }
 
             // Object end
             if (builder.endsWith("endobj")) {
-                return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
+                return listOf(
+                    PDFObject(
+                        id,
+                        properties,
+                        if (shouldParseStreams) streams else emptyList()
+                    )
+                ) + subObjects
             }
         }
 
-        return PDFObject(id, properties, if (shouldParseStreams) streams else emptyList())
+        return listOf(
+            PDFObject(
+                id,
+                properties,
+                if (shouldParseStreams) streams else emptyList()
+            )
+        ) + subObjects
     }
 
     private fun parseStream(reader: InputStream, shouldParse: Boolean): ByteArray {
@@ -180,6 +214,14 @@ internal class PDFParser {
 
         // TODO: Add proper support for parameters
         return parameters.map { "${it.key} ${it.value}" }
+    }
+
+    private fun getDictionaryValue(keyValuePair: String): String? {
+        val firstSpace = keyValuePair.indexOf(' ')
+        if (firstSpace == -1) {
+            return null
+        }
+        return keyValuePair.substring(firstSpace + 1).trim()
     }
 
 }
