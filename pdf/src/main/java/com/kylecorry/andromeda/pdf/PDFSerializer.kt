@@ -5,8 +5,8 @@ import com.kylecorry.andromeda.core.io.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 
-class PDFSerializer(private val ignoreStreams: Boolean = false) : ISerializer<List<PDFObject>> {
-    override fun serialize(obj: List<PDFObject>, stream: OutputStream) {
+class PDFSerializer(private val ignoreStreams: Boolean = false) : ISerializer<List<PDFValue.PDFObject>> {
+    override fun serialize(obj: List<PDFValue.PDFObject>, stream: OutputStream) {
         try {
             PdfConvert.toPDF(obj, stream)
         } catch (e: Exception) {
@@ -14,7 +14,7 @@ class PDFSerializer(private val ignoreStreams: Boolean = false) : ISerializer<Li
         }
     }
 
-    override fun deserialize(stream: InputStream): List<PDFObject> {
+    override fun deserialize(stream: InputStream): List<PDFValue.PDFObject> {
         return try {
             PdfConvert.fromPDF(stream, ignoreStreams)
         } catch (e: Exception) {

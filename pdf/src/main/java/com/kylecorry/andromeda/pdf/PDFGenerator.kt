@@ -1,30 +1,24 @@
 package com.kylecorry.andromeda.pdf
 
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.OutputStream
+import java.io.Writer
 
 internal class PDFGenerator {
 
-    fun toPDF(objects: List<PDFObject>, out: OutputStream) {
+    fun toPDF(objects: List<PDFValue.PDFObject>, out: OutputStream) {
         val sortedObjects = objects.sortedBy { it.id }
         val writer = out.bufferedWriter()
         val xref = mutableListOf<Int>()
-        val root = sortedObjects.getByProperty("/Type", "/Catalog").first().id
+        val root = sortedObjects.getByProperty("/Type", name("/Catalog")).first().reference
         var size = 0
         size += append(writer, "%PDF-1.3\n")
+        writer.flush()
 
         for (obj in sortedObjects) {
             xref.add(size)
-            size += append(writer, "${obj.id} obj\n")
-            val properties = "<<\n" + obj.properties.joinToString("\n") + "\n>>\n"
-            size += append(writer, properties)
-
-            for (stream in obj.streams){
-                size += append(writer, "stream\n")
-                writer.flush()
-                size += appendBytes(out, stream)
-                size += append(writer, "\nendstream\n")
-            }
-            size += append(writer, "endobj\n")
+            size += appendBytes(out, obj.toByteArray())
+            size += appendBytes(out, "\n".toByteArray())
         }
 
         val startXref = size
@@ -32,7 +26,7 @@ internal class PDFGenerator {
         append(writer, xref.joinToString("\n") { "${it.toString().padStart(10, '0')} 00000 n" })
         append(
             writer,
-            "\ntrailer\n<<\n/Size ${xref.size}\n/Root $root R\n>>\nstartxref\n$startXref\n%%EOF"
+            "\ntrailer\n<<\n/Size ${xref.size}\n/Root $root\n>>\nstartxref\n$startXref\n%%EOF"
         )
         writer.flush()
     }
@@ -47,7 +41,7 @@ internal class PDFGenerator {
         return arr.size
     }
 
-    fun toPDF(objects: List<PDFObject>): String {
+    fun toPDF(objects: List<PDFValue.PDFObject>): String {
         return ByteArrayOutputStream().use {
             toPDF(objects, it)
             it.toString()

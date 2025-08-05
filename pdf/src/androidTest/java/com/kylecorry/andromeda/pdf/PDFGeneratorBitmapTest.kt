@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.pdf
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import androidx.test.platform.app.InstrumentationRegistry
@@ -18,10 +17,10 @@ internal class PDFGeneratorBitmapTest {
         Canvas(bitmap).drawColor(Color.BLUE)
 
         val objects = listOf(
-            catalog("1 0", "2 0"),
-            pages("2 0", listOf("3 0")),
-            page("3 0", "2 0", 200, 200, listOf("4 0")),
-            image("4 0", bitmap, 0, 0, 200, 200)
+            catalog(1, 2),
+            pages(2, listOf(3)),
+            page(3, 2, 200, 200, listOf(4)),
+            image(4, bitmap, 0, 0, 200, 200)
         )
 
         val output = File(context.filesDir, "test.pdf")

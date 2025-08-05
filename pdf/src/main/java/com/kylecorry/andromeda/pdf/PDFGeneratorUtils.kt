@@ -8,65 +8,107 @@ import com.kylecorry.andromeda.wkt.WKTString
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.units.Coordinate
 import java.io.ByteArrayOutputStream
-import java.nio.ByteBuffer
 
-fun catalog(id: String, pages: String): PDFObject {
-    return PDFObject(
-        id, listOf(
-            type("Catalog"),
-            "/Pages ${ref(pages)}"
-        ), emptyList()
+fun obj(id: Int, vararg contents: PDFValue?): PDFValue.PDFObject {
+    return PDFValue.PDFObject(id, 0, contents.toList().filterNotNull())
+}
+
+fun dict(vararg entries: Pair<PDFValue.PDFName, PDFValue>?): PDFValue.PDFDictionary {
+    return PDFValue.PDFDictionary(entries.filterNotNull().toMap())
+}
+
+fun name(name: String): PDFValue.PDFName {
+    return PDFValue.PDFName(name)
+}
+
+fun string(value: String): PDFValue.PDFString {
+    return PDFValue.PDFString(value)
+}
+
+fun number(value: Number): PDFValue.PDFNumber {
+    return PDFValue.PDFNumber(value)
+}
+
+fun array(vararg values: PDFValue): PDFValue.PDFArray {
+    return PDFValue.PDFArray(values.toList())
+}
+
+fun ref(objectId: Int): PDFValue.PDFIndirectObject {
+    return PDFValue.PDFIndirectObject(objectId)
+}
+
+fun stream(bytes: ByteArray): PDFValue.PDFStream {
+    return PDFValue.PDFStream(bytes)
+}
+
+fun stream(string: String): PDFValue.PDFStream {
+    return PDFValue.PDFStream(string.toByteArray())
+}
+
+fun catalog(objectId: Int, pagesObjectReference: Int): PDFValue.PDFObject {
+    return obj(
+        objectId,
+        dict(
+            name("/Type") to name("/Catalog"),
+            name("/Pages") to ref(pagesObjectReference)
+        )
     )
 }
 
-fun pages(id: String, children: List<String>): PDFObject {
-    return PDFObject(
-        id,
-        listOf(
-            type("Pages"),
-            "/Kids ${array(children) { ref(it) }}"
-        ),
-        emptyList()
+fun pages(objectId: Int, childIds: List<Int>): PDFValue.PDFObject {
+    return obj(
+        objectId,
+        dict(
+            name("/Type") to name("/Pages"),
+            name("/Kids") to array(*childIds.map { ref(it) }.toTypedArray())
+        )
     )
 }
 
 fun page(
-    id: String,
-    parent: String,
+    id: Int,
+    parent: Int,
     width: Int,
     height: Int,
-    contents: List<String>,
-    viewportIds: List<String> = emptyList(),
-    properties: List<String> = emptyList()
-): PDFObject {
-    return PDFObject(
-        id, listOfNotNull(
-            type("Page"),
-            "/Parent ${ref(parent)}",
-            "/MediaBox [0 0 $width $height]",
-            "/Contents ${array(contents) { ref(it) }}",
-            if (viewportIds.isEmpty()) null else "/VP ${array(viewportIds) { ref(it) }}"
-        ) + properties, emptyList()
+    contentIds: List<Int>,
+    viewportIds: List<Int> = emptyList(),
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    return obj(
+        id,
+        dict(
+            name("/Type") to name("/Page"),
+            name("/Parent") to ref(parent),
+            name("/MediaBox") to array(
+                number(0), number(0), number(width), number(height)
+            ),
+            name("/Contents") to array(*contentIds.map { ref(it) }.toTypedArray()),
+            if (viewportIds.isEmpty()) null else name("/VP") to array(*viewportIds.map { ref(it) }
+                .toTypedArray()),
+            *properties.properties.toList().toTypedArray()
+        )
     )
 }
 
 fun viewport(
-    id: String,
-    measureId: String,
+    id: Int,
+    measureId: Int,
     bbox: DoubleArray,
-    properties: List<String> = emptyList()
-): PDFObject {
-    return PDFObject(
-        id, listOf(
-            type("Viewport"),
-            "/Measure ${ref(measureId)}",
-            "/BBox ${array(bbox.toTypedArray())}"
-        ) + properties, emptyList()
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    return obj(
+        id,
+        dict(
+            name("/Type") to name("/Viewport"),
+            name("/Measure") to ref(measureId),
+            name("/BBox") to array(*bbox.map { number(it) }.toTypedArray()),
+            *properties.properties.toList().toTypedArray()
+        )
     )
 }
 
 fun geo(
-    id: String,
+    id: Int,
     gpts: List<Coordinate>,
     lpts: List<Vector2> = listOf(
         Vector2(0f, 1f),
@@ -74,32 +116,41 @@ fun geo(
         Vector2(1f, 0f),
         Vector2(1f, 1f)
     ),
-    gcsId: String? = null,
+    gcsId: Int? = null,
     bounds: List<Vector2> = listOf(
         Vector2(0f, 1f),
         Vector2(0f, 0f),
         Vector2(1f, 0f),
         Vector2(1f, 1f)
     ),
-    properties: List<String> = emptyList()
-): PDFObject {
-    return PDFObject(
-        id, listOfNotNull(
-            type("Measure"),
-            subtype("GEO"),
-            "/Bounds ${array(bounds.toTypedArray()) { "${it.x} ${it.y}" }}",
-            "/LPTS ${array(lpts.toTypedArray()) { "${it.x} ${it.y}" }}",
-            "/GPTS ${array(gpts.toTypedArray()) { "${it.latitude} ${it.longitude}" }}",
-            gcsId?.let { "/GCS ${ref(it)}" }
-        ) + properties, emptyList()
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    return obj(
+        id,
+        dict(
+            name("/Type") to name("/Measure"),
+            name("/Subtype") to name("/GEO"),
+            name("/Bounds") to array(*bounds.flatMap { listOf(number(it.x), number(it.y)) }
+                .toTypedArray()),
+            name("/LPTS") to array(*lpts.flatMap { listOf(number(it.x), number(it.y)) }
+                .toTypedArray()),
+            name("/GPTS") to array(*gpts.flatMap {
+                listOf(
+                    number(it.latitude),
+                    number(it.longitude)
+                )
+            }.toTypedArray()),
+            if (gcsId != null) name("/GCS") to ref(gcsId) else null,
+            *properties.properties.toList().toTypedArray()
+        )
     )
 }
 
 fun gcs(
-    id: String,
+    id: Int,
     projcs: ProjectedCoordinateSystem,
-    properties: List<String> = emptyList()
-): PDFObject {
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
     val datum = projcs.geographic.datum
     val spheroid = datum.spheroid
 
@@ -131,51 +182,36 @@ fun gcs(
         )
     )
 
-    return PDFObject(
-        id, listOf(
-            type("PROJCS"),
-            "/WKT (${CRSWellKnownTextConvert.fromWKT(wkt)})"
-        ) + properties, emptyList()
+    return obj(
+        id,
+        dict(
+            name("/Type") to name("/PROJCS"),
+            name("/WKT") to string(CRSWellKnownTextConvert.fromWKT(wkt)),
+            *properties.properties.toList().toTypedArray()
+        )
     )
 }
 
-fun type(type: String): String {
-    return "/Type ${name(type)}"
-}
-
-fun subtype(subtype: String): String {
-    return "/Subtype ${name(subtype)}"
-}
-
-fun name(name: String): String {
-    return if (name.startsWith("/")) name else "/$name"
-}
-
-fun ref(id: String): String {
-    return "$id R"
-}
-
-fun <T> array(arr: List<T>, toString: (T) -> String = { it.toString() }): String {
-    return "[${arr.joinToString(" ") { toString(it) }}]"
-}
-
-fun <T> array(arr: Array<T>, toString: (T) -> String = { it.toString() }): String {
-    return "[${arr.joinToString(" ") { toString(it) }}]"
-}
-
-fun bbox(left: Number, top: Number, right: Number, bottom: Number): DoubleArray {
-    return doubleArrayOf(left.toDouble(), top.toDouble(), right.toDouble(), bottom.toDouble())
-}
-
-fun stream(id: String, contents: String, properties: List<String> = emptyList()): PDFObject {
+fun stream(
+    id: Int,
+    contents: String,
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
     return stream(id, contents.toByteArray(), properties)
 }
 
-fun stream(id: String, contents: ByteArray, properties: List<String> = emptyList()): PDFObject {
-    return PDFObject(
-        id, listOf(
-            "/Length ${contents.size}"
-        ) + properties, listOf(contents)
+fun stream(
+    id: Int,
+    contents: ByteArray,
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    return obj(
+        id,
+        dict(
+            name("/Length") to number(contents.size),
+            *properties.properties.toList().toTypedArray()
+        ),
+        stream(contents)
     )
 }
 
@@ -186,15 +222,15 @@ private fun dctImage(image: Bitmap, quality: Int = 100): ByteArray {
 }
 
 fun image(
-    id: String,
+    id: Int,
     image: Bitmap,
     x: Int = 0,
     y: Int = 0,
     destWidth: Int = image.width,
     destHeight: Int = image.height,
     quality: Int = 100,
-    properties: List<String> = emptyList()
-): PDFObject {
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
 
     val stream = ByteArrayOutputStream()
     val writer = stream.bufferedWriter()
@@ -212,12 +248,12 @@ fun image(
 }
 
 fun text(
-    id: String,
+    id: Int,
     text: String,
     x: Int = 0,
     y: Int = 0,
     size: Int = 24,
-    properties: List<String> = emptyList()
-): PDFObject {
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
     return stream(id, "BT /F1 $size Tf $x $y Td ($text)Tj ET", properties)
 }

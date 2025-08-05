@@ -16,15 +16,15 @@ object PdfConvert {
     private val generator = PDFGenerator()
     private val parser = PDFParser()
 
-    fun toPDF(objects: List<PDFObject>): String {
+    fun toPDF(objects: List<PDFValue.PDFObject>): String {
         return generator.toPDF(objects)
     }
 
-    fun toPDF(objects: List<PDFObject>, out: OutputStream) {
+    fun toPDF(objects: List<PDFValue.PDFObject>, out: OutputStream) {
         generator.toPDF(objects, out)
     }
 
-    fun fromPDF(input: InputStream, ignoreStreams: Boolean = false): List<PDFObject> {
+    fun fromPDF(input: InputStream, ignoreStreams: Boolean = false): List<PDFValue.PDFObject> {
         return parser.parse(input, ignoreStreams)
     }
 

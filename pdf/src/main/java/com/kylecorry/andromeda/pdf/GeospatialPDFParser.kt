@@ -17,16 +17,41 @@ class GeospatialPDFParser {
         val objects = pdfParser.parse(pdf, ignoreStreams = true)
 
         // TODO: Support multiple pages - pages are linked to viewports through the VP array
-        val page = getPage(objects) ?: return null
+        val page = getPage(objects)
         val viewports = getViewports(objects)
 
         for (viewport in viewports) {
-            val measure = objects.getById(viewport["/measure"] ?: "") ?: continue
-            if (!isGeoMeasure(measure)) {
+            val vp = viewport.getProperty<PDFValue.PDFDictionary>("/vp")
+            val viewportProperties = viewport.getProperties()
+            val vpMeasure = vp?.getProperties("/Measure", objects)
+            // If the VP has a larger bounding box and it has a geo measure, use that instead
+            val actingVP =
+                if (vp != null && vpMeasure != null && isGeoMeasure(vpMeasure) && getBoundingBoxArea(
+                        vp
+                    ) > getBoundingBoxArea(viewportProperties)
+                ) {
+                    vp
+                } else {
+                    viewportProperties
+                }
+
+
+            val mediabox =
+                (page ?: viewport).getDoubleArray("/mediabox") ?: vp?.getDoubleArray("/mediabox")
+                ?: emptyList()
+
+            val measure = if (actingVP == vp) {
+                vpMeasure
+            } else {
+                viewportProperties.getProperties("/Measure", objects)
+            }
+            if (measure == null || !isGeoMeasure(measure)) {
                 return null
             }
-            val gcs = objects.getById(measure["/gcs"] ?: "")
-            return getMetadata(page, viewport, measure, gcs) ?: continue
+
+            val gcs = measure.getProperties("/GCS", objects)
+
+            return getMetadata(mediabox, actingVP, measure, gcs) ?: continue
         }
 
         return null
@@ -34,16 +59,15 @@ class GeospatialPDFParser {
 
 
     private fun getMetadata(
-        page: PDFObject,
-        viewport: PDFObject,
-        measure: PDFObject,
-        gcs: PDFObject?
+        mediabox: List<Double>,
+        viewport: PDFValue.PDFDictionary,
+        measure: PDFValue.PDFDictionary,
+        gcs: PDFValue.PDFDictionary?
     ): GeospatialPDFMetadata? {
 
-        val mediabox = page.getArray("/mediabox").map { it.toDouble() }
-        val bbox = viewport.getArray("/bbox").map { it.toDouble() }
-        var lpts = measure.getArray("/lpts").map { it.toDouble() }
-        val gpts = measure.getArray("/gpts").map { it.toDouble() }
+        val bbox = viewport.getDoubleArray("/bbox")
+        var lpts = measure.getDoubleArray("/lpts")
+        val gpts = measure.getDoubleArray("/gpts")
 
         if (mediabox.size < 4 || bbox.size < 4) {
             return null
@@ -52,7 +76,7 @@ class GeospatialPDFParser {
         if (lpts.size < gpts.size) {
             lpts = listOf(0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0)
         }
-        val gcsValue = gcs?.get("/wkt") ?: ""
+        val gcsValue = gcs?.getAs<PDFValue.PDFString>("/wkt")?.value ?: ""
 
         val pageHeight = mediabox[3]
 
@@ -109,15 +133,69 @@ class GeospatialPDFParser {
         )
     }
 
-    private fun getViewports(objects: List<PDFObject>): List<PDFObject> {
-        return objects.getByProperty("/Type", "/viewport")
+    private fun getViewports(objects: List<PDFValue.PDFObject>): List<PDFValue.PDFObject> {
+        return objects.getByProperty("/Type", PDFValue.PDFName("/Viewport"))
     }
 
-    private fun getPage(objects: List<PDFObject>): PDFObject? {
-        return objects.getByProperty("/Type", "/page").firstOrNull()
+    private fun getPage(objects: List<PDFValue.PDFObject>): PDFValue.PDFObject? {
+        return objects.getByProperty("/Type", PDFValue.PDFName("/Page")).firstOrNull()
     }
 
-    private fun isGeoMeasure(measure: PDFObject): Boolean {
-        return measure["/subtype"]?.contentEquals("/geo", ignoreCase = true) ?: false
+    private fun isGeoMeasure(measure: PDFValue.PDFDictionary): Boolean {
+        return measure.hasValue("/subtype", PDFValue.PDFName("/GEO"))
+    }
+
+    private fun List<PDFValue.PDFObject>.getByProperty(
+        property: String,
+        value: PDFValue
+    ): List<PDFValue.PDFObject> {
+        return this.filter {
+            it.getProperty<PDFValue>(property) == value
+        }
+    }
+
+    private fun List<PDFValue.PDFObject>.getById(id: Int): PDFValue.PDFObject? {
+        return this.firstOrNull { it.id == id }
+    }
+
+    private fun PDFValue.PDFObject.getDoubleArray(property: String): List<Double>? {
+        return getProperty<PDFValue.PDFArray>(property)?.values?.mapNotNull { (it as? PDFValue.PDFNumber)?.value?.toDouble() }
+    }
+
+    private fun PDFValue.PDFDictionary.getDoubleArray(property: String): List<Double> {
+        return getAs<PDFValue.PDFArray>(property)?.values?.mapNotNull { (it as? PDFValue.PDFNumber)?.value?.toDouble() }
+            ?: emptyList()
+    }
+
+    private fun getBoundingBoxArea(viewport: PDFValue.PDFDictionary): Float {
+        val bbox = viewport.getDoubleArray("/bbox")
+        val width = (bbox[2] - bbox[0]).absoluteValue
+        val height = (bbox[3] - bbox[1]).absoluteValue
+        return (width * height).toFloat()
+    }
+
+    private fun PDFValue.PDFObject.getProperties(): PDFValue.PDFDictionary {
+        return content.firstOrNull { it is PDFValue.PDFDictionary } as? PDFValue.PDFDictionary
+            ?: PDFValue.PDFDictionary(emptyMap())
+    }
+
+    private fun PDFValue.PDFDictionary.getProperties(
+        key: String,
+        objects: List<PDFValue.PDFObject>
+    ): PDFValue.PDFDictionary? {
+        val property = get(key)
+        return when (property) {
+            is PDFValue.PDFIndirectObject -> {
+                objects.getById(property.id)?.getProperties()
+            }
+
+            is PDFValue.PDFDictionary -> {
+                property
+            }
+
+            else -> {
+                null
+            }
+        }
     }
 }
