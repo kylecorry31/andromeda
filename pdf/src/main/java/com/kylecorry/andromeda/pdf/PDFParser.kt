@@ -88,12 +88,12 @@ internal class PDFParser {
                             .split(' ')
                             .mapNotNull { it.toIntCompat() }
                             .chunked(2)
-                            .map { it[0] to it[1] } + listOf(-1 to decoded.size)
+                            .map { it[0] to it[1] } + listOf(-1 to decoded.size - first)
 
                         val objects = objectIndices.zipWithNext()
                             .map {
-                                val start = it.first.second
-                                val end = it.second.second
+                                val start = it.first.second + first
+                                val end = it.second.second + first
                                 PDFObject(
                                     "${it.first.first} 0",
                                     properties = parseParameters(
@@ -105,7 +105,6 @@ internal class PDFParser {
 
                         subObjects.addAll(objects)
                     } catch (e: Exception) {
-                        // Handle decompression errors (e.g., corrupted data, incorrect format)
                         e.printStackTrace()
                     } finally {
                     }
