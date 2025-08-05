@@ -1,5 +1,7 @@
 package com.kylecorry.andromeda.pdf
 
+import java.io.ByteArrayOutputStream
+
 sealed interface PDFValue {
 
     fun toByteArray(): ByteArray {
@@ -48,6 +50,17 @@ sealed interface PDFValue {
             return "$id $generation obj\n" +
                     content.joinToString(separator = "\n") +
                     "\nendobj"
+        }
+
+        override fun toByteArray(): ByteArray {
+            val bytes = ByteArrayOutputStream()
+            bytes.write("$id $generation obj\n".toByteArray())
+            for (value in content) {
+                bytes.write(value.toByteArray())
+                bytes.write("\n".toByteArray())
+            }
+            bytes.write("endobj\n".toByteArray())
+            return bytes.toByteArray()
         }
     }
 
