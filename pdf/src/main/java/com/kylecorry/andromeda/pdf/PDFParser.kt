@@ -7,13 +7,18 @@ import com.kylecorry.andromeda.core.text.areBracketsBalanced
 import com.kylecorry.andromeda.core.toIntCompat
 import com.kylecorry.sol.math.Range
 import java.io.InputStream
-import kotlin.text.iterator
 
 
 internal class PDFParser {
 
     private val keyTerminals = listOf(
         ' ', '\n', '/', '[', '(', '<'
+    )
+
+    private val streamStarts = listOf(
+        "stream\n",
+        "stream\r",
+        "stream\r\n"
     )
 
     fun parse(pdf: InputStream, ignoreStreams: Boolean = false): List<PDFValue.PDFObject> {
@@ -55,7 +60,7 @@ internal class PDFParser {
             builder.append(char)
 
             // Stream start
-            if (builder.endsWith("stream")) {
+            if (streamStarts.any { builder.endsWith(it) }) {
                 val before = builder.toString().substringBefore("stream").trim()
                 if (before.isNotEmpty()) {
                     content.addAll(parseValues(before))
