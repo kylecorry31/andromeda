@@ -18,7 +18,6 @@ internal class PDFGenerator {
         for (obj in sortedObjects) {
             xref.add(size)
             size += appendBytes(out, obj.toByteArray())
-            size += appendBytes(out, "\n".toByteArray())
         }
 
         val startXref = size
