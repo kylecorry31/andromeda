@@ -1,5 +1,10 @@
 package com.kylecorry.andromeda.sound
 
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioManager
+import android.media.AudioTrack
+import android.os.Build
 import android.util.Range
 import com.kylecorry.sol.math.SolMath
 import org.jetbrains.annotations.ApiStatus.Experimental
@@ -62,6 +67,58 @@ object AudioUtils {
 
         // Convert sound pressure to dB
         return 20 * log10(readingSoundPressurePa / referenceSoundPressure)
+    }
+
+    fun createStream(
+        sampleRate: Int = 44100,
+        bufferSizeInFrames: Int = 2048,
+        channel: Int = AudioFormat.CHANNEL_OUT_MONO,
+        encoding: Int = AudioFormat.ENCODING_PCM_16BIT
+    ): AudioTrack {
+        val minBufferSize = AudioTrack.getMinBufferSize(
+            sampleRate,
+            channel,
+            encoding
+        )
+
+        val bufferSize = maxOf(bufferSizeInFrames * 2, minBufferSize)
+
+        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(encoding)
+                        .setSampleRate(sampleRate)
+                        .setChannelMask(channel)
+                        .build()
+                )
+                .setBufferSizeInBytes(bufferSize)
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .build()
+        } else {
+            AudioTrack(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build(),
+                AudioFormat.Builder()
+                    .setEncoding(encoding)
+                    .setSampleRate(sampleRate)
+                    .setChannelMask(channel)
+                    .build(),
+                bufferSize,
+                AudioTrack.MODE_STREAM,
+                AudioManager.AUDIO_SESSION_ID_GENERATE
+            )
+        }
+
+        return track
     }
 
 }
