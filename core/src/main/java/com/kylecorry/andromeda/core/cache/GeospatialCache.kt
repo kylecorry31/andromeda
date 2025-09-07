@@ -42,6 +42,21 @@ class GeospatialCache<T>(
         }
     }
 
+    suspend fun getAll(locations: List<Coordinate>): Map<Coordinate, T> {
+        return mutex.withLock {
+            val results = mutableMapOf<Coordinate, T>()
+            for (location in locations) {
+                getKeyLocation(location)?.let { key ->
+                    lastAccessed[key] = timeProvider()
+                    values[key]?.let { value ->
+                        results[location] = value
+                    }
+                }
+            }
+            results
+        }
+    }
+
     /**
      * Puts a value at the given location
      * @param location The location to put the value at
@@ -54,6 +69,18 @@ class GeospatialCache<T>(
             lastAccessed[key] = timeProvider()
             cachedAt[key] = timeProvider()
             cleanup(location)
+        }
+    }
+
+    suspend fun putAll(locations: Map<Coordinate, T>) {
+        mutex.withLock {
+            for ((location, value) in locations) {
+                val key = getKeyLocation(location) ?: location
+                values[key] = value
+                lastAccessed[key] = timeProvider()
+                cachedAt[key] = timeProvider()
+            }
+            cleanup(locations.keys.firstOrNull() ?: Coordinate(0.0, 0.0))
         }
     }
 

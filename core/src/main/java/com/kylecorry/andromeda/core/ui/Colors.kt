@@ -7,6 +7,8 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import com.kylecorry.andromeda.core.ui.colormaps.RgbInterpolationColorMap
+import com.kylecorry.sol.math.SolMath
 import kotlin.math.absoluteValue
 
 object Colors {
@@ -84,5 +86,27 @@ object Colors {
         val g = (g1 + ((g2 - g1) * factor)).toInt()
         val b = (b1 + ((b2 - b1) * factor)).toInt()
         return Color.rgb(r, g, b)
+    }
+
+    fun fromColorTemperature(temp: Float): Int {
+        // http://www.vendian.org/mncharity/dir3/blackbody/UnstableURLs/bbr_color.html
+        val map = RgbInterpolationColorMap(
+            arrayOf(
+                Color.rgb(255, 51, 0), // 1000K
+                Color.rgb(255, 137, 18), // 2000K
+                Color.rgb(255, 185, 105), // 3000K
+                Color.rgb(255, 209, 163), // 4000K
+                Color.rgb(255, 231, 204), // 5000K
+                Color.rgb(255, 244, 237), // 6000K
+                Color.rgb(245, 243, 255), // 7000K
+                Color.rgb(229, 233, 255), // 8000K
+                Color.rgb(217, 225, 255), // 9000K
+                Color.rgb(207, 218, 255), // 10000K
+            )
+        )
+
+        val percent = SolMath.map(temp, 1000f, 10000f, 0f, 1f, true)
+
+        return map.getColor(percent)
     }
 }
