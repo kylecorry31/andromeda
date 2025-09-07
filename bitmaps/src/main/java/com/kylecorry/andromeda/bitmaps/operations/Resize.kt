@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.util.Size
 import androidx.core.graphics.scale
 import com.kylecorry.andromeda.bitmaps.BitmapUtils.resizeExact
-import com.kylecorry.trail_sense.tools.photo_maps.infrastructure.resizeToFit2
+import com.kylecorry.andromeda.bitmaps.BitmapUtils.resizeToFit
 
 class Resize(
     private val size: Size,
@@ -26,7 +26,7 @@ class Resize(
             if (bitmap.width <= size.width && bitmap.height <= size.height) {
                 bitmap
             } else {
-                bitmap.resizeToFit2(size.width, size.height, shouldFilter)
+                bitmap.resizeToFit(size.width, size.height, shouldFilter)
             }
         }
     }
