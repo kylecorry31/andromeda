@@ -2,9 +2,7 @@ package com.kylecorry.andromeda.sound
 
 import android.media.AudioAttributes
 import android.media.AudioFormat
-import android.media.AudioManager
 import android.media.AudioTrack
-import android.os.Build
 import android.util.Range
 import com.kylecorry.sol.math.SolMath
 import org.jetbrains.annotations.ApiStatus.Experimental
@@ -83,42 +81,23 @@ object AudioUtils {
 
         val bufferSize = maxOf(bufferSizeInFrames * 2, minBufferSize)
 
-        val track = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AudioTrack.Builder()
-                .setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .build()
-                )
-                .setAudioFormat(
-                    AudioFormat.Builder()
-                        .setEncoding(encoding)
-                        .setSampleRate(sampleRate)
-                        .setChannelMask(channel)
-                        .build()
-                )
-                .setBufferSizeInBytes(bufferSize)
-                .setTransferMode(AudioTrack.MODE_STREAM)
-                .build()
-        } else {
-            AudioTrack(
+        return AudioTrack.Builder()
+            .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build(),
+                    .build()
+            )
+            .setAudioFormat(
                 AudioFormat.Builder()
                     .setEncoding(encoding)
                     .setSampleRate(sampleRate)
                     .setChannelMask(channel)
-                    .build(),
-                bufferSize,
-                AudioTrack.MODE_STREAM,
-                AudioManager.AUDIO_SESSION_ID_GENERATE
+                    .build()
             )
-        }
-
-        return track
+            .setBufferSizeInBytes(bufferSize)
+            .setTransferMode(AudioTrack.MODE_STREAM)
+            .build()
     }
 
 }
