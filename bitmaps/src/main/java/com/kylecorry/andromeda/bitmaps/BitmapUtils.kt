@@ -21,6 +21,7 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.graphics.scale
 import com.kylecorry.andromeda.core.math.MathUtils
+import com.kylecorry.andromeda.core.units.PixelBounds
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath
@@ -241,10 +242,33 @@ object BitmapUtils {
         return Toolkit.resize(this, width, height)
     }
 
-    fun Bitmap.resizeToFit(maxWidth: Int, maxHeight: Int): Bitmap {
+    fun getExactRegion(rect: Rect, imageSize: Size, blockSize: Int = 16): Rect {
+        val left = rect.left.coerceIn(0, imageSize.width)
+        val top = rect.top.coerceIn(0, imageSize.height)
+        val right = rect.right.coerceIn(0, imageSize.width)
+        val bottom = rect.bottom.coerceIn(0, imageSize.height)
+
+        // Align it to a pixel block
+        val alignedLeft = (left / blockSize) * blockSize
+        val alignedTop = (top / blockSize) * blockSize
+        val alignedRight = ((right + (blockSize - 1)) / blockSize) * blockSize
+        val alignedBottom = ((bottom + (blockSize - 1)) / blockSize) * blockSize
+        return Rect(
+            alignedLeft.coerceIn(0, imageSize.width),
+            alignedTop.coerceIn(0, imageSize.height),
+            alignedRight.coerceIn(0, imageSize.width),
+            alignedBottom.coerceIn(0, imageSize.height)
+        )
+    }
+
+    fun Bitmap.resizeToFit(
+        maxWidth: Int,
+        maxHeight: Int,
+        useBilinearScaling: Boolean = true
+    ): Bitmap {
         return if (maxHeight > 0 && maxWidth > 0) {
             val scaledSize = MathUtils.scaleToBounds(Size(width, height), Size(maxWidth, maxHeight))
-            this.scale(scaledSize.width, scaledSize.height)
+            this.scale(scaledSize.width, scaledSize.height, useBilinearScaling)
         } else {
             this
         }
@@ -256,15 +280,25 @@ object BitmapUtils {
         bottomLeft: PixelCoordinate,
         bottomRight: PixelCoordinate,
         shouldRecycleOriginal: Boolean = false,
-        @ColorInt backgroundColor: Int? = null
+        @ColorInt backgroundColor: Int? = null,
+        maxOutputSize: Size? = null
     ): Bitmap {
         val top = topLeft.distanceTo(topRight)
         val bottom = bottomLeft.distanceTo(bottomRight)
-        val newWidth = (top + bottom) / 2f
+        var newWidth = ((top + bottom) / 2f).coerceAtLeast(1f)
 
         val left = topLeft.distanceTo(bottomLeft)
         val right = topRight.distanceTo(bottomRight)
-        val newHeight = (left + right) / 2f
+        var newHeight = ((left + right) / 2f).coerceAtLeast(1f)
+
+        if (maxOutputSize != null && (newWidth > maxOutputSize.width || newHeight > maxOutputSize.height)) {
+            val scale = MathUtils.scaleToBounds(
+                Size(newWidth.toInt(), newHeight.toInt()),
+                maxOutputSize
+            )
+            newWidth = scale.width.toFloat()
+            newHeight = scale.height.toFloat()
+        }
 
         val matrix = Matrix()
         matrix.setPolyToPoly(
@@ -305,6 +339,24 @@ object BitmapUtils {
         }
 
         return blank
+    }
+
+    // TODO: Don't allow concave polygons
+    fun Bitmap.fixPerspective(
+        bounds: PixelBounds,
+        shouldRecycleOriginal: Boolean = false,
+        @ColorInt backgroundColor: Int? = null,
+        maxOutputSize: Size? = null
+    ): Bitmap {
+        return fixPerspective(
+            bounds.topLeft,
+            bounds.topRight,
+            bounds.bottomLeft,
+            bounds.bottomRight,
+            shouldRecycleOriginal,
+            backgroundColor,
+            maxOutputSize,
+        )
     }
 
     fun Bitmap.crop(
