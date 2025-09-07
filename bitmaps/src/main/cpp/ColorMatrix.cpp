@@ -119,8 +119,11 @@ typedef union {
  * TODO: The actual values of these constants are likely not important. We may be
  * able to simplify the key related code.
  */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-const-variable"
 const int RS_TYPE_UNSIGNED_8 = 8;
 const int RS_TYPE_FLOAT_32 = 2;
+#pragma clang diagnostic pop
 
 //Re-enable when intrinsic is fixed
 #if defined(ARCH_ARM64_USE_INTRINSICS)
