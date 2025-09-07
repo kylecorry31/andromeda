@@ -3,9 +3,9 @@ package com.kylecorry.andromeda.bitmaps.operations
 import android.graphics.Bitmap
 import android.util.Size
 import androidx.annotation.ColorInt
-import com.kylecorry.trail_sense.tools.photo_maps.domain.PercentBounds
-import com.kylecorry.trail_sense.tools.photo_maps.domain.PixelBounds
-import com.kylecorry.trail_sense.tools.photo_maps.infrastructure.fixPerspective
+import com.kylecorry.andromeda.bitmaps.BitmapUtils.fixPerspective
+import com.kylecorry.andromeda.core.units.PercentBounds
+import com.kylecorry.andromeda.core.units.PixelBounds
 
 class CorrectPerspective : BitmapOperation {
 
