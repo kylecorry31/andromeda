@@ -460,9 +460,9 @@ namespace renderscript {
          * @param channel The channel to threshold (0 = R, 1 = G, 2 = B, 3 = A, anything else = Gray).
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void threshold(const uint8_t *input, uint8_t *output, size_t sizeX, size_t sizeY,
+        void threshold(const uint8_t *_Nonnull input, uint8_t *_Nonnull output, size_t sizeX, size_t sizeY,
                        float threshold, bool binary, uint8_t channel,
-                       const Restriction *restriction);
+                       const Restriction *_Nullable restriction);
 
         /**
          * Add two images together with a weight.
@@ -476,9 +476,9 @@ namespace renderscript {
          * @param absolute Whether to take the absolute value of the sum.
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void weightedAdd(const uint8_t *input1, const uint8_t *input2, uint8_t *output,
+        void weightedAdd(const uint8_t *_Nonnull input1, const uint8_t *_Nonnull input2, uint8_t *_Nonnull output,
                          size_t sizeX, size_t sizeY, float weight1, float weight2, bool absolute,
-                         const Restriction *restriction);
+                         const Restriction *_Nullable restriction);
 
         /**
          * Find the minimum or maximum value in an image.
@@ -489,8 +489,8 @@ namespace renderscript {
          * @param channel The channel to aggregate (0 = R, 1 = G, 2 = B, 3 = A, anything else = Gray).
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void minMax(const uint8_t *input, float *output, size_t sizeX,
-                    size_t sizeY, uint8_t channel, const Restriction *restriction);
+        void minMax(const uint8_t *_Nonnull input, float *_Nonnull output, size_t sizeX,
+                    size_t sizeY, uint8_t channel, const Restriction *_Nullable restriction);
 
         /**
          * Find the average value of an image.
@@ -501,8 +501,8 @@ namespace renderscript {
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          * @return The average value of the image.
          */
-        double average(const uint8_t *input, size_t sizeX,
-                       size_t sizeY, uint8_t channel, const Restriction *restriction);
+        double average(const uint8_t *_Nonnull input, size_t sizeX,
+                       size_t sizeY, uint8_t channel, const Restriction *_Nullable restriction);
 
         /**
          * Find the standard deviation of an image.
@@ -514,9 +514,9 @@ namespace renderscript {
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          * @return The standard deviation of the image.
          */
-        double standardDeviation(const uint8_t *input, size_t sizeX,
+        double standardDeviation(const uint8_t *_Nonnull input, size_t sizeX,
                                  size_t sizeY, uint8_t channel, double average,
-                                 const Restriction *restriction);
+                                 const Restriction *_Nullable restriction);
 
         /**
          * Find the moment of an image.
@@ -527,9 +527,9 @@ namespace renderscript {
          * @param channel The channel to aggregate (0 = R, 1 = G, 2 = B, 3 = A, anything else = Gray).
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void moment(const uint8_t *input, float *output, size_t sizeX,
+        void moment(const uint8_t *_Nonnull input, float *_Nonnull output, size_t sizeX,
                     size_t sizeY, uint8_t channel,
-                    const Restriction *restriction);
+                    const Restriction *_Nullable restriction);
 
         /**
          * Find blobs in an image.
@@ -542,9 +542,9 @@ namespace renderscript {
          * @param channel The channel to threshold (0 = R, 1 = G, 2 = B, 3 = A, anything else = Gray).
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void findBlobs(const uint8_t *input, int *output, size_t maxBlobs,
+        void findBlobs(const uint8_t *_Nonnull input, int *_Nonnull output, size_t maxBlobs,
                        size_t sizeX, size_t sizeY, float threshold,
-                       uint8_t channel, const Restriction *restriction);
+                       uint8_t channel, const Restriction *_Nullable restriction);
 
         /**
          * Calculate the GLCM of an image.
@@ -561,11 +561,11 @@ namespace renderscript {
          * @param stepCount The number of steps to use.
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void glcm(const uint8_t *input, float *output,
+        void glcm(const uint8_t *_Nonnull input, float *_Nonnull output,
              size_t sizeX, size_t sizeY, size_t levels,
              uint8_t channel, bool symmetric, bool normalize,
-             bool excludeTransparent, const int *steps, uint8_t stepCount,
-             const Restriction *restriction);
+             bool excludeTransparent, const int *_Nonnull steps, uint8_t stepCount,
+             const Restriction *_Nullable restriction);
 
         /**
          * Transform an image using a 3D look up table
@@ -655,10 +655,10 @@ namespace renderscript {
          * @param interpolate If true, the replacement color will be interpolated based on the distance
          * @param restriction When not null, restricts the operation to a 2D range of pixels.
          */
-        void colorReplace(const uint8_t *input, uint8_t *output, size_t sizeX, size_t sizeY,
+        void colorReplace(const uint8_t *_Nonnull input, uint8_t *_Nonnull output, size_t sizeX, size_t sizeY,
                           uint8_t targetR, uint8_t targetG, uint8_t targetB, uint8_t targetA,
                           uint8_t replacementR, uint8_t replacementG, uint8_t replacementB, uint8_t replacementA,
-                          float tolerance, bool interpolate, const Restriction *restriction = nullptr);
+                          float tolerance, bool interpolate, const Restriction *_Nullable restriction = nullptr);
 
         /**
          * The YUV formats supported by yuvToRgb.
