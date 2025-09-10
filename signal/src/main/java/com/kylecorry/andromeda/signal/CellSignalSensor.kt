@@ -33,7 +33,8 @@ import java.time.Instant
 class CellSignalSensor(
     private val context: Context,
     private val updateCellCache: Boolean,
-    private val removeUnregisteredSignals: Boolean = true
+    private val removeUnregisteredSignals: Boolean = true,
+    private val pathLossFactor: Float = 1f
 ) :
     AbstractSensor(), ICellSignalSensor {
 
@@ -151,7 +152,9 @@ class CellSignalSensor(
                             it.cellSignalStrength.level,
                             CellNetwork.Gsm,
                             it.isRegistered,
-                            it.isConnected()
+                            it.isConnected(),
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) it.cellSignalStrength.timingAdvance else null,
+                            GsmCellSignalDistanceCalculator()
                         )
                     }
 
@@ -163,7 +166,9 @@ class CellSignalSensor(
                             it.cellSignalStrength.level,
                             CellNetwork.Lte,
                             it.isRegistered,
-                            it.isConnected()
+                            it.isConnected(),
+                            it.cellSignalStrength.timingAdvance,
+                            LteCellSignalDistanceCalculator()
                         )
                     }
 
@@ -192,6 +197,7 @@ class CellSignalSensor(
                     }
 
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && it is CellInfoNr -> {
+                        val signalStrength = it.cellSignalStrength as? CellSignalStrengthNr
                         RawCellSignal(
                             it.cellIdentity.operatorAlphaLong.toString(),
                             getTimestamp(it),
@@ -199,7 +205,10 @@ class CellSignalSensor(
                             it.cellSignalStrength.level,
                             CellNetwork.Nr,
                             it.isRegistered,
-                            it.isConnected()
+                            it.isConnected(),
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) signalStrength?.timingAdvanceMicros else null,
+                            // TODO: Detect subcarrier frequency from cell identity
+                            NrCellSignalDistanceCalculator()
                         )
                     }
 
@@ -235,7 +244,11 @@ class CellSignalSensor(
                     it.quality,
                     it.network,
                     it.isRegistered,
-                    it.time
+                    it.time,
+                    it.timingDistanceMeters,
+                    it.timingDistanceErrorMeters?.plus(
+                        (it.timingDistanceMeters ?: 0f) * pathLossFactor
+                    )
                 )
             }
 
@@ -313,14 +326,16 @@ class CellSignalSensor(
         }
     }
 
-    data class RawCellSignal(
+    private class RawCellSignal(
         val id: String,
         val time: Instant,
         val dbm: Int,
         val level: Int,
         val network: CellNetwork,
         val isRegistered: Boolean,
-        val isConnected: Boolean
+        val isConnected: Boolean,
+        val timingAdvanceDistance: Int? = null,
+        val distanceCalculator: CellSignalDistanceCalculator? = null
     ) {
         val percent: Float
             get() {
@@ -337,6 +352,24 @@ class CellSignalSensor(
                 2 -> Quality.Moderate
                 0 -> Quality.Unknown
                 else -> Quality.Poor
+            }
+
+        val timingDistanceMeters: Float?
+            get() {
+                return if (timingAdvanceDistance == null || timingAdvanceDistance <= 0 || timingAdvanceDistance == CellInfo.UNAVAILABLE || distanceCalculator == null) {
+                    null
+                } else {
+                    distanceCalculator.getTimingAdvanceDistance(timingAdvanceDistance)
+                }
+            }
+
+        val timingDistanceErrorMeters: Float?
+            get() {
+                return if (timingAdvanceDistance == null || timingAdvanceDistance <= 0 || timingAdvanceDistance == CellInfo.UNAVAILABLE || distanceCalculator == null) {
+                    null
+                } else {
+                    distanceCalculator.getTimingAdvanceDistanceError(timingAdvanceDistance)
+                }
             }
     }
 }

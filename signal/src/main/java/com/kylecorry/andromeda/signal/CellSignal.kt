@@ -10,7 +10,9 @@ data class CellSignal(
     val quality: Quality,
     val network: CellNetwork,
     val isRegistered: Boolean,
-    val time: Instant
+    val time: Instant,
+    val timingDistanceMeters: Float? = null,
+    val timingDistanceErrorMeters: Float? = null
 )
 
 data class CellNetworkQuality(
