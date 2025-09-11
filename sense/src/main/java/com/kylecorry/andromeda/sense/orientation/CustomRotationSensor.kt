@@ -5,6 +5,7 @@ import android.util.Range
 import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
+import com.kylecorry.andromeda.core.subscriptions.Subscription
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.luna.coroutines.CoroutineQueueRunner
@@ -12,9 +13,6 @@ import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.Vector3Utils
 import com.kylecorry.sol.science.geology.Geology
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
@@ -37,8 +35,9 @@ class CustomRotationSensor(
     private val _quaternion = Quaternion.zero.toFloatArray()
     private val lock = Object()
 
-    private val scope = CoroutineScope(Dispatchers.Default)
     private val runner = CoroutineQueueRunner()
+
+    private val pendingChangesSubscription = Subscription()
 
     private val geomagneticOrientationSensor =
         CustomGeomagneticRotationSensor(magnetometer, accelerometer, onlyUseMagnetometerQuality)
@@ -47,6 +46,7 @@ class CustomRotationSensor(
         isInitialized = false
         geomagneticCount = 0
         gyroCount = 0
+        pendingChangesSubscription.subscribe(this::update)
         geomagneticOrientationSensor.start(this::onSensorUpdate)
         gyro.start(this::onGyroUpdate)
     }
@@ -55,6 +55,7 @@ class CustomRotationSensor(
         geomagneticOrientationSensor.stop(this::onSensorUpdate)
         gyro.stop(this::onGyroUpdate)
         runner.cancel()
+        pendingChangesSubscription.unsubscribe(this::update)
     }
 
     private var isInitialized = false
@@ -184,11 +185,7 @@ class CustomRotationSensor(
             }
 
         }
-        scope.launch {
-            runner.enqueue {
-                update()
-            }
-        }
+        pendingChangesSubscription.publish()
         return true
     }
 
