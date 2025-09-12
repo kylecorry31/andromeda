@@ -108,7 +108,7 @@ class FusedAltimeter(
 
         // Calculate the barometric altitude
         val barometricAltitude =
-            Geology.getAltitude(Pressure.hpa(barometer.pressure), seaLevel).distance
+            Geology.getAltitude(Pressure.hpa(barometer.pressure), seaLevel).value
 
         // At this point, the barometric altitude is available but the GPS altitude may not be
         // If the GPS has a reading, use the GPS altimeter (even if the gaussian filter hasn't converged)
@@ -170,7 +170,7 @@ class FusedAltimeter(
                 "ALT: ${DecimalFormatter.format(altitude, 2, true)}, " +
                         "GPS: ${DecimalFormatter.format(getGPSAltitude(), 2, true)}, " +
                         "BAR: ${DecimalFormatter.format(barometer.pressure, 2, true)}, " +
-                        "SEA: ${DecimalFormatter.format(seaLevel.pressure, 2, true)}, " +
+                        "SEA: ${DecimalFormatter.format(seaLevel.value, 2, true)}, " +
                         "ALPHA: ${DecimalFormatter.format(gpsWeight, 3, true)}, " +
                         "ERR: ${DecimalFormatter.format(gpsError, 2, true)}"
             )
@@ -245,7 +245,7 @@ class FusedAltimeter(
         isBaseline: Boolean,
         wasGPSUsed: Boolean
     ) {
-        cache.putFloat(LAST_SEA_LEVEL_PRESSURE_KEY, pressure.pressure)
+        cache.putFloat(LAST_SEA_LEVEL_PRESSURE_KEY, pressure.value)
 
         // Only update the time if the gaussian GPS was used - this prevents only using the barometer over the long term
         if (isBaseline) {

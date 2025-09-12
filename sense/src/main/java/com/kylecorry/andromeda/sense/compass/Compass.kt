@@ -35,7 +35,7 @@ class Compass(
     }
 
     override val bearing: Bearing
-        get() = Bearing(rawBearing)
+        get() = Bearing.from(rawBearing)
 
     override var declination: Float = 0f
 

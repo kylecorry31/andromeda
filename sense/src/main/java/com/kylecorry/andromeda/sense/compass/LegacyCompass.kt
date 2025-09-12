@@ -23,7 +23,7 @@ class LegacyCompass(
     override var declination = 0f
 
     override val bearing: Bearing
-        get() = Bearing(rawBearing)
+        get() = Bearing.from(rawBearing)
 
     override val rawBearing: Float
         get() = if (useTrueNorth) {

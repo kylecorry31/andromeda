@@ -26,7 +26,7 @@ class GeospatialCache<T>(
     private val lastAccessed: MutableMap<Coordinate, Instant> = mutableMapOf()
     private val cachedAt: MutableMap<Coordinate, Instant> = mutableMapOf()
     private var mutex = Mutex()
-    private val cacheRadiusMeters = cacheRadius.meters().distance
+    private val cacheRadiusMeters = cacheRadius.meters().value
 
     /**
      * Gets the value at the given location if it exists and is valid, otherwise null

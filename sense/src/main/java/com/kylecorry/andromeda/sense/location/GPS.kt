@@ -55,7 +55,7 @@ class GPS(
         get() = _location
 
     override val speed: Speed
-        get() = Speed(_speed, DistanceUnits.Meters, TimeUnits.Seconds)
+        get() = Speed.from(_speed, DistanceUnits.Meters, TimeUnits.Seconds)
 
     override val time: Instant
         get() = _time
@@ -66,7 +66,7 @@ class GPS(
     override val mslAltitude: Float?
         get() = _mslAltitude
     override val bearing: Bearing?
-        get() = _bearing?.let { Bearing(it) }
+        get() = _bearing?.let { Bearing.from(it) }
     override val rawBearing: Float?
         get() = _bearing
     override val bearingAccuracy: Float?
@@ -147,7 +147,7 @@ class GPS(
         locationManager?.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             frequency.toMillis(),
-            minDistance.meters().distance,
+            minDistance.meters().value,
             locationListener,
             Looper.getMainLooper()
         )

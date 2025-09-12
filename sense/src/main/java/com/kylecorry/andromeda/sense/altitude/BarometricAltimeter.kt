@@ -21,7 +21,7 @@ class BarometricAltimeter(
     }
 
     override val altitude: Float
-        get() = SensorManager.getAltitude(seaLevelPressure.hpa().pressure, barometer.pressure)
+        get() = SensorManager.getAltitude(seaLevelPressure.hpa().value, barometer.pressure)
 
     override val hasValidReading: Boolean
         get() = barometer.hasValidReading

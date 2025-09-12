@@ -40,7 +40,7 @@ class NetworkGPS(
         get() = _location
 
     override val speed: Speed
-        get() = Speed(_speed, DistanceUnits.Meters, TimeUnits.Seconds)
+        get() = Speed.from(_speed, DistanceUnits.Meters, TimeUnits.Seconds)
 
     override val time: Instant
         get() = _time
@@ -51,7 +51,7 @@ class NetworkGPS(
     override val mslAltitude: Float? = null
 
     override val bearing: Bearing?
-        get() = _bearing?.let { Bearing(it) }
+        get() = _bearing?.let { Bearing.from(it) }
 
     override val rawBearing: Float?
         get() = _bearing
@@ -103,7 +103,7 @@ class NetworkGPS(
         locationManager?.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER,
             frequency.toMillis(),
-            minDistance.meters().distance,
+            minDistance.meters().value,
             locationListener,
             Looper.getMainLooper()
         )

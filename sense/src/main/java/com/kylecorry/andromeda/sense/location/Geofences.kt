@@ -24,7 +24,7 @@ object Geofences {
             context.getSystemService<LocationManager>()?.addProximityAlert(
                 location.latitude,
                 location.longitude,
-                radius.meters().distance,
+                radius.meters().value,
                 expiration?.toMillis() ?: -1,
                 pendingIntent
             )

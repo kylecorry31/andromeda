@@ -16,7 +16,7 @@ class FilteredCompass(private val compass: ICompass, private val filter: IFilter
     ICompass {
 
     override val bearing: Bearing
-        get() = Bearing(_filteredBearing)
+        get() = Bearing.from(_filteredBearing)
 
     override var declination: Float
         get() = compass.declination
