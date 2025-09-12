@@ -20,3 +20,5 @@ local.properties
 .idea/other.xml
 .idea/deploymentTargetSelector.xml
 **/build/
+/.idea/copilot.data.migration.agent.xml
+/.idea/copilot.data.migration.edit.xml
