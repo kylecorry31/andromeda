@@ -1,4 +1,4 @@
-package com.kylecorry.andromeda.background.services
+package com.kylecorry.andromeda.widgets.tiles
 
 import android.os.Build
 import android.service.quicksettings.Tile
