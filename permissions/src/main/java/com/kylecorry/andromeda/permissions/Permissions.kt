@@ -3,13 +3,13 @@ package com.kylecorry.andromeda.permissions
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.net.Uri
+import android.os.Binder
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
@@ -123,10 +123,50 @@ object Permissions {
         return hasPermission && hasAppOps
     }
 
+    fun hasPermission(
+        context: Context,
+        packageName: String,
+        permission: String
+    ): Boolean {
+        return context.packageManager.checkPermission(
+            permission,
+            packageName
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     fun hasPermission(context: Context, permission: SpecialPermission): Boolean {
         return when (permission) {
             SpecialPermission.SCHEDULE_EXACT_ALARMS -> canScheduleExactAlarms(context)
             SpecialPermission.IGNORE_BATTERY_OPTIMIZATIONS -> isIgnoringBatteryOptimizations(context)
+        }
+    }
+
+    fun enforceCallingPermission(
+        context: Context,
+        permission: String,
+        callerOnly: Boolean = false
+    ) {
+        if (callerOnly) {
+            context.enforceCallingPermission(permission, "Permission $permission required")
+        } else {
+            context.enforceCallingOrSelfPermission(permission, "Permission $permission required")
+        }
+    }
+
+    fun enforceCallingSignature(
+        context: Context,
+        allowedSignatures: List<String>
+    ) {
+        val callingUid = Binder.getCallingUid()
+        val packages = context.packageManager.getPackagesForUid(callingUid)
+        if (packages == null) {
+            throw SecurityException("Caller is not allowed")
+        }
+        for (packageName in packages) {
+            val signatures = Package.getSignatureSha256Fingerprints(context, packageName)
+            if (!signatures.any { it in allowedSignatures }) {
+                throw SecurityException("Caller is not allowed")
+            }
         }
     }
 
