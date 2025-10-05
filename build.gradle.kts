@@ -1,6 +1,6 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
-val versionName = "17.0.0"
+val versionName = "17.1.0"
 val groupId = "com.kylecorry.andromeda"
 
 buildscript {
