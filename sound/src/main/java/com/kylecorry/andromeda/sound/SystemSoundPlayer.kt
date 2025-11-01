@@ -12,18 +12,18 @@ class SystemSoundPlayer(private val context: Context) {
 
     private val audioManager = context.getSystemService<AudioManager>()
 
-    fun getAlarmUri(): Uri {
+    fun getAlarmUri(): Uri? {
         return RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_ALARM)
     }
 
-    fun getNotificationUri(): Uri {
+    fun getNotificationUri(): Uri? {
         return RingtoneManager.getActualDefaultRingtoneUri(
             context,
             RingtoneManager.TYPE_NOTIFICATION
         )
     }
 
-    fun getRingtoneUri(): Uri {
+    fun getRingtoneUri(): Uri? {
         return RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
     }
 
