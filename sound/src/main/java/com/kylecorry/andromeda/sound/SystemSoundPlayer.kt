@@ -27,7 +27,7 @@ class SystemSoundPlayer(private val context: Context) {
         return RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
     }
 
-    fun player(soundUri: Uri, channel: AudioChannel): MediaPlayer {
+    fun player(soundUri: Uri, channel: AudioChannel): MediaPlayer? {
         return MediaPlayer.create(
             context,
             soundUri,
