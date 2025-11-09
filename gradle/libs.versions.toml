@@ -18,7 +18,6 @@ junitJupiterApiVersion = "5.13.4"
 junitPlatformRunnerVersion = "1.13.4"
 junitVersion = "4.13.2"
 kotlinAndroidVersion = "2.2.20"
-kotlinCsvJvmVersion = "1.10.0"
 androidXLifecycle = "2.9.4"
 lunaVersion = "1.0.1"
 materialVersion = "1.13.0"
@@ -61,7 +60,6 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterApiVersion" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiterApiVersion" }
 junit-platform-runner = { module = "org.junit.platform:junit-platform-runner", version.ref = "junitPlatformRunnerVersion" }
-kotlin-csv-jvm = { module = "com.jsoizo:kotlin-csv-jvm", version.ref = "kotlinCsvJvmVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
 luna = { module = "com.kylecorry:luna", version.ref = "lunaVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }

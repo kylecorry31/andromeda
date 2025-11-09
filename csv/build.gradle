@@ -42,7 +42,6 @@ android {
 dependencies {
     implementation project(':core')
     implementation libs.androidx.core.ktx
-    implementation libs.kotlin.csv.jvm
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit.platform.runner
     testImplementation libs.junit.jupiter.api
