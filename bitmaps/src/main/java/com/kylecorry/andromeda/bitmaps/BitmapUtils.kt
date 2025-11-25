@@ -25,7 +25,6 @@ import com.kylecorry.andromeda.core.units.PixelBounds
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
 import com.kylecorry.sol.math.SolMath
-import com.kylecorry.sol.math.algebra.createMatrix
 import java.io.InputStream
 import kotlin.math.max
 import kotlin.math.min
@@ -509,9 +508,7 @@ object BitmapUtils {
             region?.toRange2d()
         )
 
-        return createMatrix(levels, levels) { r, c ->
-            glcm[r * levels + c]
-        }
+        return com.kylecorry.sol.math.algebra.Matrix.create(levels, levels, glcm)
     }
 
     fun Bitmap.replaceColor(

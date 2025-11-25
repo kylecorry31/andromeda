@@ -17,9 +17,9 @@ class GLCMTest {
         val random = createBitmap()
 
         val r = Random(1)
-        for (x in 0 until zeros.width) {
-            for (y in 0 until zeros.height) {
-                zeros.setPixel(x, y, Color.rgb(r.nextInt(), r.nextInt(), r.nextInt()))
+        for (x in 0 until random.width) {
+            for (y in 0 until random.height) {
+                random.setPixel(x, y, Color.rgb(r.nextInt(), r.nextInt(), r.nextInt()))
             }
         }
 
@@ -111,11 +111,11 @@ class GLCMTest {
                     val neighborX = x + step.first
                     val neighborY = y + step.second
 
-                    if (neighborX >= endX || neighborX < startX) {
+                    if (neighborX !in startX..<endX) {
                         continue
                     }
 
-                    if (neighborY >= endY || neighborY < startY) {
+                    if (neighborY !in startY..<endY) {
                         continue
                     }
 
@@ -147,7 +147,7 @@ class GLCMTest {
         if (normed && total > 0) {
             for (row in glcm.indices) {
                 for (col in glcm[0].indices) {
-                    glcm[row][col] /= total.toFloat()
+                    glcm[row][col] = (glcm[row][col] / total.toDouble()).toFloat()
                 }
             }
         }

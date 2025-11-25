@@ -7,7 +7,7 @@ android {
     namespace = "com.kylecorry.andromeda.net"
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

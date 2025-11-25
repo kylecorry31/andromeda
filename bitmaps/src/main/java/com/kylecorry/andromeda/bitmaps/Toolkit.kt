@@ -1630,7 +1630,7 @@ internal object Toolkit {
             normalize,
             excludeTransparent,
             steps,
-            steps.size.toByte(),
+            (steps.size / 2).toByte(),
             restriction
         )
         return outputArray
