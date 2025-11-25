@@ -85,3 +85,4 @@ local.properties
 
 # Custom
 .idea/markdown.xml
+.idea/AndroidProjectSystem.xml
