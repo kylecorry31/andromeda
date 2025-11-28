@@ -411,7 +411,7 @@ class GeoJsonConvertTest {
                                 "key6" to mapOf("key1" to 1L)
                             )
                         ),
-                        GeoJsonBoundingBox(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+                        GeoJsonBoundingBox(1.0, 2.0, 4.0, 5.0, 3.0, 6.0)
                     )
                 ),
                 Arguments.of(

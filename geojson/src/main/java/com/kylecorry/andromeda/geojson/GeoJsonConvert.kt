@@ -174,10 +174,10 @@ object GeoJsonConvert {
             val array = json.asJsonArray
             val west = array[0].asDouble
             val south = array[1].asDouble
-            val east = array[2].asDouble
-            val north = array[3].asDouble
-            val minZ = if (array.size() > 4) array[4].asDouble else null
-            val maxZ = if (array.size() > 5) array[5].asDouble else null
+            val east = if (array.size() == 6) array[3].asDouble else array[2].asDouble
+            val north = if (array.size() == 6) array[4].asDouble else array[3].asDouble
+            val minZ = if (array.size() == 6) array[2].asDouble else null
+            val maxZ = if (array.size() == 6) array[5].asDouble else null
             return GeoJsonBoundingBox(west, south, east, north, minZ, maxZ)
         }
 
@@ -189,10 +189,12 @@ object GeoJsonConvert {
             val array = JsonArray()
             array.add(src.west)
             array.add(src.south)
+            if (src.minZ != null){
+                array.add(src.minZ)
+            }
             array.add(src.east)
             array.add(src.north)
-            if (src.minZ != null && src.maxZ != null) {
-                array.add(src.minZ)
+            if (src.maxZ != null) {
                 array.add(src.maxZ)
             }
             return array
