@@ -1,0 +1,53 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
+
+android {
+    compileSdkVersion = compileVersion
+    namespace = "com.kylecorry.andromeda.geojson"
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion targetVersion
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.md'
+        exclude 'META-INF/LICENSE-notice.md'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+}
+
+dependencies {
+    implementation project(':json')
+    api libs.sol
+    implementation libs.gson
+    coreLibraryDesugaring libs.desugar
+    testImplementation libs.junit
+    testImplementation libs.junit.platform.runner
+    testImplementation libs.junit.jupiter.api
+    testImplementation libs.junit.jupiter.params
+    androidTestImplementation libs.androidx.junit
+    testRuntimeOnly libs.junit.jupiter.engine
+    androidTestImplementation libs.androidx.espresso.core
+}
