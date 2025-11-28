@@ -1,14 +1,19 @@
 package com.kylecorry.andromeda.geojson
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonArray
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
+import com.google.gson.JsonSerializationContext
+import com.google.gson.JsonSerializer
 import com.google.gson.ToNumberPolicy
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonToken
 import java.io.InputStream
+import java.io.OutputStream
 import java.lang.reflect.Type
 
 object GeoJsonConvert {
@@ -18,6 +23,7 @@ object GeoJsonConvert {
         .registerTypeAdapter(GeoJsonGeometry::class.java, GeoJsonObjectAdapter())
         .registerTypeAdapter(GeoJsonPosition::class.java, GeoJsonPositionAdapter())
         .registerTypeAdapter(GeoJsonBoundingBox::class.java, GeoJsonBoundingBoxAdapter())
+        .registerTypeAdapter(GeoJsonFeature::class.java, GeoJsonFeatureSerializer())
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .create()
 
@@ -42,6 +48,16 @@ object GeoJsonConvert {
         }
 
         return objects
+    }
+
+    fun toJson(obj: GeoJsonObject): String {
+        return gson.toJson(obj)
+    }
+
+    fun toJson(obj: GeoJsonObject, stream: OutputStream) {
+        val writer = stream.bufferedWriter()
+        gson.toJson(obj, writer)
+        writer.flush()
     }
 
     private class GeoJsonObjectAdapter : JsonDeserializer<GeoJsonObject> {
@@ -92,7 +108,33 @@ object GeoJsonConvert {
         }
     }
 
-    private class GeoJsonPositionAdapter : JsonDeserializer<GeoJsonPosition> {
+    private class GeoJsonFeatureSerializer : JsonSerializer<GeoJsonFeature> {
+        override fun serialize(
+            src: GeoJsonFeature,
+            typeOfSrc: Type,
+            context: JsonSerializationContext
+        ): JsonElement {
+            val obj = JsonObject()
+            obj.addProperty("type", "Feature")
+
+            if (src.boundingBox != null) {
+                obj.add("bbox", context.serialize(src.boundingBox))
+            }
+
+            if (src.id != null) {
+                obj.add("id", context.serialize(src.id))
+            }
+
+            // Always add these fields even if null
+            obj.add("geometry", context.serialize(src.geometry))
+            obj.add("properties", context.serialize(src.properties))
+
+            return obj
+        }
+    }
+
+    private class GeoJsonPositionAdapter : JsonDeserializer<GeoJsonPosition>,
+        JsonSerializer<GeoJsonPosition> {
         override fun deserialize(
             json: JsonElement,
             typeOfT: Type,
@@ -104,9 +146,24 @@ object GeoJsonConvert {
             val z = if (array.size() > 2) array[2].asDouble else null
             return GeoJsonPosition(x, y, z)
         }
+
+        override fun serialize(
+            src: GeoJsonPosition,
+            typeOfSrc: Type,
+            context: JsonSerializationContext
+        ): JsonElement {
+            val array = JsonArray()
+            array.add(src.x)
+            array.add(src.y)
+            if (src.z != null) {
+                array.add(src.z)
+            }
+            return array
+        }
     }
 
-    private class GeoJsonBoundingBoxAdapter : JsonDeserializer<GeoJsonBoundingBox> {
+    private class GeoJsonBoundingBoxAdapter : JsonDeserializer<GeoJsonBoundingBox>,
+        JsonSerializer<GeoJsonBoundingBox> {
         override fun deserialize(
             json: JsonElement,
             typeOfT: Type,
@@ -120,6 +177,23 @@ object GeoJsonConvert {
             val minZ = if (array.size() > 4) array[4].asDouble else null
             val maxZ = if (array.size() > 5) array[5].asDouble else null
             return GeoJsonBoundingBox(west, south, east, north, minZ, maxZ)
+        }
+
+        override fun serialize(
+            src: GeoJsonBoundingBox,
+            typeOfSrc: Type,
+            context: JsonSerializationContext
+        ): JsonElement {
+            val array = JsonArray()
+            array.add(src.west)
+            array.add(src.south)
+            array.add(src.east)
+            array.add(src.north)
+            if (src.minZ != null && src.maxZ != null) {
+                array.add(src.minZ)
+                array.add(src.maxZ)
+            }
+            return array
         }
     }
 

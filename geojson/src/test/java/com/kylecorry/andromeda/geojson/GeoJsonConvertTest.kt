@@ -15,6 +15,14 @@ class GeoJsonConvertTest {
         assertEquals(listOf(expected), parsed)
     }
 
+    @ParameterizedTest
+    @MethodSource("provideFromJson")
+    fun toJson(json: String, expected: GeoJsonObject) {
+        val serialized = GeoJsonConvert.toJson(expected)
+        val parsed = GeoJsonConvert.fromJson(serialized.byteInputStream())
+        assertEquals(listOf(expected), parsed)
+    }
+
     companion object {
         @JvmStatic
         fun provideFromJson(): Stream<Arguments> {
@@ -404,6 +412,28 @@ class GeoJsonConvertTest {
                             )
                         ),
                         GeoJsonBoundingBox(1.0, 2.0, 3.0, 4.0, 5.0, 6.0)
+                    )
+                ),
+                Arguments.of(
+                    """{
+       "type": "FeatureCollection",
+       "bbox": [100.0, 0.0, 105.0, 1.0],
+       "features": []
+       }""",
+                    GeoJsonFeatureCollection(
+                        emptyList(),
+                        GeoJsonBoundingBox(100.0, 0.0, 105.0, 1.0)
+                    )
+                ),
+                Arguments.of(
+                    """{
+       "type": "Point",
+       "coordinates": [100.0, 0.0],
+       "bbox": [100.0, 0.0, 100.0, 0.0]
+       }""",
+                    GeoJsonPoint(
+                        GeoJsonPosition(100.0, 0.0),
+                        GeoJsonBoundingBox(100.0, 0.0, 100.0, 0.0)
                     )
                 )
             )
