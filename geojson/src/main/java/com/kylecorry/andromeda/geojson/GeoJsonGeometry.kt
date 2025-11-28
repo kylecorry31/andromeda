@@ -12,55 +12,89 @@ data class GeoJsonPosition(val x: Double, val y: Double, val z: Double? = null) 
         get() = z?.let { Distance.meters(it.toFloat()) }
 }
 
-interface GeoJsonGeometry : GeoJsonObject
+interface GeoJsonGeometry : GeoJsonObject {
+    companion object {
+        internal const val FIELD_COORDINATES = "coordinates"
+        internal const val FIELD_BBOX = "bbox"
+    }
+}
 
 data class GeoJsonPoint(
-    @SerializedName("coordinates") val point: GeoJsonPosition?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val point: GeoJsonPosition?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) :
     GeoJsonGeometry {
-    override val type = "Point"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "Point"
+    }
 }
 
 data class GeoJsonLineString(
-    @SerializedName("coordinates") val line: List<GeoJsonPosition>?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val line: List<GeoJsonPosition>?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "LineString"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "LineString"
+    }
 }
 
 data class GeoJsonPolygon(
-    @SerializedName("coordinates") val polygon: List<List<GeoJsonPosition>>?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val polygon: List<List<GeoJsonPosition>>?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "Polygon"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "Polygon"
+    }
 }
 
 data class GeoJsonMultiPoint(
-    @SerializedName("coordinates") val points: List<GeoJsonPosition>?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val points: List<GeoJsonPosition>?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "MultiPoint"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "MultiPoint"
+    }
 }
 
 data class GeoJsonMultiLineString(
-    @SerializedName("coordinates") val lines: List<List<GeoJsonPosition>>?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val lines: List<List<GeoJsonPosition>>?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "MultiLineString"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "MultiLineString"
+    }
 }
 
 data class GeoJsonMultiPolygon(
-    @SerializedName("coordinates") val polygons: List<List<List<GeoJsonPosition>>>?,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(GeoJsonGeometry.FIELD_COORDINATES) val polygons: List<List<List<GeoJsonPosition>>>?,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "MultiPolygon"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "MultiPolygon"
+    }
 }
 
 data class GeoJsonGeometryCollection(
-    @SerializedName("geometries") val geometries: List<GeoJsonGeometry>,
-    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName(FIELD_GEOMETRIES) val geometries: List<GeoJsonGeometry>,
+    @SerializedName(GeoJsonGeometry.FIELD_BBOX) override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
-    override val type = "GeometryCollection"
+    override val type = TYPE
+
+    companion object {
+        const val TYPE = "GeometryCollection"
+        internal const val FIELD_GEOMETRIES = "geometries"
+    }
 
 }

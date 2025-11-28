@@ -18,6 +18,8 @@ import java.lang.reflect.Type
 
 object GeoJsonConvert {
 
+    private const val FIELD_TYPE = "type"
+
     private val gson = GsonBuilder()
         .registerTypeAdapter(GeoJsonObject::class.java, GeoJsonObjectAdapter())
         .registerTypeAdapter(GeoJsonGeometry::class.java, GeoJsonObjectAdapter())
@@ -67,38 +69,50 @@ object GeoJsonConvert {
             context: JsonDeserializationContext
         ): GeoJsonObject {
             val obj = json.asJsonObject
-            val type = obj.get("type")?.asString ?: throw JsonParseException("Missing type")
+            val type = obj.get(FIELD_TYPE)?.asString ?: throw JsonParseException("Missing type")
 
             return when (type) {
-                "Feature" -> context.deserialize<GeoJsonFeature>(json, GeoJsonFeature::class.java)
-                "FeatureCollection" -> context.deserialize<GeoJsonFeatureCollection>(
+                GeoJsonFeature.TYPE -> context.deserialize<GeoJsonFeature>(
+                    json,
+                    GeoJsonFeature::class.java
+                )
+
+                GeoJsonFeatureCollection.TYPE -> context.deserialize<GeoJsonFeatureCollection>(
                     json,
                     GeoJsonFeatureCollection::class.java
                 )
 
-                "Point" -> context.deserialize<GeoJsonPoint>(json, GeoJsonPoint::class.java)
-                "LineString" -> context.deserialize<GeoJsonLineString>(
+                GeoJsonPoint.TYPE -> context.deserialize<GeoJsonPoint>(
+                    json,
+                    GeoJsonPoint::class.java
+                )
+
+                GeoJsonLineString.TYPE -> context.deserialize<GeoJsonLineString>(
                     json,
                     GeoJsonLineString::class.java
                 )
 
-                "Polygon" -> context.deserialize<GeoJsonPolygon>(json, GeoJsonPolygon::class.java)
-                "MultiPoint" -> context.deserialize<GeoJsonMultiPoint>(
+                GeoJsonPolygon.TYPE -> context.deserialize<GeoJsonPolygon>(
+                    json,
+                    GeoJsonPolygon::class.java
+                )
+
+                GeoJsonMultiPoint.TYPE -> context.deserialize<GeoJsonMultiPoint>(
                     json,
                     GeoJsonMultiPoint::class.java
                 )
 
-                "MultiLineString" -> context.deserialize<GeoJsonMultiLineString>(
+                GeoJsonMultiLineString.TYPE -> context.deserialize<GeoJsonMultiLineString>(
                     json,
                     GeoJsonMultiLineString::class.java
                 )
 
-                "MultiPolygon" -> context.deserialize<GeoJsonMultiPolygon>(
+                GeoJsonMultiPolygon.TYPE -> context.deserialize<GeoJsonMultiPolygon>(
                     json,
                     GeoJsonMultiPolygon::class.java
                 )
 
-                "GeometryCollection" -> context.deserialize<GeoJsonGeometryCollection>(
+                GeoJsonGeometryCollection.TYPE -> context.deserialize<GeoJsonGeometryCollection>(
                     json,
                     GeoJsonGeometryCollection::class.java
                 )
@@ -115,19 +129,19 @@ object GeoJsonConvert {
             context: JsonSerializationContext
         ): JsonElement {
             val obj = JsonObject()
-            obj.addProperty("type", "Feature")
+            obj.addProperty(FIELD_TYPE, GeoJsonFeature.TYPE)
 
             if (src.boundingBox != null) {
-                obj.add("bbox", context.serialize(src.boundingBox))
+                obj.add(GeoJsonFeature.FIELD_BBOX, context.serialize(src.boundingBox))
             }
 
             if (src.id != null) {
-                obj.add("id", context.serialize(src.id))
+                obj.add(GeoJsonFeature.FIELD_ID, context.serialize(src.id))
             }
 
             // Always add these fields even if null
-            obj.add("geometry", context.serialize(src.geometry))
-            obj.add("properties", context.serialize(src.properties))
+            obj.add(GeoJsonFeature.FIELD_GEOMETRY, context.serialize(src.geometry))
+            obj.add(GeoJsonFeature.FIELD_PROPERTIES, context.serialize(src.properties))
 
             return obj
         }
