@@ -117,7 +117,7 @@ private fun isHole(polygon: List<List<GeoJsonPosition>>?, index: Int): Boolean {
     for (i in linearRing.indices) {
         val point1 = linearRing[i]
         val point2 = linearRing[(i + 1) % linearRing.size]
-        signedArea += (point1.x * point2.y - point2.x * point2.y)
+        signedArea += (point1.x * point2.y - point2.x * point1.y)
     }
-    return signedArea > 0
+    return signedArea < 0
 }
