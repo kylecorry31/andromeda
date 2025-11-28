@@ -29,27 +29,15 @@ object GeoJsonConvert {
         .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
         .create()
 
-    fun fromJson(stream: InputStream): List<GeoJsonObject> {
+    fun fromJson(stream: InputStream): GeoJsonObject? {
         val reader = gson.newJsonReader(stream.bufferedReader())
-        val objects = mutableListOf<GeoJsonObject>()
-
         try {
-            val token = reader.peek()
-            if (token == JsonToken.BEGIN_ARRAY) {
-                val listType = object : TypeToken<List<GeoJsonObject>>() {}.type
-                val list = gson.fromJson<List<GeoJsonObject>>(reader, listType)
-                objects.addAll(list)
-            } else {
-                val obj = gson.fromJson<GeoJsonObject>(reader, GeoJsonObject::class.java)
-                if (obj != null) {
-                    objects.add(obj)
-                }
-            }
+           return gson.fromJson(reader, GeoJsonObject::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-        return objects
+        return null
     }
 
     fun toJson(obj: GeoJsonObject): String {
