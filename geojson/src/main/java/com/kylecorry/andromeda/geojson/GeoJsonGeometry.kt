@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.geojson
 
+import com.google.gson.annotations.SerializedName
 import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.sol.units.Distance
 
@@ -14,51 +15,51 @@ data class GeoJsonPosition(val x: Double, val y: Double, val z: Double? = null) 
 interface GeoJsonGeometry : GeoJsonObject
 
 data class GeoJsonPoint(
-    val point: GeoJsonPosition?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val point: GeoJsonPosition?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) :
     GeoJsonGeometry {
     override val type = "Point"
 }
 
 data class GeoJsonLineString(
-    val line: List<GeoJsonPosition>?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val line: List<GeoJsonPosition>?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "LineString"
 }
 
 data class GeoJsonPolygon(
-    val polygon: List<List<GeoJsonPosition>>?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val polygon: List<List<GeoJsonPosition>>?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "Polygon"
 }
 
 data class GeoJsonMultiPoint(
-    val points: List<GeoJsonPosition>?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val points: List<GeoJsonPosition>?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "MultiPoint"
 }
 
 data class GeoJsonMultiLineString(
-    val lines: List<List<GeoJsonPosition>>?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val lines: List<List<GeoJsonPosition>>?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "MultiLineString"
 }
 
 data class GeoJsonMultiPolygon(
-    val polygons: List<List<List<GeoJsonPosition>>>?,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("coordinates") val polygons: List<List<List<GeoJsonPosition>>>?,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "MultiPolygon"
 }
 
 data class GeoJsonGeometryCollection(
-    val geometries: List<GeoJsonGeometry>,
-    override val boundingBox: GeoJsonBoundingBox? = null
+    @SerializedName("geometries") val geometries: List<GeoJsonGeometry>,
+    @SerializedName("bbox") override val boundingBox: GeoJsonBoundingBox? = null
 ) : GeoJsonGeometry {
     override val type = "GeometryCollection"
 
