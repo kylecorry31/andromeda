@@ -10,20 +10,20 @@ class GeoJsonGeometryTest {
     fun isHolePolygon() {
         // CCW (Exterior)
         val exterior = listOf(
-            GeoJsonPosition(0.0, 0.0),
-            GeoJsonPosition(1.0, 0.0),
-            GeoJsonPosition(1.0, 1.0),
-            GeoJsonPosition(0.0, 1.0),
-            GeoJsonPosition(0.0, 0.0)
+            GeoJsonPosition(100.0, 0.0),
+            GeoJsonPosition(101.0, 0.0),
+            GeoJsonPosition(101.0, 1.0),
+            GeoJsonPosition(100.0, 1.0),
+            GeoJsonPosition(100.0, 0.0)
         )
 
         // CW (Hole)
         val hole = listOf(
-            GeoJsonPosition(0.2, 0.2),
-            GeoJsonPosition(0.2, 0.8),
-            GeoJsonPosition(0.8, 0.8),
-            GeoJsonPosition(0.8, 0.2),
-            GeoJsonPosition(0.2, 0.2)
+            GeoJsonPosition(100.8, 0.8),
+            GeoJsonPosition(100.8, 0.2),
+            GeoJsonPosition(100.2, 0.2),
+            GeoJsonPosition(100.2, 0.8),
+            GeoJsonPosition(100.8, 0.8)
         )
 
         val polygon = GeoJsonPolygon(listOf(exterior, hole))
@@ -36,20 +36,20 @@ class GeoJsonGeometryTest {
     fun isHoleMultiPolygon() {
         // CCW (Exterior)
         val exterior = listOf(
-            GeoJsonPosition(0.0, 0.0),
-            GeoJsonPosition(1.0, 0.0),
-            GeoJsonPosition(1.0, 1.0),
-            GeoJsonPosition(0.0, 1.0),
-            GeoJsonPosition(0.0, 0.0)
+            GeoJsonPosition(100.0, 0.0),
+            GeoJsonPosition(101.0, 0.0),
+            GeoJsonPosition(101.0, 1.0),
+            GeoJsonPosition(100.0, 1.0),
+            GeoJsonPosition(100.0, 0.0)
         )
 
         // CW (Hole)
         val hole = listOf(
-            GeoJsonPosition(0.2, 0.2),
-            GeoJsonPosition(0.2, 0.8),
-            GeoJsonPosition(0.8, 0.8),
-            GeoJsonPosition(0.8, 0.2),
-            GeoJsonPosition(0.2, 0.2)
+            GeoJsonPosition(100.8, 0.8),
+            GeoJsonPosition(100.8, 0.2),
+            GeoJsonPosition(100.2, 0.2),
+            GeoJsonPosition(100.2, 0.8),
+            GeoJsonPosition(100.8, 0.8)
         )
 
         val multiPolygon = GeoJsonMultiPolygon(listOf(listOf(exterior, hole)))
