@@ -48,6 +48,10 @@ data class GeoJsonPolygon(
 ) : GeoJsonGeometry {
     override val type = TYPE
 
+    fun isHole(index: Int): Boolean {
+        return isHole(polygon, index)
+    }
+
     companion object {
         const val TYPE = "Polygon"
     }
@@ -81,6 +85,10 @@ data class GeoJsonMultiPolygon(
 ) : GeoJsonGeometry {
     override val type = TYPE
 
+    fun isHole(polygonIndex: Int, linearRingIndex: Int): Boolean {
+        return isHole(polygons?.getOrNull(polygonIndex), linearRingIndex)
+    }
+
     companion object {
         const val TYPE = "MultiPolygon"
     }
@@ -97,4 +105,19 @@ data class GeoJsonGeometryCollection(
         internal const val FIELD_GEOMETRIES = "geometries"
     }
 
+}
+
+private fun isHole(polygon: List<List<GeoJsonPosition>>?, index: Int): Boolean {
+    if (index == 0 || polygon == null || index > polygon.lastIndex) {
+        return false
+    }
+    // https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+    val linearRing = polygon[index]
+    var signedArea = 0.0
+    for (i in linearRing.indices) {
+        val point1 = linearRing[i]
+        val point2 = linearRing[(i + 1) % linearRing.size]
+        signedArea += (point1.x * point2.y - point2.x * point2.y)
+    }
+    return signedArea > 0
 }
