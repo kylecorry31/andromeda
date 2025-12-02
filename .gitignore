@@ -86,3 +86,7 @@ local.properties
 # Custom
 .idea/markdown.xml
 .idea/AndroidProjectSystem.xml
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/deviceManager.xml
+/.idea/migrations.xml
+/.idea/codeStyles/Project.xml

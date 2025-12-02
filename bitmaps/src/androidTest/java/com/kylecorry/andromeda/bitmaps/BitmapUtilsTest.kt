@@ -1,12 +1,11 @@
-package com.kylecorry.andromeda.core.system
+package com.kylecorry.andromeda.bitmaps
 
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import com.kylecorry.andromeda.core.bitmap.BitmapUtils
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -73,14 +72,14 @@ class BitmapUtilsTest {
                 )!!
 
                 // Verify the regions are correct
-                assertEquals(region.width(), pngRegion.width)
-                assertEquals(region.height(), pngRegion.height)
-                assertEquals(region.width(), jpgRegion.width)
-                assertEquals(region.height(), jpgRegion.height)
-                assertEquals(region.width(), webpLosslessRegion.width)
-                assertEquals(region.height(), webpLosslessRegion.height)
-                assertEquals(region.width(), webpLossyRegion.width)
-                assertEquals(region.height(), webpLossyRegion.height)
+                Assert.assertEquals(region.width(), pngRegion.width)
+                Assert.assertEquals(region.height(), pngRegion.height)
+                Assert.assertEquals(region.width(), jpgRegion.width)
+                Assert.assertEquals(region.height(), jpgRegion.height)
+                Assert.assertEquals(region.width(), webpLosslessRegion.width)
+                Assert.assertEquals(region.height(), webpLosslessRegion.height)
+                Assert.assertEquals(region.width(), webpLossyRegion.width)
+                Assert.assertEquals(region.height(), webpLossyRegion.height)
 
                 for (x in 0 until region.width()) {
                     for (y in 0 until region.height()) {
@@ -89,42 +88,42 @@ class BitmapUtilsTest {
                         val green = source.green
                         val lossLessDelta = 0f
                         val lossyDelta = 120f
-                        assertEquals(
+                        Assert.assertEquals(
                             red.toFloat(),
                             pngRegion.getPixel(x, y).red.toFloat(),
                             lossLessDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             green.toFloat(),
                             pngRegion.getPixel(x, y).green.toFloat(),
                             lossLessDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             red.toFloat(),
                             jpgRegion.getPixel(x, y).red.toFloat(),
                             lossyDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             green.toFloat(),
                             jpgRegion.getPixel(x, y).green.toFloat(),
                             lossyDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             red.toFloat(),
                             webpLosslessRegion.getPixel(x, y).red.toFloat(),
                             lossLessDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             green.toFloat(),
                             webpLosslessRegion.getPixel(x, y).green.toFloat(),
                             lossLessDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             red.toFloat(),
                             webpLossyRegion.getPixel(x, y).red.toFloat(),
                             lossyDelta
                         )
-                        assertEquals(
+                        Assert.assertEquals(
                             green.toFloat(),
                             webpLossyRegion.getPixel(x, y).green.toFloat(),
                             lossyDelta
