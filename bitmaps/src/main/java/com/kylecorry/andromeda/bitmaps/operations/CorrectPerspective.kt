@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.bitmaps.operations
 
 import android.graphics.Bitmap
+import android.graphics.Paint
 import android.util.Size
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.bitmaps.BitmapUtils.fixPerspective
@@ -13,26 +14,38 @@ class CorrectPerspective : BitmapOperation {
     private var percentBounds: PercentBounds? = null
     private val backgroundColor: Int?
     private var maxSize: Size? = null
+    private var outputSize: Size? = null
+
+    private val paint = Paint()
 
     constructor(
         bounds: PixelBounds,
         @ColorInt backgroundColor: Int? = null,
-        maxSize: Size? = null
+        maxSize: Size? = null,
+        outputSize: Size? = null,
+        useBilinearScaling: Boolean = true
     ) {
         this.bounds = bounds
         this.percentBounds = null
         this.backgroundColor = backgroundColor
         this.maxSize = maxSize
+        this.outputSize = outputSize
+        paint.isFilterBitmap = useBilinearScaling
     }
 
     constructor(
-        bounds: PercentBounds, @ColorInt backgroundColor: Int? = null,
-        maxSize: Size? = null
+        bounds: PercentBounds,
+        @ColorInt backgroundColor: Int? = null,
+        maxSize: Size? = null,
+        outputSize: Size? = null,
+        useBilinearScaling: Boolean = true
     ) {
         this.bounds = null
         this.percentBounds = bounds
         this.backgroundColor = backgroundColor
         this.maxSize = maxSize
+        this.outputSize = outputSize
+        paint.isFilterBitmap = useBilinearScaling
     }
 
     override fun execute(bitmap: Bitmap): Bitmap {
@@ -44,7 +57,9 @@ class CorrectPerspective : BitmapOperation {
         return bitmap.fixPerspective(
             actualBounds,
             backgroundColor = backgroundColor,
-            maxOutputSize = maxSize
+            maxOutputSize = maxSize,
+            outputSize = outputSize,
+            paint = paint
         )
     }
 }

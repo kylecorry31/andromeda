@@ -5,10 +5,20 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.luna.hooks.Ref
+import com.kylecorry.luna.timer.CoroutineTimer
+import com.kylecorry.luna.timer.TimerActionBehavior
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 
 interface ReactiveComponent {
     fun useAndroidContext(): Context
@@ -92,4 +102,108 @@ inline fun <reified T : Any> ReactiveComponent.useService(): T {
     return useMemo {
         AppServiceRegistry.get<T>()
     }
+}
+
+fun ReactiveComponent.useLifecycleEffect(
+    lifecycleEvent: Lifecycle.Event,
+    vararg values: Any?,
+    action: () -> Unit
+) {
+    val owner = useLifecycleOwner()
+    val (lastObserver, setLastObserver) = useState<LifecycleObserver?>(null)
+    val observer = useMemo(*values, lifecycleEvent) {
+        LifecycleEventObserver { source: LifecycleOwner, event: Lifecycle.Event ->
+            if (event == lifecycleEvent) {
+                action()
+            }
+        }
+    }
+
+    useEffect(owner, observer) {
+        setLastObserver(observer)
+        lastObserver?.let {
+            owner.lifecycle.removeObserver(it)
+        }
+        owner.lifecycle.addObserver(observer)
+    }
+}
+
+fun ReactiveComponent.useDestroyEffect(vararg values: Any?, action: () -> Unit) {
+    useLifecycleEffect(
+        Lifecycle.Event.ON_DESTROY,
+        *values
+    ) {
+        action()
+    }
+}
+
+fun ReactiveComponent.usePauseEffect(vararg values: Any?, action: () -> Unit) {
+    useLifecycleEffect(
+        Lifecycle.Event.ON_PAUSE,
+        *values
+    ) {
+        action()
+    }
+}
+
+fun ReactiveComponent.useResumeEffect(vararg values: Any?, action: () -> Unit) {
+    useLifecycleEffect(
+        Lifecycle.Event.ON_RESUME,
+        *values
+    ) {
+        action()
+    }
+}
+
+fun <T : Any, V> ReactiveComponent.useLiveData(
+    data: LiveData<T>,
+    default: V,
+    mapper: (T) -> V
+): V {
+    val (state, setState) = useState(default)
+    val owner = useLifecycleOwner()
+
+    // Note: This does not change when the mapper changes
+    useEffect(data, owner) {
+        data.observe(owner) {
+            setState(mapper(it))
+        }
+    }
+
+    return state
+}
+
+fun <T : Any, V> ReactiveComponent.useLiveData(
+    data: LiveData<T>,
+    mapper: (T) -> V?
+): V? {
+    return useLiveData(data, null, mapper)
+}
+
+fun ReactiveComponent.useTimer(
+    interval: Long,
+    scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    observeOn: CoroutineContext = Dispatchers.Main,
+    actionBehavior: TimerActionBehavior = TimerActionBehavior.Wait,
+    runnable: suspend () -> Unit
+) {
+    val timer = useMemo {
+        CoroutineTimer(scope, observeOn, actionBehavior, runnable)
+    }
+
+    useResumeEffect(timer, interval) {
+        timer.interval(interval)
+    }
+
+    usePauseEffect(timer) {
+        timer.stop()
+    }
+}
+
+fun ReactiveComponent.useTrigger(): Pair<String, () -> Unit> {
+    val (key, setKey) = useState("")
+    val trigger = useCallback<Unit> {
+        setKey(UUID.randomUUID().toString())
+    }
+    return useMemo(key, trigger) { key to trigger }
 }

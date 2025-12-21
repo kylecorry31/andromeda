@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ImageFormat.YUV_420_888
 import android.graphics.Matrix
+import android.graphics.Paint
 import android.graphics.Point
 import android.graphics.Rect
 import android.media.Image
@@ -280,7 +281,9 @@ object BitmapUtils {
         bottomRight: PixelCoordinate,
         shouldRecycleOriginal: Boolean = false,
         @ColorInt backgroundColor: Int? = null,
-        maxOutputSize: Size? = null
+        maxOutputSize: Size? = null,
+        outputSize: Size? = null,
+        paint: Paint? = null
     ): Bitmap {
         val top = topLeft.distanceTo(topRight)
         val bottom = bottomLeft.distanceTo(bottomRight)
@@ -289,6 +292,11 @@ object BitmapUtils {
         val left = topLeft.distanceTo(bottomLeft)
         val right = topRight.distanceTo(bottomRight)
         var newHeight = ((left + right) / 2f).coerceAtLeast(1f)
+
+        if (outputSize != null) {
+            newWidth = outputSize.width.toFloat()
+            newHeight = outputSize.height.toFloat()
+        }
 
         if (maxOutputSize != null && (newWidth > maxOutputSize.width || newHeight > maxOutputSize.height)) {
             val scale = MathUtils.scaleToBounds(
@@ -331,7 +339,7 @@ object BitmapUtils {
         // Apply matrix to canvas
         canvas.concat(matrix)
 
-        canvas.drawBitmap(this, 0f, 0f, null)
+        canvas.drawBitmap(this, 0f, 0f, paint)
 
         if (shouldRecycleOriginal) {
             this.recycle()
@@ -345,7 +353,9 @@ object BitmapUtils {
         bounds: PixelBounds,
         shouldRecycleOriginal: Boolean = false,
         @ColorInt backgroundColor: Int? = null,
-        maxOutputSize: Size? = null
+        maxOutputSize: Size? = null,
+        outputSize: Size? = null,
+        paint: Paint? = null
     ): Bitmap {
         return fixPerspective(
             bounds.topLeft,
@@ -355,6 +365,8 @@ object BitmapUtils {
             shouldRecycleOriginal,
             backgroundColor,
             maxOutputSize,
+            outputSize,
+            paint
         )
     }
 

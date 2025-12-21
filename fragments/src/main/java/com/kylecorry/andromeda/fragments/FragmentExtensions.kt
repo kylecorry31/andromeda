@@ -361,7 +361,12 @@ fun <T> ReactiveComponent.useBackgroundMemo(
 ): T? {
     val (currentState, setCurrentState) = useState<T?>(null)
 
-    useBackgroundEffect(values, state, cancelWhenBelowState, cancelWhenRerun) {
+    useBackgroundEffect(
+        *values,
+        state = state,
+        cancelWhenBelowState = cancelWhenBelowState,
+        cancelWhenRerun = cancelWhenRerun
+    ) {
         setCurrentState(block())
     }
 
