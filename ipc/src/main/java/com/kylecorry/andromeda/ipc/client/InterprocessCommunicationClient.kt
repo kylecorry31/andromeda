@@ -9,10 +9,13 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import androidx.core.os.bundleOf
 import com.kylecorry.andromeda.ipc.CODE_INTERNAL_ERROR
 import com.kylecorry.andromeda.ipc.CODE_SERVICE_UNAVAILABLE
+import com.kylecorry.andromeda.ipc.InterprocessCommunicationRequest
 import com.kylecorry.andromeda.ipc.InterprocessCommunicationResponse
 import com.kylecorry.andromeda.ipc.PROPERTY_CODE
+import com.kylecorry.andromeda.ipc.PROPERTY_HEADERS
 import com.kylecorry.andromeda.ipc.PROPERTY_PAYLOAD
 import com.kylecorry.andromeda.ipc.PROPERTY_ROUTE
 import com.kylecorry.luna.coroutines.onDefault
@@ -87,18 +90,23 @@ class InterprocessCommunicationClient(
         }
     }
 
-    suspend fun send(path: String, payload: ByteArray?): InterprocessCommunicationResponse =
+    suspend fun send(
+        path: String,
+        request: InterprocessCommunicationRequest = InterprocessCommunicationRequest(),
+    ): InterprocessCommunicationResponse =
         suspendCancellableCoroutine {
             val message = Message.obtain()
             val bundle = message.data
             bundle.putString(PROPERTY_ROUTE, path)
-            bundle.putByteArray(PROPERTY_PAYLOAD, payload)
+            bundle.putBundle(PROPERTY_HEADERS, request.headers)
+            bundle.putByteArray(PROPERTY_PAYLOAD, request.payload)
 
             val replyHandler = object : Handler(looper) {
                 override fun handleMessage(msg: Message) {
                     it.resume(
                         InterprocessCommunicationResponse(
                             msg.data.getInt(PROPERTY_CODE, CODE_INTERNAL_ERROR),
+                            msg.data.getBundle(PROPERTY_HEADERS) ?: bundleOf(),
                             msg.data.getByteArray(PROPERTY_PAYLOAD)
                         )
                     )
@@ -110,6 +118,7 @@ class InterprocessCommunicationClient(
             messenger?.send(message) ?: it.resume(
                 InterprocessCommunicationResponse(
                     CODE_SERVICE_UNAVAILABLE,
+                    bundleOf(),
                     null
                 )
             )
@@ -117,7 +126,7 @@ class InterprocessCommunicationClient(
 
     suspend fun connectAndSend(
         route: String,
-        payload: ByteArray? = null,
+        request: InterprocessCommunicationRequest = InterprocessCommunicationRequest(),
         timeout: Duration = Duration.ofSeconds(10),
         stayConnected: Boolean = false
     ): InterprocessCommunicationResponse {
@@ -127,7 +136,7 @@ class InterprocessCommunicationClient(
                 throw IllegalStateException("Could not connect to service")
             }
             waitUntilConnected(timeout.toMillis())
-            send(route, payload)
+            send(route, request)
         } finally {
             if (!stayConnected) {
                 close()

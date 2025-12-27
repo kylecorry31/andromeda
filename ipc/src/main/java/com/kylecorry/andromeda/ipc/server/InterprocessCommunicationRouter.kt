@@ -6,8 +6,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import androidx.core.os.bundleOf
+import com.kylecorry.andromeda.ipc.InterprocessCommunicationRequest
 import com.kylecorry.andromeda.ipc.InterprocessCommunicationResponse
 import com.kylecorry.andromeda.ipc.PROPERTY_CODE
+import com.kylecorry.andromeda.ipc.PROPERTY_HEADERS
 import com.kylecorry.andromeda.ipc.PROPERTY_PAYLOAD
 import com.kylecorry.andromeda.ipc.PROPERTY_ROUTE
 import com.kylecorry.luna.coroutines.CoroutineQueueRunner
@@ -17,7 +20,7 @@ import kotlinx.coroutines.launch
 import java.io.Closeable
 
 class InterprocessCommunicationRouter(
-    private val routes: Map<String, suspend (context: Context, payload: ByteArray?) -> InterprocessCommunicationResponse>,
+    private val routes: Map<String, suspend (context: Context, request: InterprocessCommunicationRequest) -> InterprocessCommunicationResponse>,
     private val looper: Looper = Looper.getMainLooper(),
     queueSize: Int = 256
 ) : Closeable {
@@ -48,11 +51,17 @@ class InterprocessCommunicationRouter(
                 scope.launch {
                     runner.enqueue {
                         val response =
-                            action(applicationContext, data.getByteArray(PROPERTY_PAYLOAD))
+                            action(
+                                applicationContext, InterprocessCommunicationRequest(
+                                    data.getBundle(PROPERTY_HEADERS) ?: bundleOf(),
+                                    data.getByteArray(PROPERTY_PAYLOAD)
+                                )
+                            )
                         if (replyTo != null) {
                             val reply = Message.obtain()
                             val bundle = reply.data
                             bundle.putInt(PROPERTY_CODE, response.code)
+                            bundle.putBundle(PROPERTY_HEADERS, response.headers)
                             bundle.putByteArray(PROPERTY_PAYLOAD, response.payload)
                             replyTo.send(reply)
                         }

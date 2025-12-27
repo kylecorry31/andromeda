@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.ipc
 const val PROPERTY_ROUTE = "route"
 const val PROPERTY_PAYLOAD = "payload"
 const val PROPERTY_CODE = "code"
+const val PROPERTY_HEADERS = "headers"
 
 const val CODE_OK = 200
 const val CODE_BAD_REQUEST = 400
