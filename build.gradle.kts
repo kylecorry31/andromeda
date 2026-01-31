@@ -1,6 +1,6 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
-val versionName = "18.2.0"
+val versionName = "18.2.1"
 val groupId = "com.kylecorry.andromeda"
 
 buildscript {
@@ -56,6 +56,6 @@ subprojects {
         }
 
         publishToMavenCentral()
-//        signAllPublications()
+        signAllPublications()
     }
 }
