@@ -661,6 +661,25 @@ namespace renderscript {
                           float tolerance, bool interpolate, const Restriction *_Nullable restriction = nullptr);
 
         /**
+         * Upscale an image 2x using xBR with palette preservation.
+         *
+         * Doubles the image dimensions using the xBR 2x algorithm, which uses a 5x5
+         * neighborhood and weighted YUV color distance to detect edges and determine
+         * interpolation direction. Only source palette colors are used in the output,
+         * so no new colors are introduced.
+         *
+         * Only works on 4 byte RGBA data. The output buffer must be sized for
+         * (sizeX * 2) * (sizeY * 2) * 4 bytes.
+         *
+         * @param input The buffer of the image to be upscaled.
+         * @param output The buffer that receives the 2x upscaled image.
+         * @param sizeX The width of the input buffer.
+         * @param sizeY The height of the input buffer.
+         */
+        void xbr2x(const uint8_t *_Nonnull input, uint8_t *_Nonnull output,
+                    size_t sizeX, size_t sizeY);
+
+        /**
          * The YUV formats supported by yuvToRgb.
          */
         enum class YuvFormat {

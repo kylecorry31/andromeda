@@ -1636,6 +1636,16 @@ internal object Toolkit {
         return outputArray
     }
 
+    fun xbr2x(
+        inputBitmap: Bitmap
+    ): Bitmap {
+        validateBitmap("xbr2x", inputBitmap)
+
+        val outputBitmap = createBitmap(inputBitmap.width * 2, inputBitmap.height * 2)
+        nativeXbr2xBitmap(nativeHandle, inputBitmap, outputBitmap)
+        return outputBitmap
+    }
+
     private var nativeHandle: Long = 0
 
     init {
@@ -2061,6 +2071,12 @@ internal object Toolkit {
         tolerance: Float,
         interpolate: Boolean,
         restriction: Range2d?
+    )
+
+    private external fun nativeXbr2xBitmap(
+        nativeHandle: Long,
+        inputBitmap: Bitmap,
+        outputBitmap: Bitmap
     )
 }
 

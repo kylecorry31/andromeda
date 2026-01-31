@@ -88,6 +88,7 @@ add_library(# Sets the name of the library.
         Lut3d.cpp
         MinMax.cpp
         Moment.cpp
+        Xbr2x.cpp
         RenderScriptToolkit.cpp
         Resize.cpp
         StandardDeviation.cpp

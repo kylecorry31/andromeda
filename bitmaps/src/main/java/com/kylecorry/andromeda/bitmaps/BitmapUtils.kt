@@ -242,6 +242,13 @@ object BitmapUtils {
         return Toolkit.resize(this, width, height)
     }
 
+    /**
+     * Upscale (2x) the bitmap to preserve the pixel-art palette (xBR algorithm)
+     */
+    fun Bitmap.xbr2xUpscale(): Bitmap {
+        return Toolkit.xbr2x(this)
+    }
+
     fun getExactRegion(rect: Rect, imageSize: Size, blockSize: Int = 16): Rect {
         val left = rect.left.coerceIn(0, imageSize.width)
         val top = rect.top.coerceIn(0, imageSize.height)

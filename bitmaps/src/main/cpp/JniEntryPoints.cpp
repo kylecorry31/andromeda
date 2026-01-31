@@ -737,3 +737,14 @@ Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeColorReplaceBitmap(
                           targetG, targetB, targetA, replacementR, replacementG, replacementB,
                           replacementA, tolerance, interpolate, restrict.get());
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeXbr2xBitmap(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle, jobject input_bitmap,
+        jobject output_bitmap) {
+    RenderScriptToolkit *toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    BitmapGuard input{env, input_bitmap};
+    BitmapGuard output{env, output_bitmap};
+
+    toolkit->xbr2x(input.get(), output.get(), input.width(), input.height());
+}
