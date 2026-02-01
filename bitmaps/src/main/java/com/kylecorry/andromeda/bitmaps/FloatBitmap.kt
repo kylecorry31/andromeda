@@ -26,9 +26,16 @@ class FloatBitmap(val width: Int, val height: Int, val channels: Int) {
         return index / width
     }
 
-    fun upscale(newWidth: Int, newHeight: Int, trim: Int = 0): FloatBitmap {
+    fun upscale(
+        newWidth: Int,
+        newHeight: Int,
+        startX: Float = 0f,
+        endX: Float = (width - 1).toFloat(),
+        startY: Float = 0f,
+        endY: Float = (height - 1).toFloat(),
+        maxSearchRadius: Int = 10
+    ): FloatBitmap {
         val output = FloatBitmap(newWidth, newHeight, channels)
-        val t = trim.toFloat()
         val result = Toolkit.interpolateFloatBitmap(
             data,
             width,
@@ -36,11 +43,11 @@ class FloatBitmap(val width: Int, val height: Int, val channels: Int) {
             channels,
             newWidth,
             newHeight,
-            srcStartX = t,
-            srcStartY = t,
-            srcEndX = width - 1 - t,
-            srcEndY = height - 1 - t,
-            maxSearchRadius = trim.coerceAtMost(2)
+            srcStartX = startX,
+            srcStartY = startY,
+            srcEndX = endX,
+            srcEndY = endY,
+            maxSearchRadius = maxSearchRadius
         )
         result.copyInto(output.data)
         return output
