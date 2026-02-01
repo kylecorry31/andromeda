@@ -83,6 +83,7 @@ add_library(# Sets the name of the library.
         Convolve5x5.cpp
         GrayLevelCovarianceMatrix.cpp
         Histogram.cpp
+        InterpolateFloatBitmap.cpp
         JniEntryPoints.cpp
         Lut.cpp
         Lut3d.cpp

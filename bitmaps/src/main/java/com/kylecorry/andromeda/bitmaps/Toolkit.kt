@@ -2078,6 +2078,64 @@ internal object Toolkit {
         inputBitmap: Bitmap,
         outputBitmap: Bitmap
     )
+
+    fun interpolateFloatBitmap(
+        inputArray: FloatArray,
+        inputWidth: Int,
+        inputHeight: Int,
+        channels: Int,
+        outputWidth: Int,
+        outputHeight: Int,
+        srcStartX: Float = 0f,
+        srcStartY: Float = 0f,
+        srcEndX: Float = (inputWidth - 1).toFloat(),
+        srcEndY: Float = (inputHeight - 1).toFloat(),
+        maxSearchRadius: Int = 10
+    ): FloatArray {
+        require(inputArray.size >= inputWidth * inputHeight * channels) {
+            "$externalName interpolateFloatBitmap. inputArray is too small for the given dimensions."
+        }
+        require(channels in 1..4) {
+            "$externalName interpolateFloatBitmap. channels should be between 1 and 4. $channels provided."
+        }
+        require(outputWidth > 0 && outputHeight > 0) {
+            "$externalName interpolateFloatBitmap. Output dimensions must be positive."
+        }
+
+        val outputArray = FloatArray(outputWidth * outputHeight * channels)
+        nativeInterpolateFloatBitmap(
+            nativeHandle,
+            inputArray,
+            outputArray,
+            inputWidth,
+            inputHeight,
+            channels,
+            outputWidth,
+            outputHeight,
+            srcStartX,
+            srcStartY,
+            srcEndX,
+            srcEndY,
+            maxSearchRadius
+        )
+        return outputArray
+    }
+
+    private external fun nativeInterpolateFloatBitmap(
+        nativeHandle: Long,
+        inputArray: FloatArray,
+        outputArray: FloatArray,
+        inputWidth: Int,
+        inputHeight: Int,
+        channels: Int,
+        outputWidth: Int,
+        outputHeight: Int,
+        srcStartX: Float,
+        srcStartY: Float,
+        srcEndX: Float,
+        srcEndY: Float,
+        maxSearchRadius: Int
+    )
 }
 
 

@@ -748,3 +748,24 @@ Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeXbr2xBitmap(
 
     toolkit->xbr2x(input.get(), output.get(), input.width(), input.height());
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_kylecorry_andromeda_bitmaps_Toolkit_nativeInterpolateFloatBitmap(
+        JNIEnv *env, jobject /*thiz*/, jlong native_handle,
+        jfloatArray input_array, jfloatArray output_array,
+        jint input_width, jint input_height, jint channels,
+        jint output_width, jint output_height,
+        jfloat src_start_x, jfloat src_start_y,
+        jfloat src_end_x, jfloat src_end_y,
+        jint max_search_radius) {
+    auto toolkit = reinterpret_cast<RenderScriptToolkit *>(native_handle);
+    FloatArrayGuard input{env, input_array};
+    FloatArrayGuard output{env, output_array};
+
+    toolkit->interpolateFloatBitmap(input.get(), output.get(),
+                                     input_width, input_height, channels,
+                                     output_width, output_height,
+                                     src_start_x, src_start_y,
+                                     src_end_x, src_end_y,
+                                     max_search_radius);
+}

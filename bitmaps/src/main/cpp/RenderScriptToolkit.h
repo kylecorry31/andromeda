@@ -680,6 +680,36 @@ namespace renderscript {
                     size_t sizeX, size_t sizeY);
 
         /**
+         * Interpolate a float bitmap to a new size.
+         *
+         * Resizes a float bitmap using bicubic interpolation with fallback to bilinear and
+         * then nearest neighbor when there are not enough valid pixels (non-NaN) for the
+         * higher-order method.
+         *
+         * The source region parameters define which portion of the input to map onto the
+         * output. For a full-image resize, use (0, 0, inputWidth-1, inputHeight-1).
+         *
+         * @param input The input float bitmap data (width * height * channels floats).
+         * @param output The output float bitmap data (outputWidth * outputHeight * channels floats).
+         * @param inputWidth The width of the input bitmap.
+         * @param inputHeight The height of the input bitmap.
+         * @param channels The number of channels per pixel (1-4).
+         * @param outputWidth The width of the output bitmap.
+         * @param outputHeight The height of the output bitmap.
+         * @param srcStartX The X coordinate of the start of the source region.
+         * @param srcStartY The Y coordinate of the start of the source region.
+         * @param srcEndX The X coordinate of the end of the source region.
+         * @param srcEndY The Y coordinate of the end of the source region.
+         * @param maxSearchRadius The maximum search radius for nearest neighbor fallback.
+         */
+        void interpolateFloatBitmap(const float *_Nonnull input, float *_Nonnull output,
+                                     size_t inputWidth, size_t inputHeight, size_t channels,
+                                     size_t outputWidth, size_t outputHeight,
+                                     float srcStartX, float srcStartY,
+                                     float srcEndX, float srcEndY,
+                                     int maxSearchRadius);
+
+        /**
          * The YUV formats supported by yuvToRgb.
          */
         enum class YuvFormat {

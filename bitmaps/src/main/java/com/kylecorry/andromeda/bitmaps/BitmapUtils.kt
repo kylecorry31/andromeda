@@ -409,6 +409,10 @@ object BitmapUtils {
         quantize(table.green, greenBins)
         quantize(table.blue, blueBins)
         quantize(table.alpha, alphaBins)
+        return lut(table)
+    }
+
+    fun Bitmap.lut(table: LookupTable): Bitmap {
         return Toolkit.lut(this, table)
     }
 
