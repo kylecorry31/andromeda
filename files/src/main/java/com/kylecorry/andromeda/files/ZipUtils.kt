@@ -58,7 +58,7 @@ object ZipUtils {
         unzip(FileInputStream(fromFile), toDirectory, maxCount)
     }
 
-    inline fun ZipUtils.unzip(
+    inline fun unzip(
         fromStream: InputStream,
         toDirectory: File,
         maxCount: Int = Int.MAX_VALUE,
