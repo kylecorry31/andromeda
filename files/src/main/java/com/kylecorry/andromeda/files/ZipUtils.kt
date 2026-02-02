@@ -58,7 +58,12 @@ object ZipUtils {
         unzip(FileInputStream(fromFile), toDirectory, maxCount)
     }
 
-    fun unzip(fromStream: InputStream, toDirectory: File, maxCount: Int = Int.MAX_VALUE) {
+    inline fun ZipUtils.unzip(
+        fromStream: InputStream,
+        toDirectory: File,
+        maxCount: Int = Int.MAX_VALUE,
+        onUnzip: (file: File) -> Unit = {}
+    ) {
         val zip = ZipInputStream(fromStream)
         var count = 0
         val saver = FileSaver(false)
@@ -78,6 +83,7 @@ object ZipUtils {
                 }
 
                 saver.save(zip, dest)
+                onUnzip(dest)
             }
             count++
             count < maxCount
@@ -98,7 +104,8 @@ object ZipUtils {
         return files
     }
 
-    private fun ZipInputStream.forEach(fn: (entry: ZipEntry) -> Boolean) {
+
+    inline fun ZipInputStream.forEach(fn: (entry: ZipEntry) -> Boolean) {
         use {
             var entry = nextEntry
             var shouldContinue = true
