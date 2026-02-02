@@ -7,11 +7,13 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.setMargins
 import androidx.fragment.app.Fragment
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
@@ -232,6 +234,49 @@ object Alerts {
             return action()
         } finally {
             loadingAlert.dismiss()
+        }
+    }
+
+    inline fun <T> withProgress(
+        context: Context,
+        title: CharSequence,
+        action: (setProgress: (Float) -> Unit) -> T
+    ): T {
+        val container = FrameLayout(context)
+        val progressBar = ProgressBar(
+            context,
+            null,
+            android.R.attr.progressBarStyleHorizontal
+        ).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).also {
+                it.setMargins(32)
+            }
+            isIndeterminate = false
+            max = 100
+        }
+        container.addView(progressBar)
+
+        val progressDialog = dialog(
+            context,
+            title,
+            contentView = container,
+            cancelable = false,
+            cancelOnOutsideTouch = false,
+            okText = null,
+            cancelText = null
+        )
+
+        try {
+            return action {
+                progressBar.post {
+                    progressBar.progress = (it * 100).toInt()
+                }
+            }
+        } finally {
+            progressDialog.dismiss()
         }
     }
 }
