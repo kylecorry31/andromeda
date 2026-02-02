@@ -23,14 +23,14 @@ class CorrectPerspective : BitmapOperation {
         @ColorInt backgroundColor: Int? = null,
         maxSize: Size? = null,
         outputSize: Size? = null,
-        useBilinearScaling: Boolean = true
+        interpolate: Boolean = true
     ) {
         this.bounds = bounds
         this.percentBounds = null
         this.backgroundColor = backgroundColor
         this.maxSize = maxSize
         this.outputSize = outputSize
-        paint.isFilterBitmap = useBilinearScaling
+        paint.isFilterBitmap = interpolate
     }
 
     constructor(
@@ -38,14 +38,14 @@ class CorrectPerspective : BitmapOperation {
         @ColorInt backgroundColor: Int? = null,
         maxSize: Size? = null,
         outputSize: Size? = null,
-        useBilinearScaling: Boolean = true
+        interpolate: Boolean = true
     ) {
         this.bounds = null
         this.percentBounds = bounds
         this.backgroundColor = backgroundColor
         this.maxSize = maxSize
         this.outputSize = outputSize
-        paint.isFilterBitmap = useBilinearScaling
+        paint.isFilterBitmap = interpolate
     }
 
     override fun execute(bitmap: Bitmap): Bitmap {
