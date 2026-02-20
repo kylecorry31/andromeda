@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.haptics
 
-import com.kylecorry.sol.math.SolMath.deltaAngle
+import com.kylecorry.sol.math.trigonometry.Trigonometry.deltaAngle
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 

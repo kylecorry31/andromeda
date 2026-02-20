@@ -13,6 +13,7 @@ import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.Vector3Utils
 import com.kylecorry.sol.science.geology.Geology
+import com.kylecorry.sol.science.geophysics.Geophysics
 import kotlin.math.absoluteValue
 import kotlin.math.min
 
@@ -25,8 +26,8 @@ class CustomRotationSensor(
     private val outOfSyncMillisThreshold: Long = 1000,
     private val validMagnetometerMagnitudes: Range<Float> = Range(10f, 100f),
     private val validAccelerometerMagnitudes: Range<Float> = Range(
-        0.1f * Geology.GRAVITY,
-        2f * Geology.GRAVITY
+        0.1f * Geophysics.GRAVITY,
+        2f * Geophysics.GRAVITY
     ),
     private val onlyUseMagnetometerQuality: Boolean = false,
     private val verbose: Boolean = false

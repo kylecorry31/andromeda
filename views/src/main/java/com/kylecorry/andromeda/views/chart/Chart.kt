@@ -14,13 +14,13 @@ import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.andromeda.core.ui.Colors.withAlpha
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
-import com.kylecorry.sol.math.SolMath
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.time.Time.hoursUntil
 import com.kylecorry.sol.units.Reading
 import com.kylecorry.andromeda.views.chart.data.ChartLayer
 import com.kylecorry.andromeda.views.chart.label.ChartLabelFormatter
 import com.kylecorry.andromeda.views.chart.label.NumberChartLabelFormatter
+import com.kylecorry.sol.math.interpolation.Interpolation
 import java.time.Instant
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -157,7 +157,7 @@ class Chart : CanvasView, IChart {
         val sp1 = sp(1f)
         for (i in 0 until _yLabelCount) {
             val value =
-                SolMath.lerp(i / (_yLabelCount - 1).toFloat(), _currentYMinimum, _currentYMaximum)
+                Interpolation.lerp(i / (_yLabelCount - 1).toFloat(), _currentYMinimum, _currentYMaximum)
             val label = _yLabelFormatter.format(value)
             yLabels.add(label to value)
             yLabelSize = max(yLabelSize, textWidth(label) + sp1)
@@ -168,7 +168,7 @@ class Chart : CanvasView, IChart {
         var xLabelSize = 0f
         for (i in 0 until _xLabelCount) {
             val value =
-                SolMath.lerp(i / (_xLabelCount - 1).toFloat(), _currentXMinimum, _currentXMaximum)
+                Interpolation.lerp(i / (_xLabelCount - 1).toFloat(), _currentXMinimum, _currentXMaximum)
             val label = _xLabelFormatter.format(value)
             xLabels.add(label to value)
             xLabelSize = max(xLabelSize, textHeight(label))
@@ -279,7 +279,7 @@ class Chart : CanvasView, IChart {
 
     // Map x to view coordinates
     private fun mapX(x: Float): Float {
-        return SolMath.map(
+        return Interpolation.map(
             x,
             _currentXMinimum,
             _currentXMaximum,
@@ -290,7 +290,7 @@ class Chart : CanvasView, IChart {
 
     // Map y to view coordinates
     private fun mapY(y: Float): Float {
-        return -SolMath.map(
+        return -Interpolation.map(
             y,
             _currentYMinimum,
             _currentYMaximum,
@@ -366,14 +366,14 @@ class Chart : CanvasView, IChart {
     }
 
     override fun toData(pixel: PixelCoordinate): Vector2 {
-        val x = SolMath.map(
+        val x = Interpolation.map(
             pixel.x,
             _currentChartXMinimum,
             _currentChartXMaximum,
             _currentXMinimum,
             _currentXMaximum
         )
-        val y = SolMath.map(
+        val y = Interpolation.map(
             -pixel.y,
             -_currentChartYMaximum,
             -_currentChartYMinimum,

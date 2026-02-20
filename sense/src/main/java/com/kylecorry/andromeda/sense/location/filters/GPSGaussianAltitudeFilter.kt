@@ -1,8 +1,8 @@
 package com.kylecorry.andromeda.sense.location.filters
 
+import com.kylecorry.sol.math.MathExtensions.positive
+import com.kylecorry.sol.math.MathExtensions.real
 import com.kylecorry.sol.math.RingBuffer
-import com.kylecorry.sol.math.SolMath.positive
-import com.kylecorry.sol.math.SolMath.real
 import com.kylecorry.sol.math.statistics.GaussianDistribution
 import com.kylecorry.sol.math.statistics.Statistics
 

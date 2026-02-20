@@ -1,8 +1,8 @@
 package com.kylecorry.andromeda.core.ui
 
 import android.view.View
-import com.kylecorry.sol.math.SolMath.cosDegrees
-import com.kylecorry.sol.math.SolMath.sinDegrees
+import com.kylecorry.sol.math.trigonometry.Trigonometry.cosDegrees
+import com.kylecorry.sol.math.trigonometry.Trigonometry.sinDegrees
 
 fun View.alignToVector(to: View, radius: Float, angle: Float) {
     align(

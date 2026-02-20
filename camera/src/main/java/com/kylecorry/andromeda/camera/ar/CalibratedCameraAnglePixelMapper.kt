@@ -4,7 +4,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import com.kylecorry.andromeda.camera.ICamera
 import com.kylecorry.andromeda.core.units.PixelCoordinate
-import com.kylecorry.sol.math.SolMath.toRadians
+import com.kylecorry.sol.math.MathExtensions.toRadians
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.sol.math.geometry.Size

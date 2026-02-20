@@ -43,8 +43,8 @@ import com.kylecorry.andromeda.core.tryOrLog
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.sol.math.MathExtensions.toDegrees
 import com.kylecorry.sol.math.Range
-import com.kylecorry.sol.math.SolMath.toDegrees
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.OutputStream

@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.core.ui.colormaps.RgbInterpolationColorMap
-import com.kylecorry.sol.math.SolMath
+import com.kylecorry.sol.math.interpolation.Interpolation
 import kotlin.math.absoluteValue
 
 object Colors {
@@ -105,7 +105,7 @@ object Colors {
             )
         )
 
-        val percent = SolMath.map(temp, 1000f, 10000f, 0f, 1f, true)
+        val percent = Interpolation.map(temp, 1000f, 10000f, 0f, 1f, true)
 
         return map.getColor(percent)
     }

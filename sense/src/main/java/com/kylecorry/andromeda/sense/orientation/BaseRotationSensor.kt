@@ -4,9 +4,8 @@ import android.content.Context
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
+import com.kylecorry.sol.math.MathExtensions.toDegrees
 import com.kylecorry.sol.math.Quaternion
-import com.kylecorry.sol.math.QuaternionMath
-import com.kylecorry.sol.math.SolMath.toDegrees
 
 abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int) :
     BaseSensor(context, type, sensorDelay),

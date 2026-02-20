@@ -25,7 +25,7 @@ import com.kylecorry.andromeda.core.math.MathUtils
 import com.kylecorry.andromeda.core.units.PixelBounds
 import com.kylecorry.andromeda.core.units.PixelCoordinate
 import com.kylecorry.sol.math.Range
-import com.kylecorry.sol.math.SolMath
+import com.kylecorry.sol.math.interpolation.Interpolation
 import java.io.InputStream
 import kotlin.math.max
 import kotlin.math.min
@@ -488,7 +488,7 @@ object BitmapUtils {
         if (bins <= 0) {
             return 0
         }
-        return (SolMath.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
+        return (Interpolation.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt().toByte()
     }
 
     private fun quantize(value: Int, bins: Int): Int {
@@ -499,7 +499,7 @@ object BitmapUtils {
         if (bins <= 0) {
             return 0
         }
-        return (SolMath.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt()
+        return (Interpolation.map(value.toFloat(), 0f, 255f, 0f, bins - 1f)).roundToInt()
     }
 
     /**

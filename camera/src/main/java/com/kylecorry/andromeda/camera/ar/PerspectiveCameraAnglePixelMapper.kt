@@ -2,11 +2,11 @@ package com.kylecorry.andromeda.camera.ar
 
 import android.graphics.RectF
 import com.kylecorry.andromeda.core.units.PixelCoordinate
-import com.kylecorry.sol.math.SolMath
-import com.kylecorry.sol.math.SolMath.toRadians
+import com.kylecorry.sol.math.MathExtensions.toRadians
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.sol.math.geometry.Size
+import com.kylecorry.sol.math.trigonometry.Trigonometry
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -51,7 +51,7 @@ class PerspectiveCameraAnglePixelMapper(
         }
 
         // Perspective matrix multiplication - written out to avoid unnecessary allocations and calculations
-        val f = 1 / SolMath.tanDegrees(fieldOfView.height / 2)
+        val f = 1 / Trigonometry.tanDegrees(fieldOfView.height / 2)
 
         val aspect = fieldOfView.width / fieldOfView.height
         val x = f / aspect * world.x

@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.core.math
 
-import com.kylecorry.sol.math.SolMath.roundPlaces
+import com.kylecorry.sol.math.MathExtensions.roundPlaces
 import java.text.DecimalFormat
 import java.util.concurrent.ConcurrentHashMap
 

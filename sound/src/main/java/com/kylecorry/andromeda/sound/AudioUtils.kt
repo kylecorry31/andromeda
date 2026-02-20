@@ -4,7 +4,7 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.util.Range
-import com.kylecorry.sol.math.SolMath
+import com.kylecorry.sol.math.interpolation.Interpolation
 import org.jetbrains.annotations.ApiStatus.Experimental
 import kotlin.math.log10
 import kotlin.math.pow
@@ -61,7 +61,7 @@ object AudioUtils {
         val minSoundPressurePa = referenceSoundPressure * 10f.pow(minDb / 20)
 
         // Interpolate between the min and max sound pressure
-        val readingSoundPressurePa = SolMath.lerp(amplitude, minSoundPressurePa, maxSoundPressurePa)
+        val readingSoundPressurePa = Interpolation.lerp(amplitude, minSoundPressurePa, maxSoundPressurePa)
 
         // Convert sound pressure to dB
         return 20 * log10(readingSoundPressurePa / referenceSoundPressure)

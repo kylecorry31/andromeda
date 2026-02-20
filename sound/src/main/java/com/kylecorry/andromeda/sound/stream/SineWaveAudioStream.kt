@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sound.stream
 
-import com.kylecorry.sol.math.SolMath.power
+import com.kylecorry.sol.math.arithmetic.Arithmetic.power
 import kotlin.math.PI
 import kotlin.math.sin
 

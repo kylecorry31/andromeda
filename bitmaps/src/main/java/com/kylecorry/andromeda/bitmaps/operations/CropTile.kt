@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.bitmaps.operations
 
 import android.graphics.Bitmap
 import android.util.Size
-import com.kylecorry.sol.math.SolMath
+import com.kylecorry.sol.math.trigonometry.Trigonometry
 import com.kylecorry.sol.science.geology.CoordinateBounds
 import kotlin.math.roundToInt
 
@@ -19,7 +19,7 @@ class CropTile(
         val pixelsPerDegreeX = bitmap.width / imageBounds.widthDegrees()
         val pixelsPerDegreeY = bitmap.height / imageBounds.heightDegrees()
 
-        val cropX = SolMath.normalizeAngle(tileBounds.west - imageBounds.west) * pixelsPerDegreeX
+        val cropX = Trigonometry.normalizeAngle(tileBounds.west - imageBounds.west) * pixelsPerDegreeX
         val cropY = (imageBounds.north - tileBounds.north) * pixelsPerDegreeY
         val cropWidth = tileBounds.widthDegrees() * pixelsPerDegreeX
         val cropHeight = tileBounds.heightDegrees() * pixelsPerDegreeY

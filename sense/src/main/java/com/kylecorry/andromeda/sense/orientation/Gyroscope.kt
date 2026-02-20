@@ -6,9 +6,9 @@ import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Euler
+import com.kylecorry.sol.math.MathExtensions.toDegrees
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
-import com.kylecorry.sol.math.SolMath.toDegrees
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt

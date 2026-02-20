@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.sense.clinometer
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.sense.orientation.IOrientationSensor
 import com.kylecorry.andromeda.sense.orientation.OrientationUtils
-import com.kylecorry.sol.math.SolMath.normalizeAngle
+import com.kylecorry.sol.math.trigonometry.Trigonometry.normalizeAngle
 import com.kylecorry.sol.science.geology.Geology
 
 /**

@@ -13,8 +13,7 @@ import com.kylecorry.andromeda.sense.location.ISatelliteGPS
 import com.kylecorry.andromeda.sense.location.filters.GPSPassThroughAltitudeFilter
 import com.kylecorry.andromeda.sense.location.filters.IGPSAltitudeFilter
 import com.kylecorry.andromeda.sense.location.hasFix
-import com.kylecorry.sol.math.SolMath
-import com.kylecorry.sol.science.geology.Geology
+import com.kylecorry.sol.math.interpolation.Interpolation
 import com.kylecorry.sol.science.meteorology.Meteorology
 import com.kylecorry.sol.units.Distance
 import com.kylecorry.sol.units.Pressure
@@ -108,7 +107,7 @@ class FusedAltimeter(
 
         // Calculate the barometric altitude
         val barometricAltitude =
-            Geology.getAltitude(Pressure.hpa(barometer.pressure), seaLevel).value
+            Meteorology.getAltitude(Pressure.hpa(barometer.pressure), seaLevel).value
 
         // At this point, the barometric altitude is available but the GPS altitude may not be
         // If the GPS has a reading, use the GPS altimeter (even if the gaussian filter hasn't converged)
@@ -131,12 +130,13 @@ class FusedAltimeter(
             hasPendingGPSUpdate = false
 
             // The weight is higher for more accurate GPS readings
-            val errorWeight = 1 - SolMath.map(gpsError, 0f, MAX_GPS_ERROR, MIN_ALPHA, MAX_ALPHA)
-                .coerceIn(MIN_ALPHA, MAX_ALPHA)
+            val errorWeight =
+                1 - Interpolation.map(gpsError, 0f, MAX_GPS_ERROR, MIN_ALPHA, MAX_ALPHA)
+                    .coerceIn(MIN_ALPHA, MAX_ALPHA)
 
             // The weight increases over time (up to a maximum at MAX_TIME_FOR_WEIGHT hours)
             val timeSinceLastGPSUsed = getTimeSinceLastGPSUsed()?.seconds?.toFloat() ?: 0f
-            val timeWeight = SolMath.map(
+            val timeWeight = Interpolation.map(
                 timeSinceLastGPSUsed,
                 0f,
                 MAX_TIME_FOR_WEIGHT.seconds.toFloat(),

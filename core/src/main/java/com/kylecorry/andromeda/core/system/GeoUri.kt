@@ -3,12 +3,12 @@ package com.kylecorry.andromeda.core.system
 import android.net.Uri
 import android.os.Parcelable
 import com.kylecorry.andromeda.core.units.CoordinateParceler
-import com.kylecorry.sol.math.SolMath.roundPlaces
 import com.kylecorry.sol.units.Coordinate
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 import androidx.core.net.toUri
+import com.kylecorry.sol.math.MathExtensions.roundPlaces
 
 @Parcelize
 @TypeParceler<Coordinate, CoordinateParceler>()

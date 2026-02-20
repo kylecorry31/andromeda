@@ -3,12 +3,12 @@ package com.kylecorry.andromeda.bitmaps.operations
 import android.graphics.Bitmap
 import androidx.annotation.ColorInt
 import com.kylecorry.andromeda.bitmaps.BitmapUtils.replaceColor
-import com.kylecorry.sol.math.SolMath
+import com.kylecorry.sol.math.arithmetic.Arithmetic
 
 class ReplaceColor(
     @ColorInt private val sourceColor: Int,
     @ColorInt private val destinationColor: Int,
-    private val threshold: Float = SolMath.EPSILON_FLOAT,
+    private val threshold: Float = Arithmetic.EPSILON_FLOAT,
     private val interpolate: Boolean = false,
     private val inPlace: Boolean = true
 ) : BitmapOperation {

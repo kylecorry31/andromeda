@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.sense.orientation
 import android.hardware.SensorManager
 import android.opengl.Matrix
 import android.view.Surface
-import com.kylecorry.sol.math.SolMath.toDegrees
+import com.kylecorry.sol.math.MathExtensions.toDegrees
 
 object OrientationUtils {
 

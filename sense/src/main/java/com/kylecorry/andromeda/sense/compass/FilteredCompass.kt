@@ -2,8 +2,8 @@ package com.kylecorry.andromeda.sense.compass
 
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
-import com.kylecorry.sol.math.SolMath.deltaAngle
 import com.kylecorry.sol.math.filters.IFilter
+import com.kylecorry.sol.math.trigonometry.Trigonometry.deltaAngle
 import com.kylecorry.sol.units.Bearing
 
 /**
