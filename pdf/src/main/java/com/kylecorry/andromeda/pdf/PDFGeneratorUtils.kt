@@ -8,6 +8,9 @@ import com.kylecorry.andromeda.wkt.WKTString
 import com.kylecorry.sol.math.Vector2
 import com.kylecorry.sol.units.Coordinate
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStream
+import java.util.UUID
 
 fun obj(id: Int, vararg contents: PDFValue?): PDFValue.PDFObject {
     return PDFValue.PDFObject(id, 0, contents.toList().filterNotNull())
@@ -39,6 +42,10 @@ fun ref(objectId: Int): PDFValue.PDFIndirectObject {
 
 fun stream(bytes: ByteArray): PDFValue.PDFStream {
     return PDFValue.PDFStream(bytes)
+}
+
+fun stream(stream: InputStream): PDFValue.PDFInputStream {
+    return PDFValue.PDFInputStream(stream)
 }
 
 fun stream(string: String): PDFValue.PDFStream {
@@ -215,6 +222,23 @@ fun stream(
     )
 }
 
+
+fun stream(
+    id: Int,
+    contents: InputStream,
+    length: Long,
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    return obj(
+        id,
+        dict(
+            name("/Length") to number(length),
+            *properties.properties.toList().toTypedArray()
+        ),
+        stream(contents)
+    )
+}
+
 private fun dctImage(image: Bitmap, quality: Int = 100): ByteArray {
     val stream = ByteArrayOutputStream()
     image.compress(Bitmap.CompressFormat.JPEG, quality, stream)
@@ -243,6 +267,36 @@ fun image(
     return stream(
         id,
         stream.toByteArray(),
+        properties
+    )
+}
+
+fun jpg(
+    id: Int,
+    imageStream: InputStream,
+    imageWidth: Int,
+    imageHeight: Int,
+    x: Int = 0,
+    y: Int = 0,
+    destWidth: Int = imageWidth,
+    destHeight: Int = imageHeight,
+    properties: PDFValue.PDFDictionary = dict()
+): PDFValue.PDFObject {
+    val file = File.createTempFile("${UUID.randomUUID()}", ".bin")
+    file.deleteOnExit()
+    val stream = file.outputStream()
+    val writer = stream.bufferedWriter()
+    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W $imageWidth /H $imageHeight /CS /RGB /F /DCT /BPC 8 ID ")
+    writer.flush()
+    imageStream.copyTo(stream)
+    writer.flush()
+    writer.write(" > EI Q")
+    writer.flush()
+
+    return stream(
+        id,
+        file.inputStream(),
+        file.length(),
         properties
     )
 }

@@ -1,11 +1,20 @@
 package com.kylecorry.andromeda.pdf
 
+import com.kylecorry.luna.streams.readText
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 
 sealed interface PDFValue {
 
     fun toByteArray(): ByteArray {
         return toString().toByteArray()
+    }
+
+    fun write(output: OutputStream): Long {
+        val bytes = toByteArray()
+        output.write(bytes)
+        return bytes.size.toLong()
     }
 
     class PDFObject(val id: Int, val generation: Int = 0, val content: List<PDFValue>) : PDFValue {
@@ -56,11 +65,28 @@ sealed interface PDFValue {
             val bytes = ByteArrayOutputStream()
             bytes.write("$id $generation obj\n".toByteArray())
             for (value in content) {
-                bytes.write(value.toByteArray())
+                value.write(bytes)
                 bytes.write("\n".toByteArray())
             }
             bytes.write("endobj\n".toByteArray())
             return bytes.toByteArray()
+        }
+
+        override fun write(output: OutputStream): Long {
+            var byteCount = 0L
+            val header = "$id $generation obj\n".toByteArray()
+            val separator = "\n".toByteArray()
+            val footer = "endobj\n".toByteArray()
+            output.write(header)
+            byteCount += header.size
+            for (value in content) {
+                byteCount += value.write(output)
+                output.write(separator)
+                byteCount += separator.size
+            }
+            output.write(footer)
+            byteCount += footer.size
+            return byteCount
         }
     }
 
@@ -81,6 +107,51 @@ sealed interface PDFValue {
 
         override fun toByteArray(): ByteArray {
             return "stream\n".toByteArray() + content + "\nendstream".toByteArray()
+        }
+
+        override fun write(output: OutputStream): Long {
+            var byteCount = 0L
+            val header = "stream\n".toByteArray()
+            val footer = "\nendstream".toByteArray()
+            output.write(header)
+            byteCount += header.size
+            output.write(content)
+            byteCount += content.size
+            output.write(footer)
+            byteCount += footer.size
+            return byteCount
+        }
+    }
+
+    class PDFInputStream(val stream: InputStream) : PDFValue {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is PDFInputStream) return false
+            return stream == other.stream
+        }
+
+        override fun hashCode(): Int {
+            return stream.hashCode()
+        }
+
+        override fun toString(): String {
+            return "stream\n${stream.readText()}\nendstream"
+        }
+
+        override fun toByteArray(): ByteArray {
+            return "stream\n".toByteArray() + stream.readBytes() + "\nendstream".toByteArray()
+        }
+
+        override fun write(output: OutputStream): Long {
+            var byteCount = 0L
+            val header = "stream\n".toByteArray()
+            val footer = "\nendstream".toByteArray()
+            output.write(header)
+            byteCount += header.size
+            byteCount += stream.copyTo(output)
+            output.write(footer)
+            byteCount += footer.size
+            return byteCount
         }
     }
 

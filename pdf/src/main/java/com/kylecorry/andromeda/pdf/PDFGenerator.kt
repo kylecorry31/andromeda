@@ -9,15 +9,15 @@ internal class PDFGenerator {
     fun toPDF(objects: List<PDFValue.PDFObject>, out: OutputStream) {
         val sortedObjects = objects.sortedBy { it.id }
         val writer = out.bufferedWriter()
-        val xref = mutableListOf<Int>()
+        val xref = mutableListOf<Long>()
         val root = sortedObjects.getByProperty("/Type", name("/Catalog")).first().reference
-        var size = 0
+        var size = 0L
         size += append(writer, "%PDF-1.3\n")
         writer.flush()
 
         for (obj in sortedObjects) {
             xref.add(size)
-            size += appendBytes(out, obj.toByteArray())
+            size += obj.write(out)
         }
 
         val startXref = size
@@ -33,11 +33,6 @@ internal class PDFGenerator {
     private fun append(out: Writer, text: String): Int {
         out.write(text)
         return text.length
-    }
-
-    private fun appendBytes(out: OutputStream, arr: ByteArray): Int {
-        out.write(arr)
-        return arr.size
     }
 
     fun toPDF(objects: List<PDFValue.PDFObject>): String {

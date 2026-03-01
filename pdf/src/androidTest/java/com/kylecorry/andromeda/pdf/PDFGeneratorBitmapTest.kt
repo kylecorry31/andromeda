@@ -16,11 +16,15 @@ internal class PDFGeneratorBitmapTest {
         val bitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
         Canvas(bitmap).drawColor(Color.BLUE)
 
+        val temp = File.createTempFile("test", ".jpg")
+        temp.deleteOnExit()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, temp.outputStream())
+
         val objects = listOf(
             catalog(1, 2),
             pages(2, listOf(3)),
             page(3, 2, 200, 200, listOf(4)),
-            image(4, bitmap, 0, 0, 200, 200)
+            temp.inputStream().use { jpg(4, it, 200, 200, 0, 0) }
         )
 
         val output = File(context.filesDir, "test.pdf")
