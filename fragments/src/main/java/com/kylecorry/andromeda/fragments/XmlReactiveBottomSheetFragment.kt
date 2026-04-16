@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 
-abstract class XmlReactiveBottomSheetFragment(@LayoutRes private val layoutId: Int) :
+abstract class XmlReactiveBottomSheetFragment(@param:LayoutRes private val layoutId: Int) :
     AndromedaBottomSheetFragment() {
 
     override fun onCreateView(

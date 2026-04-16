@@ -281,7 +281,7 @@ object GPXParser {
         }
 
         if (track.lineStyle != null) {
-            extensions.add(XMLNode.text("trailsense:lineStyle", track.lineStyle.toString()))
+            extensions.add(XMLNode.text("trailsense:lineStyle", track.lineStyle))
         }
 
         if (extensions.isNotEmpty()) {

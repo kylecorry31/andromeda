@@ -8,7 +8,7 @@ data class GPXTrack(
     val id: Long? = null,
     val description: String? = null,
     val comment: String? = null,
-    @ColorInt val color: Int? = null,
+    @param:ColorInt val color: Int? = null,
     val lineStyle: String? = null,
     val group: String? = null,
     val segments: List<GPXTrackSegment> = emptyList()

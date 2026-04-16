@@ -19,7 +19,7 @@ abstract class DailyJobReceiver(
     private val getPreferences: (Context) -> IPreferences = { SharedPreferences(it) }
 ) : BroadcastReceiver() {
 
-    private val lock = Object()
+    private val lock = Any()
 
     override fun onReceive(context: Context, intent: Intent?) {
         synchronized(lock) {

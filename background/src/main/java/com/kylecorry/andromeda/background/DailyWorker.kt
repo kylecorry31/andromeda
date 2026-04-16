@@ -23,7 +23,7 @@ abstract class DailyWorker(
     private val getPreferences: (Context) -> IPreferences = { SharedPreferences(it) }
 ) : CoroutineWorker(context, params) {
 
-    private val lock = Object()
+    private val lock = Any()
 
     override suspend fun doWork(): Result {
 

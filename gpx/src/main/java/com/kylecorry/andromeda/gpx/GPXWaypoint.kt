@@ -14,5 +14,5 @@ data class GPXWaypoint(
     val time: Instant? = null,
     val group: String? = null,
     val symbol: String? = null,
-    @ColorInt val color: Int? = null
+    @param:ColorInt val color: Int? = null
 )

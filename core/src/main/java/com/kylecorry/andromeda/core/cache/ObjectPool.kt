@@ -7,7 +7,7 @@ class ObjectPool<T>(
 
     private val inUse = mutableListOf<T>()
     private val available = mutableSetOf<T>()
-    private val lock = Object()
+    private val lock = Any()
 
     val size: Int
         get() = inUse.size + available.size
@@ -51,10 +51,8 @@ class ObjectPool<T>(
      */
     fun reset() {
         synchronized(lock) {
-            for (obj in inUse) {
-                inUse.remove(obj)
-                available.add(obj)
-            }
+            available.addAll(inUse)
+            inUse.clear()
         }
     }
 

@@ -35,7 +35,7 @@ inline fun SpannableStringBuilder.right(builderAction: SpannableStringBuilder.()
         builderAction
     )
 
-inline fun SpannableStringBuilder.appendImage(
+fun SpannableStringBuilder.appendImage(
     context: Context,
     drawableRes: Int,
     width: Int,

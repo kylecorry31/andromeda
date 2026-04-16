@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.background.services
 
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import com.kylecorry.andromeda.background.BroadcastWorker
 import com.kylecorry.andromeda.background.TaskSchedulerFactory
 import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
@@ -34,7 +34,9 @@ abstract class IntervalService(
         TaskSchedulerFactory(this).interval(
             BroadcastWorker::class.java,
             uniqueId,
-            bundleOf("action" to action)
+            Bundle().apply {
+                putString("action", action)
+            }
         )
     }
 
@@ -42,7 +44,9 @@ abstract class IntervalService(
         TaskSchedulerFactory(this).once(
             BroadcastWorker::class.java,
             uniqueId,
-            bundleOf("action" to action)
+            Bundle().apply {
+                putString("action", action)
+            }
         )
     }
 

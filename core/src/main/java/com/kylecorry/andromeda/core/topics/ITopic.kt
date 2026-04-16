@@ -19,7 +19,7 @@ interface ITopic: IFlowable<Unit> {
 fun <T : ITopic> T.asLiveData(): LiveData<T> {
     lateinit var liveData: MutableLiveData<T>
     val handler = Handler(Looper.getMainLooper())
-    val lock = Object()
+    val lock = Any()
 
     val callback: () -> Boolean = {
         handler.post {

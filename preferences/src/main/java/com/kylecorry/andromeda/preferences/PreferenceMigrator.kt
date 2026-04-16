@@ -8,7 +8,7 @@ class PreferenceMigrator(
     private val preferences: IPreferences = SharedPreferences(context)
 ) {
 
-    private val lock = Object()
+    private val lock = Any()
 
     fun migrate(toVersion: Int, migrations: List<PreferenceMigration>) {
         synchronized(lock) {

@@ -11,7 +11,7 @@ import com.google.android.flexbox.JustifyContent
  * @property alignContent The vertical alignment of the data when there are multiple rows
  */
 data class ListItemDataAlignment(
-    @JustifyContent val justifyContent: Int = JustifyContent.FLEX_START,
-    @AlignItems val alignItems: Int = AlignItems.FLEX_START,
-    @AlignContent val alignContent: Int = AlignContent.FLEX_START
+    @param:JustifyContent val justifyContent: Int = JustifyContent.FLEX_START,
+    @param:AlignItems val alignItems: Int = AlignItems.FLEX_START,
+    @param:AlignContent val alignContent: Int = AlignContent.FLEX_START
 )

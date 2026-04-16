@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 
-abstract class XmlReactiveFragment(@LayoutRes private val layoutId: Int) : AndromedaFragment() {
+abstract class XmlReactiveFragment(@param:LayoutRes private val layoutId: Int) : AndromedaFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,

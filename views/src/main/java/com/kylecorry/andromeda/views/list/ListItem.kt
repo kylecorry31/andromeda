@@ -38,7 +38,7 @@ data class ListItem(
 
 data class ListMenuItem(val text: String, val action: () -> Unit)
 
-data class ListItemTag(val text: String, val icon: ListIcon?, @ColorInt val color: Int)
+data class ListItemTag(val text: String, val icon: ListIcon?, @param:ColorInt val color: Int)
 
 data class ListItemData(
     val text: CharSequence,
@@ -46,7 +46,7 @@ data class ListItemData(
     val grow: Float = 0f,
     val shrink: Float = 1f,
     val basisPercentage: Float = -1f,
-    @AlignSelf val alignment: Int = AlignSelf.AUTO
+    @param:AlignSelf val alignment: Int = AlignSelf.AUTO
 )
 
 data class ListItemCheckbox(val checked: Boolean, val onClick: () -> Unit)
@@ -57,10 +57,10 @@ interface ListIcon {
 }
 
 data class ResourceListIcon(
-    @DrawableRes val id: Int,
-    @ColorInt val tint: Int? = null,
-    @DrawableRes val backgroundId: Int? = null,
-    @ColorInt val backgroundTint: Int? = null,
+    @param:DrawableRes val id: Int,
+    @param:ColorInt val tint: Int? = null,
+    @param:DrawableRes val backgroundId: Int? = null,
+    @param:ColorInt val backgroundTint: Int? = null,
     val size: Float = 24f,
     val foregroundSize: Float = size,
     val clipToBackground: Boolean = false,
@@ -124,9 +124,9 @@ data class ResourceListIcon(
 
 data class DrawableListIcon(
     val drawable: Drawable?,
-    @ColorInt val tint: Int? = null,
+    @param:ColorInt val tint: Int? = null,
     val backgroundDrawable: Drawable? = null,
-    @ColorInt val backgroundTint: Int? = null,
+    @param:ColorInt val backgroundTint: Int? = null,
     val size: Float = 24f,
     val foregroundSize: Float = size,
     val clipToBackground: Boolean = false,
@@ -183,7 +183,7 @@ data class DrawableListIcon(
 data class AsyncListIcon(
     val lifecycleOwner: LifecycleOwner,
     val bitmapLoader: suspend () -> Bitmap,
-    @ColorInt val tint: Int? = null,
+    @param:ColorInt val tint: Int? = null,
     val size: Float = 24f,
     val scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_CENTER,
     val clearOnPause: Boolean = false,
