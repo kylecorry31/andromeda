@@ -31,6 +31,9 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
@@ -66,7 +69,7 @@ class Camera(
     private val useYUV: Boolean = false,
     private val captureSettings: ImageCaptureSettings? = null,
     private val shouldStabilizePreview: Boolean = true,
-    @AspectRatio.Ratio
+    @param:AspectRatio.Ratio
     private val targetAspectRatio: Int = AspectRatio.RATIO_DEFAULT,
 ) : AbstractSensor(), ICamera {
 
@@ -134,7 +137,7 @@ class Camera(
             }
             preview = Preview.Builder()
                 .also {
-                    it.setTargetAspectRatio(targetAspectRatio)
+                    it.setResolutionSelector(buildResolutionSelector())
 
                     // TODO: This might not be needed now that the method is exposed
                     if (!shouldStabilizePreview) {
@@ -155,11 +158,7 @@ class Camera(
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder().apply {
-                if (targetResolution != null) {
-                    setTargetResolution(targetResolution)
-                } else {
-                    setTargetAspectRatio(targetAspectRatio)
-                }
+                setResolutionSelector(buildResolutionSelector())
                 setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 setOutputImageFormat(if (useYUV) OUTPUT_IMAGE_FORMAT_YUV_420_888 else OUTPUT_IMAGE_FORMAT_RGBA_8888)
             }.build()
@@ -179,11 +178,7 @@ class Camera(
                     builder.setJpegQuality(it)
                 }
 
-                if (targetResolution != null) {
-                    builder.setTargetResolution(targetResolution)
-                } else {
-                    builder.setTargetAspectRatio(targetAspectRatio)
-                }
+                builder.setResolutionSelector(buildResolutionSelector())
 
                 captureSettings.rotation?.let {
                     builder.setTargetRotation(it)
@@ -578,6 +573,25 @@ class Camera(
         }
 
         return size
+    }
+
+    private fun buildResolutionSelector(): ResolutionSelector {
+        val strategy = AspectRatioStrategy(
+            targetAspectRatio,
+            AspectRatioStrategy.FALLBACK_RULE_AUTO
+        )
+
+        return ResolutionSelector.Builder().apply {
+            setAspectRatioStrategy(strategy)
+            targetResolution?.let {
+                setResolutionStrategy(
+                    ResolutionStrategy(
+                        it,
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                    )
+                )
+            }
+        }.build()
     }
 
     override fun getPreviewFOV(cropToView: Boolean): Pair<Float, Float>? {

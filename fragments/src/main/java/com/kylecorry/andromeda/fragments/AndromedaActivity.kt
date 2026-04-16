@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.KeyEvent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -21,8 +22,6 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester, Intent
     private var resultAction: ((successful: Boolean, data: Intent?) -> Unit)? = null
     private var permissionAction: (() -> Unit)? = null
     private lateinit var specialPermissionLauncher: SpecialPermissionLauncher
-
-    private var resultRequestCode: Int? = null
     private var permissionRequestCode: Int? = null
 
     private var volumeAction: ((button: VolumeButton, isPressed: Boolean) -> Boolean) =
@@ -30,6 +29,11 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester, Intent
 
     protected val hooks = Hooks()
     protected val lifecycleHookTrigger = LifecycleHookTrigger()
+    private val resultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            resultAction?.invoke(result.resultCode == RESULT_OK, result.data)
+            resultAction = null
+        }
 
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
@@ -68,10 +72,8 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester, Intent
     }
 
     override fun getResult(intent: Intent, action: (successful: Boolean, data: Intent?) -> Unit) {
-        val requestCode = Random.nextInt().absoluteValue
-        resultRequestCode = requestCode
         resultAction = action
-        startActivityForResult(intent, requestCode)
+        resultLauncher.launch(intent)
     }
 
     fun onVolumeButtonChange(action: ((button: VolumeButton, isPressed: Boolean) -> Boolean)?) {
@@ -94,15 +96,6 @@ open class AndromedaActivity : AppCompatActivity(), IPermissionRequester, Intent
         }
     }
 
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == resultRequestCode) {
-            resultAction?.invoke(resultCode == RESULT_OK, data)
-            resultRequestCode = null
-            resultAction = null
-        }
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

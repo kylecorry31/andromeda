@@ -7,12 +7,14 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.kylecorry.andromeda.core.coroutines.ControlledRunner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageView(context, attrs),
@@ -30,22 +32,36 @@ class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVie
         lifecycleOwner.lifecycle.removeObserver(this)
         lifecycleOwner.lifecycle.addObserver(this)
 
-        lifecycleOwner.lifecycleScope.launchWhenResumed {
-            imageLoader.cancelPreviousThenRun {
-                withContext(Dispatchers.Main) {
-                    super.setImageDrawable(null)
-                }
-                lastBitmap = withContext(Dispatchers.IO) {
-                    lastBitmap?.recycle()
-                    provider.invoke()
-                }
-                withContext(Dispatchers.Main) {
-                    if (lastBitmap?.isRecycled == false) {
-                        super.setImageBitmap(lastBitmap)
+        val loadImage = {
+            lifecycleOwner.lifecycleScope.launch {
+                imageLoader.cancelPreviousThenRun {
+                    withContext(Dispatchers.Main) {
+                        super.setImageDrawable(null)
+                    }
+                    lastBitmap = withContext(Dispatchers.IO) {
+                        lastBitmap?.recycle()
+                        provider.invoke()
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (lastBitmap?.isRecycled == false) {
+                            super.setImageBitmap(lastBitmap)
+                        }
                     }
                 }
             }
         }
+
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            loadImage()
+            return
+        }
+
+        lifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                owner.lifecycle.removeObserver(this)
+                loadImage()
+            }
+        })
     }
 
     fun recycleLastBitmap(clearView: Boolean = true) {
