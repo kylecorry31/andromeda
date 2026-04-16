@@ -18,7 +18,7 @@ android {
         exclude 'META-INF/LICENSE-notice.md'
     }
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
     buildTypes {
         release {
@@ -27,7 +27,7 @@ android {
         }
     }
     compileOptions {
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
