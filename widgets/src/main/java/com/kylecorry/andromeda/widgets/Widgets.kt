@@ -12,6 +12,9 @@ object Widgets {
         val intent = Intent(context, component)
         intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
         val ids = AppWidgetManager.getInstance(context).getAppWidgetIds(intent.component)
+        if (ids.isEmpty()) {
+            return
+        }
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         context.sendBroadcast(intent)
     }
