@@ -5,8 +5,8 @@ val groupId = "com.kylecorry.andromeda"
 
 buildscript {
     extra.apply {
-        set("targetVersion", 36)
-        set("compileVersion", 36)
+        set("targetVersion", 37)
+        set("compileVersion", 37)
     }
 }
 
