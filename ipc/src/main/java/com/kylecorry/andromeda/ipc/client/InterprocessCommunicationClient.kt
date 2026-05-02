@@ -127,7 +127,8 @@ class InterprocessCommunicationClient(
     suspend fun connectAndSend(
         route: String,
         request: InterprocessCommunicationRequest = InterprocessCommunicationRequest(),
-        timeout: Duration = Duration.ofSeconds(10),
+        connectTimeout: Duration = Duration.ofSeconds(10),
+        requestTimeout: Duration = Duration.ofMinutes(1),
         stayConnected: Boolean = false
     ): InterprocessCommunicationResponse {
         return try {
@@ -135,8 +136,10 @@ class InterprocessCommunicationClient(
             if (!success) {
                 throw IllegalStateException("Could not connect to service")
             }
-            waitUntilConnected(timeout.toMillis())
-            send(route, request)
+            waitUntilConnected(connectTimeout.toMillis())
+            withTimeout(requestTimeout.toMillis()) {
+                send(route, request)
+            }
         } finally {
             if (!stayConnected) {
                 close()
