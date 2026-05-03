@@ -53,7 +53,8 @@ class Compass(
             OrientationUtils.getAROrientation(
                 orientationSensor,
                 rotationMatrix,
-                orientation
+                orientation,
+                surfaceRotation
             )
             orientation[0]
         } else {

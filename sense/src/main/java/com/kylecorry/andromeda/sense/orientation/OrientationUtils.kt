@@ -53,17 +53,27 @@ object OrientationUtils {
      * @param orientationSensor The orientation sensor
      * @param rotationMatrix the array to store the rotation matrix in
      * @param orientation The array to store the orientation in (azimuth, pitch, roll in degrees)
+     * @param surfaceRotation The surface rotation of the device (default Surface.ROTATION_0)
      * @param declination The declination to use (default null)
      */
     fun getAROrientation(
         orientationSensor: IOrientationSensor,
         rotationMatrix: FloatArray,
         orientation: FloatArray,
+        surfaceRotation: Int = Surface.ROTATION_0,
         declination: Float? = null
     ) {
+        val x = when (surfaceRotation) {
+            Surface.ROTATION_0 -> SensorManager.AXIS_X
+            Surface.ROTATION_90 -> SensorManager.AXIS_Y
+            Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_X
+            Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Y
+            else -> SensorManager.AXIS_X
+        }
+
         getOrientation(
             orientationSensor,
-            SensorManager.AXIS_X,
+            x,
             SensorManager.AXIS_Z,
             rotationMatrix,
             orientation,

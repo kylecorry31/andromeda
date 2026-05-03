@@ -90,3 +90,4 @@ local.properties
 /.idea/deviceManager.xml
 /.idea/migrations.xml
 /.idea/codeStyles/Project.xml
+.codex

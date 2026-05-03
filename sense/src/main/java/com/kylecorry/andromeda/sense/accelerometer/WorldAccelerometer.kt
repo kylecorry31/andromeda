@@ -77,6 +77,7 @@ class WorldAccelerometer(
                 orientation,
                 rotationMatrix,
                 tempOrientation,
+                surfaceRotation,
                 if (useTrueNorth) declination else 0f
             )
         } else {
