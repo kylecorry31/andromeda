@@ -65,22 +65,29 @@ object OrientationUtils {
     ) {
         val x = when (surfaceRotation) {
             Surface.ROTATION_0 -> SensorManager.AXIS_X
-            Surface.ROTATION_90 -> SensorManager.AXIS_Y
+            Surface.ROTATION_90 -> SensorManager.AXIS_Z
             Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_X
-            Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Y
+            Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Z
             else -> SensorManager.AXIS_X
         }
 
-        getOrientation(
+        val y = when (surfaceRotation) {
+            Surface.ROTATION_0 -> SensorManager.AXIS_Z
+            Surface.ROTATION_90 -> SensorManager.AXIS_MINUS_X
+            Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_Z
+            Surface.ROTATION_270 -> SensorManager.AXIS_X
+            else -> SensorManager.AXIS_Z
+        }
+
+        OrientationUtils.getOrientation(
             orientationSensor,
             x,
-            SensorManager.AXIS_Z,
+            y,
             rotationMatrix,
             orientation,
             declination
         )
 
-        // Not sure if this is actually needed
         orientation[1] = -orientation[1]
         orientation[2] = -orientation[2]
     }
