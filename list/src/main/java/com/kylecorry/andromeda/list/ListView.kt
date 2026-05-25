@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class ListView<T>(
     private val view: RecyclerView,
-    @LayoutRes private val itemLayoutId: Int,
+    @param:LayoutRes private val itemLayoutId: Int,
     private val getId: (T) -> Long? = { null },
     private val onViewBind: (View, T) -> Unit
 ) {

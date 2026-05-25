@@ -30,6 +30,9 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -66,7 +69,7 @@ class Camera(
     private val useYUV: Boolean = false,
     private val captureSettings: ImageCaptureSettings? = null,
     private val shouldStabilizePreview: Boolean = true,
-    @AspectRatio.Ratio
+    @param:AspectRatio.Ratio
     private val targetAspectRatio: Int = AspectRatio.RATIO_DEFAULT,
 ) : AbstractSensor(), ICamera {
 
@@ -132,9 +135,10 @@ class Camera(
             } catch (e: InterruptedException) {
                 Log.i("Camera", "Unable to open camera because task was interrupted")
             }
+            val resolutionSelector = getResolutionSelector()
             preview = Preview.Builder()
                 .also {
-                    it.setTargetAspectRatio(targetAspectRatio)
+                    it.setResolutionSelector(resolutionSelector)
 
                     // TODO: This might not be needed now that the method is exposed
                     if (!shouldStabilizePreview) {
@@ -155,11 +159,7 @@ class Camera(
                 .build()
 
             val imageAnalysis = ImageAnalysis.Builder().apply {
-                if (targetResolution != null) {
-                    setTargetResolution(targetResolution)
-                } else {
-                    setTargetAspectRatio(targetAspectRatio)
-                }
+                setResolutionSelector(resolutionSelector)
                 setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 setOutputImageFormat(if (useYUV) OUTPUT_IMAGE_FORMAT_YUV_420_888 else OUTPUT_IMAGE_FORMAT_RGBA_8888)
             }.build()
@@ -179,11 +179,7 @@ class Camera(
                     builder.setJpegQuality(it)
                 }
 
-                if (targetResolution != null) {
-                    builder.setTargetResolution(targetResolution)
-                } else {
-                    builder.setTargetAspectRatio(targetAspectRatio)
-                }
+                builder.setResolutionSelector(resolutionSelector)
 
                 captureSettings.rotation?.let {
                     builder.setTargetRotation(it)
@@ -214,6 +210,31 @@ class Camera(
             notifyListeners()
         }, ContextCompat.getMainExecutor(context))
 
+    }
+
+    private fun getResolutionSelector(): ResolutionSelector {
+        val builder = ResolutionSelector.Builder()
+            .setAspectRatioStrategy(
+                AspectRatioStrategy(
+                    if (targetAspectRatio == AspectRatio.RATIO_DEFAULT) {
+                        AspectRatio.RATIO_4_3
+                    } else {
+                        targetAspectRatio
+                    },
+                    AspectRatioStrategy.FALLBACK_RULE_AUTO
+                )
+            )
+
+        targetResolution?.let {
+            builder.setResolutionStrategy(
+                ResolutionStrategy(
+                    it,
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                )
+            )
+        }
+
+        return builder.build()
     }
 
     override fun flipCamera() {

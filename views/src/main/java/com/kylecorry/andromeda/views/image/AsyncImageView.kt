@@ -11,8 +11,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.kylecorry.luna.concurrency.CoroutineQueueRunner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageView(context, attrs),
@@ -30,18 +32,20 @@ class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVie
         lifecycleOwner.lifecycle.removeObserver(this)
         lifecycleOwner.lifecycle.addObserver(this)
 
-        lifecycleOwner.lifecycleScope.launchWhenResumed {
-            imageLoader.replace {
-                withContext(Dispatchers.Main) {
-                    super.setImageDrawable(null)
-                }
-                lastBitmap = withContext(Dispatchers.IO) {
-                    lastBitmap?.recycle()
-                    provider.invoke()
-                }
-                withContext(Dispatchers.Main) {
-                    if (lastBitmap?.isRecycled == false) {
-                        super.setImageBitmap(lastBitmap)
+        lifecycleOwner.lifecycleScope.launch {
+            lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                imageLoader.replace {
+                    withContext(Dispatchers.Main) {
+                        super.setImageDrawable(null)
+                    }
+                    lastBitmap = withContext(Dispatchers.IO) {
+                        lastBitmap?.recycle()
+                        provider.invoke()
+                    }
+                    withContext(Dispatchers.Main) {
+                        if (lastBitmap?.isRecycled == false) {
+                            super.setImageBitmap(lastBitmap)
+                        }
                     }
                 }
             }
