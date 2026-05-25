@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.sense.altitude
 
 import android.util.Log
-import com.kylecorry.andromeda.core.coroutines.onDefault
 import com.kylecorry.andromeda.core.math.DecimalFormatter
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.IAltimeter
@@ -13,6 +12,7 @@ import com.kylecorry.andromeda.sense.location.ISatelliteGPS
 import com.kylecorry.andromeda.sense.location.filters.GPSPassThroughAltitudeFilter
 import com.kylecorry.andromeda.sense.location.filters.IGPSAltitudeFilter
 import com.kylecorry.andromeda.sense.location.hasFix
+import com.kylecorry.luna.coroutines.onDefault
 import com.kylecorry.sol.math.interpolation.Interpolation
 import com.kylecorry.sol.science.meteorology.Meteorology
 import com.kylecorry.sol.units.Distance

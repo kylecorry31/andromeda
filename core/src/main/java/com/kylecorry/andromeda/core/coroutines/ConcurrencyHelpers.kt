@@ -17,104 +17,13 @@ package com.kylecorry.andromeda.core.coroutines
  * Modified by Kyle Corry on 10/1/2021: Removed deprecated class
  */
 
-import kotlinx.coroutines.*
 import kotlinx.coroutines.CoroutineStart.LAZY
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.yield
 import java.util.concurrent.atomic.AtomicReference
-
-/**
- * A helper class to execute tasks sequentially in coroutines.
- *
- * Calling [afterPrevious] will always ensure that all previously requested work completes prior to
- * calling the block passed. Any future calls to [afterPrevious] while the current block is running
- * will wait for the current block to complete before starting.
- */
-class QueueRunner {
-    /**
-     * A coroutine mutex implements a lock that may only be taken by one coroutine at a time.
-     */
-    private val mutex = Mutex()
-
-    /**
-     * Ensure that the block will only be executed after all previous work has completed.
-     *
-     * When several coroutines call afterPrevious at the same time, they will queue up in the order
-     * that they call afterPrevious. Then, one coroutine will enter the block at a time.
-     *
-     * In the following example, only one save operation (user or song) will be executing at a time.
-     *
-     * ```
-     * class UserAndSongSaver {
-     *    val singleRunner = SingleRunner()
-     *
-     *    fun saveUser(user: User) {
-     *        singleRunner.afterPrevious { api.post(user) }
-     *    }
-     *
-     *    fun saveSong(song: Song) {
-     *        singleRunner.afterPrevious { api.post(song) }
-     *    }
-     * }
-     * ```
-     *
-     * @param block the code to run after previous work is complete.
-     */
-    suspend fun <T> afterPrevious(block: suspend () -> T): T {
-        // Before running the block, ensure that no other blocks are running by taking a lock on the
-        // mutex.
-
-        // The mutex will be released automatically when we return.
-
-        // If any other block were already running when we get here, it will wait for it to complete
-        // before entering the `withLock` block.
-        mutex.withLock {
-            return block()
-        }
-    }
-}
-
-/**
- * A helper class to execute only a single instance of a task
- */
-class SingleRunner {
-    /**
-     * The currently active task.
-     *
-     * This uses an atomic reference to ensure that it's safe to update activeTask on both
-     * Dispatchers.Default and Dispatchers.Main which will execute coroutines on multiple threads at
-     * the same time.
-     */
-    private val activeTask = AtomicReference<Deferred<Unit>?>(null)
-
-    /**
-     * Cancel the active task
-     */
-    fun cancel() {
-        activeTask.get()?.cancel()
-    }
-
-    suspend fun single(block: suspend () -> Unit, skipped: suspend () -> Unit = {}) {
-        activeTask.get()?.let {
-            skipped()
-            return
-        }
-
-        return coroutineScope {
-            val newTask = async(start = CoroutineStart.LAZY) {
-                block()
-            }
-
-            newTask.invokeOnCompletion {
-                activeTask.compareAndSet(newTask, null)
-            }
-
-            if (activeTask.compareAndSet(null, newTask)) {
-                newTask.await()
-            }
-        }
-    }
-}
 
 /**
  * A controlled runner decides what to do when new tasks are run.

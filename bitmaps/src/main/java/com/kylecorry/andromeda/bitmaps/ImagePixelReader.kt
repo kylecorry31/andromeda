@@ -6,7 +6,7 @@ import android.graphics.Rect
 import android.util.Size
 import com.kylecorry.andromeda.bitmaps.BitmapUtils.interpolateBilinear
 import com.kylecorry.andromeda.bitmaps.BitmapUtils.nearestPixel
-import com.kylecorry.andromeda.core.coroutines.onIO
+import com.kylecorry.luna.coroutines.onIO
 import java.io.InputStream
 import kotlin.math.roundToInt
 

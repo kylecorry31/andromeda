@@ -4,8 +4,8 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
-import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.system.Resources
+import com.kylecorry.luna.coroutines.onMain
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

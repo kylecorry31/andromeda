@@ -2,17 +2,16 @@ package com.kylecorry.andromeda.sense.orientation
 
 import android.util.Log
 import android.util.Range
-import com.kylecorry.andromeda.core.coroutines.onMain
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.subscriptions.Subscription
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.luna.coroutines.CoroutineQueueRunner
+import com.kylecorry.luna.coroutines.onMain
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
 import com.kylecorry.sol.math.Vector3Utils
-import com.kylecorry.sol.science.geology.Geology
 import com.kylecorry.sol.science.geophysics.Geophysics
 import kotlin.math.absoluteValue
 import kotlin.math.min
