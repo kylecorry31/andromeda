@@ -18,11 +18,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStateAtLeast
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import com.kylecorry.andromeda.core.topics.ITopic
-import com.kylecorry.andromeda.core.topics.asLiveData
-import com.kylecorry.andromeda.core.topics.generic.asLiveData
+import com.kylecorry.luna.topics.ITopic
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
-import com.kylecorry.luna.coroutines.CoroutineQueueRunner
+import com.kylecorry.luna.concurrency.CoroutineQueueRunner
 import com.kylecorry.luna.hooks.Hooks
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -328,7 +326,7 @@ fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, mapper: (T) -> V?): V? 
 }
 
 fun <T : Any, V> ReactiveComponent.useTopic(
-    topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
+    topic: com.kylecorry.luna.topics.generic.ITopic<T>,
     default: V,
     mapper: (T) -> V
 ): V {
@@ -346,7 +344,7 @@ fun <T : Any, V> ReactiveComponent.useTopic(
 }
 
 fun <T : Any, V> ReactiveComponent.useTopic(
-    topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
+    topic: com.kylecorry.luna.topics.generic.ITopic<T>,
     mapper: (T) -> V?
 ): V? {
     return useTopic(topic, null, mapper)

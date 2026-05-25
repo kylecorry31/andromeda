@@ -3,9 +3,9 @@ package com.kylecorry.andromeda.core.time
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import com.kylecorry.luna.coroutines.CoroutineQueueRunner
-import com.kylecorry.luna.timer.ITimer
-import com.kylecorry.luna.timer.TimerActionBehavior
+import com.kylecorry.luna.concurrency.CoroutineQueueRunner
+import com.kylecorry.luna.time.ITimer
+import com.kylecorry.luna.time.TimerActionBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

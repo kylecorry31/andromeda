@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.preferences
 
-import com.kylecorry.andromeda.core.topics.generic.Topic
+import com.kylecorry.luna.topics.generic.Topic
 import org.junit.Assert
 import org.junit.Test
 import org.mockito.kotlin.mock

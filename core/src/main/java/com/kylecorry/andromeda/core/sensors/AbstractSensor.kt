@@ -1,8 +1,8 @@
 package com.kylecorry.andromeda.core.sensors
 
-import com.kylecorry.andromeda.core.topics.BaseTopic
-import com.kylecorry.andromeda.core.topics.Subscriber
-import com.kylecorry.andromeda.core.topics.Topic
+import com.kylecorry.luna.topics.BaseTopic
+import com.kylecorry.luna.topics.Subscriber
+import com.kylecorry.luna.topics.Topic
 
 abstract class AbstractSensor : BaseTopic(), ISensor {
 

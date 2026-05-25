@@ -1,17 +1,12 @@
 package com.kylecorry.andromeda.connection.bluetooth
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
-import android.os.Build
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.permissions.NoPermissionException
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.luna.coroutines.onIO
-import org.jetbrains.annotations.ApiStatus.Experimental
-import java.util.*
+import java.util.UUID
 
 class BluetoothService(private val context: Context) {
 

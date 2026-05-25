@@ -6,11 +6,11 @@ import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.io.readUntil
-import com.kylecorry.andromeda.core.io.write
-import com.kylecorry.andromeda.core.io.writeAll
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
+import com.kylecorry.luna.streams.readUntil
+import com.kylecorry.luna.streams.write
+import com.kylecorry.luna.streams.writeAll
 import java.io.InputStream
 import java.io.OutputStream
 

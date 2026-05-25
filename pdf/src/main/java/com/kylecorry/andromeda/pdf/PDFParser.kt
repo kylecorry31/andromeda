@@ -1,10 +1,10 @@
 package com.kylecorry.andromeda.pdf
 
 import com.kylecorry.andromeda.compression.Zlib
-import com.kylecorry.andromeda.core.io.forEachByte
-import com.kylecorry.andromeda.core.io.readBytesUntil
-import com.kylecorry.andromeda.core.text.areBracketsBalanced
-import com.kylecorry.andromeda.core.toIntCompat
+import com.kylecorry.luna.text.toIntCompat
+import com.kylecorry.luna.streams.forEachByte
+import com.kylecorry.luna.streams.readBytesUntil
+import com.kylecorry.luna.text.areBracketsBalanced
 import com.kylecorry.sol.math.Range
 import java.io.InputStream
 

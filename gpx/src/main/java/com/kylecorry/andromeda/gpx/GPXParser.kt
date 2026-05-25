@@ -2,9 +2,9 @@ package com.kylecorry.andromeda.gpx
 
 import android.graphics.Color
 import android.text.TextUtils
-import com.kylecorry.andromeda.core.toDoubleCompat
-import com.kylecorry.andromeda.core.toFloatCompat
-import com.kylecorry.andromeda.core.toLongCompat
+import com.kylecorry.luna.text.toDoubleCompat
+import com.kylecorry.luna.text.toFloatCompat
+import com.kylecorry.luna.text.toLongCompat
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.andromeda.core.ui.Colors
 import com.kylecorry.andromeda.xml.XMLConvert

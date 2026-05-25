@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.connection.nearby
 
 import com.kylecorry.andromeda.connection.bluetooth.IBluetoothDevice
-import com.kylecorry.luna.coroutines.onIO
+import com.kylecorry.luna.concurrency.onIO
 import java.io.InputStream
 import java.io.OutputStream
 

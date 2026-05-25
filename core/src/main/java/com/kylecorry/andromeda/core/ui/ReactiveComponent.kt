@@ -13,8 +13,8 @@ import androidx.lifecycle.LiveData
 import com.kylecorry.andromeda.core.cache.AppServiceRegistry
 import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.luna.hooks.Ref
-import com.kylecorry.luna.timer.CoroutineTimer
-import com.kylecorry.luna.timer.TimerActionBehavior
+import com.kylecorry.luna.time.CoroutineTimer
+import com.kylecorry.luna.time.TimerActionBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.util.UUID

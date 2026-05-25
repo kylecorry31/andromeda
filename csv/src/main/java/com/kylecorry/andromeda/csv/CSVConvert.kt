@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.csv
 
-import com.kylecorry.andromeda.core.io.writeAll
 import com.kylecorry.luna.streams.readText
+import com.kylecorry.luna.streams.writeAll
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
@@ -25,21 +25,24 @@ object CSVConvert {
      */
 
     fun toCSV(stream: OutputStream, data: List<List<Any?>>) {
-        for (row in data){
-            for (i in row.indices){
+        for (row in data) {
+            for (i in row.indices) {
                 val cell = row[i]?.toString() ?: ""
                 // #5a, #6
-                val areQuotesRequired = cell.contains(",") || cell.contains("\"") || cell.contains("\n") || cell.contains("\r")
-                if (areQuotesRequired){
+                val areQuotesRequired =
+                    cell.contains(",") || cell.contains("\"") || cell.contains("\n") || cell.contains(
+                        "\r"
+                    )
+                if (areQuotesRequired) {
                     stream.write('"'.code)
                 }
                 // #7
                 stream.writeAll(cell.replace("\"", "\"\"").toByteArray())
-                if (areQuotesRequired){
+                if (areQuotesRequired) {
                     stream.write('"'.code)
                 }
                 // #4a, #4d
-                if (i != row.lastIndex){
+                if (i != row.lastIndex) {
                     stream.write(','.code)
                 }
             }
@@ -77,6 +80,7 @@ object CSVConvert {
                         insideQuotes = !insideQuotes
                     }
                 }
+
                 ',' -> {
                     // #4a or #6
                     if (insideQuotes) {
@@ -86,9 +90,10 @@ object CSVConvert {
                         currentCell.clear()
                     }
                 }
+
                 '\r', '\n' -> {
                     // #1 or #6
-                    if (insideQuotes){
+                    if (insideQuotes) {
                         currentCell.append(char)
                     } else {
                         if (i < csv.lastIndex && csv[i + 1] == '\n') {
@@ -101,6 +106,7 @@ object CSVConvert {
                         currentCell.clear()
                     }
                 }
+
                 else -> {
                     currentCell.append(char)
                 }

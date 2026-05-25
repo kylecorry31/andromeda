@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.net
 
-import com.kylecorry.luna.coroutines.onIO
+import com.kylecorry.luna.concurrency.onIO
 import java.net.HttpURLConnection
 import java.net.URL
 import java.time.Duration

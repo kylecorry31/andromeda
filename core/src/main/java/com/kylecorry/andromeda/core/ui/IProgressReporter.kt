@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.core.ui
 
-import com.kylecorry.andromeda.core.topics.generic.ITopic
+import com.kylecorry.luna.topics.generic.ITopic
 
 interface IProgressReporter {
     val progress: ITopic<Progress>

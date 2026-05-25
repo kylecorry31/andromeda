@@ -8,7 +8,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.widget.addTextChangedListener
 import com.kylecorry.andromeda.core.system.Resources
-import com.kylecorry.andromeda.core.toDoubleCompat
+import com.kylecorry.luna.text.toDoubleCompat
 import com.kylecorry.andromeda.pickers.Pickers
 
 open class UnitInputView<Units : Enum<*>>(

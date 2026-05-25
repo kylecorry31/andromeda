@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.bitmaps.operations
 
 import android.graphics.Bitmap
-import com.kylecorry.luna.coroutines.Parallel
+import com.kylecorry.luna.concurrency.Parallel
 
 fun Bitmap.applyOperations(
     vararg operations: BitmapOperation,

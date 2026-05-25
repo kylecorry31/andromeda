@@ -4,10 +4,8 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import com.kylecorry.andromeda.core.subscriptions.ISubscription
-import com.kylecorry.andromeda.core.topics.ITopic
-import com.kylecorry.andromeda.core.topics.asLiveData
-import com.kylecorry.andromeda.core.topics.generic.asLiveData
+import com.kylecorry.luna.subscriptions.ISubscription
+import com.kylecorry.luna.topics.ITopic
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -27,7 +25,7 @@ fun Fragment.observe(topic: ITopic, listener: () -> Unit) {
 }
 
 fun <T : Any> Fragment.observe(
-    topic: com.kylecorry.andromeda.core.topics.generic.ITopic<T>,
+    topic: com.kylecorry.luna.topics.generic.ITopic<T>,
     listener: (T) -> Unit
 ) {
     observe(topic.asLiveData(), listener)
@@ -44,7 +42,7 @@ fun Fragment.observe(
 }
 
 fun <T> Fragment.observe(
-    subscription: com.kylecorry.andromeda.core.subscriptions.generic.ISubscription<T>,
+    subscription: com.kylecorry.luna.subscriptions.generic.ISubscription<T>,
     state: BackgroundMinimumState = BackgroundMinimumState.Any,
     collectOn: CoroutineContext = Dispatchers.Default,
     observeOn: CoroutineContext = Dispatchers.Main,

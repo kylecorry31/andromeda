@@ -17,8 +17,8 @@ import com.kylecorry.andromeda.connection.NearbyDeviceMessage
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.luna.coroutines.onIO
-import com.kylecorry.luna.coroutines.onMain
+import com.kylecorry.luna.concurrency.onIO
+import com.kylecorry.luna.concurrency.onMain
 import com.kylecorry.sol.math.RingBuffer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

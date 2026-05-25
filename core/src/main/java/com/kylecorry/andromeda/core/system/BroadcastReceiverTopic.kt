@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
-import com.kylecorry.andromeda.core.topics.generic.BaseTopic
-import com.kylecorry.andromeda.core.topics.generic.Topic
+import com.kylecorry.luna.topics.generic.BaseTopic
+import com.kylecorry.luna.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrLog
 
 /**

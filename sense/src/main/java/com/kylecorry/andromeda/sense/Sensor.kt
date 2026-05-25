@@ -6,10 +6,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.topics.generic.ITopic
-import com.kylecorry.andromeda.core.topics.generic.Topic
-import com.kylecorry.andromeda.core.topics.generic.filter
-import com.kylecorry.andromeda.core.topics.generic.map
+import com.kylecorry.luna.topics.generic.ITopic
+import com.kylecorry.luna.topics.generic.Topic
+import com.kylecorry.luna.topics.generic.filter
+import com.kylecorry.luna.topics.generic.map
 import com.kylecorry.andromeda.core.tryOrLog
 
 class Sensor(

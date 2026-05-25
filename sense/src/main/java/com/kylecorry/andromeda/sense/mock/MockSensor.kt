@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.sense.mock
 
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.luna.timer.CoroutineTimer
+import com.kylecorry.luna.time.CoroutineTimer
 
 abstract class MockSensor(private val interval: Long = 0) : AbstractSensor() {
     override val hasValidReading: Boolean = true

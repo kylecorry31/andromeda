@@ -5,8 +5,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.topics.generic.BaseTopic
-import com.kylecorry.andromeda.core.topics.generic.Topic
+import com.kylecorry.luna.topics.generic.BaseTopic
+import com.kylecorry.luna.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrLog
 
 class TorchStateChangedTopic(private val context: Context) : BaseTopic<Boolean>() {

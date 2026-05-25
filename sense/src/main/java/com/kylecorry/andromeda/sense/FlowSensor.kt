@@ -6,13 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.core.content.getSystemService
-import com.kylecorry.andromeda.core.topics.generic.ITopic
-import com.kylecorry.andromeda.core.topics.generic.Topic
-import com.kylecorry.andromeda.core.topics.generic.filter
-import com.kylecorry.andromeda.core.topics.generic.map
-import com.kylecorry.andromeda.core.tryOrLog
-import com.kylecorry.luna.coroutines.ListenerFlowWrapper
-import java.util.concurrent.Flow
+import com.kylecorry.luna.concurrency.ListenerFlowWrapper
 
 class FlowSensor(
     context: Context,

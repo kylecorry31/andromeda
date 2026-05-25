@@ -3,8 +3,8 @@ package com.kylecorry.andromeda.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.kylecorry.andromeda.core.toDoubleCompat
-import com.kylecorry.andromeda.core.topics.generic.Topic
+import com.kylecorry.luna.text.toDoubleCompat
+import com.kylecorry.luna.topics.generic.Topic
 import com.kylecorry.andromeda.core.tryOrDefault
 import com.kylecorry.sol.units.Coordinate
 import java.time.Duration

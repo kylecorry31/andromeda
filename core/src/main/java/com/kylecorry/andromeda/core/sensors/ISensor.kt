@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.core.sensors
 
-import com.kylecorry.andromeda.core.topics.ITopic
-import com.kylecorry.andromeda.core.topics.Subscriber
+import com.kylecorry.luna.topics.ITopic
+import com.kylecorry.luna.topics.Subscriber
 
 interface ISensor : ITopic {
 

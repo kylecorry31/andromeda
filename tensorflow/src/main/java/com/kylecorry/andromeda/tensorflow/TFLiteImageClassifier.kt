@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.tensorflow
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.kylecorry.luna.coroutines.onIO
+import com.kylecorry.luna.concurrency.onIO
 import com.kylecorry.sol.math.statistics.Statistics
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

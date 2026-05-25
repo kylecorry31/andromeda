@@ -15,7 +15,7 @@ import android.widget.TimePicker
 import androidx.annotation.MenuRes
 import androidx.core.view.get
 import com.kylecorry.andromeda.alerts.Alerts
-import com.kylecorry.andromeda.core.toDoubleCompat
+import com.kylecorry.luna.text.toDoubleCompat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

@@ -1,20 +1,10 @@
-package com.kylecorry.andromeda.core.topics
+package com.kylecorry.andromeda.fragments
 
 import android.os.Handler
 import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.kylecorry.andromeda.core.topics.generic.AdapterTopic
-import com.kylecorry.luna.coroutines.IFlowable
-
-typealias Subscriber = () -> Boolean
-
-interface ITopic: IFlowable<Unit> {
-    fun subscribe(subscriber: Subscriber)
-    fun unsubscribe(subscriber: Subscriber)
-    fun unsubscribeAll()
-    suspend fun read(isSatisfied: () -> Boolean = { true })
-}
+import com.kylecorry.luna.topics.ITopic
 
 fun <T : ITopic> T.asLiveData(): LiveData<T> {
     lateinit var liveData: MutableLiveData<T>
@@ -45,6 +35,31 @@ fun <T : ITopic> T.asLiveData(): LiveData<T> {
     return liveData
 }
 
-fun <T: Any> ITopic.map(fn: () -> T): com.kylecorry.andromeda.core.topics.generic.ITopic<T> {
-    return AdapterTopic(this, fn)
+fun <K : Any, T : com.kylecorry.luna.topics.generic.ITopic<K>> T.asLiveData(): LiveData<K> {
+    lateinit var liveData: MutableLiveData<K>
+    val handler = Handler(Looper.getMainLooper())
+    val lock = Any()
+
+    val callback: (K) -> Boolean = {
+        handler.post {
+            synchronized(lock) {
+                liveData.value = it
+            }
+        }
+        true
+    }
+
+    liveData = object : MutableLiveData<K>(null) {
+        override fun onActive() {
+            super.onActive()
+            subscribe(callback)
+        }
+
+        override fun onInactive() {
+            super.onInactive()
+            unsubscribe(callback)
+        }
+    }
+
+    return liveData
 }

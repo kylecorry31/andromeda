@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import com.kylecorry.andromeda.permissions.Permissions
-import com.kylecorry.luna.coroutines.onIO
+import com.kylecorry.luna.concurrency.onIO
 import java.util.UUID
 
 class BluetoothListener(private val context: Context) {

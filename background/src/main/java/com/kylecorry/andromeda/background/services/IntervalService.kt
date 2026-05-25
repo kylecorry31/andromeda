@@ -6,8 +6,8 @@ import android.os.Bundle
 import com.kylecorry.andromeda.background.BroadcastWorker
 import com.kylecorry.andromeda.background.TaskSchedulerFactory
 import com.kylecorry.andromeda.core.system.BroadcastReceiverTopic
-import com.kylecorry.luna.timer.CoroutineTimer
-import com.kylecorry.luna.timer.ITimer
+import com.kylecorry.luna.time.CoroutineTimer
+import com.kylecorry.luna.time.ITimer
 import java.time.Duration
 
 /**
