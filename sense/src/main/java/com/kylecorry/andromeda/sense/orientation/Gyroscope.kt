@@ -58,7 +58,7 @@ class Gyroscope(
 
     private val deltaRotationVector = Quaternion.zero.toFloatArray()
 
-    private val lock = Object()
+    private val lock = Any()
 
     override fun handleSensorEvent(event: SensorEvent) {
         if (event.values.size < 3) {

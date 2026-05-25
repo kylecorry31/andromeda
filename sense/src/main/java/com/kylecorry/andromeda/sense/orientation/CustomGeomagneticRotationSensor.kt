@@ -22,7 +22,7 @@ class CustomGeomagneticRotationSensor(
     private val _quaternion = Quaternion.zero.toFloatArray()
     private val temp = FloatArray(4)
 
-    private val lock = Object()
+    private val lock = Any()
 
     override val headingAccuracy: Float?
         get() = null

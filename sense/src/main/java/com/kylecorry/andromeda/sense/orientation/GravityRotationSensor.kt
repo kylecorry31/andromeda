@@ -22,7 +22,7 @@ class GravityRotationSensor(
     private val temp = FloatArray(4)
     private val mockMagneticField = FloatArray(3)
 
-    private val lock = Object()
+    private val lock = Any()
 
     override val headingAccuracy: Float?
         get() = null

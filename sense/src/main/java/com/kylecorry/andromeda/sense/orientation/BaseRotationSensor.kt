@@ -11,7 +11,7 @@ abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int)
     BaseSensor(context, type, sensorDelay),
     IOrientationSensor {
 
-    private val lock = Object()
+    private val lock = Any()
 
     override val hasValidReading: Boolean
         get() = _hasReading
