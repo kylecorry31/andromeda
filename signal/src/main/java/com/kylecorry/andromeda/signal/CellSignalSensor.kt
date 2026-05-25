@@ -24,7 +24,7 @@ import com.kylecorry.andromeda.core.coroutines.SafeExecutor
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.time.AndroidTime
-import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.timer.CoroutineTimer
 import com.kylecorry.andromeda.core.tryOrNothing
 import com.kylecorry.andromeda.permissions.Permissions
 import java.time.Duration

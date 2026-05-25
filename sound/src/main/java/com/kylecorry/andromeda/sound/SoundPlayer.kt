@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.sound
 
 import android.media.AudioTrack
-import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.timer.CoroutineTimer
 
 open class SoundPlayer(private val sound: AudioTrack): ISoundPlayer {
 

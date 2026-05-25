@@ -2,7 +2,7 @@ package com.kylecorry.andromeda.sound.stream
 
 import android.media.AudioFormat
 import android.media.AudioTrack
-import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.timer.CoroutineTimer
 import com.kylecorry.andromeda.core.tryOrLog
 import com.kylecorry.andromeda.sound.AudioUtils
 import com.kylecorry.andromeda.sound.ISoundPlayer

@@ -3,7 +3,7 @@ package com.kylecorry.andromeda.widgets.tiles
 import android.os.Build
 import android.service.quicksettings.Tile
 import androidx.annotation.RequiresApi
-import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.timer.CoroutineTimer
 import java.time.Duration
 
 @RequiresApi(Build.VERSION_CODES.N)

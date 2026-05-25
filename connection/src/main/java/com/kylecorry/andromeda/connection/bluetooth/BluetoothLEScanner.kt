@@ -7,7 +7,7 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
-import com.kylecorry.andromeda.core.time.CoroutineTimer
+import com.kylecorry.luna.timer.CoroutineTimer
 import com.kylecorry.andromeda.permissions.Permissions
 
 /**

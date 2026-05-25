@@ -3,7 +3,9 @@ package com.kylecorry.andromeda.core.time
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import com.kylecorry.andromeda.core.coroutines.ControlledRunner
+import com.kylecorry.luna.coroutines.CoroutineQueueRunner
+import com.kylecorry.luna.timer.ITimer
+import com.kylecorry.luna.timer.TimerActionBehavior
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
  * @param scope The scope to run the action on
  * @param observeOn The context to observe the action on
  * @param looper The looper to run the timer on
- * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only). Action behavior of Wait is not supported yet.
+ * @param actionBehavior The behavior to use when the action is already running when the timer is triggered (periodic only).
  * @param action The action to run
  */
 @Experimental
@@ -29,15 +31,23 @@ class HandlerTimer(
     private val action: suspend () -> Unit
 ) : ITimer {
 
-    private val runner = ControlledRunner<Any>()
+    private val runner = CoroutineQueueRunner(scope = scope, dispatcher = observeOn)
 
     private var _isRunning = false
     private val handler = Handler(looper)
 
     private val runnable = Runnable {
         scope.launch {
-            runner.run(actionBehavior) {
+            if (actionBehavior == TimerActionBehavior.Wait) {
                 withContext(observeOn) {
+                    action()
+                }
+            } else if (actionBehavior == TimerActionBehavior.Skip) {
+                runner.skipIfRunning {
+                    action()
+                }
+            } else if (actionBehavior == TimerActionBehavior.Replace) {
+                runner.replace {
                     action()
                 }
             }
@@ -100,6 +110,7 @@ class HandlerTimer(
         intervalRunnable = null
 
         handler.removeCallbacks(runnable)
+        runner.cancel()
     }
 
     override fun isRunning(): Boolean {
