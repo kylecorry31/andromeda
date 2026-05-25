@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.csv
 
-import com.kylecorry.andromeda.core.io.DeserializationException
-import com.kylecorry.andromeda.core.io.SerializationException
+import com.kylecorry.luna.serialization.DeserializationException
+import com.kylecorry.luna.serialization.SerializationException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

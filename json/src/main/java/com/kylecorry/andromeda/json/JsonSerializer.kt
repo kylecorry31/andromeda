@@ -1,8 +1,9 @@
 package com.kylecorry.andromeda.json
 
 import com.google.gson.Gson
-import com.kylecorry.andromeda.core.io.ISerializer
-import com.kylecorry.andromeda.core.io.SerializationException
+import com.kylecorry.luna.serialization.DeserializationException
+import com.kylecorry.luna.serialization.ISerializer
+import com.kylecorry.luna.serialization.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -25,7 +26,7 @@ class JsonSerializer<T>(private val classOfT: Class<T>) : ISerializer<T> {
                 return gson.fromJson(reader, classOfT)
             }
         } catch (e: Exception) {
-            throw SerializationException(e.message ?: "Unknown error", e)
+            throw DeserializationException(e.message ?: "Unknown error", e)
         }
     }
 }

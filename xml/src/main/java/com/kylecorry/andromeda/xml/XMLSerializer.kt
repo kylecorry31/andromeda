@@ -1,7 +1,8 @@
 package com.kylecorry.andromeda.xml
 
-import com.kylecorry.andromeda.core.io.ISerializer
-import com.kylecorry.andromeda.core.io.SerializationException
+import com.kylecorry.luna.serialization.DeserializationException
+import com.kylecorry.luna.serialization.ISerializer
+import com.kylecorry.luna.serialization.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -18,7 +19,7 @@ class XMLSerializer(private val isRoot: Boolean = true) : ISerializer<XMLNode> {
         try {
             return XMLConvert.parse(stream)
         } catch (e: Exception) {
-            throw SerializationException(e.message ?: "Unknown error", e)
+            throw DeserializationException(e.message ?: "Unknown error", e)
         }
     }
 }

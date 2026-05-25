@@ -1,7 +1,8 @@
 package com.kylecorry.andromeda.pdf
 
-import com.kylecorry.andromeda.core.io.ISerializer
-import com.kylecorry.andromeda.core.io.SerializationException
+import com.kylecorry.luna.serialization.DeserializationException
+import com.kylecorry.luna.serialization.ISerializer
+import com.kylecorry.luna.serialization.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -18,7 +19,7 @@ class PDFSerializer(private val ignoreStreams: Boolean = false) : ISerializer<Li
         return try {
             PdfConvert.fromPDF(stream, ignoreStreams)
         } catch (e: Exception) {
-            throw SerializationException(e.message ?: "Unknown error", e)
+            throw DeserializationException(e.message ?: "Unknown error", e)
         }
     }
 }

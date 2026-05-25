@@ -1,8 +1,8 @@
 package com.kylecorry.andromeda.gpx
 
-import com.kylecorry.andromeda.core.io.DeserializationException
-import com.kylecorry.andromeda.core.io.ISerializer
-import com.kylecorry.andromeda.core.io.SerializationException
+import com.kylecorry.luna.serialization.DeserializationException
+import com.kylecorry.luna.serialization.ISerializer
+import com.kylecorry.luna.serialization.SerializationException
 import java.io.InputStream
 import java.io.OutputStream
 
