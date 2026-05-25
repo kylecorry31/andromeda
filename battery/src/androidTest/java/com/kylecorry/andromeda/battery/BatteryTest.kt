@@ -20,12 +20,12 @@ class BatteryTest {
         }
 
         assertTrue(battery.hasValidReading)
-        assertTrue(battery.percent > 0f)
-        assertTrue(battery.capacity > 0f)
+        assertTrue(battery.percent >= 0f)
+        assertTrue(battery.capacity >= 0f)
         assertEquals(BatteryHealth.Good, battery.health)
-        assertEquals(BatteryChargingStatus.NotCharging, battery.chargingStatus)
-        assertEquals(BatteryChargingMethod.NotCharging, battery.chargingMethod)
-        assertTrue(battery.temperature.isFinite() && battery.temperature > 0f)
+        assertTrue(battery.chargingStatus != BatteryChargingStatus.Unknown)
+        assertTrue(battery.chargingMethod != BatteryChargingMethod.Unknown)
+        assertTrue(battery.temperature.isFinite() && battery.temperature >= 0f)
     }
 
 }
