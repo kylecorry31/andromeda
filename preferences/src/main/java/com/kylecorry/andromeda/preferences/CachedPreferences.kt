@@ -1,7 +1,7 @@
 package com.kylecorry.andromeda.preferences
 
-import com.kylecorry.andromeda.core.coroutines.ControlledRunner
 import com.kylecorry.andromeda.core.topics.generic.Topic
+import com.kylecorry.luna.coroutines.CoroutineQueueRunner
 import com.kylecorry.sol.units.Coordinate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ class CachedPreferences(
 
     private val cache = ConcurrentHashMap<String, Any?>()
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val runner = ControlledRunner<Unit>()
+    private val runner = CoroutineQueueRunner()
 
     init {
         loadPrefs()
@@ -177,7 +177,7 @@ class CachedPreferences(
             return
         }
         scope.launch {
-            runner.cancelPreviousThenRun {
+            runner.replace {
                 // This will give some delay if a cancellation occurs, so it won't reload the prefs too often
                 if (debounce > 0) {
                     delay(debounce)

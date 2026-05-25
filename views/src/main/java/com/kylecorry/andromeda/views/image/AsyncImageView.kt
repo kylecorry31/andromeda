@@ -11,14 +11,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.kylecorry.andromeda.core.coroutines.ControlledRunner
+import com.kylecorry.luna.coroutines.CoroutineQueueRunner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageView(context, attrs),
     LifecycleEventObserver {
 
-    private var imageLoader: ControlledRunner<Unit> = ControlledRunner()
+    private var imageLoader = CoroutineQueueRunner()
     private var lastBitmap: Bitmap? = null
 
     var clearOnPause = false
@@ -31,7 +31,7 @@ class AsyncImageView(context: Context, attrs: AttributeSet?) : AppCompatImageVie
         lifecycleOwner.lifecycle.addObserver(this)
 
         lifecycleOwner.lifecycleScope.launchWhenResumed {
-            imageLoader.cancelPreviousThenRun {
+            imageLoader.replace {
                 withContext(Dispatchers.Main) {
                     super.setImageDrawable(null)
                 }
