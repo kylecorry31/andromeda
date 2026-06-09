@@ -38,9 +38,10 @@ fun IntentResultRetriever.pickFile(
     type: String,
     message: String,
     useSAF: Boolean = true,
+    requirePersistentAccess: Boolean = false,
     action: (uri: Uri?) -> Unit
 ) {
-    val intent = Intents.pickFile(type, message, useSAF)
+    val intent = Intents.pickFile(type, message, useSAF, requirePersistentAccess)
     getResult(intent) { successful, data ->
         if (successful) {
             action(data?.data)
@@ -54,9 +55,10 @@ fun IntentResultRetriever.pickFile(
     types: List<String>,
     message: String,
     useSAF: Boolean = true,
+    requirePersistentAccess: Boolean = false,
     action: (uri: Uri?) -> Unit
 ) {
-    val intent = Intents.pickFile(types, message, useSAF)
+    val intent = Intents.pickFile(types, message, useSAF, requirePersistentAccess)
     getResult(intent) { successful, data ->
         if (successful) {
             action(data?.data)

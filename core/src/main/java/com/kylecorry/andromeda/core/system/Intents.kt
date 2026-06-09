@@ -127,20 +127,36 @@ object Intents {
         return Intent.createChooser(intent, message)
     }
 
-    fun pickFile(type: String, message: String, useSAF: Boolean = true): Intent {
+    fun pickFile(
+        type: String,
+        message: String,
+        useSAF: Boolean = true,
+        requirePersistentAccess: Boolean = false
+    ): Intent {
         val requestFileIntent =
             Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = type
+        if (requirePersistentAccess && useSAF) {
+            requestFileIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
         return Intent.createChooser(requestFileIntent, message)
     }
 
-    fun pickFile(types: List<String>, message: String, useSAF: Boolean = true): Intent {
+    fun pickFile(
+        types: List<String>,
+        message: String,
+        useSAF: Boolean = true,
+        requirePersistentAccess: Boolean = false
+    ): Intent {
         val requestFileIntent =
             Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = "*/*"
         requestFileIntent.putExtra(Intent.EXTRA_MIME_TYPES, types.toTypedArray())
+        if (requirePersistentAccess && useSAF) {
+            requestFileIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
         return Intent.createChooser(requestFileIntent, message)
     }
 
