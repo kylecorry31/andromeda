@@ -38,10 +38,15 @@ fun IntentResultRetriever.pickFile(
     type: String,
     message: String,
     useSAF: Boolean = true,
-    requirePersistentAccess: Boolean = false,
+    access: UriAccess = UriAccess(),
     action: (uri: Uri?) -> Unit
 ) {
-    val intent = Intents.pickFile(type, message, useSAF, requirePersistentAccess)
+    val intent = Intents.pickFile(
+        type,
+        message,
+        useSAF,
+        access
+    )
     getResult(intent) { successful, data ->
         if (successful) {
             action(data?.data)
@@ -55,10 +60,15 @@ fun IntentResultRetriever.pickFile(
     types: List<String>,
     message: String,
     useSAF: Boolean = true,
-    requirePersistentAccess: Boolean = false,
+    access: UriAccess = UriAccess(),
     action: (uri: Uri?) -> Unit
 ) {
-    val intent = Intents.pickFile(types, message, useSAF, requirePersistentAccess)
+    val intent = Intents.pickFile(
+        types,
+        message,
+        useSAF,
+        access
+    )
     getResult(intent) { successful, data ->
         if (successful) {
             action(data?.data)
@@ -70,16 +80,12 @@ fun IntentResultRetriever.pickFile(
 
 fun IntentResultRetriever.pickDirectory(
     message: String,
-    requirePersistentAccess: Boolean = false,
-    requireReadAccess: Boolean = true,
-    requireWriteAccess: Boolean = false,
+    access: UriAccess = UriAccess(),
     action: (uri: Uri?) -> Unit
 ) {
     val intent = Intents.pickDirectory(
         message,
-        requirePersistentAccess,
-        requireReadAccess,
-        requireWriteAccess
+        access
     )
     getResult(intent) { successful, data ->
         if (successful) {

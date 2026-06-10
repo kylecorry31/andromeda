@@ -9,8 +9,8 @@ import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import com.kylecorry.sol.units.Coordinate
 import androidx.core.net.toUri
+import com.kylecorry.sol.units.Coordinate
 
 object Intents {
 
@@ -131,15 +131,13 @@ object Intents {
         type: String,
         message: String,
         useSAF: Boolean = true,
-        requirePersistentAccess: Boolean = false
+        access: UriAccess = UriAccess()
     ): Intent {
         val requestFileIntent =
             Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = type
-        if (requirePersistentAccess && useSAF) {
-            requestFileIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-        }
+        requestFileIntent.addUriAccessFlags(access, allowPersistentAccess = useSAF)
         return Intent.createChooser(requestFileIntent, message)
     }
 
@@ -147,38 +145,23 @@ object Intents {
         types: List<String>,
         message: String,
         useSAF: Boolean = true,
-        requirePersistentAccess: Boolean = false
+        access: UriAccess = UriAccess()
     ): Intent {
         val requestFileIntent =
             Intent(if (useSAF) Intent.ACTION_OPEN_DOCUMENT else Intent.ACTION_GET_CONTENT)
         requestFileIntent.addCategory(Intent.CATEGORY_OPENABLE)
         requestFileIntent.type = "*/*"
         requestFileIntent.putExtra(Intent.EXTRA_MIME_TYPES, types.toTypedArray())
-        if (requirePersistentAccess && useSAF) {
-            requestFileIntent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-        }
+        requestFileIntent.addUriAccessFlags(access, allowPersistentAccess = useSAF)
         return Intent.createChooser(requestFileIntent, message)
     }
 
     fun pickDirectory(
         message: String,
-        requirePersistentAccess: Boolean = false,
-        requireReadAccess: Boolean = true,
-        requireWriteAccess: Boolean = false
+        access: UriAccess = UriAccess()
     ): Intent {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-        if (requirePersistentAccess) {
-            intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-        }
-
-        if (requireReadAccess) {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        if (requireWriteAccess) {
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-        }
-
+        intent.addUriAccessFlags(access)
         return Intent.createChooser(intent, message)
     }
 
@@ -207,6 +190,23 @@ object Intents {
     @SuppressLint("QueryPermissionsNeeded")
     fun hasReceiver(context: Context, intent: Intent): Boolean {
         return intent.resolveActivity(context.packageManager) != null
+    }
+
+    private fun Intent.addUriAccessFlags(
+        access: UriAccess,
+        allowPersistentAccess: Boolean = true
+    ) {
+        if (access.requirePersistentAccess && allowPersistentAccess) {
+            addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+
+        if (access.requireReadAccess) {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        if (access.requireWriteAccess) {
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
     }
 
 }
