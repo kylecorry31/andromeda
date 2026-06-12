@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import com.kylecorry.andromeda.core.cache.AppServiceRegistry
+import com.kylecorry.andromeda.core.cache.DependencyRegistry
 import com.kylecorry.andromeda.core.system.Resources
 import com.kylecorry.luna.hooks.Ref
 import com.kylecorry.luna.time.CoroutineTimer
@@ -100,7 +100,7 @@ fun ReactiveComponent.useSizeSp(sp: Float): Float {
 
 inline fun <reified T : Any> ReactiveComponent.useService(): T {
     return useMemo {
-        AppServiceRegistry.get<T>()
+        DependencyRegistry.get<T>()
     }
 }
 
