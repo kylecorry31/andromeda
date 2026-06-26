@@ -1,6 +1,6 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
-val versionName = "23.0.0"
+val versionName = "24.0.0"
 val groupId = "com.kylecorry.andromeda"
 
 buildscript {
@@ -13,7 +13,7 @@ buildscript {
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
-    id("com.vanniktech.maven.publish") version "0.35.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
 subprojects {
