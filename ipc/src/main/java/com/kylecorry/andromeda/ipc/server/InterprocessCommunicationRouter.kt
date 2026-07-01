@@ -1,11 +1,13 @@
 package com.kylecorry.andromeda.ipc.server
 
 import android.content.Context
+import android.os.DeadObjectException
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
+import android.util.Log
 import androidx.core.os.bundleOf
 import com.kylecorry.andromeda.ipc.InterprocessCommunicationRequest
 import com.kylecorry.andromeda.ipc.InterprocessCommunicationResponse
@@ -63,7 +65,15 @@ class InterprocessCommunicationRouter(
                             bundle.putInt(PROPERTY_CODE, response.code)
                             bundle.putBundle(PROPERTY_HEADERS, response.headers)
                             bundle.putByteArray(PROPERTY_PAYLOAD, response.payload)
-                            replyTo.send(reply)
+                            try {
+                                replyTo.send(reply)
+                            } catch (e: DeadObjectException) {
+                                Log.e(
+                                    "InterprocessCommunicationRouter",
+                                    "Caller is no longer online",
+                                    e
+                                )
+                            }
                         }
                     }
                 }
