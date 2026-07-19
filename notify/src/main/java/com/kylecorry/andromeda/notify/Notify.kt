@@ -6,8 +6,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
@@ -28,13 +31,8 @@ object Notify {
     }
 
     fun isActive(context: Context, notificationId: Int): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getNotificationManager(context)?.activeNotifications?.any { it.id == notificationId }
-                ?: false
-        } else {
-            // TODO: Determine if the notification exists
-            false
-        }
+        return getNotificationManager(context)?.activeNotifications?.any { it.id == notificationId }
+            ?: false
     }
 
     fun send(
@@ -79,7 +77,8 @@ object Notify {
         description: String,
         importance: Int,
         muteSound: Boolean = false,
-        showBadge: Boolean = true
+        showBadge: Boolean = true,
+        isAlarm: Boolean = false
     ) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return
@@ -89,6 +88,16 @@ object Notify {
             if (muteSound) {
                 setSound(null, null)
                 enableVibration(false)
+            } else if (isAlarm) {
+                setSound(
+                    Settings.System.DEFAULT_NOTIFICATION_URI,
+                    AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setLegacyStreamType(AudioManager.STREAM_ALARM)
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .build()
+                )
+                enableVibration(true)
             }
             setShowBadge(showBadge)
         }
@@ -172,7 +181,8 @@ object Notify {
         group: String? = null,
         intent: PendingIntent? = null,
         actions: List<NotificationCompat.Action> = listOf(),
-        mute: Boolean = false
+        mute: Boolean = false,
+        isAlarm: Boolean = false
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -207,10 +217,25 @@ object Notify {
             builder.setSilent(true)
         }
 
-        val notification = builder.build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notification.smallIcon.setTint(Color.WHITE)
+        if (isAlarm) {
+            builder.setCategory(Notification.CATEGORY_ALARM)
         }
+
+        val notification = builder.build()
+        notification.smallIcon.setTint(Color.WHITE)
+
+        if (isAlarm && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            // On Android O+, the sound comes from the notification channel
+            @Suppress("DEPRECATION")
+            notification.sound = Settings.System.DEFAULT_NOTIFICATION_URI
+            @Suppress("DEPRECATION")
+            notification.audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setLegacyStreamType(AudioManager.STREAM_ALARM)
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .build()
+        }
+
         return notification
     }
 
@@ -263,9 +288,7 @@ object Notify {
         }
 
         val notification = builder.build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notification.smallIcon.setTint(Color.WHITE)
-        }
+        notification.smallIcon.setTint(Color.WHITE)
         return notification
     }
 
@@ -323,9 +346,7 @@ object Notify {
         }
 
         val notification = builder.build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notification.smallIcon.setTint(Color.WHITE)
-        }
+        notification.smallIcon.setTint(Color.WHITE)
         return notification
     }
 
@@ -373,9 +394,7 @@ object Notify {
         }
 
         val notification = builder.build()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            notification.smallIcon.setTint(Color.WHITE)
-        }
+        notification.smallIcon.setTint(Color.WHITE)
         return notification
     }
 
