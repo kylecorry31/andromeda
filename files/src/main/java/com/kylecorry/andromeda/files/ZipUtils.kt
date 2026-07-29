@@ -67,8 +67,15 @@ object ZipUtils {
         val zip = ZipInputStream(fromStream)
         var count = 0
         val saver = FileSaver(false)
+        val extractionDirectory = toDirectory.canonicalFile
         zip.forEach {
-            val dest = File(toDirectory, it.name)
+            val dest = File(extractionDirectory, it.name).canonicalFile
+            require(
+                dest == extractionDirectory ||
+                        dest.path.startsWith("${extractionDirectory.path}${File.separator}")
+            ) {
+                "ZIP entry is outside the extraction directory: ${it.name}"
+            }
             if (it.isDirectory) {
                 if (!dest.exists()) {
                     dest.mkdirs()

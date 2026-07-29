@@ -6,6 +6,10 @@ import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.Before
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 class ZipUtilsTest {
 
@@ -130,6 +134,26 @@ class ZipUtilsTest {
         fileSystem.delete("test.txt")
         fileSystem.delete("other.txt")
         fileSystem.delete("test.zip")
+    }
+
+    @Test
+    fun rejectsEntriesOutsideTheExtractionDirectory() {
+        val contents = ByteArrayOutputStream().use { output ->
+            ZipOutputStream(output).use { zip ->
+                zip.putNextEntry(ZipEntry("../outside.txt"))
+                zip.write("unsafe".toByteArray())
+                zip.closeEntry()
+            }
+            output.toByteArray()
+        }
+
+        try {
+            ZipUtils.unzip(ByteArrayInputStream(contents), fileSystem.getDirectory("test", true))
+            fail("Expected ZIP path traversal to be rejected")
+        } catch (_: IllegalArgumentException) {
+        }
+
+        fileSystem.delete("test", true)
     }
 
     @Test
