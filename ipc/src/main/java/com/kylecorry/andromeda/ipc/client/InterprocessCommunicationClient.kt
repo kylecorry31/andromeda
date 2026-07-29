@@ -33,6 +33,7 @@ class InterprocessCommunicationClient(
 ) : Closeable {
     private var isBound = false
     private var isConnecting = false
+    private var isBindingRegistered = false
     private var lock = Any()
 
     private var messenger: Messenger? = null
@@ -43,6 +44,7 @@ class InterprocessCommunicationClient(
                 messenger = Messenger(binder)
                 isBound = true
                 isConnecting = false
+                isBindingRegistered = true
             }
         }
 
@@ -60,9 +62,17 @@ class InterprocessCommunicationClient(
             if (isConnecting || isBound) {
                 return true
             }
-            isConnecting = true
+            val success = context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            if (success) {
+                isBindingRegistered = true
+                if (!isBound) {
+                    isConnecting = true
+                }
+            } else {
+                isConnecting = false
+            }
+            return success
         }
-        return context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     fun isConnected(): Boolean {
@@ -149,13 +159,14 @@ class InterprocessCommunicationClient(
 
     override fun close() {
         synchronized(lock) {
-            if (!isBound && !isConnecting) {
+            if (!isBindingRegistered) {
                 return
             }
             context.unbindService(connection)
             messenger = null
             isBound = false
             isConnecting = false
+            isBindingRegistered = false
         }
     }
 }
