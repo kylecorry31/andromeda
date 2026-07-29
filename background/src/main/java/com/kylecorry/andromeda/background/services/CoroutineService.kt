@@ -12,6 +12,7 @@ abstract class CoroutineService: AndromedaService() {
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         return onServiceStarted(intent, flags, startId)
     }
 
