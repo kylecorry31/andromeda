@@ -1,8 +1,8 @@
 package com.kylecorry.andromeda.notify
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Color
@@ -12,11 +12,11 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.getSystemService
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.system.Resources
@@ -24,19 +24,14 @@ import com.kylecorry.andromeda.core.system.Resources
 object Notify {
 
     fun getSoundUri(context: Context, channelId: String): Uri? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return null
-        }
-
-        val channel = getNotificationManager(context)?.getNotificationChannel(channelId)
-        return channel?.sound
+        return getNotificationManagerCompat(context).getNotificationChannelCompat(channelId)?.sound
     }
 
     fun isActive(context: Context, notificationId: Int): Boolean {
-        return getNotificationManager(context)?.activeNotifications?.any { it.id == notificationId }
-            ?: false
+        return getNotificationManagerCompat(context).activeNotifications.any { it.id == notificationId }
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun send(
         context: Context,
         notificationId: Int,
@@ -44,7 +39,8 @@ object Notify {
         overrideSystemGrouping: Boolean = false,
         groupSummaryNotificationId: Int = notificationId
     ) {
-        val manager = getNotificationManager(context)
+        val manager = getNotificationManagerCompat(context)
+
         if (overrideSystemGrouping && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             val summary = NotificationCompat
                 .Builder(context, notification)
@@ -52,15 +48,16 @@ object Notify {
                 .setSound(null)
                 .setVibrate(null)
                 .build()
-            manager?.notify(groupSummaryNotificationId, summary)
+            manager.notify(groupSummaryNotificationId, summary)
         }
 
-        manager?.notify(notificationId, notification)
+        manager.notify(notificationId, notification)
     }
 
     /**
      * Sends a notification if the notification is already shown, otherwise it is a no-op
      */
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun update(context: Context, notificationId: Int, notification: Notification) {
         if (!isActive(context, notificationId)) {
             return
@@ -69,7 +66,7 @@ object Notify {
     }
 
     fun cancel(context: Context, notificationId: Int) {
-        getNotificationManager(context)?.cancel(notificationId)
+        getNotificationManagerCompat(context).cancel(notificationId)
     }
 
     fun createChannel(
@@ -147,33 +144,18 @@ object Notify {
             return true
         }
 
-        try {
-            val channel =
-                getNotificationManager(context)?.getNotificationChannel(channelId) ?: return false
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val groupId = channel.group
-                val groupBlocked =
-                    getNotificationManager(context)?.getNotificationChannelGroup(groupId)?.isBlocked == true
-                if (groupBlocked) {
-                    return true
-                }
-            }
-
-            return channel.importance == NotificationManager.IMPORTANCE_NONE
-        } catch (e: Exception) {
-            return false
-        }
+        val manager = getNotificationManagerCompat(context)
+        val channel = manager.getNotificationChannelCompat(channelId) ?: return false
+        val group = channel.group?.let { manager.getNotificationChannelGroupCompat(it) }
+        val groupBlocked = group?.isBlocked == true
+        return groupBlocked || channel.importance == NotificationManagerCompat.IMPORTANCE_NONE
     }
 
     /**
      * Determines if notifications are blocked for the app
      */
     fun areNotificationsBlocked(context: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            getNotificationManager(context)?.areNotificationsEnabled() == false
-        } else {
-            false
-        }
+        return !getNotificationManagerCompat(context).areNotificationsEnabled()
     }
 
     /**
@@ -424,18 +406,14 @@ object Notify {
         return NotificationCompat.Action(icon, name, intent)
     }
 
-    private fun getNotificationManager(context: Context): NotificationManager? {
-        return context.getSystemService()
-    }
-
     private fun getNotificationManagerCompat(context: Context): NotificationManagerCompat {
         return NotificationManagerCompat.from(context)
     }
 
-    val CHANNEL_IMPORTANCE_HIGH =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_HIGH else 4
-    val CHANNEL_IMPORTANCE_DEFAULT =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_DEFAULT else 3
-    val CHANNEL_IMPORTANCE_LOW =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) NotificationManager.IMPORTANCE_LOW else 2
+    val CHANNEL_IMPORTANCE_MAX = NotificationManagerCompat.IMPORTANCE_MAX
+    val CHANNEL_IMPORTANCE_HIGH = NotificationManagerCompat.IMPORTANCE_HIGH
+    val CHANNEL_IMPORTANCE_DEFAULT = NotificationManagerCompat.IMPORTANCE_DEFAULT
+    val CHANNEL_IMPORTANCE_LOW = NotificationManagerCompat.IMPORTANCE_LOW
+    val CHANNEL_IMPORTANCE_MIN = NotificationManagerCompat.IMPORTANCE_MIN
+    val CHANNEL_IMPORTANCE_NONE = NotificationManagerCompat.IMPORTANCE_NONE
 }
