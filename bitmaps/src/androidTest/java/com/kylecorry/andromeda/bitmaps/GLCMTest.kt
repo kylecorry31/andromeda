@@ -4,11 +4,27 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 class GLCMTest {
+
+    @Test
+    fun glcmRejectsIncompleteStepPairs() {
+        try {
+            Toolkit.glcm(
+                createBitmap(), 100, 0,
+                symmetric = true,
+                normalize = true,
+                excludeTransparent = false,
+                steps = intArrayOf(1)
+            )
+            fail("Expected incomplete step pair to be rejected")
+        } catch (_: IllegalArgumentException) {
+        }
+    }
 
 
     @Test

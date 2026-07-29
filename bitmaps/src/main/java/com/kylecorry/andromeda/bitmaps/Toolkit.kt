@@ -1584,6 +1584,7 @@ internal object Toolkit {
             "$externalName glcm. inputArray is too small for the given dimensions. " +
                     "$sizeX*$sizeY*4 < ${inputArray.size}."
         }
+        validateGlcmSteps(steps)
         validateRestriction("glcm", sizeX, sizeY, restriction)
 
         val outputArray = FloatArray(levels * levels)
@@ -1599,7 +1600,7 @@ internal object Toolkit {
             normalize,
             excludeTransparent,
             steps,
-            steps.size.toByte(),
+            (steps.size / 2).toByte(),
             restriction
         )
         return outputArray
@@ -1617,6 +1618,7 @@ internal object Toolkit {
         restriction: Range2d? = null
     ): FloatArray {
         validateBitmap("glcm", inputBitmap)
+        validateGlcmSteps(steps)
         validateRestriction("glcm", inputBitmap, restriction)
 
         val outputArray = FloatArray(levels * levels)
@@ -2384,6 +2386,15 @@ internal fun validateRestriction(
     require(restriction.startY < restriction.endY) {
         "$externalName $tag. Restriction startY should be less than endY. " +
                 "${restriction.startY} and ${restriction.endY} were provided respectively."
+    }
+}
+
+internal fun validateGlcmSteps(steps: IntArray) {
+    require(steps.size % 2 == 0) {
+        "$externalName glcm. Steps must contain (dx, dy) pairs."
+    }
+    require(steps.size <= 510) {
+        "$externalName glcm. A maximum of 255 (dx, dy) pairs is supported."
     }
 }
 
