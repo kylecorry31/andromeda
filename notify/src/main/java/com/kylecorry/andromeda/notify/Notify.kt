@@ -12,12 +12,14 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.DrawableRes
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationChannelGroupCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.system.Resources
-import com.kylecorry.andromeda.core.tryOrLog
 
 object Notify {
 
@@ -78,16 +80,16 @@ object Notify {
         importance: Int,
         muteSound: Boolean = false,
         showBadge: Boolean = true,
-        isAlarm: Boolean = false
+        isAlarm: Boolean = false,
+        groupId: String? = null
     ) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
-        val channel = NotificationChannel(id, name, importance).apply {
-            this.description = description
+        val channel = NotificationChannelCompat.Builder(id, importance).apply {
+            setName(name)
+            setDescription(description)
+            setGroup(groupId)
             if (muteSound) {
                 setSound(null, null)
-                enableVibration(false)
+                setVibrationEnabled(false)
             } else if (isAlarm) {
                 setSound(
                     Settings.System.DEFAULT_NOTIFICATION_URI,
@@ -97,32 +99,40 @@ object Notify {
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .build()
                 )
-                enableVibration(true)
+                setVibrationEnabled(true)
             }
             setShowBadge(showBadge)
-        }
-        getNotificationManager(context)?.createNotificationChannel(channel)
+        }.build()
+        getNotificationManagerCompat(context).createNotificationChannel(channel)
     }
 
     fun deleteChannel(context: Context, id: String) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return
-        }
-        tryOrLog {
-            getNotificationManager(context)?.deleteNotificationChannel(id)
-        }
+        getNotificationManagerCompat(context).deleteNotificationChannel(id)
     }
 
     fun channels(context: Context): List<NotificationChannel> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return try {
-                getNotificationManager(context)?.notificationChannels ?: emptyList()
-            } catch (e: Exception) {
-                emptyList()
-            }
-        }
+        return getNotificationManagerCompat(context).notificationChannels
+    }
 
-        return emptyList()
+    fun createChannelGroup(
+        context: Context,
+        id: String,
+        name: CharSequence?,
+        description: String? = null
+    ) {
+        val group = NotificationChannelGroupCompat.Builder(id).apply {
+            setName(name)
+            setDescription(description)
+        }.build()
+        getNotificationManagerCompat(context).createNotificationChannelGroup(group)
+    }
+
+    fun deleteChannelGroup(context: Context, id: String) {
+        getNotificationManagerCompat(context).deleteNotificationChannelGroup(id)
+    }
+
+    fun channelGroups(context: Context): List<NotificationChannelGroupCompat> {
+        return getNotificationManagerCompat(context).notificationChannelGroupsCompat
     }
 
     /**
@@ -416,6 +426,10 @@ object Notify {
 
     private fun getNotificationManager(context: Context): NotificationManager? {
         return context.getSystemService()
+    }
+
+    private fun getNotificationManagerCompat(context: Context): NotificationManagerCompat {
+        return NotificationManagerCompat.from(context)
     }
 
     val CHANNEL_IMPORTANCE_HIGH =
