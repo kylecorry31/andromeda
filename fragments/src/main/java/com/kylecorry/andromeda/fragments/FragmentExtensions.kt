@@ -10,18 +10,21 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withStateAtLeast
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.color.DynamicColors
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import com.kylecorry.luna.topics.ITopic
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
 import com.kylecorry.luna.concurrency.CoroutineQueueRunner
 import com.kylecorry.luna.hooks.Hooks
+import com.kylecorry.luna.topics.ITopic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +58,21 @@ fun DialogFragment.show(fragment: Fragment, tag: String = javaClass.name) {
 fun DialogFragment.show(activity: FragmentActivity, tag: String = javaClass.name) {
     show(activity.supportFragmentManager, tag)
 }
+
+fun BottomSheetDialogFragment.dismissOnPause(fragment: Fragment): LifecycleObserver {
+    val observer = object : DefaultLifecycleObserver {
+        override fun onPause(owner: LifecycleOwner) {
+            dismiss()
+        }
+    }
+    fragment.viewLifecycleOwner.lifecycle.addObserver(observer)
+    return observer
+}
+
+fun BottomSheetDialogFragment.clearDismissOnPause(fragment: Fragment, observer: LifecycleObserver) {
+    fragment.viewLifecycleOwner.lifecycle.removeObserver(observer)
+}
+
 
 fun Fragment.onBackPressed(
     enabled: Boolean = true,
