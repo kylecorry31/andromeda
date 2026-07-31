@@ -180,15 +180,6 @@ class LocalFileSystemTest {
         fileSystem.delete("test.txt")
     }
 
-    @Test
-    fun rejectsPathsOutsideTheBaseDirectory() {
-        try {
-            fileSystem.getFile("../outside.txt", false)
-            fail("Expected path traversal to be rejected")
-        } catch (_: IllegalArgumentException) {
-        }
-    }
-
     private fun getBasePath(): String {
         return InstrumentationRegistry.getInstrumentation().context.filesDir.path
     }

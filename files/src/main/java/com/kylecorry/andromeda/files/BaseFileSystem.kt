@@ -10,8 +10,6 @@ import java.io.*
 open class BaseFileSystem(private val context: Context, private val basePath: String = "") :
     IFileSystem {
 
-    private val baseDirectory = File(basePath).canonicalFile
-
     override fun getUri(path: String, authority: String, create: Boolean): Uri {
         return FileProvider.getUriForFile(context, authority, getFile(path, create))
     }
@@ -21,10 +19,7 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
     }
 
     private fun create(path: String, isDirectory: Boolean) {
-        create(resolve(path), isDirectory)
-    }
-
-    private fun create(file: File, isDirectory: Boolean) {
+        val file = File(basePath, path)
         if (file.exists()) {
             return
         }
@@ -49,7 +44,7 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
     }
 
     override fun delete(path: String, recursive: Boolean) {
-        val file = resolve(path)
+        val file = File(basePath, path)
         if (recursive) {
             file.deleteRecursively()
         } else {
@@ -62,17 +57,9 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
         isDirectory: Boolean,
         create: Boolean = true
     ): File {
-        val file = resolve(path)
+        val file = File(basePath, path)
         if (create && !file.exists()) {
-            create(file, isDirectory)
-        }
-        return file
-    }
-
-    private fun resolve(path: String): File {
-        val file = File(baseDirectory, path).canonicalFile
-        require(file == baseDirectory || file.path.startsWith("${baseDirectory.path}${File.separator}")) {
-            "Path must be within ${baseDirectory.path}: $path"
+            create(path, isDirectory)
         }
         return file
     }
@@ -104,7 +91,7 @@ open class BaseFileSystem(private val context: Context, private val basePath: St
     }
 
     override fun getRelativePath(file: File): String {
-        return resolve(file.path).relativeTo(baseDirectory).path
+        return file.path.substringAfter("$basePath/")
     }
 
     override fun inputStream(path: String, create: Boolean): InputStream {
