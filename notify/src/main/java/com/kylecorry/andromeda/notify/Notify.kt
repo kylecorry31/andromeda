@@ -160,6 +160,7 @@ object Notify {
 
     /**
      * Used for alerts which require the user's attention
+     * @param category the category of the notification. If isAlarm is true, this will be ignored.
      */
     fun alert(
         context: Context,
@@ -174,7 +175,8 @@ object Notify {
         intent: PendingIntent? = null,
         actions: List<NotificationCompat.Action> = listOf(),
         mute: Boolean = false,
-        isAlarm: Boolean = false
+        isAlarm: Boolean = false,
+        category: String? = null
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -211,6 +213,8 @@ object Notify {
 
         if (isAlarm) {
             builder.setCategory(Notification.CATEGORY_ALARM)
+        } else {
+            builder.setCategory(category)
         }
 
         val notification = builder.build()
@@ -247,7 +251,8 @@ object Notify {
         showBigIcon: Boolean = false,
         group: String? = null,
         intent: PendingIntent? = null,
-        actions: List<NotificationCompat.Action> = listOf()
+        actions: List<NotificationCompat.Action> = listOf(),
+        category: String? = NotificationCompat.CATEGORY_STATUS
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -279,6 +284,8 @@ object Notify {
             builder.addAction(action)
         }
 
+        builder.setCategory(category)
+
         val notification = builder.build()
         notification.smallIcon.setTint(Color.WHITE)
         return notification
@@ -299,7 +306,8 @@ object Notify {
         group: String? = null,
         intent: PendingIntent? = null,
         actions: List<NotificationCompat.Action> = listOf(),
-        showForegroundImmediate: Boolean = false
+        showForegroundImmediate: Boolean = false,
+        category: String? = NotificationCompat.CATEGORY_SERVICE
     ): Notification {
 
         val builder = NotificationCompat.Builder(context, channel)
@@ -337,6 +345,8 @@ object Notify {
             builder.addAction(action)
         }
 
+        builder.setCategory(category)
+
         val notification = builder.build()
         notification.smallIcon.setTint(Color.WHITE)
         return notification
@@ -354,7 +364,8 @@ object Notify {
         group: String? = null,
         intent: PendingIntent? = null,
         actions: List<NotificationCompat.Action> = listOf(),
-        showForegroundImmediate: Boolean = false
+        showForegroundImmediate: Boolean = false,
+        category: String? = NotificationCompat.CATEGORY_SERVICE
     ): Notification {
         val builder = NotificationCompat.Builder(context, channel)
             .setContentTitle(title)
@@ -384,6 +395,8 @@ object Notify {
         for (action in actions) {
             builder.addAction(action)
         }
+
+        builder.setCategory(category)
 
         val notification = builder.build()
         notification.smallIcon.setTint(Color.WHITE)
