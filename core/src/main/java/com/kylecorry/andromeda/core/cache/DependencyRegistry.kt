@@ -1,9 +1,11 @@
 package com.kylecorry.andromeda.core.cache
 
+import java.util.concurrent.ConcurrentHashMap
+
 object DependencyRegistry {
 
-    private val singletons = mutableMapOf<Class<*>, Lazy<Any>>()
-    private val transients = mutableMapOf<Class<*>, () -> Any>()
+    private val singletons = ConcurrentHashMap<Class<*>, Lazy<Any>>()
+    private val transients = ConcurrentHashMap<Class<*>, () -> Any>()
 
     inline fun <reified T : Any> addSingleton(service: T) {
         addSingleton(T::class.java, service)
