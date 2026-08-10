@@ -40,6 +40,15 @@ class CellSignalSensor(
 
     private val telephony by lazy { context.getSystemService<TelephonyManager>() }
     private val executor by lazy { ContextCompat.getMainExecutor(context) }
+    private val cellInfoExecutor by lazy {
+        SafeExecutor(executor) {
+            tryOrNothing {
+                Handler(Looper.getMainLooper()).post {
+                    updateCellInfo(emptyList())
+                }
+            }
+        }
+    }
     private var isAlsoConnectedTo5g = false
     private var dbmSecondary5g: Int? = null
     private var levelSecondary5g: Int? = null
@@ -102,13 +111,7 @@ class CellSignalSensor(
                 return@tryOrNothing
             }
             telephony?.requestCellInfoUpdate(
-                SafeExecutor.newSingleThreadExecutor {
-                    tryOrNothing {
-                        Handler(Looper.getMainLooper()).post {
-                            updateCellInfo(emptyList())
-                        }
-                    }
-                },
+                cellInfoExecutor,
                 @SuppressLint("NewApi")
                 object : TelephonyManager.CellInfoCallback() {
                     override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
