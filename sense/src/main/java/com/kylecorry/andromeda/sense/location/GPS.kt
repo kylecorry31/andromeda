@@ -9,6 +9,7 @@ import android.os.Looper
 import androidx.core.content.getSystemService
 import androidx.core.location.LocationCompat
 import androidx.core.location.LocationManagerCompat
+import androidx.core.location.LocationRequestCompat
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -145,13 +146,20 @@ class GPS(
         _gnssSatellites = null
         satelliteDetails = null
 
-        locationManager?.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            frequency.toMillis(),
-            minDistance.meters().value,
-            locationListener,
-            Looper.getMainLooper()
-        )
+        val request = LocationRequestCompat.Builder(frequency.toMillis())
+            .setQuality(LocationRequestCompat.QUALITY_HIGH_ACCURACY)
+            .setMinUpdateDistanceMeters(minDistance.meters().value)
+            .build()
+
+        locationManager?.let {
+            LocationManagerCompat.requestLocationUpdates(
+                it,
+                LocationManager.GPS_PROVIDER,
+                request,
+                locationListener,
+                Looper.getMainLooper()
+            )
+        }
 
         // Can only get NMEA with fine location permission
         if (listenToNmea && Permissions.canGetFineLocation(context)) {
@@ -182,7 +190,9 @@ class GPS(
     }
 
     override fun stopImpl() {
-        locationManager?.removeUpdates(locationListener)
+        locationManager?.let {
+            LocationManagerCompat.removeUpdates(it, locationListener)
+        }
         tryOrNothing {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 nmeaListener?.let { locationManager?.removeNmeaListener(it) }

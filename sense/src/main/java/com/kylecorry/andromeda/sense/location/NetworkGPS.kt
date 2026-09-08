@@ -7,6 +7,8 @@ import android.location.LocationManager
 import android.os.Looper
 import androidx.core.content.getSystemService
 import androidx.core.location.LocationCompat
+import androidx.core.location.LocationManagerCompat
+import androidx.core.location.LocationRequestCompat
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.core.tryOrDefault
@@ -100,17 +102,25 @@ class NetworkGPS(
             false
         )
 
-        locationManager?.requestLocationUpdates(
-            LocationManager.NETWORK_PROVIDER,
-            frequency.toMillis(),
-            minDistance.meters().value,
-            locationListener,
-            Looper.getMainLooper()
-        )
+        val request = LocationRequestCompat.Builder(frequency.toMillis())
+            .setMinUpdateDistanceMeters(minDistance.meters().value)
+            .build()
+
+        locationManager?.let {
+            LocationManagerCompat.requestLocationUpdates(
+                it,
+                LocationManager.NETWORK_PROVIDER,
+                request,
+                locationListener,
+                Looper.getMainLooper()
+            )
+        }
     }
 
     override fun stopImpl() {
-        locationManager?.removeUpdates(locationListener)
+        locationManager?.let {
+            LocationManagerCompat.removeUpdates(it, locationListener)
+        }
     }
 
     private fun updateLastLocation(location: Location?, notify: Boolean = true) {
@@ -129,7 +139,7 @@ class NetworkGPS(
             accuracy != null -> Quality.Poor
             else -> Quality.Unknown
         }
-        _horizontalAccuracy = accuracy ?: 0f
+        _horizontalAccuracy = accuracy
         _verticalAccuracy =
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O && location.hasVerticalAccuracy()) {
                 location.verticalAccuracyMeters
@@ -144,12 +154,7 @@ class NetworkGPS(
         }
 
         _speed = if (location.hasSpeed()) {
-            val currentSpeedAccuracy = _speedAccuracy
-            if (currentSpeedAccuracy != null && location.speed < currentSpeedAccuracy * 0.68) {
-                0f
-            } else {
-                location.speed
-            }
+            location.speed
         } else {
             0f
         }
