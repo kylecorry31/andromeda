@@ -29,7 +29,8 @@ class GPS(
     private val notifyNmeaChanges: Boolean = false,
     private val notifyGnssStatusChanges: Boolean = false,
     private val frequency: Duration = Duration.ofSeconds(20),
-    private val minDistance: Distance = Distance.meters(0f)
+    private val minDistance: Distance = Distance.meters(0f),
+    private val listenToNmea: Boolean = true
 ) : AbstractSensor(),
     ISatelliteGPS {
 
@@ -153,7 +154,7 @@ class GPS(
         )
 
         // Can only get NMEA with fine location permission
-        if (Permissions.canGetFineLocation(context)) {
+        if (listenToNmea && Permissions.canGetFineLocation(context)) {
             tryOrNothing {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                     nmeaListener?.let {
@@ -229,7 +230,7 @@ class GPS(
             accuracy != null -> Quality.Poor
             else -> Quality.Unknown
         }
-        _horizontalAccuracy = accuracy ?: 0f
+        _horizontalAccuracy = accuracy
         _verticalAccuracy = if (LocationCompat.hasVerticalAccuracy(location)) {
             LocationCompat.getVerticalAccuracyMeters(location)
         } else {
@@ -243,12 +244,7 @@ class GPS(
         }
 
         _speed = if (location.hasSpeed()) {
-            val currentSpeedAccuracy = _speedAccuracy
-            if (currentSpeedAccuracy != null && location.speed < currentSpeedAccuracy * 0.68) {
-                0f
-            } else {
-                location.speed
-            }
+            location.speed
         } else {
             0f
         }
