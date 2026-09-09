@@ -13,20 +13,21 @@ import java.time.Duration
 /**
  * A base service for running a background task on an interval.
  * This is only recommended for foreground services, since background services may be killed by the OS more often.
- * @param alwaysOnThreshold Determines when to switch from always on mode (constant wakelock) to scheduled jobs. Always on mode will be more accurate under 15 minutes, the scheduled jobs are inexact.
+ * @param workerThreshold Determines when to switch from to a scheduled worker. Scheduled jobs are inexact.
  * @param wakelockDuration The wakelock duration per update when not holding a continuous wakelock
- * @param useOneTimeWorkers Use one time workers instead of a periodic worker when over the always on threshold. Using one time workers can lead to slightly more on time intervals and it also allows variable durations.
- * @param alwaysOnTimerProvider The timer to use for always on timer provider, by default it uses a coroutine timer (impacted by doze)
- * @param alwaysOnWakelock Hold a continuous wakelock below the always on threshold.
+ * @param useOneTimeWorkers Use one time workers instead of a periodic worker when over the worker threshold. Using one time workers can lead to slightly more on time intervals and it also allows variable durations.
  */
 abstract class IntervalService(
-    private val alwaysOnThreshold: Duration = Duration.ofMinutes(15),
+    private val workerThreshold: Duration = Duration.ofMinutes(15),
     private val wakelockDuration: Duration? = null,
     private val useOneTimeWorkers: Boolean = false,
-    private val alwaysOnWakelock: Boolean = true,
-    private val alwaysOnTimerProvider: (suspend () -> Unit) -> ITimer = { action -> CoroutineTimer { action() } }
 ) : AndromedaService() {
     abstract val period: Duration
+    protected open val holdWakelockWhenBelowThreshold: Boolean = true
+
+    protected open fun getNonWorkerTimer(action: suspend () -> Unit): ITimer {
+        return CoroutineTimer { action() }
+    }
 
     private val receiver by lazy {
         BroadcastReceiverTopic(applicationContext, IntentFilter(action))
@@ -55,15 +56,17 @@ abstract class IntervalService(
     private var isWakelockManaged = false
     private var isEnabled = false
 
-    private val timer = alwaysOnTimerProvider {
-        try {
-            if (isWakelockManaged) {
-                acquireWakelock(tag, wakelockDuration)
-            }
-            doWork()
-        } finally {
-            if (isWakelockManaged) {
-                releaseWakelock()
+    private val timer by lazy {
+        getNonWorkerTimer {
+            try {
+                if (isWakelockManaged) {
+                    acquireWakelock(tag, wakelockDuration)
+                }
+                doWork()
+            } finally {
+                if (isWakelockManaged) {
+                    releaseWakelock()
+                }
             }
         }
     }
@@ -78,11 +81,11 @@ abstract class IntervalService(
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         isEnabled = true
-        if (period < alwaysOnThreshold) {
-            if (alwaysOnWakelock) {
+        if (period < workerThreshold) {
+            if (holdWakelockWhenBelowThreshold) {
                 acquireWakelock(tag)
             }
-            isWakelockManaged = !alwaysOnWakelock
+            isWakelockManaged = !holdWakelockWhenBelowThreshold
             timer.interval(period)
         } else {
             isWakelockManaged = true
