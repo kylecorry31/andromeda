@@ -31,7 +31,8 @@ class GPS(
     private val notifyGnssStatusChanges: Boolean = false,
     private val frequency: Duration = Duration.ofSeconds(20),
     private val minDistance: Distance = Distance.meters(0f),
-    private val listenToNmea: Boolean = true
+    private val listenToNmea: Boolean = true,
+    private val listenToGnssStatusChanges: Boolean = true
 ) : AbstractSensor(),
     ISatelliteGPS {
 
@@ -176,7 +177,7 @@ class GPS(
         }
 
         // Listen to the GNSS status for satellite count
-        if (Permissions.canGetFineLocation(context)) {
+        if (listenToGnssStatusChanges && Permissions.canGetFineLocation(context)) {
             tryOrNothing {
                 locationManager?.let {
                     LocationManagerCompat.registerGnssStatusCallback(
