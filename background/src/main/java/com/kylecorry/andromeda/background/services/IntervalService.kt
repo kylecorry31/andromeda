@@ -14,14 +14,16 @@ import java.time.Duration
  * A base service for running a background task on an interval.
  * This is only recommended for foreground services, since background services may be killed by the OS more often.
  * @param alwaysOnThreshold Determines when to switch from always on mode (constant wakelock) to scheduled jobs. Always on mode will be more accurate under 15 minutes, the scheduled jobs are inexact.
- * @param wakelockDuration The wakelock duration when running in deferred mode
+ * @param wakelockDuration The wakelock duration per update when not holding a continuous wakelock
  * @param useOneTimeWorkers Use one time workers instead of a periodic worker when over the always on threshold. Using one time workers can lead to slightly more on time intervals and it also allows variable durations.
  * @param alwaysOnTimerProvider The timer to use for always on timer provider, by default it uses a coroutine timer (impacted by doze)
+ * @param alwaysOnWakelock Hold a continuous wakelock below the always on threshold.
  */
 abstract class IntervalService(
     private val alwaysOnThreshold: Duration = Duration.ofMinutes(15),
     private val wakelockDuration: Duration? = null,
     private val useOneTimeWorkers: Boolean = false,
+    private val alwaysOnWakelock: Boolean = true,
     private val alwaysOnTimerProvider: (suspend () -> Unit) -> ITimer = { action -> CoroutineTimer { action() } }
 ) : AndromedaService() {
     abstract val period: Duration
@@ -77,8 +79,10 @@ abstract class IntervalService(
         super.onStartCommand(intent, flags, startId)
         isEnabled = true
         if (period < alwaysOnThreshold) {
-            acquireWakelock(tag)
-            isWakelockManaged = false
+            if (alwaysOnWakelock) {
+                acquireWakelock(tag)
+            }
+            isWakelockManaged = !alwaysOnWakelock
             timer.interval(period)
         } else {
             isWakelockManaged = true
