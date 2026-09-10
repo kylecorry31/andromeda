@@ -33,7 +33,8 @@ class GPS(
     private val minDistance: Distance = Distance.meters(0f),
     private val listenToNmea: Boolean = true,
     private val listenToGnssStatusChanges: Boolean = true,
-    private val minimumFrequency: Duration? = null
+    private val minimumFrequency: Duration? = null,
+    private val powerUsage: GPSPowerUsage = GPSPowerUsage.High
 ) : AbstractSensor(),
     ISatelliteGPS {
 
@@ -149,7 +150,7 @@ class GPS(
         satelliteDetails = null
 
         val builder = LocationRequestCompat.Builder(frequency.toMillis())
-            .setQuality(LocationRequestCompat.QUALITY_HIGH_ACCURACY)
+            .setQuality(powerUsage.toLocationRequestQuality())
             .setMinUpdateDistanceMeters(minDistance.meters().value)
 
         if (minimumFrequency != null) {
