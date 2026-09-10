@@ -8,11 +8,13 @@ import android.hardware.SensorManager
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
+import java.time.Duration
 
 abstract class BaseSensor(
     context: Context,
     private val sensorType: Int,
-    private val sensorDelay: Int
+    private val sensorDelay: Int,
+    private val maxReportLatency: Duration? = null
 ) : AbstractSensor() {
 
     override val quality: Quality
@@ -44,12 +46,19 @@ abstract class BaseSensor(
 
     }
 
+    private val maxReportLatencyMicroseconds: Int
+        get() {
+            val micros = (maxReportLatency ?: Duration.ZERO).toMillis() * 1000
+            return micros.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
+        }
+
     override fun startImpl() {
         sensorManager?.getDefaultSensor(sensorType)?.also { sensor ->
             sensorManager.registerListener(
                 sensorListener,
                 sensor,
-                sensorDelay
+                sensorDelay,
+                maxReportLatencyMicroseconds
             )
         }
     }

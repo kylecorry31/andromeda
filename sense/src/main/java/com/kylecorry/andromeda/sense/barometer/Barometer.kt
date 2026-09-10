@@ -5,10 +5,13 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.BaseSensor
+import java.time.Duration
 
 class Barometer(
-    context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL
-) : BaseSensor(context, Sensor.TYPE_PRESSURE, sensorDelay), IBarometer {
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL,
+    maxReportLatency: Duration? = null
+) : BaseSensor(context, Sensor.TYPE_PRESSURE, sensorDelay, maxReportLatency), IBarometer {
 
     override val pressure: Float
         get() = _pressure
