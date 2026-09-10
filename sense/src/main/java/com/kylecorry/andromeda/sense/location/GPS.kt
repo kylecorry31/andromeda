@@ -96,18 +96,9 @@ class GPS(
         updateNmeaString(it)
     }
 
-    private val gnssListener = SimpleGnssStatusListener { status, hasFix ->
-
-        if (!hasFix) {
-            _gnssSatellites = 0
-        }
-
+    private val gnssListener = SimpleGnssStatusListener { status ->
         satelliteDetails = Satellite.fromStatus(status)
-
-        val satellitesUsedInFix = satelliteDetails?.count { it.usedInFix }
-
-        _gnssSatellites = satellitesUsedInFix
-
+        _gnssSatellites = satelliteDetails?.count { it.usedInFix }
         if (notifyGnssStatusChanges) notifyListeners()
     }
 

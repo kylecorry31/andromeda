@@ -21,7 +21,7 @@ data class Satellite(
 
         fun fromStatus(status: GnssStatusCompat, index: Int): Satellite {
             return Satellite(
-                index,
+                status.getSvid(index),
                 when (status.getConstellationType(index)) {
                     GnssStatusCompat.CONSTELLATION_GPS -> SatelliteConstellation.GPS
                     GnssStatusCompat.CONSTELLATION_SBAS -> SatelliteConstellation.SBAS

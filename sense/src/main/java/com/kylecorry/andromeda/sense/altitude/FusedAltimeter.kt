@@ -8,7 +8,6 @@ import com.kylecorry.luna.time.CoroutineTimer
 import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.sense.barometer.IBarometer
 import com.kylecorry.andromeda.sense.location.IGPS
-import com.kylecorry.andromeda.sense.location.ISatelliteGPS
 import com.kylecorry.andromeda.sense.location.filters.GPSPassThroughAltitudeFilter
 import com.kylecorry.andromeda.sense.location.filters.IGPSAltitudeFilter
 import com.kylecorry.andromeda.sense.location.hasFix
@@ -39,7 +38,8 @@ class FusedAltimeter(
     private val gpsFilter: IGPSAltitudeFilter = GPSPassThroughAltitudeFilter(),
     private val recalibrationInterval: Duration = Duration.ofHours(1),
     private val useMSLAltitude: Boolean = true,
-    private val shouldLog: Boolean = false
+    private val shouldLog: Boolean = false,
+    private val maxGPSFixAge: Duration = Duration.ofSeconds(30)
 ) : AbstractSensor(), IAltimeter {
 
     private val updateTimer = CoroutineTimer {
@@ -212,11 +212,7 @@ class FusedAltimeter(
     }
 
     private fun hasGPSFix(): Boolean {
-        return if (gps is ISatelliteGPS) {
-            gps.hasFix()
-        } else {
-            gps.hasValidReading
-        }
+        return gps.hasFix(maxGPSFixAge)
     }
 
     private fun hasFilteredGPSFix(): Boolean {

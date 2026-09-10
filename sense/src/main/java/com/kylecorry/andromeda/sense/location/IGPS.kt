@@ -1,11 +1,13 @@
 package com.kylecorry.andromeda.sense.location
 
+import android.os.SystemClock
 import com.kylecorry.andromeda.core.sensors.IAltimeter
 import com.kylecorry.andromeda.core.sensors.IClock
 import com.kylecorry.andromeda.core.sensors.ISensor
 import com.kylecorry.andromeda.core.sensors.ISpeedometer
 import com.kylecorry.sol.units.Bearing
 import com.kylecorry.sol.units.Coordinate
+import java.time.Duration
 
 interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
     /**
@@ -54,15 +56,16 @@ interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
     val fixTimeElapsedNanos: Long?
 }
 
-fun ISatelliteGPS.hasFix(): Boolean {
+/**
+ * Determines if there is a recent location fix
+ * @param maxFixAge the age at which a fix is considered lost
+ */
+fun IGPS.hasFix(maxFixAge: Duration = Duration.ofSeconds(30)): Boolean {
     if (!hasValidReading) {
         return false
     }
 
-    // Satellites are only null when the device doesn't report them
-    if (satellites == null) {
-        return true
-    }
+    val fixTime = fixTimeElapsedNanos ?: return false
 
-    return (satellites ?: 0) >= 0
+    return SystemClock.elapsedRealtimeNanos() - fixTime <= maxFixAge.toNanos()
 }
