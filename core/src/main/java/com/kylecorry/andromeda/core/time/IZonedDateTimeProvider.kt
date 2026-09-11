@@ -2,6 +2,6 @@ package com.kylecorry.andromeda.core.time
 
 import java.time.ZonedDateTime
 
-interface ITimeProvider {
+interface IZonedDateTimeProvider {
     fun getTime(): ZonedDateTime
 }
