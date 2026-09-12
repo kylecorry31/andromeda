@@ -38,7 +38,7 @@ fun Fragment.observe(
     observeOn: CoroutineContext = Dispatchers.Main,
     listener: suspend () -> Unit
 ) {
-    observeFlow(subscription.flow(), state, collectOn, observeOn) { listener() }
+    observeFlow(subscription.flow, state, collectOn, observeOn) { listener() }
 }
 
 fun <T> Fragment.observe(
@@ -48,7 +48,7 @@ fun <T> Fragment.observe(
     observeOn: CoroutineContext = Dispatchers.Main,
     listener: suspend (T) -> Unit
 ) {
-    observeFlow(subscription.flow(), state, collectOn, observeOn, listener)
+    observeFlow(subscription.flow, state, collectOn, observeOn, listener)
 }
 
 fun <T> Fragment.observeFlow(
