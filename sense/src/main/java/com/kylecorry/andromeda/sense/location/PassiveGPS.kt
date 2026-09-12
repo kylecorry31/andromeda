@@ -3,11 +3,11 @@ package com.kylecorry.andromeda.sense.location
 import android.content.Context
 import android.location.LocationManager
 
-class NetworkGPS(
+class PassiveGPS(
     context: Context,
     requestConfig: LocationRequestConfig = LocationRequestConfig()
 ) : BaseGPS(
     context,
-    LocationManager.NETWORK_PROVIDER,
+    LocationManager.PASSIVE_PROVIDER,
     requestConfig
 ), IGPS
