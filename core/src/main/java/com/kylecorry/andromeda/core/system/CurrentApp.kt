@@ -2,7 +2,6 @@ package com.kylecorry.andromeda.core.system
 
 import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
 
 object CurrentApp {
 
@@ -20,7 +19,7 @@ object CurrentApp {
         val processInfo = ActivityManager.RunningAppProcessInfo()
         ActivityManager.getMyMemoryState(processInfo)
         return processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND ||
-                (includeForegroundServices && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE)
+                (includeForegroundServices && processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND_SERVICE)
     }
 
 }

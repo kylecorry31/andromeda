@@ -7,7 +7,7 @@ android {
     namespace = "com.kylecorry.andromeda.exceptions"
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

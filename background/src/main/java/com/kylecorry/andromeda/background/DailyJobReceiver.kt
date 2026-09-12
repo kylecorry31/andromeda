@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.preferences.SharedPreferences
@@ -83,11 +82,7 @@ abstract class DailyJobReceiver(
                 context,
                 pendingIntentId,
                 getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PendingIntent.FLAG_IMMUTABLE
-                } else {
-                    0
-                }
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         }
     }

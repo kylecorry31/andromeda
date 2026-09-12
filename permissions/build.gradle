@@ -8,7 +8,7 @@ android {
     namespace = "com.kylecorry.andromeda.permissions"
 
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion targetVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

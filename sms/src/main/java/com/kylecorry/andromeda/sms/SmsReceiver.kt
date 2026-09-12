@@ -3,7 +3,6 @@ package com.kylecorry.andromeda.sms
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.telephony.SmsMessage
 
 abstract class SmsReceiver : BroadcastReceiver() {
@@ -16,11 +15,7 @@ abstract class SmsReceiver : BroadcastReceiver() {
                 val messages = mutableListOf<SmsMessage>()
                 val pdus = bundle.get("pdus") as Array<*>
                 for (i in pdus.indices) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        messages.add(SmsMessage.createFromPdu(pdus[i] as ByteArray, format))
-                    } else {
-                        messages.add(SmsMessage.createFromPdu(pdus[i] as ByteArray))
-                    }
+                    messages.add(SmsMessage.createFromPdu(pdus[i] as ByteArray, format))
                 }
                 messages.forEach {
                     val message = IncomingSmsMessage(it.originatingAddress ?: "", it.messageBody)

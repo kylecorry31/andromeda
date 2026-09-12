@@ -11,7 +11,6 @@ import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
 import android.os.Build
 import android.util.Range
-import androidx.annotation.RequiresApi
 import com.kylecorry.andromeda.permissions.Permissions
 
 
@@ -39,7 +38,6 @@ class Microphone(
         return recorder?.read(shortArray, offset, size) ?: 0
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     fun read(floatArray: FloatArray, offset: Int = 0, size: Int = floatArray.size): Int {
         return recorder?.read(floatArray, offset, size, AudioRecord.READ_BLOCKING) ?: 0
     }

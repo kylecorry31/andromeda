@@ -101,12 +101,8 @@ object Permissions {
     }
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            context.getSystemService<PowerManager>()
-                ?.isIgnoringBatteryOptimizations(Package.getPackageName(context)) ?: false
-        } else {
-            true
-        }
+        return context.getSystemService<PowerManager>()
+            ?.isIgnoringBatteryOptimizations(Package.getPackageName(context)) ?: false
     }
 
     fun hasPermission(context: Context, permission: String, checkAppOps: Boolean = false): Boolean {
@@ -181,10 +177,6 @@ object Permissions {
 
     @SuppressLint("BatteryLife")
     fun requestIgnoreBatteryOptimization(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return
-        }
-
         if (isIgnoringBatteryOptimizations(context)) {
             return
         }

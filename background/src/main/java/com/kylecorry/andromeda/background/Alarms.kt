@@ -5,7 +5,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.system.Intents
@@ -60,7 +59,7 @@ object Alarms {
         }
 
         val alarmManager = getAlarmManager(context)
-        if (allowWhileIdle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (allowWhileIdle) {
             alarmManager?.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 time.toEpochMilli(),
@@ -99,7 +98,7 @@ object Alarms {
         pendingIntent: PendingIntent
     ) {
         val alarmManager = getAlarmManager(context)
-        if (allowWhileIdle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (allowWhileIdle) {
             alarmManager?.setAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 time.toEpochMilli(),

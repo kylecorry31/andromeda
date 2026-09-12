@@ -49,8 +49,7 @@ object Intents {
             context,
             requestCode,
             intent,
-            PendingIntent.FLAG_NO_CREATE or
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         ) != null
     }
 
@@ -105,7 +104,6 @@ object Intents {
         return intent
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
     fun batteryOptimizationSettings(): Intent {
         return Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
     }

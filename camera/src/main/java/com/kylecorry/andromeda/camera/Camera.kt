@@ -627,7 +627,7 @@ class Camera(
         estimateIfUnavailable: Boolean,
         onlyUseEstimated: Boolean
     ): FloatArray? {
-        val calibration = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !onlyUseEstimated) {
+        val calibration = if (!onlyUseEstimated) {
             getCharacteristic(CameraCharacteristics.LENS_INTRINSIC_CALIBRATION)
         } else {
             null
@@ -658,7 +658,7 @@ class Camera(
     }
 
     override fun getActiveArraySize(preCorrection: Boolean): Rect? {
-        return if (preCorrection && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        return if (preCorrection) {
             getCharacteristic(CameraCharacteristics.SENSOR_INFO_PRE_CORRECTION_ACTIVE_ARRAY_SIZE)
         } else {
             getCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
@@ -672,11 +672,9 @@ class Camera(
     override fun getDistortionCorrection(): FloatArray? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getCharacteristic(CameraCharacteristics.LENS_DISTORTION)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        } else {
             @Suppress("DEPRECATION")
             getCharacteristic(CameraCharacteristics.LENS_RADIAL_DISTORTION)
-        } else {
-            null
         }
     }
 
