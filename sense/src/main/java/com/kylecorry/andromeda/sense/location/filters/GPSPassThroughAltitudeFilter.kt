@@ -10,7 +10,7 @@ class GPSPassThroughAltitudeFilter : IGPSAltitudeFilter {
     override var hasValidReading: Boolean = false
         private set
 
-    override fun update(altitude: Float, accuracy: Float?) {
+    override fun update(altitude: Float, accuracy: Float?, fixTimeElapsedNanos: Long) {
         this.altitude = altitude
         this.accuracy = accuracy
         hasValidReading = true

@@ -1,7 +1,6 @@
 package com.kylecorry.andromeda.sense.location.filters
 
 import com.kylecorry.sol.math.filters.IFilter
-import com.kylecorry.sol.math.filters.MedianFilter
 
 class GPSAltitudeFilter(
     private val filterProvider: (initialValue: Float) -> IFilter,
@@ -19,7 +18,7 @@ class GPSAltitudeFilter(
 
     private var filter: IFilter? = null
 
-    override fun update(altitude: Float, accuracy: Float?) {
+    override fun update(altitude: Float, accuracy: Float?, fixTimeElapsedNanos: Long) {
         val filter = filter ?: filterProvider(altitude)
         this.filter = filter
         this.altitude = filter.filter(altitude)

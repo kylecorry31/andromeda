@@ -10,7 +10,7 @@ class GPSGaussianAltitudeFilter(samples: Int = 4) : IGPSAltitudeFilter {
 
     private val buffer = RingBuffer<GaussianDistribution>(samples)
 
-    private var lastDistribution: GaussianDistribution? = null
+    private var lastFixTimeElapsedNanos: Long? = null
 
     private val defaultVariance = 10f
 
@@ -23,7 +23,13 @@ class GPSGaussianAltitudeFilter(samples: Int = 4) : IGPSAltitudeFilter {
     override val hasValidReading: Boolean
         get() = buffer.isFull()
 
-    override fun update(altitude: Float, accuracy: Float?) {
+    override fun update(altitude: Float, accuracy: Float?, fixTimeElapsedNanos: Long) {
+        if (fixTimeElapsedNanos == lastFixTimeElapsedNanos) {
+            return
+        }
+
+        lastFixTimeElapsedNanos = fixTimeElapsedNanos
+
         // Always populate the variance
         val variance = accuracy
             ?.real(defaultVariance)
@@ -34,13 +40,6 @@ class GPSGaussianAltitudeFilter(samples: Int = 4) : IGPSAltitudeFilter {
             altitude.real(0f),
             variance
         )
-
-        // A new elevation reading was not received
-        if (distribution == lastDistribution) {
-            return
-        }
-
-        lastDistribution = distribution
 
         buffer.add(distribution)
         val calculated = Statistics.joint(buffer.toList())

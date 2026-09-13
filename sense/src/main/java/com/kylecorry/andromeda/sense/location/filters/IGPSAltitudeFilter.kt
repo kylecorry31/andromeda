@@ -4,6 +4,6 @@ interface IGPSAltitudeFilter {
     val altitude: Float
     val accuracy: Float?
     val hasValidReading: Boolean
-    fun update(altitude: Float, accuracy: Float?)
+    fun update(altitude: Float, accuracy: Float?, fixTimeElapsedNanos: Long)
     fun reset()
 }

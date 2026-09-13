@@ -4,6 +4,7 @@ import android.util.Log
 import com.kylecorry.andromeda.core.math.DecimalFormatter
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.IAltimeter
+import com.kylecorry.andromeda.core.time.Throttle
 import com.kylecorry.luna.time.CoroutineTimer
 import com.kylecorry.andromeda.preferences.IPreferences
 import com.kylecorry.andromeda.sense.barometer.IBarometer
@@ -16,6 +17,7 @@ import com.kylecorry.sol.math.interpolation.Interpolation
 import com.kylecorry.sol.science.meteorology.Meteorology
 import com.kylecorry.sol.units.Distance
 import com.kylecorry.sol.units.Pressure
+import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Duration
 import java.time.Instant
 
@@ -29,6 +31,8 @@ import java.time.Instant
  * @param recalibrationInterval The interval to recalibrate the sensor
  * @param useMSLAltitude True if the sensor should use the MSL altitude from the GPS, otherwise it will use the GPS altitude
  * @param shouldLog True if the sensor should log to logcat for debugging purposes
+ * @param maxGPSFixAge The maximum age of the GPS fix before it is considered too old to use
+ * @param recalibrationTimeout The maximum time to wait for the GPS when recalibrating. If exceeded, the expired sea level pressure continues to be used and recalibration is retried later.
  */
 class FusedAltimeter(
     private val gps: IGPS,
@@ -39,7 +43,8 @@ class FusedAltimeter(
     private val recalibrationInterval: Duration = Duration.ofHours(1),
     private val useMSLAltitude: Boolean = true,
     private val shouldLog: Boolean = false,
-    private val maxGPSFixAge: Duration = Duration.ofSeconds(30)
+    private val maxGPSFixAge: Duration = Duration.ofSeconds(30),
+    private val recalibrationTimeout: Duration = Duration.ofSeconds(30)
 ) : AbstractSensor(), IAltimeter {
 
     private val updateTimer = CoroutineTimer {
@@ -61,6 +66,7 @@ class FusedAltimeter(
         get() = fusedAltitude != null
 
     private var hasPendingGPSUpdate = false
+    private val recalibrationThrottle = Throttle(RECALIBRATION_RETRY_INTERVAL.toMillis())
 
     override fun startImpl() {
         fusedAltitude = null
@@ -86,7 +92,8 @@ class FusedAltimeter(
     private fun onGPSUpdate(): Boolean {
         gpsFilter.update(
             if (useMSLAltitude) gps.mslAltitude ?: gps.altitude else gps.altitude,
-            gps.verticalAccuracy
+            gps.verticalAccuracy,
+            gps.eventTimeElapsedNanos
         )
         hasPendingGPSUpdate = true
         return true
@@ -102,7 +109,12 @@ class FusedAltimeter(
 
         // Sea level pressure is unknown, it needs to be calibrated
         if (seaLevel == null) {
-            recalibrate()
+            recalibrate(timeout = null)
+            return false
+        }
+
+        // An expired sea level pressure continues to be used until recalibration succeeds
+        if (isSeaLevelPressureExpired() && !recalibrationThrottle.isThrottled() && recalibrate(recalibrationTimeout)) {
             return false
         }
 
@@ -194,22 +206,29 @@ class FusedAltimeter(
         }
     }
 
-    private suspend fun recalibrate() {
-        if (barometer.pressure > 0f) {
-            gpsFilter.reset()
+    private suspend fun recalibrate(timeout: Duration?): Boolean {
+        if (barometer.pressure <= 0f) {
+            return false
+        }
+
+        gpsFilter.reset()
+
+        withTimeoutOrNull(timeout?.toMillis() ?: Long.MAX_VALUE) {
             gps.read {
                 onGPSUpdate()
                 gpsFilter.hasValidReading
             }
-            setLastSeaLevelPressure(
-                Meteorology.getSeaLevelPressure(
-                    Pressure.hpa(barometer.pressure),
-                    Distance.meters(getGPSAltitude())
-                ),
-                isBaseline = true,
-                wasGPSUsed = true
-            )
-        }
+        } ?: return false
+
+        setLastSeaLevelPressure(
+            Meteorology.getSeaLevelPressure(
+                Pressure.hpa(barometer.pressure),
+                Distance.meters(getGPSAltitude())
+            ),
+            isBaseline = true,
+            wasGPSUsed = true
+        )
+        return true
     }
 
     private fun hasGPSFix(): Boolean {
@@ -221,15 +240,13 @@ class FusedAltimeter(
     }
 
     private fun getLastSeaLevelPressure(): Pressure? {
-        val time = cache.getInstant(LAST_SEA_LEVEL_PRESSURE_TIME_KEY) ?: return null
-
-        val timeSinceReading = Duration.between(time, Instant.now())
-        if (timeSinceReading > recalibrationInterval || timeSinceReading.isNegative) {
-            // Sea level pressure has expired
-            return null
-        }
-
         return cache.getFloat(LAST_SEA_LEVEL_PRESSURE_KEY)?.let { Pressure.hpa(it) }
+    }
+
+    private fun isSeaLevelPressureExpired(): Boolean {
+        val time = cache.getInstant(LAST_SEA_LEVEL_PRESSURE_TIME_KEY) ?: return true
+        val timeSinceReading = Duration.between(time, Instant.now())
+        return timeSinceReading > recalibrationInterval || timeSinceReading.isNegative
     }
 
     private fun getTimeSinceLastGPSUsed(): Duration? {
@@ -267,6 +284,7 @@ class FusedAltimeter(
         private val MAX_TIME_FOR_WEIGHT = Duration.ofHours(2)
         private const val MAX_GPS_ERROR = 5f
         private val UPDATE_FREQUENCY = Duration.ofMillis(200)
+        private val RECALIBRATION_RETRY_INTERVAL = Duration.ofMinutes(5)
 
         /**
          * Clear the cached calibration data
