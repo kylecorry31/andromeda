@@ -2,14 +2,13 @@ package com.kylecorry.andromeda.sense.location
 
 import android.os.SystemClock
 import com.kylecorry.andromeda.core.sensors.IAltimeter
-import com.kylecorry.andromeda.core.sensors.IClock
 import com.kylecorry.andromeda.core.sensors.ISensor
 import com.kylecorry.andromeda.core.sensors.ISpeedometer
 import com.kylecorry.sol.units.Bearing
 import com.kylecorry.sol.units.Coordinate
 import java.time.Duration
 
-interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
+interface IGPS : ISensor, IAltimeter, ISpeedometer {
     /**
      * The location
      */
@@ -49,11 +48,6 @@ interface IGPS : ISensor, IAltimeter, IClock, ISpeedometer {
      * The speed accuracy in meters per second at the 68% confidence level
      */
     val speedAccuracy: Float?
-
-    /**
-     * The time of the last fix in system elapsed time (nanoseconds)
-     */
-    val fixTimeElapsedNanos: Long?
 }
 
 /**
@@ -65,7 +59,5 @@ fun IGPS.hasFix(maxFixAge: Duration = Duration.ofSeconds(30)): Boolean {
         return false
     }
 
-    val fixTime = fixTimeElapsedNanos ?: return false
-
-    return SystemClock.elapsedRealtimeNanos() - fixTime <= maxFixAge.toNanos()
+    return SystemClock.elapsedRealtimeNanos() - eventTimeElapsedNanos <= maxFixAge.toNanos()
 }

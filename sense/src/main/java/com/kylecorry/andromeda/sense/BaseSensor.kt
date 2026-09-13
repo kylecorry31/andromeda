@@ -21,15 +21,7 @@ abstract class BaseSensor(
     override val quality: Quality
         get() = _accuracy
 
-    val eventTimeElapsedNanos: Long
-        get() = _timestamp
-
-    val eventTime: Instant
-        get() = _eventTime
-
     private var _accuracy: Quality = Quality.Unknown
-    private var _timestamp: Long = 0L
-    private var _eventTime: Instant = Instant.EPOCH
 
     private val sensorManager = context.getSystemService<SensorManager>()
     private val sensorListener = object : SensorEventListener {
@@ -50,8 +42,8 @@ abstract class BaseSensor(
                 SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> Quality.Good
                 else -> Quality.Unknown
             }
-            _timestamp = event.timestamp
-            _eventTime = Instant.now()
+            eventTimeElapsedNanos = event.timestamp
+            eventTime = Instant.now()
             notifyListeners()
         }
 

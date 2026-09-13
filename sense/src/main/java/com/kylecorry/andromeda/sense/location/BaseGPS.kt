@@ -47,9 +47,6 @@ abstract class BaseGPS(
     override var speed: Speed = Speed.from(0f, DistanceUnits.Meters, TimeUnits.Seconds)
         protected set
 
-    override var time: Instant = Instant.now()
-        protected set
-
     override var altitude: Float = 0f
         protected set
 
@@ -66,8 +63,6 @@ abstract class BaseGPS(
         protected set
 
     override var speedAccuracy: Float? = null
-        protected set
-    override var fixTimeElapsedNanos: Long? = null
         protected set
 
     protected val locationManager by lazy { context.getSystemService<LocationManager>() }
@@ -140,9 +135,9 @@ abstract class BaseGPS(
 
         this.location = Coordinate(location.latitude, location.longitude)
 
-        time = Instant.ofEpochMilli(location.time)
+        eventTime = Instant.ofEpochMilli(location.time)
 
-        fixTimeElapsedNanos = location.elapsedRealtimeNanos
+        eventTimeElapsedNanos = location.elapsedRealtimeNanos
 
         altitude = if (location.hasAltitude()) location.altitude.toFloat() else 0f
 

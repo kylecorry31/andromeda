@@ -76,6 +76,7 @@ class BluetoothSensor(
                             lastMessages.removeAt(0)
                         }
                         _messages = lastMessages
+                        setEventTimeToNow()
                         handler.post { notifyListeners() }
                     } catch (e: Exception) {
                         e.printStackTrace()

@@ -58,6 +58,7 @@ class GravityRotationSensor(
             temp.copyInto(_quaternion)
         }
 
+        setEventTimeFrom(accelerometer)
         notifyListeners()
 
         return true

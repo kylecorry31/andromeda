@@ -51,6 +51,7 @@ class FilteredCompass(private val compass: ICompass, private val filter: IFilter
 
     private fun onReading(): Boolean {
         updateBearing(compass.rawBearing)
+        setEventTimeFrom(compass)
         notifyListeners()
         return true
     }

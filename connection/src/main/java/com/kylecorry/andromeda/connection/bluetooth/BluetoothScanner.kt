@@ -62,6 +62,7 @@ class BluetoothScanner(private val context: Context) : AbstractSensor() {
                         devices.remove(existing)
                     }
                     devices.add(device)
+                    setEventTimeToNow()
                     notifyListeners()
                 }
             }

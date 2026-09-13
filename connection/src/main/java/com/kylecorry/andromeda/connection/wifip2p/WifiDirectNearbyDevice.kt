@@ -166,6 +166,7 @@ class WifiDirectNearbyDevice(private val device: WifiP2pDevice, private val cont
                 socket.accept().use { client ->
                     client.getInputStream()?.use {
                         _messages.add(NearbyDeviceMessage(Instant.now(), it.readBytes()))
+                        setEventTimeToNow()
                         onMain {
                             notifyListeners()
                         }

@@ -109,6 +109,7 @@ class WifiDirectNearbyScanner(private val context: Context) : NearbyDeviceScanne
 
                         }
                     }
+                    setEventTimeToNow()
                     notifyListeners()
                 }
             }

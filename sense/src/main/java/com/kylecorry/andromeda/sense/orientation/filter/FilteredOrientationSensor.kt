@@ -34,6 +34,8 @@ class FilteredOrientationSensor(
         get() = reading
 
     private fun onSensorUpdate(): Boolean {
+        setEventTimeFrom(sensor)
+
         if (!hasReading) {
             sensor.rawOrientation.copyInto(reading)
             hasReading = true

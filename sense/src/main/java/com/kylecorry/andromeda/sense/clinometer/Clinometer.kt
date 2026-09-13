@@ -69,6 +69,7 @@ class Clinometer(
             )
             normalizeAngle(-orientation[2] + 90)
         }
+        setEventTimeFrom(orientationSensor)
         notifyListeners()
         return true
     }

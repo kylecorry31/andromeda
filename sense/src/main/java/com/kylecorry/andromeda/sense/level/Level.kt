@@ -48,6 +48,7 @@ class Level(
         x = -orientation[2].coerceIn(-90f, 90f)
         y = -orientation[1].coerceIn(-90f, 90f)
 
+        setEventTimeFrom(orientationSensor)
         notifyListeners()
         return true
     }

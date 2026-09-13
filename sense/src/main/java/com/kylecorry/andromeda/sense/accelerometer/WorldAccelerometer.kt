@@ -98,6 +98,12 @@ class WorldAccelerometer(
         rawAcceleration[1] = tempAcceleration4[1]
         rawAcceleration[2] = tempAcceleration4[2]
 
+        val latest = if (accelerometer.eventTimeElapsedNanos >= orientation.eventTimeElapsedNanos) {
+            accelerometer
+        } else {
+            orientation
+        }
+        setEventTimeFrom(latest)
         notifyListeners()
     }
 }

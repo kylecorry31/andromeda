@@ -136,6 +136,13 @@ class CustomRotationSensor(
 
             QuaternionMath.lerp(magQuaternion, gyroQuaternion, alpha, _quaternion)
 
+            val latest = if (gyro.eventTimeElapsedNanos >= geomagneticOrientationSensor.eventTimeElapsedNanos) {
+                gyro
+            } else {
+                geomagneticOrientationSensor
+            }
+            setEventTimeFrom(latest)
+
             // Prevent NaN from ruining everything
             if (isInvalid(_quaternion)) {
                 if (verbose) {

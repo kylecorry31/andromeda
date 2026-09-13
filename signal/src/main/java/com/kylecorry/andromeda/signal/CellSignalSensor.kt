@@ -225,6 +225,7 @@ class CellSignalSensor(
     private fun updateSignals(raw: List<RawCellSignal>? = null, notify: Boolean = true) {
         synchronized(this) {
             hasReading = true
+            setEventTimeToNow()
 
             var latestSignals = (raw ?: oldSignals).map {
                 val old = oldSignals.find { signal -> it.id == signal.id }

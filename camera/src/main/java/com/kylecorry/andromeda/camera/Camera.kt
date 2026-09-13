@@ -167,6 +167,7 @@ class Camera(
             imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(context)) { image ->
                 _image = image
                 _hasValidReading = true
+                setEventTimeToNow()
                 notifyListeners()
             }
 

@@ -47,6 +47,7 @@ class FusedAltimeter(
             update()
         }
         if (success) {
+            setEventTimeFrom(barometer)
             notifyListeners()
         }
     }

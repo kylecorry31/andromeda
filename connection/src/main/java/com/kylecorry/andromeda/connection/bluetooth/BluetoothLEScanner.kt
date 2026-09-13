@@ -9,6 +9,7 @@ import android.content.Context
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.luna.time.CoroutineTimer
 import com.kylecorry.andromeda.permissions.Permissions
+import java.time.Instant
 
 /**
  * For SDK 30 or older: Manifest.permission.BLUETOOTH_ADMIN  (non-protected permission)
@@ -32,6 +33,8 @@ class BluetoothLEScanner(private val context: Context) : AbstractSensor() {
                     devices.remove(existing)
                 }
                 devices.add(device)
+                eventTimeElapsedNanos = result.timestampNanos
+                eventTime = Instant.now()
                 notifyListeners()
             }
         }

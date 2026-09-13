@@ -27,6 +27,7 @@ class BarometricAltimeter(
         get() = barometer.hasValidReading
 
     private fun onSensorUpdate(): Boolean {
+        setEventTimeFrom(barometer)
         notifyListeners()
         return true
     }

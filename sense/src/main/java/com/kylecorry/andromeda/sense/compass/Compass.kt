@@ -66,6 +66,7 @@ class Compass(
             )
             orientation[0]
         } + offset
+        setEventTimeFrom(orientationSensor)
         notifyListeners()
         return true
     }

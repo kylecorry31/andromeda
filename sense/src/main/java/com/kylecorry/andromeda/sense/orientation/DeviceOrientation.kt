@@ -61,6 +61,7 @@ class DeviceOrientation(
 
         gotReading = true
 
+        setEventTimeFrom(accelerometer)
         notifyListeners()
         return true
     }

@@ -7,6 +7,7 @@ abstract class MockSensor(private val interval: Long = 0) : AbstractSensor() {
     override val hasValidReading: Boolean = true
 
     private val timer = CoroutineTimer {
+        setEventTimeToNow()
         notifyListeners()
     }
 

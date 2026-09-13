@@ -31,6 +31,7 @@ abstract class BaseBroadcastReceiverSensor(
 
     protected fun onReceive(intent: Intent): Boolean {
         handleIntent(context, intent)
+        setEventTimeToNow()
         notifyListeners()
         return true
     }

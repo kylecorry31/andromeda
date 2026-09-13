@@ -1,12 +1,20 @@
 package com.kylecorry.andromeda.core.sensors
 
+import android.os.SystemClock
 import com.kylecorry.luna.topics.BaseTopic
 import com.kylecorry.luna.topics.Subscriber
 import com.kylecorry.luna.topics.Topic
+import java.time.Instant
 
 abstract class AbstractSensor : BaseTopic(), ISensor {
 
     override val quality = Quality.Unknown
+
+    override var eventTimeElapsedNanos: Long = 0L
+        protected set
+
+    override var eventTime: Instant = Instant.EPOCH
+        protected set
 
     override val topic = Topic.lazy(::startImpl, ::stopImpl)
 
@@ -27,6 +35,16 @@ abstract class AbstractSensor : BaseTopic(), ISensor {
 
     protected fun notifyListeners() {
         topic.publish()
+    }
+
+    protected fun setEventTimeToNow() {
+        eventTimeElapsedNanos = SystemClock.elapsedRealtimeNanos()
+        eventTime = Instant.now()
+    }
+
+    protected fun setEventTimeFrom(sensor: ISensor) {
+        eventTimeElapsedNanos = sensor.eventTimeElapsedNanos
+        eventTime = sensor.eventTime
     }
 
 }

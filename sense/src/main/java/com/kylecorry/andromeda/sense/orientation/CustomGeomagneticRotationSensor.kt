@@ -59,6 +59,12 @@ class CustomGeomagneticRotationSensor(
             temp.copyInto(_quaternion)
         }
 
+        val latest = if (magnetometer.eventTimeElapsedNanos >= accelerometer.eventTimeElapsedNanos) {
+            magnetometer
+        } else {
+            accelerometer
+        }
+        setEventTimeFrom(latest)
         notifyListeners()
 
         return true
