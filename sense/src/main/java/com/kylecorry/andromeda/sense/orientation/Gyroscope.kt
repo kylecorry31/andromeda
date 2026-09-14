@@ -16,7 +16,8 @@ import kotlin.math.sqrt
 class Gyroscope(
     context: Context,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
-    private val threshold: Float = 0.00001f
+    private val threshold: Float = 0.00001f,
+    private val maintainStateOnRestart: Boolean = false
 ) :
     BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay),
     IGyroscope {
@@ -59,6 +60,20 @@ class Gyroscope(
     private val deltaRotationVector = Quaternion.zero.toFloatArray()
 
     private val lock = Any()
+
+    override fun startImpl() {
+        synchronized(lock) {
+            if (!maintainStateOnRestart) {
+                Quaternion.zero.toFloatArray().copyInto(_quaternion)
+            }
+            _angularRate.fill(0f)
+            Quaternion.zero.toFloatArray().copyInto(deltaRotationVector)
+            _hasReading = false
+            lastTime = 0L
+        }
+        resetSessionMetadata()
+        super.startImpl()
+    }
 
     override fun handleSensorEvent(event: SensorEvent) {
         if (event.values.size < 3) {

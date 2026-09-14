@@ -7,7 +7,12 @@ import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.MathExtensions.toDegrees
 import com.kylecorry.sol.math.Quaternion
 
-abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int) :
+abstract class BaseRotationSensor(
+    context: Context,
+    type: Int,
+    sensorDelay: Int,
+    private val maintainStateOnRestart: Boolean = false
+) :
     BaseSensor(context, type, sensorDelay),
     IOrientationSensor {
 
@@ -35,6 +40,18 @@ abstract class BaseRotationSensor(context: Context, type: Int, sensorDelay: Int)
     private val _quaternion = Quaternion.zero.toFloatArray()
 
     private var _hasReading = false
+
+    override fun startImpl() {
+        synchronized(lock) {
+            if (!maintainStateOnRestart) {
+                Quaternion.zero.toFloatArray().copyInto(_quaternion)
+                _headingAccuracy = null
+            }
+            _hasReading = false
+        }
+        resetSessionMetadata()
+        super.startImpl()
+    }
 
     override fun handleSensorEvent(event: SensorEvent) {
         synchronized(lock) {

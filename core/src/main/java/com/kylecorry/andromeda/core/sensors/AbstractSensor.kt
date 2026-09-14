@@ -47,4 +47,9 @@ abstract class AbstractSensor : BaseTopic(), ISensor {
         eventTime = sensor.eventTime
     }
 
+    protected fun resetSessionMetadata() {
+        eventTimeElapsedNanos = 0L
+        eventTime = Instant.EPOCH
+    }
+
 }

@@ -14,7 +14,8 @@ import kotlin.math.sqrt
  * Can't be used for heading, but will maintain a consistent heading of 0 (may have bugs right now)
  */
 class GravityRotationSensor(
-    private val accelerometer: IAccelerometer
+    private val accelerometer: IAccelerometer,
+    private val maintainStateOnRestart: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
     private val rotationMatrix = FloatArray(16)
@@ -28,14 +29,20 @@ class GravityRotationSensor(
         get() = null
 
     override fun startImpl() {
+        if (!maintainStateOnRestart) Quaternion.zero.toFloatArray().copyInto(_quaternion)
+        hasAccelerometerReading = false
+        resetSessionMetadata()
         accelerometer.start(this::onSensorUpdate)
     }
+
+    private var hasAccelerometerReading = false
 
     override fun stopImpl() {
         accelerometer.stop(this::onSensorUpdate)
     }
 
     private fun onSensorUpdate(): Boolean {
+        hasAccelerometerReading = true
         synchronized(lock) {
             // TODO: There's definitely a better way to do this
             SensorManager.getRotationMatrix(
@@ -83,7 +90,7 @@ class GravityRotationSensor(
         }
 
     override val hasValidReading: Boolean
-        get() = accelerometer.hasValidReading
+        get() = hasAccelerometerReading && accelerometer.hasValidReading
 
     override val quality: Quality
         get() = accelerometer.quality

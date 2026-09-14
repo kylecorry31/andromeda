@@ -6,14 +6,20 @@ import com.kylecorry.sol.math.Quaternion
 
 class FilteredOrientationSensor(
     private val sensor: IOrientationSensor,
-    private val filter: OrientationSensorFilter
+    private val filter: OrientationSensorFilter,
+    private val maintainStateOnRestart: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
     private val reading = Quaternion.zero.toFloatArray()
     private var hasReading = false
+    private var isFilterInitialized = false
 
     override fun startImpl() {
+        if (!maintainStateOnRestart) {
+            Quaternion.zero.toFloatArray().copyInto(reading)
+        }
         hasReading = false
+        resetSessionMetadata()
         sensor.start(this::onSensorUpdate)
     }
 
@@ -22,7 +28,7 @@ class FilteredOrientationSensor(
     }
 
     override val hasValidReading: Boolean
-        get() = sensor.hasValidReading
+        get() = hasReading && sensor.hasValidReading
 
     override val headingAccuracy: Float?
         get() = null
@@ -36,13 +42,16 @@ class FilteredOrientationSensor(
     private fun onSensorUpdate(): Boolean {
         setEventTimeFrom(sensor)
 
-        if (!hasReading) {
+        if (!isFilterInitialized || (!hasReading && !maintainStateOnRestart)) {
             sensor.rawOrientation.copyInto(reading)
             hasReading = true
+            isFilterInitialized = true
             filter.reset(reading)
             notifyListeners()
             return true
         }
+
+        hasReading = true
 
         val newReading = sensor.rawOrientation.copyOf()
         filter.filter(newReading, reading)
@@ -51,4 +60,3 @@ class FilteredOrientationSensor(
         return true
     }
 }
-

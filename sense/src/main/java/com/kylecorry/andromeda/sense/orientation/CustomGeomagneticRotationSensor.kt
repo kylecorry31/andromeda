@@ -4,18 +4,17 @@ import android.hardware.SensorManager
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
 import com.kylecorry.andromeda.sense.accelerometer.IAccelerometer
-import com.kylecorry.andromeda.sense.compass.ICompass
 import com.kylecorry.andromeda.sense.magnetometer.IMagnetometer
 import com.kylecorry.sol.math.Quaternion
 import com.kylecorry.sol.math.QuaternionMath
-import com.kylecorry.sol.units.Bearing
 import kotlin.math.min
 import kotlin.math.sqrt
 
 class CustomGeomagneticRotationSensor(
     private val magnetometer: IMagnetometer,
     private val accelerometer: IAccelerometer,
-    private val onlyUseMagnetometerQuality: Boolean = false
+    private val onlyUseMagnetometerQuality: Boolean = false,
+    private val maintainStateOnRestart: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
     private val rotationMatrix = FloatArray(16)
@@ -28,16 +27,34 @@ class CustomGeomagneticRotationSensor(
         get() = null
 
     override fun startImpl() {
-        magnetometer.start(this::onSensorUpdate)
-        accelerometer.start(this::onSensorUpdate)
+        if (!maintainStateOnRestart) Quaternion.zero.toFloatArray().copyInto(_quaternion)
+        hasMagnetometerReading = false
+        hasAccelerometerReading = false
+        resetSessionMetadata()
+        magnetometer.start(this::onMagnetometerUpdate)
+        accelerometer.start(this::onAccelerometerUpdate)
     }
 
     override fun stopImpl() {
-        magnetometer.stop(this::onSensorUpdate)
-        accelerometer.stop(this::onSensorUpdate)
+        magnetometer.stop(this::onMagnetometerUpdate)
+        accelerometer.stop(this::onAccelerometerUpdate)
+    }
+
+    private var hasMagnetometerReading = false
+    private var hasAccelerometerReading = false
+
+    private fun onMagnetometerUpdate(): Boolean {
+        hasMagnetometerReading = true
+        return onSensorUpdate()
+    }
+
+    private fun onAccelerometerUpdate(): Boolean {
+        hasAccelerometerReading = true
+        return onSensorUpdate()
     }
 
     private fun onSensorUpdate(): Boolean {
+        if (!hasMagnetometerReading || !hasAccelerometerReading) return true
         synchronized(lock) {
             SensorManager.getRotationMatrix(
                 rotationMatrix,
@@ -59,11 +76,12 @@ class CustomGeomagneticRotationSensor(
             temp.copyInto(_quaternion)
         }
 
-        val latest = if (magnetometer.eventTimeElapsedNanos >= accelerometer.eventTimeElapsedNanos) {
-            magnetometer
-        } else {
-            accelerometer
-        }
+        val latest =
+            if (magnetometer.eventTimeElapsedNanos >= accelerometer.eventTimeElapsedNanos) {
+                magnetometer
+            } else {
+                accelerometer
+            }
         setEventTimeFrom(latest)
         notifyListeners()
 
@@ -82,7 +100,7 @@ class CustomGeomagneticRotationSensor(
         }
 
     override val hasValidReading: Boolean
-        get() = magnetometer.hasValidReading && accelerometer.hasValidReading
+        get() = hasMagnetometerReading && hasAccelerometerReading && magnetometer.hasValidReading && accelerometer.hasValidReading
 
     override val quality: Quality
         get() = if (onlyUseMagnetometerQuality) {

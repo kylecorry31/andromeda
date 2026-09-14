@@ -29,7 +29,8 @@ class CustomRotationSensor(
         2f * Geophysics.GRAVITY
     ),
     private val onlyUseMagnetometerQuality: Boolean = false,
-    private val verbose: Boolean = false
+    private val verbose: Boolean = false,
+    private val maintainStateOnRestart: Boolean = false
 ) : AbstractSensor(), IOrientationSensor {
 
     private val _quaternion = Quaternion.zero.toFloatArray()
@@ -40,12 +41,29 @@ class CustomRotationSensor(
     private val pendingChangesSubscription = Subscription()
 
     private val geomagneticOrientationSensor =
-        CustomGeomagneticRotationSensor(magnetometer, accelerometer, onlyUseMagnetometerQuality)
+        CustomGeomagneticRotationSensor(
+            magnetometer,
+            accelerometer,
+            onlyUseMagnetometerQuality,
+            maintainStateOnRestart
+        )
 
     override fun startImpl() {
-        isInitialized = false
+        runner.cancel()
+        pendingChangesSubscription.unsubscribe(this::update)
         geomagneticCount = 0
         gyroCount = 0
+        outOfSyncTime = 0L
+        Quaternion.zero.toFloatArray().copyInto(lastGyro)
+        Quaternion.zero.toFloatArray().copyInto(temp)
+        Quaternion.zero.toFloatArray().copyInto(magQuaternion)
+        Quaternion.zero.toFloatArray().copyInto(gyroQuaternion)
+        Quaternion.zero.toFloatArray().copyInto(previousQuaternion)
+        if (!maintainStateOnRestart) {
+            isInitialized = false
+            Quaternion.zero.toFloatArray().copyInto(_quaternion)
+        }
+        resetSessionMetadata()
         pendingChangesSubscription.subscribe(this::update)
         geomagneticOrientationSensor.start(this::onSensorUpdate)
         gyro.start(this::onGyroUpdate)

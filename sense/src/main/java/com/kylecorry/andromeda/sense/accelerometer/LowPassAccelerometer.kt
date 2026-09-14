@@ -11,7 +11,8 @@ import com.kylecorry.andromeda.sense.BaseSensor
 class LowPassAccelerometer(
     context: Context,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
-    filterSize: Float = 0.05f
+    private val filterSize: Float = 0.05f,
+    private val maintainStateOnRestart: Boolean = false
 ) :
     BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),
     IAccelerometer {
@@ -20,11 +21,23 @@ class LowPassAccelerometer(
         get() = gotReading
     private var gotReading = false
 
-    private val filters = listOf(
+    private var filters = createFilters()
+
+    private fun createFilters() = listOf(
         LowPassFilter(filterSize),
         LowPassFilter(filterSize),
         LowPassFilter(filterSize)
     )
+
+    override fun startImpl() {
+        gotReading = false
+        if (!maintainStateOnRestart) {
+            filters = createFilters()
+            rawAcceleration.fill(0f)
+        }
+        resetSessionMetadata()
+        super.startImpl()
+    }
 
     override val acceleration: Vector3
         get() = Vector3(rawAcceleration[0], rawAcceleration[1], rawAcceleration[2])
