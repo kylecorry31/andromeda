@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.IBinder
 import android.service.quicksettings.TileService
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.kylecorry.andromeda.core.system.CurrentApp
@@ -18,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@RequiresApi(Build.VERSION_CODES.N)
 abstract class AndromedaTileService : TileService() {
 
     // Potential fix for a bug in Android where it fails to reach the IQSService
@@ -77,22 +75,20 @@ abstract class AndromedaTileService : TileService() {
     }
 
     private inline fun AndromedaTileService.startWorkaround(crossinline action: suspend () -> Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            val dialog = Dialog(this)
-            dialog.setOnShowListener {
-                val scope = CoroutineScope(Dispatchers.Default)
-                scope.launch {
-                    try {
-                        action()
-                    } finally {
-                        onMain {
-                            dialog.dismiss()
-                        }
+        val dialog = Dialog(this)
+        dialog.setOnShowListener {
+            val scope = CoroutineScope(Dispatchers.Default)
+            scope.launch {
+                try {
+                    action()
+                } finally {
+                    onMain {
+                        dialog.dismiss()
                     }
                 }
             }
-            showDialog(dialog)
         }
+        showDialog(dialog)
     }
 
     /**

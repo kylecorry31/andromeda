@@ -35,16 +35,9 @@ class GPS(
     override var satelliteDetails: List<Satellite>? = null
         private set
     private val nmeaListener by lazy {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            SimpleNmeaListener {
-                updateNmeaString(it)
-            }
-        } else {
-            null
+        SimpleNmeaListener {
+            updateNmeaString(it)
         }
-    }
-    private val legacyNmeaListener = SimpleLegacyNmeaListener {
-        updateNmeaString(it)
     }
 
     private val gnssListener = SimpleGnssStatusListener { status ->
@@ -65,14 +58,7 @@ class GPS(
         // Can only get NMEA with fine location permission
         if (listenToNmea && Permissions.canGetFineLocation(context)) {
             tryOrNothing {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    nmeaListener?.let {
-                        locationManager?.addNmeaListener(it, Handler(Looper.getMainLooper()))
-                    }
-                } else {
-                    @Suppress("DEPRECATION")
-                    locationManager?.addNmeaListener(legacyNmeaListener)
-                }
+                locationManager?.addNmeaListener(nmeaListener, Handler(Looper.getMainLooper()))
             }
         }
 
@@ -94,12 +80,7 @@ class GPS(
         super.stopImpl()
 
         tryOrNothing {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                nmeaListener?.let { locationManager?.removeNmeaListener(it) }
-            } else {
-                @Suppress("DEPRECATION")
-                locationManager?.removeNmeaListener(legacyNmeaListener)
-            }
+            locationManager?.removeNmeaListener(nmeaListener)
         }
 
         tryOrNothing {

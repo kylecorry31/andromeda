@@ -1,12 +1,9 @@
 package com.kylecorry.andromeda.widgets.tiles
 
-import android.os.Build
 import android.service.quicksettings.Tile
-import androidx.annotation.RequiresApi
 import com.kylecorry.luna.time.CoroutineTimer
 import java.time.Duration
 
-@RequiresApi(Build.VERSION_CODES.N)
 abstract class PollingTileService(private val interval: Duration = Duration.ofMillis(16)) :
     AndromedaTileService() {
 
