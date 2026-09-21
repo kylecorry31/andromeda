@@ -31,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
@@ -325,22 +327,58 @@ fun <T> ReactiveComponent.useFlow(
     return value
 }
 
-fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, default: V, mapper: (T) -> V): V {
-    val (state, setState) = useState(default)
-    val owner = useLifecycleOwner()
-
-    // Note: This does not change when the mapper changes
-    useEffect(topic, owner) {
-        topic.asLiveData().observe(owner) {
-            setState(mapper(topic))
-        }
-    }
-
-    return state
+fun <T : ITopic, V> ReactiveComponent.useTopic(
+    topic: T,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    emitOnStart: Boolean = true,
+    collectOn: CoroutineContext = Dispatchers.Default,
+    observeOn: CoroutineContext = Dispatchers.Main,
+    cancelWhenRerun: Boolean = false,
+    vararg values: Any?,
+    mapper: (T) -> V?
+): V? {
+    return useTopic(
+        topic,
+        null,
+        state = state,
+        emitOnStart = emitOnStart,
+        values = values,
+        collectOn = collectOn,
+        observeOn = observeOn,
+        cancelWhenRerun = cancelWhenRerun,
+        mapper = mapper
+    )
 }
 
-fun <T : ITopic, V> ReactiveComponent.useTopic(topic: T, mapper: (T) -> V?): V? {
-    return useTopic(topic, null, mapper)
+fun <T : ITopic, V> ReactiveComponent.useTopic(
+    topic: T,
+    default: V,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
+    emitOnStart: Boolean = true,
+    collectOn: CoroutineContext = Dispatchers.Default,
+    observeOn: CoroutineContext = Dispatchers.Main,
+    cancelWhenRerun: Boolean = false,
+    vararg values: Any?,
+    mapper: (T) -> V
+): V {
+    val flow = useMemo(topic, *values) {
+        topic.flow
+            .map { mapper(topic) }
+            .onStart {
+                if (emitOnStart) {
+                    emit(mapper(topic))
+                }
+            }
+    }
+    return useFlow(
+        flow,
+        topic,
+        *values,
+        state = state,
+        collectOn = collectOn,
+        observeOn = observeOn,
+        cancelWhenRerun = cancelWhenRerun
+    ) ?: default
 }
 
 fun <T : Any, V> ReactiveComponent.useTopic(

@@ -4,9 +4,8 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import com.kylecorry.andromeda.core.coroutines.BackgroundMinimumState
-import com.kylecorry.luna.subscriptions.ISubscription
-import com.kylecorry.luna.topics.ITopic
 import com.kylecorry.andromeda.core.ui.ReactiveComponent
+import com.kylecorry.luna.concurrency.IFlowable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -18,37 +17,16 @@ fun <T> Fragment.observe(liveData: LiveData<T>, listener: (T) -> Unit) {
     }
 }
 
-fun Fragment.observe(topic: ITopic, listener: () -> Unit) {
-    topic.asLiveData().observe(viewLifecycleOwner) {
-        listener()
-    }
-}
-
-fun <T : Any> Fragment.observe(
-    topic: com.kylecorry.luna.topics.generic.ITopic<T>,
-    listener: (T) -> Unit
-) {
-    observe(topic.asLiveData(), listener)
-}
-
-fun Fragment.observe(
-    subscription: ISubscription,
-    state: BackgroundMinimumState = BackgroundMinimumState.Any,
+fun <T> Fragment.observe(
+    topic: IFlowable<T>,
+    state: BackgroundMinimumState = BackgroundMinimumState.Resumed,
     collectOn: CoroutineContext = Dispatchers.Default,
     observeOn: CoroutineContext = Dispatchers.Main,
     listener: suspend () -> Unit
 ) {
-    observeFlow(subscription.flow, state, collectOn, observeOn) { listener() }
-}
-
-fun <T> Fragment.observe(
-    subscription: com.kylecorry.luna.subscriptions.generic.ISubscription<T>,
-    state: BackgroundMinimumState = BackgroundMinimumState.Any,
-    collectOn: CoroutineContext = Dispatchers.Default,
-    observeOn: CoroutineContext = Dispatchers.Main,
-    listener: suspend (T) -> Unit
-) {
-    observeFlow(subscription.flow, state, collectOn, observeOn, listener)
+    observeFlow(topic.flow, state, collectOn, observeOn) {
+        listener()
+    }
 }
 
 fun <T> Fragment.observeFlow(
