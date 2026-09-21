@@ -10,4 +10,10 @@ class NetworkGPS(
     context,
     LocationManager.NETWORK_PROVIDER,
     requestConfig
-), IGPS
+), IGPS {
+    companion object {
+        fun isAvailable(context: Context): Boolean {
+            return isAvailable(context, LocationManager.NETWORK_PROVIDER)
+        }
+    }
+}

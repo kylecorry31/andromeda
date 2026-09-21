@@ -13,4 +13,10 @@ class FusedGPS(
     context,
     LocationManager.FUSED_PROVIDER,
     requestConfig
-), IGPS
+), IGPS {
+    companion object {
+        fun isAvailable(context: Context): Boolean {
+            return isAvailable(context, LocationManager.FUSED_PROVIDER)
+        }
+    }
+}

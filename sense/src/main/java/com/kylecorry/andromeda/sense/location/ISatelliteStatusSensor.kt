@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.location
 
-interface ISatelliteGPS : IGPS {
+interface ISatelliteStatusSensor {
     /**
      * The number of satellites used to calculate the location
      */

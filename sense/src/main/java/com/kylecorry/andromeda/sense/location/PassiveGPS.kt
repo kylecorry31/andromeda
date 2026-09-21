@@ -10,4 +10,10 @@ class PassiveGPS(
     context,
     LocationManager.PASSIVE_PROVIDER,
     requestConfig
-), IGPS
+), IGPS {
+    companion object {
+        fun isAvailable(context: Context): Boolean {
+            return isAvailable(context, LocationManager.PASSIVE_PROVIDER)
+        }
+    }
+}
