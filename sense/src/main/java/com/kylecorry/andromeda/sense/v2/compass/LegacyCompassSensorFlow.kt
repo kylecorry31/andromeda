@@ -1,6 +1,7 @@
 package com.kylecorry.andromeda.sense.v2.compass
 
 import android.content.Context
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.v2.SensorFlow
 import com.kylecorry.andromeda.sense.v2.SensorManagerSensorFlowConfig
 import com.kylecorry.andromeda.sense.v2.orientation.OrientationReading
@@ -19,7 +20,9 @@ class LegacyCompassSensorFlow(
     constructor(
         context: Context,
         useTrueNorth: Boolean,
-        config: SensorManagerSensorFlowConfig = SensorManagerSensorFlowConfig()
+        config: SensorManagerSensorFlowConfig = SensorManagerSensorFlowConfig(
+        sensorDelayUs = SensorManager.SENSOR_DELAY_GAME
+    )
     ) : this(OrientationSensorFlow(context, config), useTrueNorth)
 
     override suspend fun ProducerScope<CompassReading>.setupListener() {

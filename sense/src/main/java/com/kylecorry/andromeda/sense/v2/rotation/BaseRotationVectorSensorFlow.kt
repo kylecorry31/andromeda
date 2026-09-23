@@ -21,7 +21,7 @@ abstract class BaseRotationVectorSensorFlow(
     final override fun map(event: SensorEvent): RotationVectorReading {
         SensorManager.getQuaternionFromVector(quaternion, event.values)
         val headingAccuracy = if (
-            supportsHeadingAccuracy && event.values.size > 4 && event.values[4] >= 0f
+            supportsHeadingAccuracy && event.values.size > 4 && event.values[4] > 0f
         ) {
             (event.values[4] * 180f / PI.toFloat())
         } else {

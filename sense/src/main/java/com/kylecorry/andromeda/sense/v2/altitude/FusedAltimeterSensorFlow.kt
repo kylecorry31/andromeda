@@ -14,6 +14,8 @@ import com.kylecorry.sol.math.interpolation.Interpolation
 import com.kylecorry.sol.science.meteorology.Meteorology
 import com.kylecorry.sol.units.Distance
 import com.kylecorry.sol.units.Pressure
+import java.time.Duration
+import java.time.Instant
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
@@ -24,8 +26,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import java.time.Duration
-import java.time.Instant
 
 class FusedAltimeterSensorFlow(
     private val gps: SensorFlow<LocationSensorReading>,
@@ -110,9 +110,8 @@ class FusedAltimeterSensorFlow(
     private suspend fun update(
         gpsUpdates: Channel<LocationSensorReading>
     ): FusedAltimeterReading? {
-        val barometer = latestBarometerReading ?: return null
-        val pressure = barometer.pressure.hpa()
-        if (pressure.value == 0f) return null
+        val initialPressure = latestBarometerReading?.pressure?.hpa() ?: return null
+        if (initialPressure.value == 0f) return null
 
         val seaLevelPressure = getLastSeaLevelPressure()
         if (seaLevelPressure == null) {
@@ -127,6 +126,10 @@ class FusedAltimeterSensorFlow(
             return null
         }
 
+        // Recalibration may have waited for GPS and timed out while pressure changed.
+        val barometer = latestBarometerReading ?: return null
+        val pressure = barometer.pressure.hpa()
+        if (pressure.value == 0f) return null
         val barometricAltitude = Meteorology.getAltitude(pressure, seaLevelPressure).value
         val gpsHasFix = hasGPSFix()
         val gpsAltitude = if (gpsHasFix) getGPSAltitude() else barometricAltitude

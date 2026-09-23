@@ -3,6 +3,12 @@ package com.kylecorry.andromeda.sense.v2.altitude
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
 import com.kylecorry.andromeda.preferences.SharedPreferences
+import com.kylecorry.andromeda.sense.v2.SensorFlow
+import com.kylecorry.sol.science.meteorology.Meteorology
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.awaitClose
+import java.time.Duration
 import com.kylecorry.andromeda.sense.v2.SensorAccuracy
 import com.kylecorry.andromeda.sense.v2.barometer.BarometerReading
 import com.kylecorry.andromeda.sense.v2.location.LocationSensorReading
@@ -55,6 +61,44 @@ class FusedAltimeterSensorFlowTest {
             0.01f
         )
         preferences.close()
+    }
+
+    @Test
+    fun timeoutUsesLatestPressure() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val preferences = SharedPreferences(context, "fused-timeout-test-${SystemClock.elapsedRealtime()}")
+        val seaLevelPressure = Pressure.hpa(1013.25f)
+        preferences.putFloat(LAST_SEA_LEVEL_PRESSURE_KEY, seaLevelPressure.value)
+        preferences.putInstant(LAST_SEA_LEVEL_PRESSURE_TIME_KEY, Instant.EPOCH)
+        val calibrationStarted = CompletableDeferred<Unit>()
+        val initial = BarometerReading(Instant.now(), 1L, Pressure.hpa(1000f), SensorAccuracy.High)
+        val current = initial.copy(eventTimeElapsedNanos = 2L, pressure = Pressure.hpa(950f))
+        val barometer = object : SensorFlow<BarometerReading>() {
+            override suspend fun ProducerScope<BarometerReading>.setupListener() {
+                send(initial)
+                calibrationStarted.await()
+                send(current)
+                awaitClose { }
+            }
+        }
+        val gps = object : SensorFlow<LocationSensorReading>() {
+            override suspend fun ProducerScope<LocationSensorReading>.setupListener() {
+                calibrationStarted.complete(Unit)
+                awaitClose { }
+            }
+        }
+        try {
+            val sensor = FusedAltimeterSensorFlow(
+                gps, barometer, preferences,
+                useContinuousCalibration = false,
+                recalibrationTimeout = Duration.ofMillis(500)
+            )
+            val reading = withTimeout(5000) { sensor.flow.first() }
+            assertEquals(current.eventTimeElapsedNanos, reading.eventTimeElapsedNanos)
+            assertEquals(Meteorology.getAltitude(current.pressure, seaLevelPressure).value, reading.altitude.meters().value, 0.01f)
+        } finally {
+            preferences.close()
+        }
     }
 
     private companion object {

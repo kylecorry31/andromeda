@@ -18,9 +18,9 @@ import com.kylecorry.sol.units.Distance
 import com.kylecorry.sol.units.DistanceUnits
 import com.kylecorry.sol.units.Speed
 import com.kylecorry.sol.units.TimeUnits
+import java.time.Instant
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
-import java.time.Instant
 
 @SuppressLint("MissingPermission")
 open class LocationSensorFlow(
@@ -33,8 +33,10 @@ open class LocationSensorFlow(
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
     init {
-        if (Permissions.canGetLocation(context) && locationManager.isProviderEnabled(provider)) {
-            setLastKnownValue(locationManager.getLastKnownLocation(provider)?.let(::map))
+        runCatching {
+            if (Permissions.canGetLocation(context)) {
+                locationManager.getLastKnownLocation(provider)?.let { setLastKnownValue(map(it)) }
+            }
         }
     }
 
@@ -45,7 +47,7 @@ open class LocationSensorFlow(
         }
 
         // Get the last known location, but don't notify as it may be stale
-        setLastKnownValue(locationManager.getLastKnownLocation(provider)?.let(::map))
+        locationManager.getLastKnownLocation(provider)?.let { setLastKnownValue(map(it)) }
 
         val builder = LocationRequestCompat.Builder(requestConfig.frequency.toMillis())
             .setQuality(requestConfig.powerUsage.toLocationRequestQuality())

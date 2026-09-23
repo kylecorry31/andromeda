@@ -7,8 +7,11 @@ import com.kylecorry.sol.math.QuaternionMath
 import kotlin.math.sqrt
 
 internal object OrientationQuaternionMath {
-    fun fromGravityAndMagneticField(gravity: FloatArray, magneticField: FloatArray): Quaternion {
-        val matrix = FloatArray(16)
+    fun fromGravityAndMagneticField(
+        gravity: FloatArray,
+        magneticField: FloatArray,
+        matrix: FloatArray
+    ): Quaternion {
         SensorManager.getRotationMatrix(matrix, null, gravity, magneticField)
         val trace = matrix[0] + matrix[5] + matrix[10]
         val r = sqrt(1f + trace)

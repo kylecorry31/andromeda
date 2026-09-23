@@ -2,7 +2,6 @@ package com.kylecorry.andromeda.sense.v2.accelerometer
 
 import android.opengl.Matrix
 import android.view.Surface
-import com.kylecorry.andromeda.sense.v2.SensorAccuracy
 import com.kylecorry.andromeda.sense.v2.SensorFlow
 import com.kylecorry.andromeda.sense.v2.orientation.OrientationFlowMath
 import com.kylecorry.andromeda.sense.v2.readings.QuaternionReading

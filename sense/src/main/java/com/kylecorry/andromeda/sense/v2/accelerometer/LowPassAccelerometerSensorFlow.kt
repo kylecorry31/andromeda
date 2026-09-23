@@ -3,13 +3,16 @@ package com.kylecorry.andromeda.sense.v2.accelerometer
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
+import android.hardware.SensorManager
 import com.kylecorry.andromeda.sense.v2.SensorManagerSensorFlowConfig
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.sol.math.filters.LowPassFilter
 
 class LowPassAccelerometerSensorFlow(
     context: Context,
-    config: SensorManagerSensorFlowConfig = SensorManagerSensorFlowConfig(),
+    config: SensorManagerSensorFlowConfig = SensorManagerSensorFlowConfig(
+        sensorDelayUs = SensorManager.SENSOR_DELAY_GAME
+    ),
     private val filterSize: Float = 0.05f,
     private val maintainStateOnRestart: Boolean = false
 ) : BaseAccelerometerSensorFlow(context, Sensor.TYPE_ACCELEROMETER, config) {

@@ -17,6 +17,7 @@ class CustomGeomagneticOrientationSensorFlow(
     private val accelerometer: SensorFlow<AccelerometerReading>,
     private val onlyUseMagnetometerAccuracy: Boolean = false
 ) : SensorFlow<QuaternionOrientationReading>() {
+    private val rotationMatrix = FloatArray(16)
 
     constructor(
         magnetometer: MagnetometerSensorFlow,
@@ -41,7 +42,8 @@ class CustomGeomagneticOrientationSensorFlow(
                         magnetic.magneticField.x,
                         magnetic.magneticField.y,
                         magnetic.magneticField.z
-                    )
+                    ),
+                    rotationMatrix
                 )
                 val latest = if (magnetic.eventTimeElapsedNanos >= acceleration.eventTimeElapsedNanos) {
                     magnetic
