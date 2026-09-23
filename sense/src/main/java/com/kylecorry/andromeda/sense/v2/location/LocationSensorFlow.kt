@@ -23,7 +23,7 @@ import kotlinx.coroutines.channels.awaitClose
 import java.time.Instant
 
 @SuppressLint("MissingPermission")
-class LocationSensorFlow(
+open class LocationSensorFlow(
     private val context: Context,
     private val provider: String,
     private val requestConfig: LocationRequestConfig = LocationRequestConfig()
@@ -124,5 +124,15 @@ class LocationSensorFlow(
                 ), DistanceUnits.Meters, TimeUnits.Seconds
             ) else null
         )
+    }
+
+    companion object {
+        fun isProviderAvailable(context: Context, provider: String): Boolean {
+            if (!Permissions.canGetLocation(context)) return false
+            return runCatching {
+                val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                manager.isProviderEnabled(provider)
+            }.getOrDefault(false)
+        }
     }
 }
