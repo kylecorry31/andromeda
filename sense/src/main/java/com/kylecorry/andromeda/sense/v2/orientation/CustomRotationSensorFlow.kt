@@ -30,6 +30,7 @@ class CustomRotationSensorFlow(
     private val maintainStateOnRestart: Boolean = false
 ) : SensorFlow<QuaternionOrientationReading>() {
     private val orientation = Quaternion.zero.toFloatArray()
+    private var initialized = false
 
     private val geomagnetic = CustomGeomagneticOrientationSensorFlow(
         magnetometer,
@@ -42,12 +43,14 @@ class CustomRotationSensorFlow(
         var gyroscopeCount = 0
         var lastGeomagnetic: QuaternionOrientationReading? = null
         var outOfSyncTime = 0L
-        if (!maintainStateOnRestart) Quaternion.zero.toFloatArray().copyInto(orientation)
+        if (!maintainStateOnRestart) {
+            Quaternion.zero.toFloatArray().copyInto(orientation)
+            initialized = false
+        }
         val lastGyro = Quaternion.zero.toFloatArray()
         val gyroOrientation = Quaternion.zero.toFloatArray()
         val delta = Quaternion.zero.toFloatArray()
         val previous = Quaternion.zero.toFloatArray()
-        var initialized = maintainStateOnRestart
 
         val geomagneticJob = launch {
             geomagnetic.flow.collect { reading ->

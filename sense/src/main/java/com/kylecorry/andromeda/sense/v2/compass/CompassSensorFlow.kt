@@ -5,6 +5,7 @@ import com.kylecorry.andromeda.sense.v2.SensorFlow
 import com.kylecorry.andromeda.sense.v2.orientation.OrientationFlowMath
 import com.kylecorry.andromeda.sense.v2.readings.QuaternionReading
 import com.kylecorry.andromeda.sense.v2.readings.SensorAccuracyReading
+import com.kylecorry.sol.units.Bearing
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.collect
@@ -25,14 +26,15 @@ class CompassSensorFlow<T>(
                 val orientationValues = OrientationFlowMath.getOrientation(
                     reading.quaternion,
                     surfaceRotation,
-                    isAugmentedReality,
-                    if (useTrueNorth) declination else 0f
+                    isAugmentedReality
                 )
                 trySend(
                     CompassReading(
                         eventTime = reading.eventTime,
                         eventTimeElapsedNanos = reading.eventTimeElapsedNanos,
-                        rawBearing = Bearing.getBearing(orientationValues[0] + offset),
+                        rawBearing = Bearing.getBearing(
+                            orientationValues[0] + offset + if (useTrueNorth) declination else 0f
+                        ),
                         accuracy = reading.accuracy
                     )
                 )

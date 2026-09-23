@@ -39,7 +39,7 @@ open class LocationSensorFlow(
     }
 
     override suspend fun ProducerScope<LocationSensorReading>.setupListener() {
-        if (!Permissions.canGetLocation(context) || !locationManager.isProviderEnabled(provider)) {
+        if (!Permissions.canGetLocation(context)) {
             close()
             return
         }

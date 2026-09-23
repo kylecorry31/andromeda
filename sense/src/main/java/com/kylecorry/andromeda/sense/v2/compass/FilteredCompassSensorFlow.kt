@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.sense.v2.compass
 import com.kylecorry.andromeda.sense.v2.SensorFlow
 import com.kylecorry.sol.math.filters.IFilter
 import com.kylecorry.sol.math.trigonometry.Trigonometry.deltaAngle
+import com.kylecorry.sol.units.Bearing
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.collect

@@ -215,7 +215,7 @@ class FusedAltimeterSensorFlow(
         gpsFilter.reset()
         while (gpsUpdates.tryReceive().isSuccess) Unit
 
-        val gpsReading = withTimeoutOrNull(timeout?.toMillis() ?: Long.MAX_VALUE) {
+        withTimeoutOrNull(timeout?.toMillis() ?: Long.MAX_VALUE) {
             if (useContinuousCalibration) {
                 while (!gpsFilter.hasValidReading) {
                     val reading = gpsUpdates.receive()
@@ -235,8 +235,11 @@ class FusedAltimeterSensorFlow(
         }
             ?: return false
 
+        val currentPressure = latestBarometerReading?.pressure?.hpa() ?: return false
+        if (currentPressure.value <= 0f) return false
+
         setLastSeaLevelPressure(
-            Meteorology.getSeaLevelPressure(pressure, Distance.meters(getGPSAltitude())),
+            Meteorology.getSeaLevelPressure(currentPressure, Distance.meters(getGPSAltitude())),
             isBaseline = true,
             wasGPSUsed = true
         )

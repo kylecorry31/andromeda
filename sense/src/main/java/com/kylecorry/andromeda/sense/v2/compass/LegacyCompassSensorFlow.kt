@@ -5,6 +5,7 @@ import com.kylecorry.andromeda.sense.v2.SensorFlow
 import com.kylecorry.andromeda.sense.v2.SensorManagerSensorFlowConfig
 import com.kylecorry.andromeda.sense.v2.orientation.OrientationReading
 import com.kylecorry.andromeda.sense.v2.orientation.OrientationSensorFlow
+import com.kylecorry.sol.units.Bearing
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.collect
