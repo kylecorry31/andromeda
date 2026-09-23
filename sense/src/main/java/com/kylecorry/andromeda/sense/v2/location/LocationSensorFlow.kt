@@ -92,19 +92,19 @@ class LocationSensorFlow(
             eventTime = Instant.ofEpochMilli(location.time),
             eventTimeElapsedNanos = location.elapsedRealtimeNanos,
             location = Coordinate(location.latitude, location.longitude),
-            horizontalAccuracy = if (location.hasAccuracy()) Distance.meters(location.accuracy) else null,
+            locationAccuracy = if (location.hasAccuracy()) Distance.meters(location.accuracy) else null,
             altitude = if (location.hasAltitude()) Distance.meters(location.altitude.toFloat()) else null,
             mslAltitude = if (LocationCompat.hasMslAltitude(location)) Distance.meters(
                 LocationCompat.getMslAltitudeMeters(
                     location
                 ).toFloat()
             ) else null,
-            mslAccuracy = if (LocationCompat.hasMslAltitudeAccuracy(location)) Distance.meters(
+            mslAltitudeAccuracy = if (LocationCompat.hasMslAltitudeAccuracy(location)) Distance.meters(
                 LocationCompat.getMslAltitudeAccuracyMeters(
                     location
                 )
             ) else null,
-            verticalAccuracy = if (LocationCompat.hasVerticalAccuracy(location)) Distance.meters(
+            altitudeAccuracy = if (LocationCompat.hasVerticalAccuracy(location)) Distance.meters(
                 LocationCompat.getVerticalAccuracyMeters(
                     location
                 )

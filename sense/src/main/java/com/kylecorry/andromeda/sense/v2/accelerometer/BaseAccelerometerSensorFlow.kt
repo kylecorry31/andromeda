@@ -13,7 +13,7 @@ abstract class BaseAccelerometerSensorFlow(
     sensorType: Int,
     config: SensorManagerSensorFlowConfig
 ) : BaseSensorManagerSensorFlow<AccelerometerReading>(context, sensorType, config) {
-    final override fun map(event: SensorEvent): AccelerometerReading {
+    override fun map(event: SensorEvent): AccelerometerReading {
         return AccelerometerReading(
             eventTime = Instant.now(),
             eventTimeElapsedNanos = event.timestamp,

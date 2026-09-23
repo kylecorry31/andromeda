@@ -13,7 +13,7 @@ abstract class BaseMagnetometerSensorFlow(
     sensorType: Int,
     config: SensorManagerSensorFlowConfig
 ) : BaseSensorManagerSensorFlow<MagnetometerReading>(context, sensorType, config) {
-    final override fun map(event: SensorEvent): MagnetometerReading {
+    override fun map(event: SensorEvent): MagnetometerReading {
         return MagnetometerReading(
             eventTime = Instant.now(),
             eventTimeElapsedNanos = event.timestamp,
