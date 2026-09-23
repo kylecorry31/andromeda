@@ -6,6 +6,7 @@ import android.hardware.SensorManager
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout

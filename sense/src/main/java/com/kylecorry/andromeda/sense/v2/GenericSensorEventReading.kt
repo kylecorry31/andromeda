@@ -1,5 +1,6 @@
 package com.kylecorry.andromeda.sense.v2
 
+import com.kylecorry.andromeda.sense.v2.readings.SensorAccuracyReading
 import java.time.Instant
 
 data class GenericSensorEventReading(
@@ -7,7 +8,7 @@ data class GenericSensorEventReading(
     override val eventTimeElapsedNanos: Long,
     val values: FloatArray,
     override val accuracy: SensorAccuracy
-) : ISensorEventReading {
+) : SensorAccuracyReading {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

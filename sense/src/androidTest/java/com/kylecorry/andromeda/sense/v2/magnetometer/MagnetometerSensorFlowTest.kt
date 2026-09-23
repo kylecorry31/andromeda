@@ -45,9 +45,9 @@ class MagnetometerSensorFlowTest {
         val sensor = MagnetometerSensorFlow(context)
         val reading = withTimeout(5_000.milliseconds) { sensor.flow.first() }
 
-        assertTrue(reading.x.isFinite())
-        assertTrue(reading.y.isFinite())
-        assertTrue(reading.z.isFinite())
+        assertTrue(reading.magneticField.x.isFinite())
+        assertTrue(reading.magneticField.y.isFinite())
+        assertTrue(reading.magneticField.z.isFinite())
         assertTrue(reading.eventTimeElapsedNanos > 0)
     }
 

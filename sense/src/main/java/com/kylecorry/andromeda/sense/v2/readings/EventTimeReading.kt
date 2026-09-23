@@ -1,8 +1,8 @@
-package com.kylecorry.andromeda.sense.v2
+package com.kylecorry.andromeda.sense.v2.readings
 
 import java.time.Instant
 
-interface ISensorReading {
+interface EventTimeReading {
     val eventTime: Instant
     val eventTimeElapsedNanos: Long
 }

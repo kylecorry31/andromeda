@@ -5,10 +5,11 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import com.kylecorry.andromeda.sense.v2.readings.EventTimeReading
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 
-abstract class BaseSensorManagerSensorFlow<T : ISensorReading>(
+abstract class BaseSensorManagerSensorFlow<T : EventTimeReading>(
     context: Context,
     private val sensorType: Int,
     private val config: SensorManagerSensorFlowConfig = SensorManagerSensorFlowConfig(),
@@ -18,6 +19,8 @@ abstract class BaseSensorManagerSensorFlow<T : ISensorReading>(
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
     override suspend fun ProducerScope<T>.setupListener() {
+        onStartListening()
+
         val sensor = if (wakeUp != null) {
             sensorManager.getDefaultSensor(sensorType, wakeUp)
         } else {
@@ -57,6 +60,8 @@ abstract class BaseSensorManagerSensorFlow<T : ISensorReading>(
             setIsActive(false)
         }
     }
+
+    protected open fun onStartListening() = Unit
 
     abstract fun map(event: SensorEvent): T
 }

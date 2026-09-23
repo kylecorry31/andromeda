@@ -38,7 +38,7 @@ class BarometerSensorFlowTest {
         val context = InstrumentationRegistry.getInstrumentation().context
         assumeHasSensor(context)
         val reading = withTimeout(5_000.milliseconds) { BarometerSensorFlow(context).flow.first() }
-        assertTrue(reading.pressure.isFinite())
+        assertTrue(reading.pressure.value.isFinite())
         assertTrue(reading.eventTimeElapsedNanos > 0)
     }
 

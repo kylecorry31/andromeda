@@ -1,6 +1,6 @@
 package com.kylecorry.andromeda.sense.v2.location
 
-import com.kylecorry.andromeda.sense.v2.ISensorReading
+import com.kylecorry.andromeda.sense.v2.readings.EventTimeReading
 import com.kylecorry.sol.units.Bearing
 import com.kylecorry.sol.units.Coordinate
 import com.kylecorry.sol.units.Distance
@@ -20,4 +20,4 @@ data class LocationSensorReading(
     val bearingAccuracy: Float?,
     val speed: Speed?,
     val speedAccuracy: Speed?
-) : ISensorReading
+) : EventTimeReading

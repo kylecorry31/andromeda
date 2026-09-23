@@ -45,9 +45,9 @@ class GravitySensorFlowTest {
         val sensor = GravitySensorFlow(context)
         val reading = withTimeout(5_000.milliseconds) { sensor.flow.first() }
 
-        assertTrue(reading.x.isFinite())
-        assertTrue(reading.y.isFinite())
-        assertTrue(reading.z.isFinite())
+        assertTrue(reading.acceleration.x.isFinite())
+        assertTrue(reading.acceleration.y.isFinite())
+        assertTrue(reading.acceleration.z.isFinite())
         assertTrue(reading.eventTimeElapsedNanos > 0)
     }
 

@@ -39,7 +39,7 @@ class TemperatureSensorFlowTest {
         val context = InstrumentationRegistry.getInstrumentation().context
         assumeHasSensor(context)
         val reading = withTimeout(5_000.milliseconds) { TemperatureSensorFlow(context).flow.first() }
-        assertTrue(reading.temperature.isFinite())
+        assertTrue(reading.temperature.value.isFinite())
         assertTrue(reading.eventTimeElapsedNanos > 0)
     }
 

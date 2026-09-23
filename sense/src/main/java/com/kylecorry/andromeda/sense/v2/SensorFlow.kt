@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 
-abstract class SensorFlow<T : ISensorReading>(
+abstract class SensorFlow<T>(
     scope: CoroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob()),
     stopTimeoutMillis: Long = 0
 ) : IFlowable<T> {

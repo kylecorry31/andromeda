@@ -5,6 +5,7 @@ import android.hardware.SensorEvent
 import com.kylecorry.andromeda.sense.v2.BaseSensorManagerSensorFlow
 import com.kylecorry.andromeda.sense.v2.SensorAccuracy
 import com.kylecorry.andromeda.sense.v2.SensorManagerSensorFlowConfig
+import com.kylecorry.sol.math.Vector3
 import java.time.Instant
 
 abstract class BaseAccelerometerSensorFlow(
@@ -16,9 +17,7 @@ abstract class BaseAccelerometerSensorFlow(
         return AccelerometerReading(
             eventTime = Instant.now(),
             eventTimeElapsedNanos = event.timestamp,
-            x = event.values[0],
-            y = event.values[1],
-            z = event.values[2],
+            acceleration = Vector3(event.values[0], event.values[1], event.values[2]),
             accuracy = SensorAccuracy.fromAndroid(event.accuracy)
         )
     }
