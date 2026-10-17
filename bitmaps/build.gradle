@@ -53,7 +53,7 @@ dependencies {
     api libs.sol
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit
-    testImplementation libs.junit.platform.runner
+    testRuntimeOnly libs.junit.platform.launcher
     testImplementation libs.junit.jupiter.api
     testImplementation libs.junit.jupiter.params
     androidTestImplementation libs.androidx.junit

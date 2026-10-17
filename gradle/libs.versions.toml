@@ -1,11 +1,11 @@
 [versions]
-androidLibraryVersion = "9.4.0"
+androidLibraryVersion = "9.4.1"
 androidXDocumentFileVersion = "1.1.0"
 androidXExifinterfaceVersion = "1.4.2"
 appCompatVersion = "1.8.0"
 cameraCamera2Version = "1.6.2"
 constraintlayoutVersion = "2.2.2"
-coreKtxVersion = "1.19.0"
+coreKtxVersion = "1.19.1"
 flexboxVersion = "3.0.0"
 tensorflowLiteSupportVersion = "0.5.0"
 coroutinesVersion = "1.11.0"
@@ -14,20 +14,19 @@ desugarVersion = "2.1.5"
 espressoCoreVersion = "3.7.0"
 gsonVersion = "2.14.0"
 junit = "1.3.0"
-junitJupiterApiVersion = "5.14.4"
-junitPlatformRunnerVersion = "1.14.4"
+junitJupiterApiVersion = "6.1.3"
 junitVersion = "4.13.2"
-kotlinParcelizeVersion = "2.3.21"
+kotlinParcelizeVersion = "2.4.21"
 androidXLifecycle = "2.11.0"
-lunaVersion = "2.4.0"
+lunaVersion = "2.4.1"
 materialVersion = "1.14.0"
 markwonVersion = "4.6.2"
-mockitoKotlinVersion = "6.3.0"
+mockitoKotlinVersion = "6.4.0"
 preferenceKtxVersion = "1.2.1"
 printVersion = "1.1.0"
 recyclerviewVersion = "1.4.0"
-solVersion = "19.2.0"
-workRuntimeKtxVersion = "2.11.2"
+solVersion = "19.2.5"
+workRuntimeKtxVersion = "2.12.0"
 zxingVersion = "3.5.4"
 
 [libraries]
@@ -60,7 +59,7 @@ junit = { module = "junit:junit", version.ref = "junitVersion" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiterApiVersion" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiterApiVersion" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiterApiVersion" }
-junit-platform-runner = { module = "org.junit.platform:junit-platform-runner", version.ref = "junitPlatformRunnerVersion" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitJupiterApiVersion" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
 luna = { module = "com.kylecorry:luna", version.ref = "lunaVersion" }
 material = { module = "com.google.android.material:material", version.ref = "materialVersion" }
