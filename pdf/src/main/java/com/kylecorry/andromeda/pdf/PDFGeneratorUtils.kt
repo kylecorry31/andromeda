@@ -67,7 +67,8 @@ fun pages(objectId: Int, childIds: List<Int>): PDFValue.PDFObject {
         objectId,
         dict(
             name("/Type") to name("/Pages"),
-            name("/Kids") to array(*childIds.map { ref(it) }.toTypedArray())
+            name("/Kids") to array(*childIds.map { ref(it) }.toTypedArray()),
+            name("/Count") to number(childIds.size)
         )
     )
 }
@@ -258,7 +259,7 @@ fun image(
 
     val stream = ByteArrayOutputStream()
     val writer = stream.bufferedWriter()
-    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /F /DCT /BPC 8 ID ")
+    writer.append("q $destWidth 0 0 $destHeight $x $y cm BI /W ${image.width} /H ${image.height} /CS /RGB /F /DCT /BPC 8 ID ")
     writer.flush()
     stream.write(dctImage(image, quality))
     writer.write(" > EI Q")
@@ -286,7 +287,7 @@ fun jpg(
     file.deleteOnExit()
     val stream = file.outputStream()
     val writer = stream.bufferedWriter()
-    writer.append("Q $destWidth 0 0 $destHeight $x $y cm BI /W $imageWidth /H $imageHeight /CS /RGB /F /DCT /BPC 8 ID ")
+    writer.append("q $destWidth 0 0 $destHeight $x $y cm BI /W $imageWidth /H $imageHeight /CS /RGB /F /DCT /BPC 8 ID ")
     writer.flush()
     imageStream.copyTo(stream)
     writer.flush()

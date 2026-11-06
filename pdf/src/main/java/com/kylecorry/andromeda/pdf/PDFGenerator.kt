@@ -21,11 +21,14 @@ internal class PDFGenerator {
         }
 
         val startXref = size
-        append(writer, "xref\n0 ${xref.size}\n0000000000 65535 f\n")
-        append(writer, xref.joinToString("\n") { "${it.toString().padStart(10, '0')} 00000 n" })
+        // The xref table and /Size include the free entry for object 0
+        val entryCount = xref.size + 1
+        // Each xref entry must be exactly 20 bytes, including the trailing space and newline
+        append(writer, "xref\n0 $entryCount\n0000000000 65535 f \n")
+        append(writer, xref.joinToString("") { "${it.toString().padStart(10, '0')} 00000 n \n" })
         append(
             writer,
-            "\ntrailer\n<<\n/Size ${xref.size}\n/Root $root\n>>\nstartxref\n$startXref\n%%EOF"
+            "trailer\n<<\n/Size $entryCount\n/Root $root\n>>\nstartxref\n$startXref\n%%EOF"
         )
         writer.flush()
     }

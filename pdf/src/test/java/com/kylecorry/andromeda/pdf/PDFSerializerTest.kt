@@ -18,7 +18,7 @@ internal class PDFSerializerTest {
 <</Type /Catalog /Pages 2 0 R>>
 endobj
 2 0 obj
-<</Type /Pages /Kids [3 0 R]>>
+<</Type /Pages /Kids [3 0 R] /Count 1>>
 endobj
 3 0 obj
 <</Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents [4 0 R]>>
@@ -30,19 +30,19 @@ BT /F1 12 Tf 0 150 Td (Hello World!)Tj ET
 endstream
 endobj
 xref
-0 4
-0000000000 65535 f
-0000000009 00000 n
-0000000056 00000 n
-0000000102 00000 n
-0000000189 00000 n
+0 5
+0000000000 65535 f 
+0000000009 00000 n 
+0000000056 00000 n 
+0000000111 00000 n 
+0000000198 00000 n 
 trailer
 <<
-/Size 4
+/Size 5
 /Root 1 0 R
 >>
 startxref
-278
+287
 %%EOF"""
         val objects = listOf(
             catalog(1, 2),
