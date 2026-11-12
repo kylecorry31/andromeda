@@ -111,6 +111,9 @@ class GeospatialPDFParser {
     }
 
     private fun getProjection(gcs: String): ProjectedCoordinateSystem? {
+        if (gcs.isEmpty()) {
+            return null
+        }
         val wkt = CRSWellKnownTextConvert.toWKT(gcs.substring(1, gcs.length)) ?: return null
         val datum = wkt.getSection("datum")?.get<WKTString>(0)?.value ?: "WGS 84"
         val spheroidSec = wkt.getSection("spheroid")
