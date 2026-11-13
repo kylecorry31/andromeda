@@ -30,27 +30,31 @@ abstract class AndromedaTileService : TileService() {
     }
 
     fun setState(state: Int) {
-        if (state != qsTile.state) {
-            qsTile.state = state
-            qsTile.updateTile()
+        val tile = qsTile ?: return
+        if (state != tile.state) {
+            tile.state = state
+            tile.updateTile()
         }
     }
 
     fun setTitle(title: String) {
-        qsTile.label = title
-        qsTile.updateTile()
+        val tile = qsTile ?: return
+        tile.label = title
+        tile.updateTile()
     }
 
     fun setSubtitle(subtitle: String?) {
+        val tile = qsTile ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            qsTile.subtitle = subtitle
-            qsTile.updateTile()
+            tile.subtitle = subtitle
+            tile.updateTile()
         }
     }
 
     fun setIcon(icon: Icon) {
-        qsTile.icon = icon
-        qsTile.updateTile()
+        val tile = qsTile ?: return
+        tile.icon = icon
+        tile.updateTile()
     }
 
     fun setIcon(@DrawableRes icon: Int) {
