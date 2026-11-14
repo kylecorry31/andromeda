@@ -23,6 +23,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
     compileOptions {
         coreLibraryDesugaringEnabled = true
         sourceCompatibility JavaVersion.VERSION_11
@@ -37,6 +42,9 @@ dependencies {
     implementation libs.androidx.documentfile
     coreLibraryDesugaring libs.desugar
     testImplementation libs.junit
+    testRuntimeOnly libs.junit.platform.launcher
+    testImplementation libs.junit.jupiter.api
+    testRuntimeOnly libs.junit.jupiter.engine
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
 }
