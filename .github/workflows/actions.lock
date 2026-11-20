@@ -6,6 +6,7 @@ workflows:
     '.github/workflows/android.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-java@v6.1.0'
+    '.github/workflows/publish.yml': []
     '.github/workflows/verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
 dependencies:
