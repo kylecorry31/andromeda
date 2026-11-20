@@ -1,33 +1,32 @@
-name: Publish to Maven Central
+name: Publish to JitPack
+
+permissions:
+  contents: read
 
 on:
   release:
     types: [published]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-          ref: ${{ github.event.release.tag_name }}
-
-      - name: Setup Java
-        uses: actions/setup-java@v6.1.0
-        with:
-          distribution: "temurin"
-          java-version: 17
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Publish to Maven Central
-        run: ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache
+      # JitPack builds lazily on first request, so request the artifact now and wait for it.
+      # All modules are built together, so waiting on the core module is enough.
+      - name: Trigger JitPack build and wait
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_SECRET_KEY_PASSWORD }}
-          
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          base="https://jitpack.io/com/github/kylecorry31/andromeda"
+          for attempt in $(seq 1 60); do
+            status=$(curl -s -o /dev/null -w '%{http_code}' -L "${base}/core/${TAG}/core-${TAG}.pom")
+            echo "Attempt ${attempt}: HTTP ${status}"
+            if [ "${status}" = "200" ]; then
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "JitPack build did not finish in time. Build log:"
+          curl -s -L "${base}/${TAG}/build.log" | tail -50
+          exit 1

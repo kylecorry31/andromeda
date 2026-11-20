@@ -1,7 +1,7 @@
-import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import com.android.build.api.dsl.LibraryExtension
 
-val versionName = "25.1.4"
-val groupId = "com.kylecorry.andromeda"
+val versionName = "25.1.5"
+val libraryGroup = "com.kylecorry.andromeda"
 
 buildscript {
     extra.apply {
@@ -13,48 +13,57 @@ buildscript {
 plugins {
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
-    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
 subprojects {
     val artifactId = project.name
 
     plugins.apply("com.android.library")
-    plugins.apply("com.vanniktech.maven.publish")
+    plugins.apply("maven-publish")
 
     version = versionName
-    group = groupId
+    group = libraryGroup
 
-    mavenPublishing {
-        coordinates(groupId, artifactId, versionName)
-
-        configure(AndroidSingleVariantLibrary("release", true, true))
-
-        pom {
-            name.set("Andromeda $artifactId")
-            description.set("A collection of Android libraries for simplifying development using Android APIs.")
-            url.set("https://github.com/kylecorry31/andromeda")
-            licenses {
-                license {
-                    name.set("MIT License")
-                    url.set("https://opensource.org/licenses/MIT")
-                }
-            }
-            developers {
-                developer {
-                    id.set("kylecorry31")
-                    name.set("Kyle Corry")
-                    email.set("kylecorry31@gmail.com")
-                }
-            }
-            scm {
-                connection.set("scm:git:git://github.com/kylecorry31/andromeda.git")
-                developerConnection.set("scm:git:ssh://github.com:kylecorry31/andromeda.git")
-                url.set("https://github.com/kylecorry31/andromeda")
+    extensions.configure<LibraryExtension> {
+        publishing {
+            singleVariant("release") {
+                withSourcesJar()
             }
         }
+    }
 
-        publishToMavenCentral()
-        signAllPublications()
+    afterEvaluate {
+        extensions.configure<PublishingExtension> {
+            publications {
+                create<MavenPublication>("release") {
+                    this.artifactId = artifactId
+                    from(components["release"])
+
+                pom {
+                    name.set("Andromeda $artifactId")
+                    description.set("A collection of Android libraries for simplifying development using Android APIs.")
+                    url.set("https://github.com/kylecorry31/andromeda")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+                    developers {
+                        developer {
+                            id.set("kylecorry31")
+                            name.set("Kyle Corry")
+                            email.set("kylecorry31@gmail.com")
+                        }
+                    }
+                    scm {
+                        connection.set("scm:git:git://github.com/kylecorry31/andromeda.git")
+                        developerConnection.set("scm:git:ssh://github.com:kylecorry31/andromeda.git")
+                        url.set("https://github.com/kylecorry31/andromeda")
+                    }
+                }
+                }
+            }
+        }
     }
 }
