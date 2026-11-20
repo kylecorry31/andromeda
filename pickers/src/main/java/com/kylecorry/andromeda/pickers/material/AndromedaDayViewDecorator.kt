@@ -136,103 +136,125 @@ open class AndromedaDayViewDecorator {
     }
 
     fun toMaterialDayViewDecorator(): DayViewDecorator {
-        return object : DayViewDecorator() {
-            override fun describeContents(): Int {
-                return 0
-            }
+        return MaterialDayViewDecorator(this)
+    }
+}
 
-            override fun writeToParcel(dest: Parcel, flags: Int) {
-            }
+/**
+ * Material stores the decorator in the date picker's arguments, so it must be readable back from a
+ * Parcel when the activity is restored after process death. The wrapped decorator can't be
+ * saved, so a restored instance doesn't decorate any days.
+ */
+internal class MaterialDayViewDecorator(
+    private val decorator: AndromedaDayViewDecorator?
+) : DayViewDecorator() {
 
-            override fun getBackgroundColor(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): ColorStateList? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getBackgroundColor(context, date, selected)
-            }
+    override fun describeContents(): Int {
+        return 0
+    }
 
-            override fun getCompoundDrawableTop(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): Drawable? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getTopDrawable(context, date, selected)
-            }
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+    }
 
-            override fun getCompoundDrawableBottom(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): Drawable? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getBottomDrawable(context, date, selected)
-            }
+    override fun getBackgroundColor(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): ColorStateList? {
+        return decorate(year, month, day, valid) {
+            getBackgroundColor(context, it, selected)
+        }
+    }
 
-            override fun getCompoundDrawableLeft(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): Drawable? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getLeftDrawable(context, date, selected)
-            }
+    override fun getCompoundDrawableTop(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): Drawable? {
+        return decorate(year, month, day, valid) {
+            getTopDrawable(context, it, selected)
+        }
+    }
 
-            override fun getCompoundDrawableRight(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): Drawable? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getRightDrawable(context, date, selected)
-            }
+    override fun getCompoundDrawableBottom(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): Drawable? {
+        return decorate(year, month, day, valid) {
+            getBottomDrawable(context, it, selected)
+        }
+    }
 
-            override fun getTextColor(
-                context: Context,
-                year: Int,
-                month: Int,
-                day: Int,
-                valid: Boolean,
-                selected: Boolean
-            ): ColorStateList? {
-                if (!valid) {
-                    return null
-                }
-                val date = LocalDate.of(year, month + 1, day)
-                return getTextColor(context, date, selected)
-            }
+    override fun getCompoundDrawableLeft(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): Drawable? {
+        return decorate(year, month, day, valid) {
+            getLeftDrawable(context, it, selected)
+        }
+    }
+
+    override fun getCompoundDrawableRight(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): Drawable? {
+        return decorate(year, month, day, valid) {
+            getRightDrawable(context, it, selected)
+        }
+    }
+
+    override fun getTextColor(
+        context: Context,
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        selected: Boolean
+    ): ColorStateList? {
+        return decorate(year, month, day, valid) {
+            getTextColor(context, it, selected)
+        }
+    }
+
+    private fun <T> decorate(
+        year: Int,
+        month: Int,
+        day: Int,
+        valid: Boolean,
+        get: AndromedaDayViewDecorator.(LocalDate) -> T?
+    ): T? {
+        if (!valid || decorator == null) {
+            return null
+        }
+        // Material months are 0 based
+        return decorator.get(LocalDate.of(year, month + 1, day))
+    }
+
+    companion object CREATOR : Parcelable.Creator<MaterialDayViewDecorator> {
+        override fun createFromParcel(parcel: Parcel): MaterialDayViewDecorator {
+            return MaterialDayViewDecorator(null)
+        }
+
+        override fun newArray(size: Int): Array<MaterialDayViewDecorator?> {
+            return arrayOfNulls(size)
         }
     }
 }
