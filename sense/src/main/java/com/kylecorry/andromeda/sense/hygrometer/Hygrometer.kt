@@ -4,10 +4,15 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 
-class Hygrometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL) :
-    BaseSensor(context, Sensor.TYPE_RELATIVE_HUMIDITY, sensorDelay),
+class Hygrometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL,
+    handler: Handler? = null
+) :
+    BaseSensor(context, Sensor.TYPE_RELATIVE_HUMIDITY, sensorDelay, handler = handler),
     IHygrometer {
 
     override val hasValidReading: Boolean

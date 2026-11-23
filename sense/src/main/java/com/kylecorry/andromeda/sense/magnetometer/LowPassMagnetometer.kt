@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.sol.math.filters.LowPassFilter
 import com.kylecorry.sol.math.Vector3
 import com.kylecorry.andromeda.sense.BaseSensor
@@ -12,9 +13,10 @@ class LowPassMagnetometer(
     context: Context,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
     private val filterSize: Float = 0.03f,
-    private val maintainStateOnRestart: Boolean = false
+    private val maintainStateOnRestart: Boolean = false,
+    handler: Handler? = null
 ) :
-    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, sensorDelay),
+    BaseSensor(context, Sensor.TYPE_MAGNETIC_FIELD, sensorDelay, handler = handler),
     IMagnetometer {
 
     override val hasValidReading: Boolean

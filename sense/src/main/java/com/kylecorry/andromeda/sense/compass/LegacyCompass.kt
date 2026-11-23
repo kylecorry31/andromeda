@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.units.Bearing
 
@@ -12,8 +13,9 @@ class LegacyCompass(
     context: Context,
     private val useTrueNorth: Boolean,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
+    handler: Handler? = null
 ) :
-    BaseSensor(context, Sensor.TYPE_ORIENTATION, sensorDelay),
+    BaseSensor(context, Sensor.TYPE_ORIENTATION, sensorDelay, handler = handler),
     ICompass {
 
     override val hasValidReading: Boolean

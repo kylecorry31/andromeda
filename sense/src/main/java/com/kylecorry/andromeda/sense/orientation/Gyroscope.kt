@@ -4,6 +4,7 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Euler
 import com.kylecorry.sol.math.MathExtensions.toDegrees
@@ -17,9 +18,10 @@ class Gyroscope(
     context: Context,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
     private val threshold: Float = 0.00001f,
-    private val maintainStateOnRestart: Boolean = false
+    private val maintainStateOnRestart: Boolean = false,
+    handler: Handler? = null
 ) :
-    BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay),
+    BaseSensor(context, Sensor.TYPE_GYROSCOPE, sensorDelay, handler = handler),
     IGyroscope {
 
     override val angularRate: Euler

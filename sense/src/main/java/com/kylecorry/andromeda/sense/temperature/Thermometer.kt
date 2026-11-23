@@ -4,15 +4,17 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.core.sensors.IThermometer
 import com.kylecorry.andromeda.sense.BaseSensor
 
 @Suppress("DEPRECATION")
 class Thermometer(
     context: Context,
-    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL,
+    handler: Handler? = null
 ) :
-    BaseSensor(context, Sensor.TYPE_TEMPERATURE, sensorDelay),
+    BaseSensor(context, Sensor.TYPE_TEMPERATURE, sensorDelay, handler = handler),
     IThermometer {
 
     override val hasValidReading: Boolean

@@ -3,6 +3,7 @@ package com.kylecorry.andromeda.sense.orientation
 import android.content.Context
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.MathExtensions.toDegrees
 import com.kylecorry.sol.math.Quaternion
@@ -11,9 +12,10 @@ abstract class BaseRotationSensor(
     context: Context,
     type: Int,
     sensorDelay: Int,
-    private val maintainStateOnRestart: Boolean = false
+    private val maintainStateOnRestart: Boolean = false,
+    handler: Handler? = null
 ) :
-    BaseSensor(context, type, sensorDelay),
+    BaseSensor(context, type, sensorDelay, handler = handler),
     IOrientationSensor {
 
     private val lock = Any()

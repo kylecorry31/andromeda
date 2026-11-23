@@ -4,14 +4,16 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 import java.time.Duration
 
 class Pedometer(
     context: Context,
     sensorDelay: Int = SensorManager.SENSOR_DELAY_NORMAL,
-    maxReportLatency: Duration? = null
-) : IPedometer, BaseSensor(context, Sensor.TYPE_STEP_COUNTER, sensorDelay, maxReportLatency) {
+    maxReportLatency: Duration? = null,
+    handler: Handler? = null
+) : IPedometer, BaseSensor(context, Sensor.TYPE_STEP_COUNTER, sensorDelay, maxReportLatency, handler) {
 
     override val steps: Int
         get() = _steps

@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Handler
 import androidx.core.content.getSystemService
 import com.kylecorry.andromeda.core.sensors.AbstractSensor
 import com.kylecorry.andromeda.core.sensors.Quality
@@ -15,7 +16,8 @@ abstract class BaseSensor(
     context: Context,
     private val sensorType: Int,
     private val sensorDelay: Int,
-    private val maxReportLatency: Duration? = null
+    private val maxReportLatency: Duration? = null,
+    private val handler: Handler? = null
 ) : AbstractSensor() {
 
     override val quality: Quality
@@ -61,7 +63,8 @@ abstract class BaseSensor(
                 sensorListener,
                 sensor,
                 sensorDelay,
-                maxReportLatencyMicroseconds
+                maxReportLatencyMicroseconds,
+                handler
             )
         }
     }

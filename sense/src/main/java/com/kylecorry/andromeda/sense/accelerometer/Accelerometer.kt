@@ -4,11 +4,16 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorManager
+import android.os.Handler
 import com.kylecorry.andromeda.sense.BaseSensor
 import com.kylecorry.sol.math.Vector3
 
-class Accelerometer(context: Context, sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME) :
-    BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay),
+class Accelerometer(
+    context: Context,
+    sensorDelay: Int = SensorManager.SENSOR_DELAY_GAME,
+    handler: Handler? = null
+) :
+    BaseSensor(context, Sensor.TYPE_ACCELEROMETER, sensorDelay, handler = handler),
     IAccelerometer {
 
     override val hasValidReading: Boolean
