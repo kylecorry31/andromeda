@@ -1,6 +1,6 @@
 import com.android.build.api.dsl.LibraryExtension
 
-val versionName = "25.2.0"
+val versionName = "25.2.1"
 val libraryGroup = "com.kylecorry.andromeda"
 
 buildscript {
